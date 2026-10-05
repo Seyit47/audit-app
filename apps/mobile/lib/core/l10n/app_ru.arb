@@ -1,0 +1,23 @@
+{
+  "@@locale": "ru",
+  "appTitle": "Аудит торговых точек",
+  "navHome": "Главная",
+  "navShops": "Магазины",
+  "navMap": "Карта",
+  "navGallery": "Галерея",
+  "navAgents": "Агенты",
+  "roleAgent": "Агент",
+  "roleAdmin": "Администратор",
+  "rolePickerTitle": "Выберите роль (режим разработки)",
+  "switchRole": "Сменить роль",
+  "signInPlaceholder": "Вход в систему скоро появится.",
+  "statusChecking": "Подключение к серверу...",
+  "statusConnected": "Сервер подключён · v{version}",
+  "@statusConnected": {
+    "placeholders": { "version": { "type": "String" } }
+  },
+  "statusUnreachable": "Сервис временно недоступен. Проверьте подключение.",
+  "retry": "Повторить",
+  "updateRequired": "Требуется обновление приложения. Установите последнюю версию.",
+  "comingSoon": "Этот раздел скоро появится."
+}

@@ -1,0 +1,20 @@
+{
+  "@@locale": "en",
+  "appTitle": "Retail audit",
+  "navHome": "Home",
+  "navShops": "Shops",
+  "navMap": "Map",
+  "navGallery": "Gallery",
+  "navAgents": "Agents",
+  "roleAgent": "Agent",
+  "roleAdmin": "Admin",
+  "rolePickerTitle": "Choose a role (development mode)",
+  "switchRole": "Switch role",
+  "signInPlaceholder": "Sign-in is coming soon.",
+  "statusChecking": "Connecting to server...",
+  "statusConnected": "Backend connected · v{version}",
+  "statusUnreachable": "Service is temporarily unavailable. Check your connection.",
+  "retry": "Retry",
+  "updateRequired": "An app update is required. Please install the latest version.",
+  "comingSoon": "This section is coming soon."
+}
