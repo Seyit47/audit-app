@@ -1,120 +1,151 @@
-# Research: Project Foundation (Init Projects)
+# Research: Fresh Apps With Pixel-Perfect Designed Screens
 
 **Feature**: [spec.md](./spec.md) | **Plan**: [plan.md](./plan.md) | **Date**: 2026-10-06
 
-This is a re-plan under constitution v2.0.0 (clean architecture, reusable code, simplicity
-first). It replaces the 2026-10-05 research. The guiding rule: use each framework's standard
-project layout and official packages, and add no custom tooling.
+This supersedes the earlier research. It follows constitution v2.1.0: Principle I (pixel-perfect
+design) and Principle IV (official starters, nothing extra).
 
-Environment: Node 24, pnpm 12, Flutter 3.47.6 (installed at `~/develop/flutter`), and
-PostgreSQL 14 running locally (the `audit` role and the `audit_dev`/`audit_test` databases still
-need to be created, see quickstart). Docker is not installed and is not required.
+## R-01 Starters
 
-## R-01 Repository layout
+- **Decision**:
+  - **Admin web**: `pnpm create next-app@latest apps/admin-web` with its defaults (TypeScript,
+    ESLint, Tailwind, App Router, `src/`, `@/*` alias).
+  - **Mobile**: `flutter create --org com.auditapp --project-name audit_mobile --platforms
+    android,ios apps/mobile`.
+  - **API**: `npx fastify-cli generate apps/api --lang=ts --esm`, then `npx prisma init
+    --datasource-provider postgresql` inside it.
+  - Each generated project keeps its own configuration, `.gitignore`, README and test setup as
+    generated.
+- **Rationale**: Principle IV, and it's what the user asked for: the frameworks' documented
+  quick starts.
+- **Alternatives**: hand-assembled packages, which is the previous approach and was rejected by
+  the user.
 
-- **Decision**: one monorepo. pnpm workspaces hold `apps/api` and `apps/admin-web`. The Flutter
-  app lives in `apps/mobile` and uses its own tooling. There are no shared `packages/`.
-- **Rationale**: the minimum structure that keeps three apps together (Principle III).
-- **Alternatives**: shared contract and design-token packages were dropped because they meant
-  generators and diff checks for little benefit at this size. Turborepo or Nx were rejected as
-  unnecessary for two JS apps.
+## R-02 Repository root
 
-## R-02 Backend framework
+- **Decision**: keep only:
+  - a minimal root `package.json` with `dev`/`lint`/`test` scripts that call each app
+  - `pnpm-workspace.yaml` listing `apps/api` and `apps/admin-web`
+  - the root `.gitignore` for OS and IDE files
+  - `README.md`
+  - `.github/workflows/ci.yml` (required by the constitution's quality gates)
+  - the design references, `.specify/` and `specs/`
 
-- **Decision**: **Fastify 5** with TypeScript (strict), Prisma, and `@fastify/type-provider-typebox`
-  so route schemas are typed. Layering is by convention: `*.routes.ts` (HTTP only) →
-  `*.service.ts` (logic) → `*.repository.ts` (Prisma). Dependencies are wired by plain
-  constructor arguments in `buildApp()`.
-- **Rationale**: a lightweight, mainstream framework with built-in JSON-schema validation and pino
-  logging. Clean layering doesn't need a DI framework (Principle III). This was the user's choice.
-- **Alternatives**: NestJS was rejected by the user as too heavy for this app. Express was
-  rejected because it has no built-in validation or structured logging.
+  Remove `docker-compose.yml`, `scripts/`, `.editorconfig`, `.prettierrc`, `.prettierignore`,
+  `.nvmrc` and the root `.env.example`. Each starter manages its own env files: `prisma init`
+  creates `apps/api/.env`, and Next uses `.env.local`.
+- **History**: the existing `2dcdfff` commit on `001-init-projects` (not pushed) is replaced by a
+  clean commit, so the unwanted files never appear in history.
 
-## R-03 API documentation and error format
+## R-03 Exact design values
 
-- **Decision**: route schemas (TypeBox) validate requests and serialize responses.
-  `@fastify/swagger` and `@fastify/swagger-ui` build the OpenAPI docs from those schemas at
-  `/docs`. One `setErrorHandler` and one `setNotFoundHandler` return
-  `{ "error": { "code", "message", "details?" }, "requestId" }`.
-- **Rationale**: the docs come from the code, and one handler gives one error shape.
-- **Alternatives**: a contract-first OpenAPI file with contract tests was removed by
-  constitution v2.0.0.
+- **Decision**: use a single set of theme values per client, copied from the CSS exports (named
+  styles such as "Light Mobile/Accent #493EE5" and "Dark Mobile/Main bg #0B0F19", plus the
+  measured sizes):
+  - **Web**: CSS variables in `globals.css`, mapped into Tailwind's `@theme`. Tailwind's spacing
+    and arbitrary values are written in exact px from the CSS, e.g. `gap-[18px]`, whenever the
+    design value is not on the scale.
+  - **Mobile**: an `AppColors` light/dark palette, `AppTextStyles` (Inter, with sizes, weights and
+    line heights from the CSS), and `AppSpacing`/`AppRadii` constants, wired into `ThemeData` and
+    a `ThemeExtension`.
+- **How each screen is built**: read the frame's block in the CSS (auto-layout direction, gap,
+  padding, width and height, font) and reproduce it with flex/Row/Column using the same
+  numbers.
 
-## R-04 Logging and request IDs
+## R-04 Fonts
 
-- **Decision**: Fastify's built-in pino logger. `genReqId` reuses an incoming `X-Request-Id`
-  (up to 128 chars) or generates a UUID, and the ID is returned in the response header. The
-  `authorization` and `cookie` headers are redacted.
-- **Rationale**: built in, so there is no extra package (FR-010).
+- **Decision**:
+  - **Web**: Inter (body and UI) and Space Grotesk (KPI numbers, as in `admin-design.css`) via
+    `next/font/google`, with the latin and cyrillic subsets. Liberation Mono appears once
+    (coordinates) and is mapped to the system monospace stack.
+  - **Mobile**: Inter bundled as an asset (weights 400/500/600/700/800 are used) and declared in
+    `pubspec.yaml`, so text renders the same offline and identically on Android and iOS.
 
-## R-05 Version compatibility
+## R-05 Icons
 
-- **Decision**: `GET /v1/version` returns `serverVersion`, `minMobileVersion`,
-  `minAdminWebVersion` and `environment`. Each client compares its own version and shows
-  "update required" when it is below the minimum.
-- **Rationale**: meets FR-007 and FR-017 with one endpoint and one client-side check.
-- **Alternatives**: a server-side 426 gate on every request was dropped (YAGNI) until there are
-  authenticated endpoints worth gating.
+- **Decision**: the icon vectors match **Material Symbols Outlined** (weight 400, grade 0, optical
+  size 20–24).
+  - **Web**: the `material-symbols` font package, through one `<Icon name>` component.
+  - **Mobile**: the `material_symbols_icons` package.
+  - The one `akar-icons:clock` glyph used in the salesman route timeline is added as an inline SVG.
+- **Rationale**: the same set is used on both clients, as Principle I requires for standard icon
+  sets.
 
-## R-06 Database
+## R-06 Images and map backgrounds
 
-- **Decision**: PostgreSQL with Prisma migrations and an empty initial migration. The health
-  check uses `prisma.$queryRaw\`SELECT 1\``. Prisma connects lazily (on first query), so the API
-  starts even when the database is down. Prisma 7 uses the `@prisma/adapter-pg` driver adapter. CI runs `prisma migrate status` to catch drift.
-- **Rationale**: standard Prisma workflow; satisfies FR-009 and the "database down" edge case.
+- **Decision**: the user exports every image from the Figma file into `design-assets/`, following
+  [contracts/assets.md](./contracts/assets.md): photos, map backgrounds, markers, logo and any
+  non-Material icons. The implementation copies them to `public/sample/` (web) and
+  `assets/sample/` (mobile). Nothing is cropped from the screenshots.
+- **Maps**: `MapCanvas` shows the exported map background with markers positioned at the design
+  coordinates (from the CSS `left`/`top`). Interactive tile maps are deferred to the map feature
+  (spec FR-008).
 
-## R-07 Backend tests
+## R-07 Sample data behind the data layer
 
-- **Decision**: **Vitest**. Unit tests cover services with fake repositories passed through the
-  constructor. Integration tests use `app.inject()` against the real `audit_test` database.
-- **Rationale**: fast, native ESM and TypeScript; a real database (Principle IV).
+- **Decision**: each feature has a repository interface. This feature implements it with sample
+  repositories that return the exact content shown in the designs (data-model.md). Screens only
+  talk to the repository:
+  - **Web**: `features/<f>/data/` (server-side functions).
+  - **Mobile**: `features/<f>/data/` with Riverpod providers.
 
-## R-08 Admin web
+  Later features swap in API-backed repositories.
+- **Rationale**: Principle II (clean architecture) without building the API yet.
 
-- **Decision**: Next.js App Router with React and TypeScript, generated by `create-next-app`
-  with Tailwind. `next-intl` handles ru/en with `ru` as the default. Theme colors are CSS
-  variables in `globals.css`, mapped into Tailwind's `@theme` once. Data is fetched through a
-  small typed `fetch` wrapper in `src/lib/http.ts` plus one API module per feature. Tests use
-  Vitest and React Testing Library.
-- **Missing-translation check**: next-intl's TypeScript integration (`AppConfig.Messages` typed
-  from `messages/ru.json`) makes `tsc` fail on an unknown key. A single Vitest test asserts that
-  `en.json` and `ru.json` have the same keys.
-- **Alternatives**: Playwright end-to-end tests are deferred until there is a real user flow;
-  component tests cover the shell (spec FR-021, "UI tests where applicable").
+## R-08 Mobile architecture and packages
 
-## R-09 Mobile
+- **Decision**: keep the `flutter create` structure and add:
+  - **flutter_riverpod**: dependency injection and state
+  - **go_router**: role-based routing, as in contracts/screens.md
+  - **flutter_localizations / intl** with gen-l10n: RU and EN
+  - **material_symbols_icons**: icons
 
-- **Decision**: Flutter with a feature-first clean architecture:
-  `lib/core/` (config, HTTP client, theme, l10n, router) and
-  `lib/features/<feature>/{data,domain,presentation}`. The stack is:
-  - Riverpod for dependency injection and state
-  - go_router with a role-based `redirect`
-  - dio for HTTP
-  - Flutter's built-in gen-l10n with `ru` as the template locale
-  - `ThemeData` built once in `core/theme/` (light and dark) from an `AppColors` class whose
-    values come from the design files
-- **Environment config**: `--dart-define-from-file=env/dev.json`.
-- **Missing-translation check**: gen-l10n's `untranslated-messages-file`. CI fails if it lists
-  anything.
-- **Alternatives**: drift/SQLite storage is deferred to the offline-audit feature, because
-  nothing needs local storage yet (Principle III). Bloc was not chosen because Riverpod's DI
-  plus state fits the layered approach with less boilerplate.
+  The theme mode (system/light/dark) and locale are app state toggled on Home. The debug role
+  picker stays until auth exists. Nothing else is added: no dio, package_info or drift until a
+  feature needs them.
 
-## R-10 Role selection before authentication exists
+## R-09 Admin web packages
 
-- **Decision**: in debug builds only (`kDebugMode`), a small role-picker screen sets a fake
-  `Session(role)` through the same `sessionProvider` that real authentication will fill later.
-  Release builds have no picker and show a sign-in placeholder.
-- **Rationale**: this lets the two role shells be built and tested now, with no custom build
-  flags or binary-scanning scripts. `kDebugMode` is a compile-time constant, so tree-shaking
-  removes the picker from release builds.
+- **Decision**: the create-next-app defaults plus:
+  - **next-intl**: RU/EN
+  - **material-symbols**: icons
 
-## R-11 CI
+  No component library. The design is custom, and a library would fight pixel-matching.
 
-- **Decision**: one GitHub Actions workflow, `.github/workflows/ci.yml`, with three jobs:
-  - `api`: Postgres service, lint, type check, tests, `prisma migrate status`
-  - `admin-web`: lint, type check, tests, build
-  - `mobile`: `dart format --set-exit-if-changed`, `flutter analyze`, `flutter test`, and the
-    untranslated-messages check
-- **Rationale**: this is exactly the gate list in the constitution, with no path filters or
-  emulator jobs yet.
+## R-10 API
+
+- **Decision**: use the Fastify TS/ESM template as generated (its `app.ts`, `plugins/`, `routes/`,
+  `test/` and `tsconfig`), plus `prisma init`. No endpoints are added in this feature, since the
+  screens use sample repositories. The previous health/version/CORS work is dropped (YAGNI) and
+  returns when the first real data feature needs it.
+
+## R-11 Verifying pixel accuracy
+
+- **Decision**:
+  - **Web**: headless Chrome screenshots at 1440 × 900
+    (`google-chrome --headless --window-size=1440,900 --screenshot`), compared side by side with
+    the PNG.
+  - **Mobile**: screenshots from the connected phone with `adb exec-out screencap`, or a
+    390-wide emulator, compared with the PNG at the same scale, light and dark.
+
+  The screenshots are review evidence and are not committed. No visual-regression tooling is
+  added for now (Principle IV).
+
+## R-12 Tests
+
+- **Decision**: following Principle V, tests cover logic only:
+  - **Mobile**: the role redirect and the role-to-screen mapping.
+  - **Web**: the locale message parity check, using the starter's test runner. Next has none by
+    default, so Vitest is added with a one-line justification.
+  - **API**: the starter's generated tests run unchanged.
+
+  Screen composition is verified visually, as R-11 describes.
+
+## R-13 CI
+
+- **Decision**: keep a single `ci.yml` with three jobs that run each starter's own scripts:
+  - **admin-web**: `lint`, `build`, `test`
+  - **mobile**: `flutter analyze`, `flutter test`
+  - **api**: `npm test` (generated)
+
+  No path filters or extra checks.
