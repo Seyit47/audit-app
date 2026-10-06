@@ -1,47 +1,52 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
-/* Theme values from the approved designs. The only place colors are defined. */
+/* Figma variables (file 9s5b56r9zs1s0Ty2UgvL0W). The admin web is designed in light only. */
 :root {
-  --color-accent: #493ee5;
-  --color-on-accent: #ffffff;
-  --color-accent-soft: #ededfb;
-  --color-bg: #fbf8ff;
-  --color-surface: #ffffff;
-  --color-text: #0f172a;
-  --color-text-muted: #62617b;
-  --color-border: #d0d0e9;
-  --color-success: #00685a;
-  --color-error: #ce3437;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-accent-soft: #1e2549;
-    --color-bg: #0b0f19;
-    --color-surface: #121a2c;
-    --color-text: #fcfdff;
-    --color-text-muted: #94a3b8;
-    --color-border: rgb(255 255 255 / 0.05);
-    --color-success: #25d998;
-    --color-error: #fda4af;
-  }
+  --accent: #493ee5;
+  --accent-6: rgb(73 62 229 / 0.06);
+  --dark-accent: #ededfb;
+  --main-bg: #fbf8ff;
+  --secondary-bg: #f3f2ff;
+  --pure-white: #ffffff;
+  --black: #0f172a;
+  --default-black: #62617b;
+  --text-main: #181717;
+  --border: #e2e8f0;
+  --grey-3: #f1f5f9;
+  --success: #00685a;
+  --success-10: rgb(0 104 90 / 0.1);
+  --light-green: #03d66c;
+  --error: #ce3437;
+  --error-bg: #f9edec;
+  --white-5: rgb(255 255 255 / 0.05);
+  --white-20: rgb(255 255 255 / 0.2);
 }
 
 @theme inline {
-  --color-accent: var(--color-accent);
-  --color-on-accent: var(--color-on-accent);
-  --color-accent-soft: var(--color-accent-soft);
-  --color-bg: var(--color-bg);
-  --color-surface: var(--color-surface);
-  --color-text: var(--color-text);
-  --color-text-muted: var(--color-text-muted);
-  --color-border: var(--color-border);
-  --color-success: var(--color-success);
-  --color-error: var(--color-error);
+  --color-accent: var(--accent);
+  --color-accent-6: var(--accent-6);
+  --color-dark-accent: var(--dark-accent);
+  --color-main-bg: var(--main-bg);
+  --color-secondary-bg: var(--secondary-bg);
+  --color-pure-white: var(--pure-white);
+  --color-black: var(--black);
+  --color-default-black: var(--default-black);
+  --color-text-main: var(--text-main);
+  --color-border: var(--border);
+  --color-grey-3: var(--grey-3);
+  --color-success: var(--success);
+  --color-success-10: var(--success-10);
+  --color-light-green: var(--light-green);
+  --color-error: var(--error);
+  --color-error-bg: var(--error-bg);
+  --color-white-5: var(--white-5);
+  --color-white-20: var(--white-20);
   --font-sans: var(--font-inter);
+  --font-display: var(--font-space-grotesk);
 }
 
 body {
-  background: var(--color-bg);
-  color: var(--color-text);
+  background: var(--main-bg);
+  color: var(--black);
+  font-family: var(--font-inter), sans-serif;
 }

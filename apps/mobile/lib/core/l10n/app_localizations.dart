@@ -67,8 +67,8 @@ abstract class AppLocalizations {
 
   final String localeName;
 
-  static AppLocalizations? of(BuildContext context) {
-    return Localizations.of<AppLocalizations>(context, AppLocalizations);
+  static AppLocalizations of(BuildContext context) {
+    return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
   static const LocalizationsDelegate<AppLocalizations> delegate =
@@ -101,104 +101,8 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In ru, this message translates to:
-  /// **'Аудит торговых точек'**
+  /// **'Аудит'**
   String get appTitle;
-
-  /// No description provided for @navHome.
-  ///
-  /// In ru, this message translates to:
-  /// **'Главная'**
-  String get navHome;
-
-  /// No description provided for @navShops.
-  ///
-  /// In ru, this message translates to:
-  /// **'Магазины'**
-  String get navShops;
-
-  /// No description provided for @navMap.
-  ///
-  /// In ru, this message translates to:
-  /// **'Карта'**
-  String get navMap;
-
-  /// No description provided for @navGallery.
-  ///
-  /// In ru, this message translates to:
-  /// **'Галерея'**
-  String get navGallery;
-
-  /// No description provided for @navAgents.
-  ///
-  /// In ru, this message translates to:
-  /// **'Агенты'**
-  String get navAgents;
-
-  /// No description provided for @roleAgent.
-  ///
-  /// In ru, this message translates to:
-  /// **'Агент'**
-  String get roleAgent;
-
-  /// No description provided for @roleAdmin.
-  ///
-  /// In ru, this message translates to:
-  /// **'Администратор'**
-  String get roleAdmin;
-
-  /// No description provided for @rolePickerTitle.
-  ///
-  /// In ru, this message translates to:
-  /// **'Выберите роль (режим разработки)'**
-  String get rolePickerTitle;
-
-  /// No description provided for @switchRole.
-  ///
-  /// In ru, this message translates to:
-  /// **'Сменить роль'**
-  String get switchRole;
-
-  /// No description provided for @signInPlaceholder.
-  ///
-  /// In ru, this message translates to:
-  /// **'Вход в систему скоро появится.'**
-  String get signInPlaceholder;
-
-  /// No description provided for @statusChecking.
-  ///
-  /// In ru, this message translates to:
-  /// **'Подключение к серверу...'**
-  String get statusChecking;
-
-  /// No description provided for @statusConnected.
-  ///
-  /// In ru, this message translates to:
-  /// **'Сервер подключён · v{version}'**
-  String statusConnected(String version);
-
-  /// No description provided for @statusUnreachable.
-  ///
-  /// In ru, this message translates to:
-  /// **'Сервис временно недоступен. Проверьте подключение.'**
-  String get statusUnreachable;
-
-  /// No description provided for @retry.
-  ///
-  /// In ru, this message translates to:
-  /// **'Повторить'**
-  String get retry;
-
-  /// No description provided for @updateRequired.
-  ///
-  /// In ru, this message translates to:
-  /// **'Требуется обновление приложения. Установите последнюю версию.'**
-  String get updateRequired;
-
-  /// No description provided for @comingSoon.
-  ///
-  /// In ru, this message translates to:
-  /// **'Этот раздел скоро появится.'**
-  String get comingSoon;
 }
 
 class _AppLocalizationsDelegate

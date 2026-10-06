@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-05 (rescoped 2026-10-06)
 
-**Status**: Draft
+**Status**: Superseded by 002-retail-audit-platform
 
 **Input**: User description: "init projects", rescoped to "start the apps fresh from the starters
 and build the real designed screens right away"

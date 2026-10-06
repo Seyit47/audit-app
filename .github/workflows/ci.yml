@@ -5,83 +5,62 @@ on:
   push:
     branches: [main]
 
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   api:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: apps/api
+    defaults: { run: { working-directory: apps/api } }
     services:
       postgres:
         image: postgres:16
-        env:
-          POSTGRES_USER: audit
-          POSTGRES_PASSWORD: audit
-          POSTGRES_DB: audit_test
+        env: { POSTGRES_USER: audit, POSTGRES_PASSWORD: audit, POSTGRES_DB: audit_test }
         ports: ['5432:5432']
-        options: >-
-          --health-cmd "pg_isready -U audit" --health-interval 5s --health-timeout 5s --health-retries 10
+        options: --health-cmd "pg_isready -U audit" --health-interval 5s --health-retries 10
+      minio:
+        image: bitnami/minio:latest
+        env: { MINIO_ROOT_USER: audit, MINIO_ROOT_PASSWORD: auditaudit, MINIO_DEFAULT_BUCKETS: audit-photos-test }
+        ports: ['9000:9000']
     env:
       DATABASE_URL: postgresql://audit:audit@localhost:5432/audit_test
-      DATABASE_URL_TEST: postgresql://audit:audit@localhost:5432/audit_test
+      JWT_SECRET: ci-secret-ci-secret-ci-secret-32
+      S3_ENDPOINT: http://localhost:9000
+      S3_BUCKET: audit-photos-test
+      S3_ACCESS_KEY: audit
+      S3_SECRET_KEY: auditaudit
+      WEB_ORIGIN: http://localhost:3001
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
+        with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      - run: pnpm prisma:migrate
-      - run: pnpm prisma:status
-      - run: pnpm lint
-      - run: pnpm typecheck
+      - run: pnpm exec prisma migrate deploy
+      - run: pnpm exec prisma migrate status
+      - run: pnpm run lint
+      - run: pnpm exec tsc --noEmit
       - run: pnpm test
 
   admin-web:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: apps/admin-web
-    env:
-      NEXT_PUBLIC_API_BASE_URL: http://localhost:3000
+    defaults: { run: { working-directory: apps/admin-web } }
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
+        with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      - run: pnpm lint
-      - run: pnpm typecheck
+      - run: pnpm run lint
+      - run: pnpm exec tsc --noEmit
       - run: pnpm test
-      - run: pnpm build
+      - run: pnpm run build
 
   mobile:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: apps/mobile
+    defaults: { run: { working-directory: apps/mobile } }
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          flutter-version: 3.47.6
-          cache: true
+        with: { channel: stable, cache: true }
       - run: flutter pub get
       - run: dart format --output=none --set-exit-if-changed lib test
       - run: flutter analyze
       - run: flutter test
-      - name: Check for untranslated messages
-        run: |
-          flutter gen-l10n
-          if [ -f untranslated.json ] && [ "$(tr -d '[:space:]' < untranslated.json)" != "{}" ]; then
-            cat untranslated.json
-            exit 1
-          fi

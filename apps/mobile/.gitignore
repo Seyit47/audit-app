@@ -47,5 +47,5 @@ app.*.map.json
 # Widget Preview related
 .widget_preview/
 
-# gen-l10n report of missing translations
+# gen-l10n report
 untranslated.json

@@ -1,44 +1,12 @@
-# Dependencies
-node_modules/
-.pnpm-store/
-
-# Env & secrets
-.env
-.env.*
-!.env.example
-
-# Build output
-dist/
-build/
-.next/
-out/
-*.tsbuildinfo
-next-env.d.ts
-
-# Test output
-coverage/
-playwright-report/
-test-results/
-
-# Flutter / Dart
-.dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
-apps/mobile/build/
-apps/mobile/ios/Pods/
-apps/mobile/android/.gradle/
-apps/mobile/android/local.properties
-*.sqlite
-
-
-# Logs & OS / IDE
-*.log
-*.tmp
-*.swp
+# OS / editors
 .DS_Store
 Thumbs.db
+*.swp
 .idea/
 .vscode/
 
-# Generated Prisma client
-apps/api/src/generated/
+# Dependencies and env (each app ignores its own build output)
+node_modules/
+.env
+.env.*
+!.env.example

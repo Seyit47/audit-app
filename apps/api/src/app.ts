@@ -1,56 +1,46 @@
-import cors from '@fastify/cors';
-import swagger from '@fastify/swagger';
-import swaggerUi from '@fastify/swagger-ui';
-import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
-import Fastify from 'fastify';
-import type { Env } from './config/env.js';
-import { registerErrorHandling } from './errors/error-handler.js';
-import { appVersion } from './lib/app-version.js';
-import { loggerOptions, requestIdFor } from './lib/logger.js';
-import type { PrismaClient } from './lib/prisma.js';
-import { PrismaHealthRepository } from './modules/health/health.repository.js';
-import { healthRoutes } from './modules/health/health.routes.js';
-import { HealthService } from './modules/health/health.service.js';
-import { versionRoutes } from './modules/version/version.routes.js';
-import { VersionService } from './modules/version/version.service.js';
+import * as path from 'node:path'
+import AutoLoad, { type AutoloadPluginOptions } from '@fastify/autoload'
+import { type FastifyPluginAsync } from 'fastify'
+import { fileURLToPath } from 'node:url'
 
-export interface AppDependencies {
-  env: Env;
-  prisma: PrismaClient;
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+export type AppOptions = {
+  // Place your custom options for app below here.
+} & Partial<AutoloadPluginOptions>
+
+// Pass --options via CLI arguments in command to enable these options.
+const options: AppOptions = {
 }
 
-/** Builds the Fastify app. All dependencies are passed in so tests can build it the same way. */
-export async function buildApp({ env, prisma }: AppDependencies) {
-  const app = Fastify({
-    logger: loggerOptions(env.LOG_LEVEL),
-    genReqId: requestIdFor,
-  }).withTypeProvider<TypeBoxTypeProvider>();
+const app: FastifyPluginAsync<AppOptions> = async (
+  fastify,
+  opts
+): Promise<void> => {
+  // Place here your custom code!
 
-  app.addHook('onSend', async (request, reply) => {
-    reply.header('X-Request-Id', request.id);
-  });
+  // Do not touch the following lines
 
-  registerErrorHandling(app);
+  // This loads all plugins defined in plugins
+  // those should be support plugins that are reused
+  // through your application
+  // eslint-disable-next-line no-void
+  void fastify.register(AutoLoad, {
+    dir: path.join(__dirname, 'plugins'),
+    options: opts,
+    forceESM: true
+  })
 
-  await app.register(cors, { origin: env.CORS_ORIGINS });
-
-  await app.register(swagger, {
-    openapi: { info: { title: 'Audit App API', version: appVersion } },
-  });
-  await app.register(swaggerUi, { routePrefix: '/docs' });
-
-  const healthService = new HealthService(new PrismaHealthRepository(prisma), appVersion);
-  const versionService = new VersionService(env, appVersion);
-
-  await app.register(
-    async (v1) => {
-      await v1.register(healthRoutes, { healthService });
-      await v1.register(versionRoutes, { versionService });
-    },
-    { prefix: '/v1' },
-  );
-
-  return app;
+  // This loads all plugins defined in routes
+  // define your routes in one of these
+  // eslint-disable-next-line no-void
+  void fastify.register(AutoLoad, {
+    dir: path.join(__dirname, 'routes'),
+    options: opts,
+    forceESM: true
+  })
 }
 
-export type App = Awaited<ReturnType<typeof buildApp>>;
+export default app
+export { app, options }

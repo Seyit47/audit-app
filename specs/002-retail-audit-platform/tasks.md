@@ -44,43 +44,43 @@ Figma calls are budgeted: one `get_design_context` per frame, when its task runs
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 Create the git branch `002-retail-audit-platform` from `001-init-projects` and commit the constitution and specs/002 documents at the repository root
-- [ ] T002 Delete the superseded material at the repository root:
+- [X] T001 Create the git branch `002-retail-audit-platform` from `001-init-projects` and commit the constitution and specs/002 documents at the repository root
+- [X] T002 Delete the superseded material at the repository root:
   - `apps/` (the 001 code)
   - `admin-design-png/`, `mobile-admin-design-png/`, `mobile-agent-design-png/`
   - `admin-design.css`, `mobile-admin-design.css`, `mobile-agent-design.css`, `mobile-agent-dark-design.css`
   - `docker-compose.yml`, `scripts/`, `.editorconfig`, `.prettierrc`, `.prettierignore`, `.nvmrc`, `.env.example`
 
   Then set `**Status**: Superseded by 002-retail-audit-platform` in `specs/001-init-projects/spec.md`
-- [ ] T003 Write the root `package.json` (private, pnpm `packageManager`, scripts `dev`/`lint`/`test` delegating to the apps), `pnpm-workspace.yaml` (`apps/api`, `apps/admin-web`) and `.gitignore` (OS and IDE files, and `.env*` except examples)
-- [ ] T004 [P] Generate the API with `npx fastify-cli generate apps/api --lang=ts --esm`, then run `npx prisma init --datasource-provider postgresql` inside `apps/api/`. Keep the generated files and name the package `api`
-- [ ] T005 [P] Generate the admin web with `pnpm create next-app@latest apps/admin-web` (TypeScript, ESLint, Tailwind, App Router, `src/`, `@/*`). Keep the generated files. Name the package `admin-web` and set port 3001 in `apps/admin-web/package.json`
-- [ ] T006 [P] Generate the mobile app with `flutter create --org com.auditapp --project-name audit_mobile --platforms android,ios apps/mobile`. Keep the generated files
-- [ ] T007 Create `docker-compose.yml`:
+- [X] T003 Write the root `package.json` (private, pnpm `packageManager`, scripts `dev`/`lint`/`test` delegating to the apps), `pnpm-workspace.yaml` (`apps/api`, `apps/admin-web`) and `.gitignore` (OS and IDE files, and `.env*` except examples)
+- [X] T004 [P] Generate the API with `npx fastify-cli generate apps/api --lang=ts --esm`, then run `npx prisma init --datasource-provider postgresql` inside `apps/api/`. Keep the generated files and name the package `api`
+- [X] T005 [P] Generate the admin web with `pnpm create next-app@latest apps/admin-web` (TypeScript, ESLint, Tailwind, App Router, `src/`, `@/*`). Keep the generated files. Name the package `admin-web` and set port 3001 in `apps/admin-web/package.json`
+- [X] T006 [P] Generate the mobile app with `flutter create --org com.auditapp --project-name audit_mobile --platforms android,ios apps/mobile`. Keep the generated files
+- [X] T007 Create `docker-compose.yml`:
   - dev services: `postgres:16` (db `audit`, healthcheck), and `minio` with a one-shot `minio/mc` that creates the bucket `audit-photos`
   - a `prod` profile adding `api` and `admin-web` built from their Dockerfiles, plus volumes
-- [ ] T008 [P] Create `apps/api/Dockerfile` (Node 24 slim, production install, `prisma generate`; start runs `prisma migrate deploy` then the server)
-- [ ] T009 [P] Create `apps/admin-web/Dockerfile` (standalone output) and set `output: 'standalone'` in `apps/admin-web/next.config.ts`
-- [ ] T010 Create `.github/workflows/ci.yml` with three jobs:
+- [X] T008 [P] Create `apps/api/Dockerfile` (Node 24 slim, production install, `prisma generate`; start runs `prisma migrate deploy` then the server)
+- [X] T009 [P] Create `apps/admin-web/Dockerfile` (standalone output) and set `output: 'standalone'` in `apps/admin-web/next.config.ts`
+- [X] T010 Create `.github/workflows/ci.yml` with three jobs:
   - `api`: postgres + minio services; install, migrate, `prisma migrate status`, lint, typecheck, test
   - `admin-web`: install, lint, typecheck, test, build
   - `mobile`: Flutter stable; `pub get`, `dart format --set-exit-if-changed`, `flutter analyze`, `flutter test`
-- [ ] T011 Add the API dependencies in `apps/api/package.json`: `@fastify/jwt`, `@fastify/rate-limit`, `@fastify/swagger`, `@fastify/swagger-ui`, `@fastify/type-provider-typebox`, `@sinclair/typebox`, `@prisma/client`, `@prisma/adapter-pg`, `argon2`, `@aws-sdk/client-s3`, `@aws-sdk/s3-request-presigner`, `sharp`, `pg-boss`, `exceljs`, `pdfmake`, `uuid`, `csv-parse`; dev `prisma`
-- [ ] T012 [P] Add the admin web dependencies in `apps/admin-web/package.json`: `maplibre-gl`, `react-map-gl`; dev `openapi-typescript`, `vitest`, `@testing-library/react`, `jsdom`
-- [ ] T013 [P] Add the mobile dependencies in `apps/mobile/pubspec.yaml`: `flutter_riverpod`, `go_router`, `flutter_localizations`, `intl`, `drift`, `sqlite3_flutter_libs`, `path_provider`, `dio`, `flutter_secure_storage`, `device_info_plus`, `geolocator`, `battery_plus`, `connectivity_plus`, `workmanager`, `camera`, `image_picker`, `maplibre_gl`, `url_launcher`, `flutter_svg`, `shared_preferences`, `share_plus`; dev `drift_dev`, `build_runner`, `mocktail`. Enable `flutter: generate: true`
-- [ ] T014 [P] Define the web theme from the Figma variables (contracts/figma-frames.md) as CSS variables + Tailwind `@theme inline` in `apps/admin-web/src/app/globals.css`. Load Inter and Space Grotesk via `next/font/google` in `apps/admin-web/src/app/layout.tsx`
-- [ ] T015 [P] Define the mobile theme from the Figma variables in `apps/mobile/lib/core/theme/app_colors.dart`:
+- [X] T011 Add the API dependencies in `apps/api/package.json`: `@fastify/jwt`, `@fastify/rate-limit`, `@fastify/swagger`, `@fastify/swagger-ui`, `@fastify/type-provider-typebox`, `@sinclair/typebox`, `@prisma/client`, `@prisma/adapter-pg`, `argon2`, `@aws-sdk/client-s3`, `@aws-sdk/s3-request-presigner`, `sharp`, `pg-boss`, `exceljs`, `pdfmake`, `uuid`, `csv-parse`; dev `prisma`
+- [X] T012 [P] Add the admin web dependencies in `apps/admin-web/package.json`: `maplibre-gl`, `react-map-gl`; dev `openapi-typescript`, `vitest`, `@testing-library/react`, `jsdom`
+- [X] T013 [P] Add the mobile dependencies in `apps/mobile/pubspec.yaml`: `flutter_riverpod`, `go_router`, `flutter_localizations`, `intl`, `drift`, `sqlite3_flutter_libs`, `path_provider`, `dio`, `flutter_secure_storage`, `device_info_plus`, `geolocator`, `battery_plus`, `connectivity_plus`, `workmanager`, `camera`, `image_picker`, `maplibre_gl`, `url_launcher`, `flutter_svg`, `shared_preferences`, `share_plus`; dev `drift_dev`, `build_runner`, `mocktail`. Enable `flutter: generate: true`
+- [X] T014 [P] Define the web theme from the Figma variables (contracts/figma-frames.md) as CSS variables + Tailwind `@theme inline` in `apps/admin-web/src/app/globals.css`. Load Inter and Space Grotesk via `next/font/google` in `apps/admin-web/src/app/layout.tsx`
+- [X] T015 [P] Define the mobile theme from the Figma variables in `apps/mobile/lib/core/theme/app_colors.dart`:
   - **light**: Main bg `#FBF8FF`, Secondary bg `#F3F2FF`, Accent `#493EE5`, Black `#0F172A`, Default black `#62617B`, Border `#E2E8F0`, Dark accent `#EDEDFB`, Grey 3 `#F1F5F9`, Success `#00685A`, Success 10%, Light green `#03D66C`, Error `#CE3437`, Error bg `#F9EDEC`, Pure white, White 5%/20%, Accent 6%
   - **dark**: Main bg `#0B0F19`, Secondary bg `#121A2C`, White `#FCFDFF`, Off white `#94A3B8`, Accent `#493EE5`, Dark accent `#1E2549`, Light accent `#A5B4FC`, Success `#25D998`, Error `#FDA4AF`, Error bg `#450A0A`, Error stroke `#9F1239`, White 5%/20%
 
   Add `app_text_styles.dart`, `app_spacing.dart` and `app_theme.dart` (light/dark `ThemeData` + `ThemeExtension`). Bundle Inter in `apps/mobile/assets/fonts/`
-- [ ] T016 Export every icon, the logo and the map markers from Figma with `download_assets`:
+- [X] T016 Export every icon, the logo and the map markers from Figma with `download_assets`:
   - sidebar and header of `3:407`, plus the icons in `21:2`, `30:574`, `31:2307`, `53:1375` → `apps/admin-web/public/icons/`
   - `83:16786`, `83:16884`, `83:17057`, `83:17207`, `83:17636`, `246:23129`, `265:27616` → `apps/mobile/assets/icons/`
 
-  Save as SVG, named by meaning (e.g. `nav-shops.svg`, `marker-shop-visited.svg`)
-- [ ] T017 [P] Set up gen-l10n for mobile only, in `apps/mobile/l10n.yaml` and `apps/mobile/lib/core/l10n/app_{ru,en}.arb`. Russian strings come verbatim from the Figma mobile frames, and English strings are translations with the same keys. The admin web uses the Figma text verbatim, with no i18n
-- [ ] T018 Write the root `README.md`: the product, apps, setup from quickstart.md, layer conventions, the Figma-only design workflow, the operator CLI (`admin:create`, `admin:reset-password`), and the Spec Kit workflow
+  Save as SVG, named by meaning (e.g. `nav-shops.svg`, `marker-shop-visited.svg`). The web shell icons (sidebar `3:408`, header `3:853`) are exported here. Every other icon is exported together with its screen task, from the `get_design_context` assets, to stay within the Figma call budget
+- [X] T017 [P] Set up gen-l10n for mobile only, in `apps/mobile/l10n.yaml` and `apps/mobile/lib/core/l10n/app_{ru,en}.arb`. Russian strings come verbatim from the Figma mobile frames, and English strings are translations with the same keys. The admin web uses the Figma text verbatim, with no i18n
+- [X] T018 Write the root `README.md`: the product, apps, setup from quickstart.md, layer conventions, the Figma-only design workflow, the operator CLI (`admin:create`, `admin:reset-password`), and the Spec Kit workflow
 
 **Checkpoint**: the three starters run, docker services are up, and CI is green.
 

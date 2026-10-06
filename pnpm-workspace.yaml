@@ -3,9 +3,9 @@ packages:
   - apps/admin-web
 
 allowBuilds:
-  '@parcel/watcher': set this to true or false
   '@prisma/engines': true
-  '@swc/core': set this to true or false
+  argon2: true
   esbuild: true
   prisma: true
+  sharp: true
   unrs-resolver: true
