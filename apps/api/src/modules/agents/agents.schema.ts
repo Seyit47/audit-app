@@ -14,11 +14,16 @@ const Fields = {
   imeiLabel: Type.Optional(Type.Union([Type.String({ maxLength: 64 }), Type.Null()]))
 }
 
-export const CreateAgentBody = Type.Object(Fields, { additionalProperties: false })
+export const CreateAgentBody = Type.Object({
+  ...Fields,
+  /** "Табельный номер / Код": generated from the SL- sequence when omitted. */
+  code: Type.Optional(Type.String({ pattern: '^[A-Za-z0-9-]{2,20}$' }))
+}, { additionalProperties: false })
 export type CreateAgentBody = Static<typeof CreateAgentBody>
 
 export const PatchAgentBody = Type.Object({
   ...Type.Partial(Type.Object(Fields)).properties,
+  code: Type.Optional(Type.String({ pattern: '^[A-Za-z0-9-]{2,20}$' })),
   version: Type.Integer({ minimum: 1 }),
   active: Type.Optional(Type.Boolean())
 }, { additionalProperties: false })
@@ -35,7 +40,9 @@ export const ListAgentsQuery = Type.Object({
   status: Type.Optional(Type.Union([Type.Literal('ACTIVE'), Type.Literal('ON_LEAVE'), Type.Literal('INACTIVE')])),
   regionId: Type.Optional(Type.String({ format: 'uuid' })),
   from: Type.Optional(Day),
-  to: Type.Optional(Day)
+  to: Type.Optional(Day),
+  sort: Type.Optional(Type.Union([Type.Literal('fullName'), Type.Literal('code'), Type.Literal('locations'), Type.Literal('visits'), Type.Literal('photos'), Type.Literal('lastActivityAt')])),
+  dir: Type.Optional(Type.Union([Type.Literal('asc'), Type.Literal('desc')]))
 }, { additionalProperties: false })
 export type ListAgentsQuery = Static<typeof ListAgentsQuery>
 

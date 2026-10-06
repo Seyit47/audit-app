@@ -33,6 +33,17 @@ test('create returns a sequential SL- code and a temporary password that signs i
   assert.strictEqual(signIn.statusCode, 200, signIn.body)
 })
 
+test('next-code previews the next SL- code; a custom unique code is accepted', async () => {
+  const peek = (await app.inject({ url: '/v1/agents/next-code', headers: admin })).json().code
+  assert.match(peek, /^SL-\d+$/)
+  assert.strictEqual((await app.inject({ url: '/v1/agents/next-code', headers: admin })).json().code, peek, 'peeking does not consume')
+  const created = await create(await valid({ phone: '+99365000031' }))
+  assert.strictEqual(created.json().code, peek)
+  const custom = await create(await valid({ phone: '+99365000032', code: 'sl-900' }))
+  assert.strictEqual(custom.json().code, 'SL-900')
+  assert.strictEqual((await create(await valid({ phone: '+99365000033', code: 'SL-900' }))).statusCode, 409)
+})
+
 test('validation: fullName and regionId required, visit plan 1–100, audit plan ≤ visit plan', async () => {
   const base = await valid()
   for (const bad of [
@@ -122,6 +133,17 @@ test('list: search, status and region filters, pagination', async () => {
   for (const key of ['id', 'code', 'fullName', 'phone', 'region', 'locations', 'visits', 'photos', 'lastActivityAt', 'workStatus', 'active']) {
     assert.ok(key in row, key)
   }
+})
+
+test('list sorts by a column and direction', async () => {
+  const r = await f.region(app)
+  const a = await f.agent(app, { regionId: r.id })
+  const b = await f.agent(app, { regionId: r.id })
+  await app.prisma.agent.update({ where: { userId: a.userId }, data: { fullName: 'Zarina' } })
+  await app.prisma.agent.update({ where: { userId: b.userId }, data: { fullName: 'Aman' } })
+  const names = async (qs: string) => (await app.inject({ url: `/v1/agents?${qs}`, headers: admin })).json().items.map((i: { fullName: string }) => i.fullName)
+  assert.deepStrictEqual(await names('sort=fullName'), ['Aman', 'Zarina'])
+  assert.deepStrictEqual(await names('sort=fullName&dir=desc'), ['Zarina', 'Aman'])
 })
 
 test('agents get 403 on every agents endpoint', async () => {

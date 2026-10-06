@@ -32,12 +32,19 @@ export class AgentsService {
     const settings = await this.settings.get()
     const { from, to } = this.period(query.from, query.to, settings.timezone)
     const { skip, take, page, size } = pageArgs(query.page, query.size)
-    const { items, total } = await this.repo.list(query, skip, take)
-    const counts = await this.repo.counts(items.map((a) => a.userId), from, to)
+    const agents = await this.repo.listAll(query)
+    const counts = await this.repo.counts(agents.map((a) => a.userId), from, to)
     const top = await this.repo.topAudits(from, to)
     const now = new Date()
-    const rows = await Promise.all(items.map((a) => this.row(a, counts, top, settings, now)))
-    return { items: rows, total, page, size }
+    const rows = await Promise.all(agents.map((a) => this.row(a, counts, top, settings, now)))
+    const key = query.sort ?? 'code'
+    const sign = query.dir === 'desc' ? -1 : 1
+    rows.sort((x, y) => {
+      const a = x[key] ?? ''
+      const b = y[key] ?? ''
+      return (typeof a === 'number' && typeof b === 'number' ? a - b : String(a).localeCompare(String(b), 'ru', { numeric: true })) * sign
+    })
+    return { items: rows.slice(skip, skip + take), total: rows.length, page, size }
   }
 
   async get (id: string) {
@@ -53,7 +60,7 @@ export class AgentsService {
     const password = temporaryPassword()
     try {
       const agent = await this.repo.create({
-        code: await this.repo.nextCode(),
+        code: body.code?.toUpperCase() ?? await this.repo.nextCode(),
         passwordHash: await hashPassword(password),
         fullName: body.fullName.trim(),
         phone: normalizePhone(body.phone),
@@ -68,9 +75,13 @@ export class AgentsService {
       })
       return { ...await this.view(agent), temporaryPassword: password }
     } catch (e) {
-      if (isUniqueViolation(e)) throw conflict('An account with this phone already exists')
+      if (isUniqueViolation(e)) throw conflict('An account with this phone or code already exists')
       throw e
     }
+  }
+
+  nextCode () {
+    return this.repo.peekCode()
   }
 
   async patch (id: string, body: PatchAgentBody) {
@@ -80,16 +91,17 @@ export class AgentsService {
     const audit = body.dailyAuditPlan ?? current.dailyAuditPlan
     if (audit > visit) throw invalid('dailyAuditPlan must not exceed dailyVisitPlan')
 
-    const { version, active, imeiLabel, phone, whatsappPhone, ...fields } = body
+    const { version, active, imeiLabel, phone, whatsappPhone, code, ...fields } = body
     const data = {
       ...fields,
+      ...(code !== undefined ? { code: code.toUpperCase() } : {}),
       ...(phone !== undefined ? { phone: normalizePhone(phone) } : {}),
       ...(whatsappPhone !== undefined ? { whatsappPhone: whatsappPhone != null ? normalizePhone(whatsappPhone) : null } : {})
     }
     try {
       if (!await this.repo.update(id, version, data, data.phone)) throw conflict('The salesman was changed by someone else; reload and try again')
     } catch (e) {
-      if (isUniqueViolation(e)) throw conflict('An account with this phone already exists')
+      if (isUniqueViolation(e)) throw conflict('An account with this phone or code already exists')
       throw e
     }
     if (imeiLabel !== undefined) await this.repo.setImeiLabel(id, imeiLabel)

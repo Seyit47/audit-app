@@ -11,6 +11,8 @@ const agents: FastifyPluginAsyncTypebox = async (fastify) => {
   fastify.post('/', { schema: { body: CreateAgentBody, tags }, config: admin }, async (req, reply) =>
     reply.status(201).send(await service.create(req.body)))
 
+  fastify.get('/next-code', { schema: { tags }, config: admin }, async () => ({ code: await service.nextCode() }))
+
   fastify.get('/:id', { schema: { params: IdParams, tags }, config: admin }, async (req) => service.get(req.params.id))
 
   fastify.patch('/:id', { schema: { params: IdParams, body: PatchAgentBody, tags }, config: admin },

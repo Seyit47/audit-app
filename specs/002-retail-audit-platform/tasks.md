@@ -198,7 +198,7 @@ Figma calls are budgeted: one `get_design_context` per frame, when its task runs
   - the pull applies tombstones but keeps items with pending outbox entries
 - [X] T052 Implement `apps/mobile/lib/core/sync/` per contracts/sync.md: `outbox_repository.dart`, `sync_engine.dart`, `pull_service.dart`, and `sync_status_provider.dart` (Данные синхронизированы / Синхронизация…). Triggers: start, resume, connectivity, workmanager every 15 min, on demand
 - [X] T053 Implement `apps/mobile/lib/core/router/app_router.dart` (go_router per contracts/screens.md; redirect: no session → `/login`; role prefixes; role home)
-- [ ] T054 [P] Build the shared mobile widgets in `apps/mobile/lib/core/widgets/`, each from the frame where it first appears:
+- [X] T054 [P] Build the shared mobile widgets in `apps/mobile/lib/core/widgets/`, each from the frame where it first appears:
   - `app_top_bar.dart`, `search_field.dart`, `filter_chips.dart`, `shop_list_tile.dart` (`83:16884`)
   - `shop_card.dart` (`246:23300`), `stat_tile.dart` (`265:27616`)
   - `photo_grid.dart` (`83:17954`)
@@ -208,7 +208,7 @@ Figma calls are budgeted: one `get_design_context` per frame, when its task runs
   - `home_action_tile.dart`, `theme_toggle.dart`, `locale_toggle.dart`, `sync_status_badge.dart` (`83:16786`)
   - `map_view.dart` (maplibre_gl)
   - `filter_sheet.dart`: the B3 filter bottom sheet, built from `bottom_sheet_card.dart` + `filter_chips.dart`, configurable per screen (status, region, date)
-- [ ] T055 Implement `apps/mobile/lib/app.dart` and `lib/main.dart`: ProviderScope, MaterialApp.router, light/dark themes, persisted theme mode (system default) and locale (ru fallback) via shared_preferences, matching the Home toggles
+- [X] T055 Implement `apps/mobile/lib/app.dart` and `lib/main.dart`: ProviderScope, MaterialApp.router, light/dark themes, persisted theme mode (system default) and locale (ru fallback) via shared_preferences, matching the Home toggles
 
 **Checkpoint**: migrations apply (with triggers), `/docs` lists the endpoints, the platform tests pass, the web shell renders behind auth, and the app boots to `/login`.
 
@@ -244,11 +244,11 @@ sessions.
 
 - [X] T058 [US1] Implement the auth module in `apps/api/src/modules/auth/` (routes, service, repository, schema): login with device binding, refresh with rotation and idle expiry, logout, `GET /v1/me` with the config subset, the deactivation grace check, and the login rate limit
 - [X] T059 [US1] Implement the agents module in `apps/api/src/modules/agents/` (routes, service, repository, schema): list, create, get, patch (version), deactivate/reactivate (via patch `active`), reset-password, device rebind
-- [ ] T060 [US1] Build the web sign-in (approved exception) in `apps/admin-web/src/app/login/page.tsx` + `src/features/auth/api/actions.ts`: email + password, using only the existing Figma components (FormField, Button, colors and type from `162:20071` / `495:3932`), refusing agents with a message
-- [ ] T061 [US1] Build the Salesmen table area of Figma `31:2307` (columns, search, status filter, pagination, "Add Salesman") in `apps/admin-web/src/app/(admin)/salesmen/page.tsx` + `src/features/agents/{api/,copy.ts,components/AgentsTable.tsx}`, with data from `GET /v1/agents`
-- [ ] T062 [US1] Build Add Salesman from Figma `495:3932` in `apps/admin-web/src/app/(admin)/salesmen/new/page.tsx`, `salesmen/[id]/edit/page.tsx` and `src/features/agents/components/AgentForm.tsx`, with exactly the frame's fields, the bound device (model/IMEI label + rebind) and Статус. Show the temporary password once, and offer reset password and deactivate
-- [ ] T063 [US1] Build the mobile sign-in (approved exception) in `apps/mobile/lib/features/auth/presentation/login_screen.dart` + `data/auth_repository.dart`: phone/email + password, device payload from device_info_plus, `DEVICE_NOT_BOUND` and deactivated messages, using only existing Figma widgets, colors and type (`252:26487` form styles). It routes to the role home
-- [ ] T064 [US1] Implement sign-out in `apps/mobile/lib/features/auth/data/sign_out_service.dart` (flush the outbox for 10 s, then wipe drift, photo files and secure storage, keeping only theme and locale) and expose it from the Home avatar (`83:16786` / `246:23129`)
+- [X] T060 [US1] Build the web sign-in (approved exception) in `apps/admin-web/src/app/login/page.tsx` + `src/features/auth/api/actions.ts`: email + password, using only the existing Figma components (FormField, Button, colors and type from `162:20071` / `495:3932`), refusing agents with a message
+- [X] T061 [US1] Build the Salesmen table area of Figma `31:2307` (columns, search, status filter, pagination, "Add Salesman") in `apps/admin-web/src/app/(admin)/salesmen/page.tsx` + `src/features/agents/{api/,copy.ts,components/AgentsTable.tsx}`, with data from `GET /v1/agents`
+- [X] T062 [US1] Build Add Salesman from Figma `495:3932` in `apps/admin-web/src/app/(admin)/salesmen/new/page.tsx`, `salesmen/[id]/edit/page.tsx` and `src/features/agents/components/AgentForm.tsx`, with exactly the frame's fields, the bound device (model/IMEI label + rebind) and Статус. Show the temporary password once, and offer reset password and deactivate
+- [X] T063 [US1] Build the mobile sign-in (approved exception) in `apps/mobile/lib/features/auth/presentation/login_screen.dart` + `data/auth_repository.dart`: phone/email + password, device payload from device_info_plus, `DEVICE_NOT_BOUND` and deactivated messages, using only existing Figma widgets, colors and type (`252:26487` form styles). It routes to the role home
+- [X] T064 [US1] Implement sign-out in `apps/mobile/lib/features/auth/data/sign_out_service.dart` (flush the outbox for 10 s, then wipe drift, photo files and secure storage, keeping only theme and locale) and expose it from the Home avatar (`83:16786` / `246:23129`)
 
 **Checkpoint**: US1 works on its own.
 
@@ -428,7 +428,7 @@ sessions.
 - [ ] T100 [US6] Implement the tracking module in `apps/api/src/modules/tracking/` (`POST /v1/tracking/pings`, `GET /v1/agents/positions`)
 - [ ] T101 [US6] Add summary, timeline and track to `apps/api/src/modules/agents/`, and the agent report generators (pdfmake, exceljs) to `apps/api/src/jobs/exports.ts`
 - [ ] T102 [US6] Implement `apps/mobile/lib/core/location/tracker.dart`: geolocator foreground service gated by session + ACTIVE + working hours, geofences for today's stops, battery_plus, pings_buffer → outbox PINGS, the permission explanation screen first (A9), then the OS dialogs
-- [ ] T103 [US6] Build the location-permission explanation screen (approved exception A9) in `apps/mobile/lib/features/permission/presentation/permission_screen.dart`, using only existing mobile components (icon tile from `83:16786`, text styles, `primary_button.dart`), RU/EN copy. It is shown once before tracking first needs background location, then requests the OS permissions
+- [X] T103 [US6] Build the location-permission explanation screen (approved exception A9) in `apps/mobile/lib/features/permission/presentation/permission_screen.dart`, using only existing mobile components (icon tile from `83:16786`, text styles, `primary_button.dart`), RU/EN copy. It is shown once before tracking first needs background location, then requests the OS permissions
 - [ ] T104 [US6] Add the KPI cards, Дата от/до, Сегодня/Вчера/Текущая неделя, Top Performer / On Leave / Inactive badges and "Требуют связи (>45 мин)" from Figma `31:2307` to `apps/admin-web/src/app/(admin)/salesmen/page.tsx` + `src/features/agents/components/AgentsSummary.tsx`
 - [ ] T105 [US6] Build Salesman details from Figma `122:7981` in `apps/admin-web/src/app/(admin)/salesmen/[id]/page.tsx` + `src/features/agents/components/{AgentHeader,AgentKpis,RouteMap,RouteTimeline,PhotoReports,AgentVisitHistory}.tsx`:
   - header and online status ("В сети (GPS активен, точность 5м)")
@@ -488,7 +488,7 @@ sessions.
   - the shop card with visit history
   - zoom and recenter; Layers (Figma style ↔ satellite), Fullscreen (browser API) and Refresh (reload markers and positions) (B2); supports `?ids=` from the Shops bulk "View on Map"
 - [ ] T121 [P] [US9] Build the admin mobile Map from Figma `248:23963` and `248:24102` in `apps/mobile/lib/features/admin/map/presentation/admin_map_screen.dart` (chips, Filters → `filter_sheet` (B3), markers, agent positions, sheet + Подробнее)
-- [ ] T122 [P] [US9] Build admin mobile Home from Figma `246:23129` in `apps/mobile/lib/features/admin/home/presentation/admin_home_screen.dart` (Карта, Магазины, Галерея, Агенты, Продукции → mobile Products (A7); theme toggle; RU/EN; avatar sign-out)
+- [X] T122 [P] [US9] Build admin mobile Home from Figma `246:23129` in `apps/mobile/lib/features/admin/home/presentation/admin_home_screen.dart` (Карта, Магазины, Галерея, Агенты, Продукции → mobile Products (A7); theme toggle; RU/EN; avatar sign-out)
 - [ ] T123 [P] [US9] Write failing tests in `apps/api/test/feed.test.ts`: `GET /v1/feed` lists violations and missed visits newest first with a cursor, `unreadCount` counts items newer than `feedSeenAt`, `POST /v1/feed/seen` resets it, admins only
 - [ ] T124 [US9] Implement the feed module in `apps/api/src/modules/feed/` (routes, service, repository querying audits with `hasViolation` and MISSED route stops)
 - [ ] T125 [US9] Build the bell activity feed (approved exception A6) in `apps/admin-web/src/components/layout/FeedPanel.tsx`: the existing `SidePanel` + `VisitHistoryItem` cards, the unread dot on the Figma bell (poll 30 s), opening calls `POST /v1/feed/seen`, items link to the shop or agent. Mount it in `Topbar.tsx`

@@ -2,21 +2,34 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/admin/home/presentation/admin_home_screen.dart';
+import '../../features/auth/presentation/login_screen.dart';
+import '../../features/home/presentation/agent_home_screen.dart';
+import '../../features/permission/presentation/permission_screen.dart';
 import '../auth/session_provider.dart';
 import 'redirect.dart';
 
-/// Whether the agent granted background location (set by the permission screen, A9).
+/// Whether location is granted (checked at start in `main`, updated by the permission screen, A9).
+final initialLocationGrantedProvider = Provider<bool>((ref) => false);
 final locationGrantedProvider = NotifierProvider<LocationGranted, bool>(LocationGranted.new);
 
 class LocationGranted extends Notifier<bool> {
   @override
-  bool build() => false;
+  bool build() => ref.watch(initialLocationGrantedProvider);
 
   void set(bool granted) => state = granted;
 }
 
-/// Screens register their routes here as their stories land (contracts/screens.md).
-final appRoutesProvider = Provider<List<RouteBase>>((ref) => const []);
+/// Routes per contracts/screens.md. Each story adds its screens here.
+List<RouteBase> appRoutes() => [
+      GoRoute(path: Paths.login, builder: (_, _) => const LoginScreen()),
+      GoRoute(path: Paths.agentPermission, builder: (_, _) => const PermissionScreen()),
+      GoRoute(path: Paths.agentHome, builder: (_, _) => const AgentHomeScreen(), routes: agentRoutes),
+      GoRoute(path: Paths.adminHome, builder: (_, _) => const AdminHomeScreen(), routes: adminRoutes),
+    ];
+
+final List<RouteBase> agentRoutes = [];
+final List<RouteBase> adminRoutes = [];
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final refresh = ValueNotifier(0);
@@ -27,7 +40,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
     initialLocation: Paths.login,
     refreshListenable: refresh,
-    routes: ref.watch(appRoutesProvider),
+    routes: appRoutes(),
     redirect: (context, state) {
       final session = ref.read(sessionProvider);
       if (session.isLoading) return null;

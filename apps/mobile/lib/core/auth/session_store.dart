@@ -36,5 +36,10 @@ class SessionStore implements TokenSource {
 
   Future<void> writeUser(SessionUser user) => _storage.write(key: _user, value: jsonEncode(user.toJson()));
 
-  Future<void> clear() => _storage.deleteAll();
+  /// Removes the session (tokens and user). The device install id is kept.
+  Future<void> clear() async {
+    for (final key in [_access, _refresh, _user]) {
+      await _storage.delete(key: key);
+    }
+  }
 }

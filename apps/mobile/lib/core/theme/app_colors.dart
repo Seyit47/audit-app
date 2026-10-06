@@ -24,6 +24,23 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.errorStroke,
     required this.white5,
     required this.white20,
+    required this.inputBg,
+    required this.inputBorder,
+    required this.secondaryButtonBg,
+    required this.secondaryButtonBorder,
+    required this.secondaryButtonText,
+    required this.heroGradient,
+    required this.heroBorder,
+    required this.tileGradient,
+    required this.tileBorder,
+    required this.tileArrowBg,
+    required this.tileArrowBorder,
+    required this.toggleBg,
+    required this.toggleBorder,
+    required this.toggleOff,
+    required this.syncBadgeBg,
+    required this.syncBadgeBorder,
+    required this.glow,
   });
 
   final Color mainBg;
@@ -46,6 +63,25 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color white5;
   final Color white20;
 
+  // Component colors that differ between the light and dark frames.
+  final Color inputBg;
+  final Color inputBorder;
+  final Color secondaryButtonBg;
+  final Color secondaryButtonBorder;
+  final Color secondaryButtonText;
+  final List<Color> heroGradient;
+  final Color heroBorder;
+  final List<Color> tileGradient;
+  final Color tileBorder;
+  final Color tileArrowBg;
+  final Color tileArrowBorder;
+  final Color toggleBg;
+  final Color toggleBorder;
+  final Color toggleOff;
+  final Color syncBadgeBg;
+  final Color syncBadgeBorder;
+  final List<Color> glow;
+
   static const light = AppColors(
     mainBg: Color(0xFFFBF8FF),
     secondaryBg: Color(0xFFF3F2FF),
@@ -66,6 +102,23 @@ class AppColors extends ThemeExtension<AppColors> {
     errorStroke: Color(0xFFCE3437),
     white5: Color(0x0DFFFFFF),
     white20: Color(0x33FFFFFF),
+    inputBg: Color(0x33FFFFFF),
+    inputBorder: Color(0xFFE2E8F0),
+    secondaryButtonBg: Color(0x0F493EE5),
+    secondaryButtonBorder: Color(0x00000000),
+    secondaryButtonText: Color(0xFF0F172A),
+    heroGradient: [Color(0xFF2F28E4), Color(0xFF6041DC), Color(0xFF6058EA)],
+    heroBorder: Color(0x00000000),
+    tileGradient: [Color(0xFFFFFFFF), Color(0xFFF5F7FF), Color(0xFFEEF2FF)],
+    tileBorder: Color(0x00000000),
+    tileArrowBg: Color(0xFFFFFFFF),
+    tileArrowBorder: Color(0x00000000),
+    toggleBg: Color(0x00000000),
+    toggleBorder: Color(0xFFE2E8F0),
+    toggleOff: Color(0xFF94A3B8),
+    syncBadgeBg: Color(0xB3F3F2FF),
+    syncBadgeBorder: Color(0x4DC7C4D8),
+    glow: [Color(0x0D493EE5), Color(0x1A493EE5), Color(0xFFF2F4FE)],
   );
 
   static const dark = AppColors(
@@ -88,6 +141,23 @@ class AppColors extends ThemeExtension<AppColors> {
     errorStroke: Color(0xFF9F1239),
     white5: Color(0x0DFFFFFF),
     white20: Color(0x33FFFFFF),
+    inputBg: Color(0xFF121A2C),
+    inputBorder: Color(0x0DFFFFFF),
+    secondaryButtonBg: Color(0xFF121A2C),
+    secondaryButtonBorder: Color(0x0DFFFFFF),
+    secondaryButtonText: Color(0xFF94A3B8),
+    heroGradient: [Color(0xFF2C26C6), Color(0xFF4428B3), Color(0xFF3C33D0)],
+    heroBorder: Color(0x0DFFFFFF),
+    tileGradient: [Color(0xFF131B2E), Color(0xFF131B2E), Color(0xFF1D2843)],
+    tileBorder: Color(0x0DFFFFFF),
+    tileArrowBg: Color(0x0DFFFFFF),
+    tileArrowBorder: Color(0x0DFFFFFF),
+    toggleBg: Color(0xFF121A2C),
+    toggleBorder: Color(0x0DFFFFFF),
+    toggleOff: Color(0xFF94A3B8),
+    syncBadgeBg: Color(0xFF121A2C),
+    syncBadgeBorder: Color(0x0DFFFFFF),
+    glow: [Color(0x0D493EE5), Color(0x0D493EE5), Color(0x0D493EE5)],
   );
 
   @override

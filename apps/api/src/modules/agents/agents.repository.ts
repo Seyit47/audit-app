@@ -25,13 +25,9 @@ export class AgentsRepository {
     return where
   }
 
-  async list (f: AgentFilter, skip: number, take: number) {
-    const where = this.where(f)
-    const [items, total] = await this.prisma.$transaction([
-      this.prisma.agent.findMany({ where, include: detail, orderBy: { code: 'asc' }, skip, take }),
-      this.prisma.agent.count({ where })
-    ])
-    return { items, total }
+  /** All matching agents (a company has ~100); the service sorts by period counts and pages. */
+  listAll (f: AgentFilter) {
+    return this.prisma.agent.findMany({ where: this.where(f), include: detail, orderBy: { code: 'asc' } })
   }
 
   get (id: string) {
@@ -58,6 +54,12 @@ export class AgentsRepository {
       by: ['agentId'], where: { finishedAtDevice: { gte: from, lt: to } }, _count: { _all: true }, orderBy: { _count: { agentId: 'desc' } }, take: 1
     })
     return rows[0]?._count._all ?? 0
+  }
+
+  /** The code the next agent would get, without using it up ("Сгенерировать код"). */
+  async peekCode (): Promise<string> {
+    const [row] = await this.prisma.$queryRaw<Array<{ n: bigint }>>`SELECT CASE WHEN is_called THEN last_value + 1 ELSE last_value END AS n FROM agent_code_seq`
+    return `SL-${row!.n}`
   }
 
   async nextCode (): Promise<string> {
