@@ -260,7 +260,7 @@ sessions.
 
 ### Tests ⚠️
 
-- [ ] T065 [P] [US4] Write failing tests in `apps/api/test/shops.test.ts`:
+- [X] T065 [P] [US4] Write failing tests in `apps/api/test/shops.test.ts`:
   - admin create → ACTIVE with a `CL-` code and a `shop_assignments` row
   - list filters (q trigram, status, regionId, agentId) with totals
   - PATCH with a stale version → 409
@@ -271,12 +271,12 @@ sessions.
   - an agent sees only assigned shops (others → 404)
   - `updatedAfter` returns changes and tombstones (deleted or unassigned)
   - `/shops/:id/visits` totals: all, completed, missed
-- [ ] T066 [P] [US4] Write failing tests in `apps/api/test/exports.test.ts`: SHOPS_XLSX goes QUEUED→DONE, and its rows match the filters
+- [X] T066 [P] [US4] Write failing tests in `apps/api/test/exports.test.ts`: SHOPS_XLSX goes QUEUED→DONE, and its rows match the filters
 
 ### Implementation
 
-- [ ] T067 [US4] Implement the shops module in `apps/api/src/modules/shops/` (routes, service, repository, schema, `shop.view.ts`): list, get (KPIs: total audits, products carried, audit photos, compliance), create, patch (version + status), contacts, bulk assign, bulk delete, visits (cursor, with missed visits from route stops; missed visits carry no reason), agent scoping
-- [ ] T068 [US4] Implement the exports module in `apps/api/src/modules/exports/` and `apps/api/src/jobs/exports.ts` (exceljs SHOPS_XLSX → storage → presigned download)
+- [X] T067 [US4] Implement the shops module in `apps/api/src/modules/shops/` (routes, service, repository, schema, `shop.view.ts`): list, get (KPIs: total audits, products carried, audit photos, compliance), create, patch (version + status), contacts, bulk assign, bulk delete, visits (cursor, with missed visits from route stops; missed visits carry no reason), agent scoping
+- [X] T068 [US4] Implement the exports module in `apps/api/src/modules/exports/` and `apps/api/src/jobs/exports.ts` (exceljs SHOPS_XLSX → storage → presigned download)
 - [ ] T069 [US4] Build Shops from Figma `3:407` (row menu) and `53:151` (selection) in `apps/admin-web/src/app/(admin)/shops/page.tsx` + `src/features/shops/{api/,copy.ts,components/ShopsTable.tsx,components/BulkBar.tsx,components/AssignAgentDialog.tsx}`:
   - `GET /v1/shops` with status filter values including Pending Review
   - Export Shops, Add Shop
@@ -390,8 +390,8 @@ sessions.
 
 **Independent Test**: quickstart US5.
 
-- [ ] T093 [P] [US5] Write failing tests in `apps/api/test/shop-agent-create.test.ts`: an agent create → PENDING_REVIEW assigned to self, idempotent, facade required, `accuracyM > 50` → 422 GPS_ACCURACY; an admin PATCH status ACTIVE approves it and it appears in the agent's next pull
-- [ ] T094 [US5] Extend `apps/api/src/modules/shops/shops.service.ts` for agent creation (PENDING_REVIEW, self-assignment, GPS accuracy ≤ 50 m)
+- [X] T093 [P] [US5] Write failing tests in `apps/api/test/shop-agent-create.test.ts`: an agent create → PENDING_REVIEW assigned to self, idempotent, facade required, `accuracyM > 50` → 422 GPS_ACCURACY; an admin PATCH status ACTIVE approves it and it appears in the agent's next pull
+- [X] T094 [US5] Extend `apps/api/src/modules/shops/shops.service.ts` for agent creation (PENDING_REVIEW, self-assignment, GPS accuracy ≤ 50 m)
 - [ ] T095 [US5] Build agent Add shop from Figma `252:26487` → `252:26607` / `101:2472` → `106:5970` in `apps/mobile/lib/features/add_shop/presentation/add_shop_screen.dart` + `add_shop_controller.dart`:
   - exactly the frame's fields, with valid checks
   - Текущее местоположение + Проверить заново

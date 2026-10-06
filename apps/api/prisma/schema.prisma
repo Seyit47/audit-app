@@ -384,6 +384,7 @@ model AgentPosition {
 
 enum ExportType {
   SHOPS_XLSX
+  AGENTS_XLSX
   PRODUCTS_XLSX
   AGENT_REPORT_PDF
   AGENT_REPORT_XLSX

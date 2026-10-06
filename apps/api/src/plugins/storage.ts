@@ -6,7 +6,8 @@ const URL_TTL_S = 600
 
 export interface Storage {
   presignPut: (key: string, contentType: string, sizeBytes: number) => Promise<{ url: string, headers: Record<string, string>, expiresAt: string }>
-  presignGet: (key: string) => Promise<string>
+  /** `downloadName` makes the browser save the object under that file name. */
+  presignGet: (key: string, downloadName?: string) => Promise<string>
   head: (key: string) => Promise<{ sizeBytes: number, contentType: string } | null>
   getObject: (key: string) => Promise<Buffer>
   putObject: (key: string, body: Buffer, contentType: string) => Promise<void>
@@ -40,7 +41,11 @@ export default fp(async (fastify) => {
       const url = await getSignedUrl(s3, new PutObjectCommand({ Bucket: bucket, Key: key, ContentType: contentType, ContentLength: sizeBytes }), { expiresIn: URL_TTL_S })
       return { url, headers: { 'Content-Type': contentType }, expiresAt: new Date(Date.now() + URL_TTL_S * 1000).toISOString() }
     },
-    presignGet: (key) => getSignedUrl(s3, new GetObjectCommand({ Bucket: bucket, Key: key }), { expiresIn: URL_TTL_S }),
+    presignGet: (key, downloadName) => getSignedUrl(s3, new GetObjectCommand({
+      Bucket: bucket,
+      Key: key,
+      ResponseContentDisposition: downloadName == null ? undefined : `attachment; filename*=UTF-8''${encodeURIComponent(downloadName)}`
+    }), { expiresIn: URL_TTL_S }),
     async head (key) {
       try {
         const res = await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }))
