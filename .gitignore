@@ -10,3 +10,6 @@ node_modules/
 .env
 .env.*
 !.env.example
+
+# Design references (screenshots + CSS exports), local only
+/design/

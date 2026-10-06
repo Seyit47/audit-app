@@ -20,6 +20,7 @@
   --error-bg: #f9edec;
   --white-5: rgb(255 255 255 / 0.05);
   --white-20: rgb(255 255 255 / 0.2);
+  --off-white: #94a3b8;
 
   /* Raw colors repeated across the admin frames (not Figma variables). */
   --ink: #191b25;
@@ -54,6 +55,7 @@
   --color-error-bg: var(--error-bg);
   --color-white-5: var(--white-5);
   --color-white-20: var(--white-20);
+  --color-off-white: var(--off-white);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-subtle: var(--subtle);
@@ -65,6 +67,11 @@
   --color-pending-bg: var(--pending-bg);
   --color-inactive-bg: var(--inactive-bg);
   --color-alert-bg: var(--alert-bg);
+  /* Raw slate values used by the form frames (162:20071, 495:*) */
+  --color-slate-50: #f8fafc;
+  --color-slate-500: #64748b;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
   --font-sans: var(--font-inter);
   --font-display: var(--font-space-grotesk);
 }
