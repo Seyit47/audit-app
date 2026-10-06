@@ -11,7 +11,7 @@
 ## 1. Run locally
 
 ```bash
-docker compose up -d postgres minio
+docker compose up -d postgres seaweedfs
 pnpm install
 pnpm --filter api prisma migrate deploy && pnpm --filter api prisma db seed   # regions, categories
 pnpm --filter api admin:create --email admin@company.tm --password '…'       # operator CLI

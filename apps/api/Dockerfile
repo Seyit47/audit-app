@@ -12,4 +12,4 @@ RUN corepack enable
 ENV NODE_ENV=production
 COPY --from=build /app /app
 EXPOSE 3000
-CMD ["sh", "-c", "pnpm exec prisma migrate deploy && pnpm exec fastify start -a 0.0.0.0 -p 3000 -l info dist/app.js"]
+CMD ["sh", "-c", "pnpm exec prisma migrate deploy && pnpm exec fastify start --options -a 0.0.0.0 -p 3000 -l info dist/app.js"]

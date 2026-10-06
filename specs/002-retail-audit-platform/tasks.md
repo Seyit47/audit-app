@@ -57,12 +57,12 @@ Figma calls are budgeted: one `get_design_context` per frame, when its task runs
 - [X] T005 [P] Generate the admin web with `pnpm create next-app@latest apps/admin-web` (TypeScript, ESLint, Tailwind, App Router, `src/`, `@/*`). Keep the generated files. Name the package `admin-web` and set port 3001 in `apps/admin-web/package.json`
 - [X] T006 [P] Generate the mobile app with `flutter create --org com.auditapp --project-name audit_mobile --platforms android,ios apps/mobile`. Keep the generated files
 - [X] T007 Create `docker-compose.yml`:
-  - dev services: `postgres:16` (db `audit`, healthcheck), and `minio` with a one-shot `minio/mc` that creates the bucket `audit-photos`
+  - dev services: `postgres:16` (db `audit`, healthcheck), and `seaweedfs` (S3 API on 8333; the app creates the `audit-photos` bucket on start)
   - a `prod` profile adding `api` and `admin-web` built from their Dockerfiles, plus volumes
 - [X] T008 [P] Create `apps/api/Dockerfile` (Node 24 slim, production install, `prisma generate`; start runs `prisma migrate deploy` then the server)
 - [X] T009 [P] Create `apps/admin-web/Dockerfile` (standalone output) and set `output: 'standalone'` in `apps/admin-web/next.config.ts`
 - [X] T010 Create `.github/workflows/ci.yml` with three jobs:
-  - `api`: postgres + minio services; install, migrate, `prisma migrate status`, lint, typecheck, test
+  - `api`: postgres service + SeaweedFS started in a step; install, migrate, `prisma migrate status`, lint, typecheck, test
   - `admin-web`: install, lint, typecheck, test, build
   - `mobile`: Flutter stable; `pub get`, `dart format --set-exit-if-changed`, `flutter analyze`, `flutter test`
 - [X] T011 Add the API dependencies in `apps/api/package.json`: `@fastify/jwt`, `@fastify/rate-limit`, `@fastify/swagger`, `@fastify/swagger-ui`, `@fastify/type-provider-typebox`, `@sinclair/typebox`, `@prisma/client`, `@prisma/adapter-pg`, `argon2`, `@aws-sdk/client-s3`, `@aws-sdk/s3-request-presigner`, `sharp`, `pg-boss`, `exceljs`, `pdfmake`, `uuid`, `csv-parse`; dev `prisma`
@@ -92,56 +92,56 @@ Figma calls are budgeted: one `get_design_context` per frame, when its task runs
 
 ### Database
 
-- [ ] T019 Write the account and region models in `apps/api/prisma/schema.prisma`, following data-model.md:
+- [X] T019 Write the account and region models in `apps/api/prisma/schema.prisma`, following data-model.md:
   - `User`: role `ADMIN|AGENT`; email unique, required for ADMIN; phone unique E.164, required for AGENT; argon2id `passwordHash`; status `ACTIVE|DEACTIVATED`; `deactivatedAt` null; `lastActiveAt`; `feedSeenAt` null
   - `CompanySettings` (single row): companyName, logoPhotoId, workStart, workEnd, timezone, visitFrequencyDays 7, defaultAuditRadiusM 100, minGpsAccuracyM 50, noSignalMinutes 45
   - `RefreshToken`: includes `lastUsedAt`
   - `Agent`: code unique `SL-`+sequence; fullName required; whatsappPhone null; regionId required; routeNotes null; `dailyVisitPlan` default 25, 1–100; `dailyAuditPlan` default 20, ≤ dailyVisitPlan; workStatus `ACTIVE|ON_LEAVE`
   - `Device`: agentId unique, installId unique, model, imeiLabel null
   - `Region`
-- [ ] T020 Add the shop and product models to `apps/api/prisma/schema.prisma`:
+- [X] T020 Add the shop and product models to `apps/api/prisma/schema.prisma`:
   - `Shop`: code unique `CL-`+sequence; type `HYPERMARKET|SUPERMARKET|MARKET|MINIMARKET|OTHER`; lat/lng required; auditRadiusM; status `PENDING_REVIEW|ACTIVE|INACTIVE`; `deletedAt` null; lastVisitAt; nextDueAt; `version`
   - `ShopContact` (≤ 5 per shop), `ShopAssignment` (agentId, from, to), `ShopProduct` (PK shopId+productId), `ProductCategory`
   - `Product`: sku unique; name; categoryId; brand null; retailPriceMinor ≥ 0; description null; imageId; status `ACTIVE|INACTIVE`; stockQty ≥ 0; minStockAlert ≥ 0
-- [ ] T021 Add the route, audit and photo models to `apps/api/prisma/schema.prisma`:
+- [X] T021 Add the route, audit and photo models to `apps/api/prisma/schema.prisma`:
   - `Route`: unique (agentId, date)
   - `RouteStop`: status `PLANNED|IN_PROGRESS|DONE|MISSED`; isAuditTask; auditId null
   - `Audit`: client id; device times; receivedAt; clockSkewFlag; durationMin; gps; distanceM; withinRadius; comment required; `hasViolation` bool (from the violation chip)
   - `Photo`: client id; kind `AUDIT|FACADE|PRODUCT|AVATAR|LOGO|ADMIN_UPLOAD`; auditId null; shopId null; storageKey; previewKeys null; mime `image/jpeg|png|webp`; sizeBytes; sha256; width/height null; takenAt; geo; status `PENDING_UPLOAD|READY|FAILED`; verifiedById/At
-- [ ] T022 Add the tracking and export models to `apps/api/prisma/schema.prisma`:
+- [X] T022 Add the tracking and export models to `apps/api/prisma/schema.prisma`:
   - `LocationPing`: bigint id; trigger `HEARTBEAT|GEOFENCE_ENTER|GEOFENCE_EXIT`; index (agentId, recordedAt desc)
   - `AgentPosition`: PK agentId
   - `Export`: type `SHOPS_XLSX|PRODUCTS_XLSX|AGENT_REPORT_PDF|AGENT_REPORT_XLSX`; status `QUEUED|RUNNING|DONE|FAILED`
-- [ ] T023 Create the initial migration in `apps/api/prisma/migrations/` with SQL for:
+- [X] T023 Create the initial migration in `apps/api/prisma/migrations/` with SQL for:
   - `pg_trgm` and trigram indexes on shops `name`, `code`, `ownerName` and `address`
   - sequences for the `SL-` and `CL-` codes
   - a trigger rejecting UPDATE and DELETE on `audits`
   - a trigger on `photos` where `kind='AUDIT' AND status='READY'`. DELETE is rejected. UPDATE may change only `auditId` (NULL→value once), `previewKeys`, `width`, `height`, `verifiedById` and `verifiedAt`
-- [ ] T024 Write `apps/api/prisma/seed.ts` (the default company_settings row, regions, product categories) and the operator CLI `apps/api/scripts/admin.ts` (`admin:create`, `admin:reset-password`; A5). Add the scripts to `apps/api/package.json`
+- [X] T024 Write `apps/api/prisma/seed.ts` (the default company_settings row, regions, product categories) and the operator CLI `apps/api/scripts/admin.ts` (`admin:create`, `admin:reset-password`; A5). Add the scripts to `apps/api/package.json`
 
 ### API platform
 
-- [ ] T025 [P] Create the env plugin in `apps/api/src/plugins/env.ts`, holding typed configuration that fails fast and names any missing variable:
+- [X] T025 [P] Create the env plugin in `apps/api/src/plugins/env.ts`, holding typed configuration that fails fast and names any missing variable:
   - infrastructure: `DATABASE_URL`, `JWT_SECRET`, `S3_*`, `WEB_ORIGIN`
   - `RETENTION_YEARS` 3, `CURRENCY`, `SATELLITE_TILES_URL`
 
   Company values live in `company_settings` (A4), not env
 
   Add `apps/api/.env.example`
-- [ ] T026 [P] Create the prisma plugin in `apps/api/src/plugins/prisma.ts`
-- [ ] T027 [P] Create the error plugin in `apps/api/src/plugins/errors.ts` with the shape and codes from contracts/api.md, request IDs and log redaction. Add `src/lib/app-error.ts`
-- [ ] T028 [P] Create the swagger plugin in `apps/api/src/plugins/swagger.ts` (`/docs`, `/docs/json`)
-- [ ] T029 [P] Create the helpers in `apps/api/src/lib/`:
+- [X] T026 [P] Create the prisma plugin in `apps/api/src/plugins/prisma.ts`
+- [X] T027 [P] Create the error plugin in `apps/api/src/plugins/errors.ts` with the shape and codes from contracts/api.md, request IDs and log redaction. Add `src/lib/app-error.ts`
+- [X] T028 [P] Create the swagger plugin in `apps/api/src/plugins/swagger.ts` (`/docs`, `/docs/json`)
+- [X] T029 [P] Create the helpers in `apps/api/src/lib/`:
   - `geo.ts`: haversine
   - `pagination.ts`: page/size and cursor
   - `time.ts`: company-local date and working-hours checks, using the cached company_settings
   - `ids.ts`: uuid v7
-- [ ] T030 Write failing tests in `apps/api/test/plugins/auth.test.ts`: a missing or expired bearer → 401, a role mismatch → 403, and `request.user` exposes `{id, role, agentId}`
-- [ ] T031 Implement the auth plugin in `apps/api/src/plugins/auth.ts` (`@fastify/jwt`, `authenticate`, `requireRole` route config, `@fastify/rate-limit` registration)
-- [ ] T032 Write failing tests in `apps/api/test/plugins/storage.test.ts` against MinIO: presigned PUT and GET round-trip, and `head` returns size and type
-- [ ] T033 Implement the storage plugin in `apps/api/src/plugins/storage.ts` (`presignPut`, `presignGet` with 10-min expiry, `head`, `getObject`, `putObject`)
-- [ ] T034 Implement the jobs plugin in `apps/api/src/plugins/jobs.ts` (pg-boss on the same database; `send`/`schedule`/`work`) and the worker registry in `apps/api/src/jobs/index.ts`
-- [ ] T035 Create the test harness in `apps/api/test/helpers/`:
+- [X] T030 Write failing tests in `apps/api/test/plugins/auth.test.ts`: a missing or expired bearer → 401, a role mismatch → 403, and `request.user` exposes `{id, role, agentId}`
+- [X] T031 Implement the auth plugin in `apps/api/src/plugins/auth.ts` (`@fastify/jwt`, `authenticate`, `requireRole` route config, `@fastify/rate-limit` registration)
+- [X] T032 Write failing tests in `apps/api/test/plugins/storage.test.ts` against SeaweedFS: presigned PUT and GET round-trip, and `head` returns size and type
+- [X] T033 Implement the storage plugin in `apps/api/src/plugins/storage.ts` (`presignPut`, `presignGet` with 10-min expiry, `head`, `getObject`, `putObject`)
+- [X] T034 Implement the jobs plugin in `apps/api/src/plugins/jobs.ts` (pg-boss on the same database; `send`/`schedule`/`work`) and the worker registry in `apps/api/src/jobs/index.ts`
+- [X] T035 Create the test harness in `apps/api/test/helpers/`:
   - `build-app.ts`: the real app with a test database and bucket
   - `db.ts`: migrate and truncate
   - `factories.ts`: admin, agent+device, region, shop (+assignment), product, audit, photo
@@ -149,18 +149,18 @@ Figma calls are budgeted: one `get_design_context` per frame, when its task runs
 
 ### Uploads (shared)
 
-- [ ] T036 Write failing tests in `apps/api/test/uploads.test.ts`:
+- [X] T036 Write failing tests in `apps/api/test/uploads.test.ts`:
   - `POST /v1/uploads` returns a presigned PUT, is idempotent per id, and **has no auditId field**
   - it rejects a mime other than `image/jpeg|png|webp`, and size > 10 MB (> 5 MB for PRODUCT, PNG or JPG only)
   - complete verifies size and sha256, sets READY and queues previews
   - another user's upload → 404
   - `ADMIN_UPLOAD` requires `shopId` and is admin only
   - the DB trigger lets the preview job set `previewKeys`/`width`/`height` on a READY AUDIT photo, and rejects changes to `storageKey`
-- [ ] T037 Implement the uploads module in `apps/api/src/modules/photos/` (`uploads.routes.ts`, `uploads.service.ts`, `photos.repository.ts`, `photos.schema.ts`)
-- [ ] T038 Implement the preview job in `apps/api/src/jobs/previews.ts` (sharp: 400/1200 px WebP + width/height; the original is never modified) and the image serializer in `apps/api/src/modules/photos/photo.view.ts` (`{id,url,previewUrl400,previewUrl1200,width,height,takenAt}`)
-- [ ] T039 [P] Write failing tests in `apps/api/test/settings.test.ts`: `GET`/`PATCH /v1/settings` are admin only; workEnd > workStart; radius 10–1000; accuracy 5–200; frequency 1–90 days; noSignal 5–240 min; a working-hours change re-schedules the route jobs. Regions CRUD: a region in use can't be deleted (409); agents can GET only
-- [ ] T040 Implement the settings module in `apps/api/src/modules/settings/` (routes, service with a 60 s cache, repository) and the regions module in `apps/api/src/modules/regions/` (GET for all roles; POST/PATCH/DELETE for admins)
-- [ ] T041 Wire all modules in `apps/api/src/app.ts` (composition root: repositories → services → route plugins under `/v1`) and add `GET /health` (db + storage) in `apps/api/src/routes/health.ts`
+- [X] T037 Implement the uploads module in `apps/api/src/modules/photos/` (`uploads.routes.ts`, `uploads.service.ts`, `photos.repository.ts`, `photos.schema.ts`)
+- [X] T038 Implement the preview job in `apps/api/src/jobs/previews.ts` (sharp: 400/1200 px WebP + width/height; the original is never modified) and the image serializer in `apps/api/src/modules/photos/photo.view.ts` (`{id,url,previewUrl400,previewUrl1200,width,height,takenAt}`)
+- [X] T039 [P] Write failing tests in `apps/api/test/settings.test.ts`: `GET`/`PATCH /v1/settings` are admin only; workEnd > workStart; radius 10–1000; accuracy 5–200; frequency 1–90 days; noSignal 5–240 min; a working-hours change re-schedules the route jobs. Regions CRUD: a region in use can't be deleted (409); agents can GET only
+- [X] T040 Implement the settings module in `apps/api/src/modules/settings/` (routes, service with a 60 s cache, repository) and the regions module in `apps/api/src/modules/regions/` (GET for all roles; POST/PATCH/DELETE for admins)
+- [X] T041 Wire all modules in `apps/api/src/app.ts` (composition root: repositories → services → route plugins under `/v1`) and add `GET /health` (db + storage) in `apps/api/src/routes/health.ts`
 
 ### Admin web platform
 
@@ -504,7 +504,7 @@ sessions.
 - [ ] T130 [P] Run the security pass: `apps/api/test/scoping.test.ts` covering every agent-reachable endpoint (SC-007); CORS limited to `WEB_ORIGIN`; cookie flags; presigned expiry; secrets only in env
 - [ ] T131 [P] Add the offline reliability test `apps/api/test/offline-soak.test.ts`: 100 queued audits with retries and duplicates sent out of order → exactly 100 audits, zero lost photos (SC-002). Script: `test:offline-soak`
 - [ ] T132 Run all of quickstart.md (scenarios, reliability, design, `docker compose --profile prod up -d`, `flutter build appbundle`). Time an audit flow under 2 minutes (SC-001) and check that a synced audit appears for admins within 1 minute (SC-003). Fix the gaps and confirm CI is green
-- [ ] T133 Update `README.md` with the production deploy, env per app, PostgreSQL/MinIO backups, the operator CLIs and the mobile release steps
+- [ ] T133 Update `README.md` with the production deploy, env per app, PostgreSQL/SeaweedFS backups, the operator CLIs and the mobile release steps
 
 ---
 

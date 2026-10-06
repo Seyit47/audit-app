@@ -2,6 +2,7 @@ import * as path from 'node:path'
 import AutoLoad, { type AutoloadPluginOptions } from '@fastify/autoload'
 import { type FastifyPluginAsync } from 'fastify'
 import { fileURLToPath } from 'node:url'
+import { genReqId } from './plugins/errors.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -10,8 +11,11 @@ export type AppOptions = {
   // Place your custom options for app below here.
 } & Partial<AutoloadPluginOptions>
 
-// Pass --options via CLI arguments in command to enable these options.
-const options: AppOptions = {
+// Server options used by `fastify start --options` and by the test helper.
+const options = {
+  genReqId,
+  logger: { redact: ['req.headers.authorization', 'req.headers.cookie'] },
+  ajv: { customOptions: { removeAdditional: false, coerceTypes: 'array' as const } }
 }
 
 const app: FastifyPluginAsync<AppOptions> = async (

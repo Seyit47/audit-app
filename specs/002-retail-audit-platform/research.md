@@ -68,7 +68,7 @@ in production (Principle IV). Each one names the requirement that justifies it.
 
 ## R-06 File storage and images
 
-- **Decision**: S3-compatible storage (AWS SDK v3; MinIO in development and self-hosting).
+- **Decision**: S3-compatible storage (AWS SDK v3; SeaweedFS in development and self-hosting (SeaweedFS OSS was archived)).
   1. `POST /uploads` returns a presigned PUT. Limits are ≤ 10 MB, or ≤ 5 MB for products. **No
      audit link is set at upload**, since the audit doesn't exist yet when photos sync first.
   2. The client PUTs the file directly to storage.
@@ -178,8 +178,8 @@ in production (Principle IV). Each one names the requirement that justifies it.
 - **Decision**:
   - **Containers**: Dockerfiles for `api` (Node 24 slim) and `admin-web` (Next standalone
     output).
-  - **docker-compose.yml**: runs postgres, minio, api and admin-web for production on one host.
-    Development uses only the postgres and minio services from the same file.
+  - **docker-compose.yml**: runs postgres, seaweedfs, api and admin-web for production on one host.
+    Development uses only the postgres and seaweedfs services from the same file.
   - **Migrations**: `prisma migrate deploy` runs on API start.
   - **Mobile**: Android App Bundle and APK (agents use Android phones and tablets). iOS builds
     are supported by Flutter but out of scope until needed.
@@ -203,7 +203,7 @@ in production (Principle IV). Each one names the requirement that justifies it.
 ## R-17 Testing (Principle V)
 
 - **Decision**:
-  - **API**: the starter's runner with `app.inject` against real PostgreSQL and MinIO.
+  - **API**: the starter's runner with `app.inject` against real PostgreSQL and SeaweedFS.
     Test-first for auth and device binding, idle expiry, deactivation grace, scoping (incl.
     reassignment), the geofence, audit immutability and photo linking, uploads and previews,
     route generation, misses and re-ordering, compliance, exports and retention.

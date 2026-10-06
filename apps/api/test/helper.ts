@@ -1,43 +1,25 @@
-// This file contains code that we reuse between our tests.
+// Shared test helpers: builds the real app against the test database and test bucket.
+import 'dotenv/config'
 import helper from 'fastify-cli/helper.js'
 import * as test from 'node:test'
 import * as path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { options } from '../src/app.js'
 
-export type TestContext = {
-  after: typeof test.after
-}
+process.env.DATABASE_URL = process.env.DATABASE_URL_TEST ?? process.env.DATABASE_URL
+process.env.S3_BUCKET = process.env.S3_BUCKET_TEST ?? 'audit-photos-test'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+export type TestContext = { after: typeof test.after }
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const AppPath = path.join(__dirname, '..', 'src', 'app.ts')
 
-// Fill in this config with all the configurations
-// needed for testing the application
-function config () {
-  return {
-    skipOverride: true // Register our application with fastify-plugin
-  }
+export function config () {
+  return { skipOverride: true }
 }
 
-// Automatically build and tear down our instance
-async function build (t: TestContext) {
-  // you can set all the options supported by the fastify CLI command
-  const argv = [AppPath]
-
-  // fastify-plugin ensures that all decorators
-  // are exposed for testing purposes, this is
-  // different from the production setup
-  const app = await helper.build(argv, config())
-
-  // Tear down our app after we are done
-  // eslint-disable-next-line no-void
+export async function build (t: TestContext) {
+  const app = await helper.build([AppPath], config(), { ...options, logger: false })
   t.after(() => void app.close())
-
   return app
-}
-
-export {
-  config,
-  build
 }

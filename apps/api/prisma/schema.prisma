@@ -1,7 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
+// Schema for the retail audit platform. Source: specs/002-retail-audit-platform/data-model.md
 
 generator client {
   provider = "prisma-client"
@@ -10,4 +7,401 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+// ---------- Accounts ----------
+
+enum Role {
+  ADMIN
+  AGENT
+}
+
+enum UserStatus {
+  ACTIVE
+  DEACTIVATED
+}
+
+model User {
+  id            String         @id @db.Uuid
+  role          Role
+  email         String?        @unique
+  phone         String?        @unique
+  passwordHash  String
+  status        UserStatus     @default(ACTIVE)
+  deactivatedAt DateTime?      @db.Timestamptz
+  lastActiveAt  DateTime       @default(now()) @db.Timestamptz
+  feedSeenAt    DateTime?      @db.Timestamptz
+  createdAt     DateTime       @default(now()) @db.Timestamptz
+  updatedAt     DateTime       @updatedAt @db.Timestamptz
+  agent         Agent?
+  refreshTokens RefreshToken[]
+  uploads       Photo[]        @relation("PhotoUploader")
+  verified      Photo[]        @relation("PhotoVerifier")
+  exports       Export[]
+}
+
+model RefreshToken {
+  id         String    @id @db.Uuid
+  userId     String    @db.Uuid
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash  String    @unique
+  deviceId   String?   @db.Uuid
+  expiresAt  DateTime  @db.Timestamptz
+  revokedAt  DateTime? @db.Timestamptz
+  lastUsedAt DateTime  @default(now()) @db.Timestamptz
+  createdAt  DateTime  @default(now()) @db.Timestamptz
+
+  @@index([userId])
+}
+
+enum WorkStatus {
+  ACTIVE
+  ON_LEAVE
+}
+
+model Agent {
+  userId         String           @id @db.Uuid
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code           String           @unique
+  fullName       String
+  phone          String
+  whatsappPhone  String?
+  photoId        String?          @db.Uuid
+  regionId       String           @db.Uuid
+  region         Region           @relation(fields: [regionId], references: [id])
+  routeNotes     String?
+  dailyVisitPlan Int              @default(25)
+  dailyAuditPlan Int              @default(20)
+  workStatus     WorkStatus       @default(ACTIVE)
+  version        Int              @default(1)
+  createdAt      DateTime         @default(now()) @db.Timestamptz
+  updatedAt      DateTime         @updatedAt @db.Timestamptz
+  device         Device?
+  shops          Shop[]
+  assignments    ShopAssignment[]
+  routes         Route[]
+  audits         Audit[]
+  pings          LocationPing[]
+  position       AgentPosition?
+}
+
+model Device {
+  id        String    @id @db.Uuid
+  agentId   String    @unique @db.Uuid
+  agent     Agent     @relation(fields: [agentId], references: [userId], onDelete: Cascade)
+  installId String?   @unique
+  model     String?
+  imeiLabel String?
+  boundAt   DateTime? @db.Timestamptz
+}
+
+model CompanySettings {
+  id                  Int      @id @default(1)
+  companyName         String   @default("COMPANY NAME")
+  logoPhotoId         String?  @db.Uuid
+  workStart           String   @default("08:00")
+  workEnd             String   @default("19:00")
+  timezone            String   @default("Asia/Ashgabat")
+  visitFrequencyDays  Int      @default(7)
+  defaultAuditRadiusM Int      @default(100)
+  minGpsAccuracyM     Int      @default(50)
+  noSignalMinutes     Int      @default(45)
+  updatedAt           DateTime @updatedAt @db.Timestamptz
+  updatedById         String?  @db.Uuid
+}
+
+model Region {
+  id          String  @id @db.Uuid
+  name        String  @unique
+  centroidLat Float?
+  centroidLng Float?
+  agents      Agent[]
+  shops       Shop[]
+}
+
+// ---------- Shops & products ----------
+
+enum ShopType {
+  HYPERMARKET
+  SUPERMARKET
+  MARKET
+  MINIMARKET
+  OTHER
+}
+
+enum ShopStatus {
+  PENDING_REVIEW
+  ACTIVE
+  INACTIVE
+}
+
+model Shop {
+  id              String           @id @db.Uuid
+  code            String           @unique
+  name            String
+  type            ShopType         @default(OTHER)
+  address         String
+  addressDetail   String?
+  regionId        String?          @db.Uuid
+  region          Region?          @relation(fields: [regionId], references: [id])
+  lat             Float
+  lng             Float
+  auditRadiusM    Int
+  ownerName       String?
+  facadePhotoId   String?          @db.Uuid
+  assignedAgentId String?          @db.Uuid
+  assignedAgent   Agent?           @relation(fields: [assignedAgentId], references: [userId])
+  status          ShopStatus
+  deletedAt       DateTime?        @db.Timestamptz
+  lastVisitAt     DateTime?        @db.Timestamptz
+  nextDueAt       DateTime?        @db.Timestamptz
+  version         Int              @default(1)
+  createdById     String           @db.Uuid
+  createdAt       DateTime         @default(now()) @db.Timestamptz
+  updatedAt       DateTime         @updatedAt @db.Timestamptz
+  contacts        ShopContact[]
+  assignments     ShopAssignment[]
+  products        ShopProduct[]
+  stops           RouteStop[]
+  audits          Audit[]
+  photos          Photo[]
+
+  @@index([assignedAgentId, status])
+  @@index([regionId])
+  @@index([nextDueAt])
+}
+
+model ShopContact {
+  id       String  @id @db.Uuid
+  shopId   String  @db.Uuid
+  shop     Shop    @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  phone    String
+  label    String?
+  position Int
+
+  @@index([shopId])
+}
+
+model ShopAssignment {
+  id      String    @id @db.Uuid
+  shopId  String    @db.Uuid
+  shop    Shop      @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  agentId String?   @db.Uuid
+  agent   Agent?    @relation(fields: [agentId], references: [userId])
+  from    DateTime  @db.Timestamptz
+  to      DateTime? @db.Timestamptz
+
+  @@index([shopId, from])
+  @@index([agentId])
+}
+
+model ProductCategory {
+  id       String    @id @db.Uuid
+  name     String    @unique
+  products Product[]
+}
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model Product {
+  id               String          @id @db.Uuid
+  sku              String          @unique
+  name             String
+  categoryId       String          @db.Uuid
+  category         ProductCategory @relation(fields: [categoryId], references: [id])
+  brand            String?
+  retailPriceMinor Int
+  description      String?
+  imageId          String?         @db.Uuid
+  status           ProductStatus   @default(ACTIVE)
+  stockQty         Int             @default(0)
+  minStockAlert    Int             @default(0)
+  createdAt        DateTime        @default(now()) @db.Timestamptz
+  updatedAt        DateTime        @updatedAt @db.Timestamptz
+  shops            ShopProduct[]
+}
+
+model ShopProduct {
+  shopId    String  @db.Uuid
+  shop      Shop    @relation(fields: [shopId], references: [id], onDelete: Cascade)
+  productId String  @db.Uuid
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([shopId, productId])
+  @@index([productId])
+}
+
+// ---------- Routes, audits, photos ----------
+
+model Route {
+  id          String      @id @db.Uuid
+  agentId     String      @db.Uuid
+  agent       Agent       @relation(fields: [agentId], references: [userId], onDelete: Cascade)
+  date        DateTime    @db.Date
+  generatedAt DateTime    @default(now()) @db.Timestamptz
+  updatedAt   DateTime    @updatedAt @db.Timestamptz
+  stops       RouteStop[]
+
+  @@unique([agentId, date])
+}
+
+enum StopStatus {
+  PLANNED
+  IN_PROGRESS
+  DONE
+  MISSED
+}
+
+model RouteStop {
+  id          String     @id @db.Uuid
+  routeId     String     @db.Uuid
+  route       Route      @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  shopId      String     @db.Uuid
+  shop        Shop       @relation(fields: [shopId], references: [id])
+  position    Int
+  plannedAt   DateTime   @db.Timestamptz
+  isAuditTask Boolean    @default(false)
+  status      StopStatus @default(PLANNED)
+  auditId     String?    @unique @db.Uuid
+  audit       Audit?     @relation(fields: [auditId], references: [id])
+  updatedAt   DateTime   @updatedAt @db.Timestamptz
+
+  @@index([routeId, position])
+  @@index([shopId])
+}
+
+model Audit {
+  id               String     @id @db.Uuid
+  shopId           String     @db.Uuid
+  shop             Shop       @relation(fields: [shopId], references: [id])
+  agentId          String     @db.Uuid
+  agent            Agent      @relation(fields: [agentId], references: [userId])
+  startedAtDevice  DateTime   @db.Timestamptz
+  finishedAtDevice DateTime   @db.Timestamptz
+  receivedAt       DateTime   @default(now()) @db.Timestamptz
+  clockSkewFlag    Boolean    @default(false)
+  durationMin      Int
+  lat              Float
+  lng              Float
+  gpsAccuracyM     Float
+  distanceM        Int
+  withinRadius     Boolean
+  comment          String
+  hasViolation     Boolean    @default(false)
+  stop             RouteStop?
+  photos           Photo[]
+
+  @@index([shopId, finishedAtDevice])
+  @@index([agentId, finishedAtDevice])
+}
+
+enum PhotoKind {
+  AUDIT
+  FACADE
+  PRODUCT
+  AVATAR
+  LOGO
+  ADMIN_UPLOAD
+}
+
+enum PhotoStatus {
+  PENDING_UPLOAD
+  READY
+  FAILED
+}
+
+model Photo {
+  id           String      @id @db.Uuid
+  kind         PhotoKind
+  auditId      String?     @db.Uuid
+  audit        Audit?      @relation(fields: [auditId], references: [id])
+  shopId       String?     @db.Uuid
+  shop         Shop?       @relation(fields: [shopId], references: [id])
+  uploadedById String      @db.Uuid
+  uploadedBy   User        @relation("PhotoUploader", fields: [uploadedById], references: [id])
+  storageKey   String
+  previewKeys  Json?
+  mime         String
+  sizeBytes    Int
+  sha256       String
+  width        Int?
+  height       Int?
+  takenAt      DateTime    @db.Timestamptz
+  lat          Float?
+  lng          Float?
+  accuracyM    Float?
+  status       PhotoStatus @default(PENDING_UPLOAD)
+  verifiedById String?     @db.Uuid
+  verifiedBy   User?       @relation("PhotoVerifier", fields: [verifiedById], references: [id])
+  verifiedAt   DateTime?   @db.Timestamptz
+  createdAt    DateTime    @default(now()) @db.Timestamptz
+
+  @@index([auditId])
+  @@index([shopId, takenAt])
+  @@index([uploadedById, takenAt])
+  @@index([takenAt, id])
+}
+
+// ---------- Tracking & exports ----------
+
+enum PingTrigger {
+  HEARTBEAT
+  GEOFENCE_ENTER
+  GEOFENCE_EXIT
+}
+
+model LocationPing {
+  id         BigInt      @id @default(autoincrement())
+  agentId    String      @db.Uuid
+  agent      Agent       @relation(fields: [agentId], references: [userId], onDelete: Cascade)
+  recordedAt DateTime    @db.Timestamptz
+  lat        Float
+  lng        Float
+  accuracyM  Float
+  speedKmh   Float?
+  batteryPct Int?
+  trigger    PingTrigger @default(HEARTBEAT)
+  receivedAt DateTime    @default(now()) @db.Timestamptz
+
+  @@index([agentId, recordedAt(sort: Desc)])
+}
+
+model AgentPosition {
+  agentId    String   @id @db.Uuid
+  agent      Agent    @relation(fields: [agentId], references: [userId], onDelete: Cascade)
+  recordedAt DateTime @db.Timestamptz
+  lat        Float
+  lng        Float
+  accuracyM  Float
+  speedKmh   Float?
+  batteryPct Int?
+}
+
+enum ExportType {
+  SHOPS_XLSX
+  PRODUCTS_XLSX
+  AGENT_REPORT_PDF
+  AGENT_REPORT_XLSX
+}
+
+enum ExportStatus {
+  QUEUED
+  RUNNING
+  DONE
+  FAILED
+}
+
+model Export {
+  id            String       @id @db.Uuid
+  requestedById String       @db.Uuid
+  requestedBy   User         @relation(fields: [requestedById], references: [id])
+  type          ExportType
+  params        Json
+  status        ExportStatus @default(QUEUED)
+  fileKey       String?
+  createdAt     DateTime     @default(now()) @db.Timestamptz
+  finishedAt    DateTime?    @db.Timestamptz
 }

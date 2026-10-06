@@ -40,7 +40,7 @@ mobile
 drift/SQLite on agent devices
 
 **Testing**:
-- **API**: the starter's runner with `app.inject` against real PostgreSQL and MinIO
+- **API**: the starter's runner with `app.inject` against real PostgreSQL and SeaweedFS
 - **Mobile**: `flutter test`
 - **Web**: Vitest for server actions and the session
 - **Screens**: compared against Figma `get_screenshot`
@@ -84,7 +84,7 @@ endpoints.
 
 | Addition | Requirement |
 |----------|-------------|
-| `docker-compose.yml`, `apps/api/Dockerfile`, `apps/admin-web/Dockerfile` | Production deploy; local PostgreSQL + MinIO |
+| `docker-compose.yml`, `apps/api/Dockerfile`, `apps/admin-web/Dockerfile` | Production deploy; local PostgreSQL + SeaweedFS |
 | pg-boss | Daily routes, end-of-day misses, re-ordering, previews, exports, retention |
 | AWS SDK S3 + sharp | Photo originals + previews (FR-015, FR-025) |
 | exceljs + pdfmake | Export Shops, Export Catalog, Экспорт отчёта (PDF/XLS) |

@@ -21,8 +21,8 @@ decides, record.
 
 ## Setup
 
-Requirements: Node 24 + pnpm, Flutter stable, PostgreSQL 16 and an S3-compatible store (MinIO),
-either via `docker compose up -d postgres minio minio-init` or installed locally.
+Requirements: Node 24 + pnpm, Flutter stable, PostgreSQL 16 and an S3-compatible store (SeaweedFS),
+either via `docker compose up -d postgres seaweedfs` or installed locally.
 
 ```bash
 pnpm install
