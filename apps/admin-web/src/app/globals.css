@@ -20,6 +20,19 @@
   --error-bg: #f9edec;
   --white-5: rgb(255 255 255 / 0.05);
   --white-20: rgb(255 255 255 / 0.2);
+
+  /* Raw colors repeated across the admin frames (not Figma variables). */
+  --ink: #191b25;
+  --muted: #464555;
+  --subtle: #777587;
+  --line: #e7e7f5;
+  --danger: #ba1a1a;
+  --checkbox: #767676;
+  --row-selected: rgb(226 223 255 / 0.2);
+  --success-bg: #bdffec;
+  --pending-bg: #eeecff;
+  --inactive-bg: #e1e1f0;
+  --alert-bg: rgb(255 218 214 / 0.4);
 }
 
 @theme inline {
@@ -41,6 +54,17 @@
   --color-error-bg: var(--error-bg);
   --color-white-5: var(--white-5);
   --color-white-20: var(--white-20);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-line: var(--line);
+  --color-danger: var(--danger);
+  --color-checkbox: var(--checkbox);
+  --color-row-selected: var(--row-selected);
+  --color-success-bg: var(--success-bg);
+  --color-pending-bg: var(--pending-bg);
+  --color-inactive-bg: var(--inactive-bg);
+  --color-alert-bg: var(--alert-bg);
   --font-sans: var(--font-inter);
   --font-display: var(--font-space-grotesk);
 }

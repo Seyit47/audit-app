@@ -164,17 +164,17 @@ Figma calls are budgeted: one `get_design_context` per frame, when its task runs
 
 ### Admin web platform
 
-- [ ] T042 [P] Add the `gen:api` script (openapi-typescript from `/docs/json` → `src/lib/api-types.ts`) and implement `apps/admin-web/src/lib/api.ts` (typed server fetch, bearer from cookie, error mapping, list helpers)
-- [ ] T043 Write failing Vitest tests in `apps/admin-web/src/lib/session.test.ts`:
+- [X] T042 [P] Add the `gen:api` script (openapi-typescript from `/docs/json` → `src/lib/api-types.ts`) and implement `apps/admin-web/src/lib/api.ts` (typed server fetch, bearer from cookie, error mapping, list helpers)
+- [X] T043 Write failing Vitest tests in `apps/admin-web/src/lib/session.test.ts`:
   - cookies are httpOnly, Secure and SameSite=Lax
   - a refresh happens on 401
   - after 12 h idle the user goes to `/login`
   - agent-role logins are refused
 
   Configure `apps/admin-web/vitest.config.ts`
-- [ ] T044 Implement the session in `apps/admin-web/src/lib/session.ts` and the auth redirect for `(admin)` routes in `apps/admin-web/src/proxy.ts`
-- [ ] T045 [P] Implement the upload helper in `apps/admin-web/src/lib/upload.ts`: browser sha256 → server action create → PUT → server action complete
-- [ ] T046 Build the admin layout from the sidebar and header of Figma `3:407` in `apps/admin-web/src/app/(admin)/layout.tsx`, `src/components/layout/Sidebar.tsx` and `src/components/layout/Topbar.tsx`:
+- [X] T044 Implement the session in `apps/admin-web/src/lib/session.ts` and the auth redirect for `(admin)` routes in `apps/admin-web/src/proxy.ts`
+- [X] T045 [P] Implement the upload helper in `apps/admin-web/src/lib/upload.ts`: browser sha256 → server action create → PUT → server action complete
+- [X] T046 Build the admin layout from the sidebar and header of Figma `3:407` in `apps/admin-web/src/app/(admin)/layout.tsx`, `src/components/layout/Sidebar.tsx` and `src/components/layout/Topbar.tsx`:
   - logo + company name from `GET /v1/me`
   - nav Dashboard (→ `/map`), Map, Shops, Products, Salesmen, Pictures, Settings (→ `/settings`, A4)
   - header: "Search clients…" → `/shops?q=`; bell slot (feed panel added in US9, A6); Help rendered but inert; avatar menu with Sign out
