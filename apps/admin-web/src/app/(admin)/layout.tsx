@@ -1,15 +1,18 @@
+import { layoutCopy } from '@/components/layout/copy'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Topbar } from '@/components/layout/Topbar'
+import { getLocale } from '@/lib/locale'
 import { getMe } from '@/lib/me'
 
 export default async function AdminLayout ({ children }: LayoutProps<'/'>) {
-  const { config } = await getMe()
+  const [{ config }, locale] = await Promise.all([getMe(), getLocale()])
+  const copy = layoutCopy[locale]
 
   return (
     <div className='flex min-h-screen'>
-      <Sidebar companyName={config.companyName} logoUrl={config.logo?.previewUrl400 ?? config.logo?.url ?? null} />
+      <Sidebar companyName={config.companyName} logoUrl={config.logo?.previewUrl400 ?? config.logo?.url ?? null} copy={copy} />
       <div className='flex min-w-0 flex-1 flex-col'>
-        <Topbar />
+        <Topbar copy={copy} locale={locale} />
         <main className='flex-1'>{children}</main>
       </div>
     </div>

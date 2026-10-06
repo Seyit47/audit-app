@@ -3,10 +3,10 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Icon } from '@/components/ui/Icon'
-import { layoutCopy as copy } from './copy'
+import type { LayoutCopy } from './copy'
 
 // Icon sizes are the Figma slot sizes (3:414).
-const items = [
+const navItems = (copy: LayoutCopy) => [
   { href: '/map', label: copy.nav.dashboard, icon: 'nav-grid', w: 15, h: 15, match: null },
   { href: '/map', label: copy.nav.map, icon: 'nav-grid', w: 15, h: 15, match: '/map' },
   { href: '/shops', label: copy.nav.shops, icon: 'nav-shops', w: 15, h: 13.333, match: '/shops' },
@@ -16,8 +16,9 @@ const items = [
   { href: '/settings', label: copy.nav.settings, icon: 'nav-settings', w: 16.75, h: 16.667, match: '/settings' }
 ]
 
-export function Sidebar ({ companyName, logoUrl }: { companyName: string | null, logoUrl: string | null }) {
+export function Sidebar ({ companyName, logoUrl, copy }: { companyName: string | null, logoUrl: string | null, copy: LayoutCopy }) {
   const pathname = usePathname()
+  const items = navItems(copy)
 
   return (
     <aside className='sticky top-0 flex h-screen w-[230px] shrink-0 flex-col bg-accent'>

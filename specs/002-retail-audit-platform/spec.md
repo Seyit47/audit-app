@@ -324,6 +324,7 @@ These are behaviors the designs imply but give no input UI for. Each is resolved
 | A9 | No location-permission screen | **New UI**: an explanation screen before the OS permission dialogs, built from existing mobile components |
 | A10 | "Verified" / "Проверено" with no verify control | Automatic: verified when the audit was within the radius and the clock was correct |
 | A11 | "Products carried" with no assortment field | **New UI**: a product multi-select in the shop edit dialog (`162:20071`), built from existing form components |
+| A12 | Admin web frames are in English, but the Map frames (`21:2`, `3:2`) show the sidebar in Russian | The admin web supports **RU (default) and EN**. Russian comes from the Map sidebar where Figma has it, otherwise from translations. **New UI**: a RU/EN switch (the mobile Home RU/EN labels) in the header avatar menu. Approved 2026-10-07 |
 | B1 | Pictures "Upload" button (`53:1375`) | Opens an upload dialog (existing ImageUpload + the shop select from `162:20071`). Photos are stored as admin uploads for that shop |
 | B2 | Map Layers / Fullscreen / Refresh controls (`21:2`, `3:2`) | Layers switches between the Figma-styled map and satellite imagery. Fullscreen uses the browser fullscreen API. Refresh reloads markers and positions |
 | B3 | Mobile "Filters" buttons and gallery "Параметры фильтрации" | Open a bottom sheet (existing chips + bottom-sheet card) with the filters the screen supports: status, region, date |

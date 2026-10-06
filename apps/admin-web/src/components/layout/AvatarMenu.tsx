@@ -1,12 +1,17 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
 import { Icon } from '@/components/ui/Icon'
+import { SegmentedControl } from '@/components/ui/SegmentedControl'
 import { signOut } from '@/features/auth/actions'
-import { layoutCopy as copy } from './copy'
+import { setLocale } from '@/features/locale/actions'
+import type { Locale } from '@/lib/i18n'
+import type { LayoutCopy } from './copy'
 
-export function AvatarMenu () {
+/** Header avatar menu: RU/EN switch (gap A12) and sign out. Styled after the row dropdown of 3:407 (3:1959). */
+export function AvatarMenu ({ copy, locale }: { copy: LayoutCopy, locale: Locale }) {
   const [open, setOpen] = useState(false)
+  const [pending, startTransition] = useTransition()
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -25,12 +30,21 @@ export function AvatarMenu () {
         <Icon name='avatar' width={12} height={12} />
       </button>
       {open && (
-        // Styled after the row action dropdown of 3:407 (3:1959).
-        <form action={signOut} className='absolute right-0 top-10 z-20 w-44 rounded-lg bg-pure-white py-1.5 shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.1),0px_4px_6px_-4px_rgba(0,0,0,0.1)]'>
-          <button type='submit' className='flex h-9 w-full items-center px-3 text-left text-sm text-error hover:bg-grey-3'>
-            {copy.signOut}
-          </button>
-        </form>
+        <div className='absolute right-0 top-10 z-20 flex w-44 flex-col rounded-xl bg-pure-white py-1.5 shadow-[0px_20px_25px_-5px_rgba(0,0,0,0.1),0px_8px_10px_-6px_rgba(0,0,0,0.1)]'>
+          <div className={`flex items-center justify-between gap-2 px-3 py-2 ${pending ? 'opacity-60' : ''}`}>
+            <span className='text-xs font-medium leading-4 text-ink'>{copy.language}</span>
+            <SegmentedControl
+              options={[{ value: 'ru', label: 'RU' }, { value: 'en', label: 'EN' }]}
+              value={locale}
+              onChange={(next) => startTransition(() => setLocale(next))}
+            />
+          </div>
+          <form action={signOut} className='border-t border-secondary-bg pt-1'>
+            <button type='submit' className='flex h-9 w-full items-center px-3 text-left text-xs font-medium leading-4 text-danger hover:bg-secondary-bg'>
+              {copy.signOut}
+            </button>
+          </form>
+        </div>
       )}
     </div>
   )

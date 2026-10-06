@@ -177,9 +177,10 @@ Rationale: the system holds employee location data and clients' commercial data.
 - **Photos**: S3-compatible object storage; only metadata in PostgreSQL.
 - **Localization**: the mobile app supports Russian (default) and English with Flutter gen-l10n,
   as its Figma Home frames provide a RU/EN switch. No user-facing string is hard-coded in widgets.
-  The admin web shows the text of its Figma frames as designed, and has no language switch
-  because none is designed. Its strings live in one copy module per feature, not inline in
-  markup.
+  The admin web also supports Russian (default) and English (approved gap A12): English text
+  comes from its Figma frames, Russian from the Figma Map frames' sidebar where present and
+  otherwise from translations. A RU/EN switch sits in the avatar menu. Its strings live in one
+  copy module per feature with both languages, not inline in markup.
 - **Design**: see Principle I (Figma only). The mobile app supports light and dark themes, as in
   the Figma "Agent Mobile light" and "Agent Mobile dark" sections.
 - Changing a language, framework or primary datastore is a constitution amendment.
@@ -207,4 +208,4 @@ template or habit conflicts with it, the constitution wins.
   compliance. A deviation is either fixed or justified in the plan's Complexity Tracking table.
   NON-NEGOTIABLE principles change only by amendment.
 
-**Version**: 2.4.0 | **Ratified**: 2026-10-05 | **Last Amended**: 2026-10-06
+**Version**: 2.5.0 | **Ratified**: 2026-10-05 | **Last Amended**: 2026-10-07
