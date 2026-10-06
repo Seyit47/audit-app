@@ -178,7 +178,7 @@ Figma calls are budgeted: one `get_design_context` per frame, when its task runs
   - logo + company name from `GET /v1/me`
   - nav Dashboard (→ `/map`), Map, Shops, Products, Salesmen, Pictures, Settings (→ `/settings`, A4)
   - header: "Search clients…" → `/shops?q=`; bell slot (feed panel added in US9, A6); Help rendered but inert; avatar menu with Sign out
-- [ ] T047 [P] Build the shared web components in `apps/admin-web/src/components/ui/`, each from the frame where it first appears:
+- [X] T047 [P] Build the shared web components in `apps/admin-web/src/components/ui/`, each from the frame where it first appears:
   - `Button`, `PageHeader`, `StatCard`, `FilterSelect`, `FilterChip`, `SearchField` (`30:574`)
   - `DataTable`, `Pagination`, `StatusBadge`, `Avatar`, `RowMenu` (`3:407`)
   - `Dialog`, `FormField`, `ImageUpload` (`162:20071`), `SidePanel`, `PhotoTile` (`138:11987`)

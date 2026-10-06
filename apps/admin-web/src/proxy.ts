@@ -36,5 +36,6 @@ export async function proxy (request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|icons|favicon.ico|.*\\.(?:svg|png|jpg|webp)$).*)']
+  // Pages only: skip Next internals and any file with an extension (icons, map style, worker).
+  matcher: ['/((?!_next/static|_next/image|.*\\..*).*)']
 }
