@@ -17,3 +17,14 @@ export function isWithinWorkingHours (at: Date, s: { workStart: string, workEnd:
   const m = localMinutes(at, s.timezone)
   return m >= toMinutes(s.workStart) && m < toMinutes(s.workEnd)
 }
+
+/** The instant a company-local calendar date (YYYY-MM-DD) starts. */
+export function startOfLocalDay (date: string, timezone: string): Date {
+  const guess = new Date(`${date}T00:00:00Z`)
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23'
+  }).formatToParts(guess)
+  const get = (t: string) => parts.find((p) => p.type === t)!.value
+  const asUtc = Date.parse(`${get('year')}-${get('month')}-${get('day')}T${get('hour')}:${get('minute')}:${get('second')}Z`)
+  return new Date(guess.getTime() - (asUtc - guess.getTime()))
+}

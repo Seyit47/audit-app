@@ -1,0 +1,133 @@
+import { test, before, beforeEach } from 'node:test'
+import * as assert from 'node:assert'
+import type { FastifyInstance } from 'fastify'
+import { build } from '../helper.js'
+import { resetDb } from '../helpers/db.js'
+import * as f from '../helpers/factories.js'
+import { bearer } from '../helpers/auth.js'
+
+let app: FastifyInstance
+let admin: { authorization: string }
+let adminId: string
+before(async (t) => { app = await build(t as never) })
+beforeEach(async () => {
+  await resetDb(app)
+  const a = await f.admin(app)
+  adminId = a.id
+  admin = bearer(app, { id: a.id, role: 'ADMIN' })
+})
+
+const create = async (payload: object) => app.inject({ method: 'POST', url: '/v1/agents', headers: admin, payload })
+const valid = async (extra: object = {}) => ({ fullName: 'Ahmed Karimov', phone: '+99365124582', regionId: (await f.region(app)).id, ...extra })
+
+test('create returns a sequential SL- code and a temporary password that signs in', async () => {
+  const one = await create(await valid({ phone: '+99365000001' }))
+  const two = await create(await valid({ phone: '+99365000002' }))
+  assert.strictEqual(one.statusCode, 201, one.body)
+  const [a, b] = [one.json(), two.json()]
+  assert.match(a.code, /^SL-\d+$/)
+  assert.strictEqual(Number(b.code.slice(3)), Number(a.code.slice(3)) + 1)
+  assert.ok(a.temporaryPassword.length >= 8)
+
+  const signIn = await app.inject({ method: 'POST', url: '/v1/auth/login', payload: { login: '+99365000001', password: a.temporaryPassword, device: { installId: 'x', model: 'm' } } })
+  assert.strictEqual(signIn.statusCode, 200, signIn.body)
+})
+
+test('validation: fullName and regionId required, visit plan 1–100, audit plan ≤ visit plan', async () => {
+  const base = await valid()
+  for (const bad of [
+    { ...base, fullName: undefined },
+    { ...base, regionId: undefined },
+    { ...base, dailyVisitPlan: 0 },
+    { ...base, dailyVisitPlan: 101 },
+    { ...base, dailyVisitPlan: 10, dailyAuditPlan: 11 }
+  ]) {
+    const res = await create(bad)
+    assert.strictEqual(res.statusCode, 400, JSON.stringify(bad))
+    assert.strictEqual(res.json().error.code, 'VALIDATION_FAILED')
+  }
+  assert.strictEqual((await create({ ...base, phone: '+99365000009' })).statusCode, 201)
+  assert.strictEqual((await create({ ...base, phone: '+99365000009' })).statusCode, 409, 'phone is unique')
+})
+
+test('PATCH sets workStatus (Активен/Отпуск) with optimistic versioning', async () => {
+  const g = await f.agent(app)
+  const patch = (payload: object) => app.inject({ method: 'PATCH', url: `/v1/agents/${g.userId}`, headers: admin, payload })
+  const res = await patch({ version: 1, workStatus: 'ON_LEAVE' })
+  assert.strictEqual(res.statusCode, 200, res.body)
+  assert.strictEqual(res.json().workStatus, 'ON_LEAVE')
+  assert.strictEqual(res.json().version, 2)
+  assert.strictEqual((await patch({ version: 1, workStatus: 'ACTIVE' })).statusCode, 409)
+})
+
+test('deactivate unassigns shops (closing assignment rows) and reactivate restores sign-in', async () => {
+  const g = await f.agent(app)
+  const s = await f.shop(app, { agentId: g.userId, createdById: adminId })
+  const patch = (payload: object) => app.inject({ method: 'PATCH', url: `/v1/agents/${g.userId}`, headers: admin, payload })
+
+  const off = await patch({ version: 1, active: false })
+  assert.strictEqual(off.statusCode, 200, off.body)
+  assert.strictEqual(off.json().active, false)
+  const shop = await app.prisma.shop.findUniqueOrThrow({ where: { id: s.id } })
+  assert.strictEqual(shop.assignedAgentId, null)
+  const rows = await app.prisma.shopAssignment.findMany({ where: { shopId: s.id }, orderBy: { from: 'asc' } })
+  assert.ok(rows[0]!.to, 'agent row closed')
+  assert.strictEqual(rows.at(-1)!.agentId, null, 'unassigned period opened')
+
+  const on = await patch({ version: 2, active: true })
+  assert.strictEqual(on.json().active, true)
+  const signIn = await app.inject({ method: 'POST', url: '/v1/auth/login', payload: { login: g.phone, password: f.PASSWORD, device: { installId: 'i', model: 'm' } } })
+  assert.strictEqual(signIn.statusCode, 200)
+})
+
+test('reset-password returns a new temporary password and revokes sessions', async () => {
+  const g = await f.agent(app)
+  const res = await app.inject({ method: 'POST', url: `/v1/agents/${g.userId}/reset-password`, headers: admin })
+  assert.strictEqual(res.statusCode, 200, res.body)
+  const { temporaryPassword } = res.json()
+  const signIn = (password: string) => app.inject({ method: 'POST', url: '/v1/auth/login', payload: { login: g.phone, password, device: { installId: 'i', model: 'm' } } })
+  assert.strictEqual((await signIn(f.PASSWORD)).statusCode, 401)
+  assert.strictEqual((await signIn(temporaryPassword)).statusCode, 200)
+})
+
+test('PUT /agents/:id/device clears the binding and sets the IMEI label', async () => {
+  const g = await f.agent(app, { installId: 'old-phone' })
+  const res = await app.inject({ method: 'PUT', url: `/v1/agents/${g.userId}/device`, headers: admin, payload: { imeiLabel: '35-209900-176148-1' } })
+  assert.strictEqual(res.statusCode, 200, res.body)
+  const d = await app.prisma.device.findUniqueOrThrow({ where: { agentId: g.userId } })
+  assert.strictEqual(d.installId, null)
+  assert.strictEqual(d.imeiLabel, '35-209900-176148-1')
+  const signIn = await app.inject({ method: 'POST', url: '/v1/auth/login', payload: { login: g.phone, password: f.PASSWORD, device: { installId: 'new-phone', model: 'm' } } })
+  assert.strictEqual(signIn.statusCode, 200, 'a new phone binds')
+})
+
+test('list: search, status and region filters, pagination', async () => {
+  const r1 = await f.region(app)
+  const r2 = await f.region(app)
+  const a = await f.agent(app, { regionId: r1.id })
+  await f.agent(app, { regionId: r1.id, workStatus: 'ON_LEAVE' })
+  await f.agent(app, { regionId: r2.id })
+  const list = (qs: string) => app.inject({ url: `/v1/agents?${qs}`, headers: admin })
+
+  const all = (await list('page=1&size=2')).json()
+  assert.strictEqual(all.total, 3)
+  assert.strictEqual(all.items.length, 2)
+  assert.strictEqual(all.size, 2)
+  assert.strictEqual((await list('page=2&size=2')).json().items.length, 1)
+  assert.strictEqual((await list(`regionId=${r1.id}`)).json().total, 2)
+  assert.strictEqual((await list('status=ON_LEAVE')).json().total, 1)
+  const found = (await list(`q=${encodeURIComponent(a.fullName)}`)).json()
+  assert.strictEqual(found.total, 1)
+  const row = found.items[0]
+  for (const key of ['id', 'code', 'fullName', 'phone', 'region', 'locations', 'visits', 'photos', 'lastActivityAt', 'workStatus', 'active']) {
+    assert.ok(key in row, key)
+  }
+})
+
+test('agents get 403 on every agents endpoint', async () => {
+  const g = await f.agent(app)
+  const h = bearer(app, { id: g.userId, role: 'AGENT' })
+  assert.strictEqual((await app.inject({ url: '/v1/agents', headers: h })).statusCode, 403)
+  assert.strictEqual((await app.inject({ method: 'POST', url: '/v1/agents', headers: h, payload: await valid() })).statusCode, 403)
+  assert.strictEqual((await app.inject({ url: `/v1/agents/${g.userId}`, headers: h })).statusCode, 403)
+})

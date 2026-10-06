@@ -187,17 +187,17 @@ Figma calls are budgeted: one `get_design_context` per frame, when its task runs
 
 ### Mobile platform
 
-- [ ] T048 [P] Implement `apps/mobile/env/{dev,prod}.json`, `lib/core/config/app_config.dart` and `lib/core/network/api_client.dart` (dio, bearer interceptor, single-flight refresh, `ApiException` from the error shape)
-- [ ] T049 [P] Implement `apps/mobile/lib/core/auth/session_store.dart` (secure storage) and `session_provider.dart`
-- [ ] T050 Create the drift database `apps/mobile/lib/core/db/app_database.dart` with `shops`, `shop_contacts`, `routes`, `route_stops`, `audits`, `photos` (+`localPath`), `outbox` (`id, kind, payloadJson, dependsOn, createdAt, attempts, lastError, state`), `pings_buffer` and `sync_cursors` (data-model.md). Run build_runner
-- [ ] T051 Write failing tests in `apps/mobile/test/core/sync/sync_engine_test.dart` (fake API):
+- [X] T048 [P] Implement `apps/mobile/env/{dev,prod}.json`, `lib/core/config/app_config.dart` and `lib/core/network/api_client.dart` (dio, bearer interceptor, single-flight refresh, `ApiException` from the error shape)
+- [X] T049 [P] Implement `apps/mobile/lib/core/auth/session_store.dart` (secure storage) and `session_provider.dart`
+- [X] T050 Create the drift database `apps/mobile/lib/core/db/app_database.dart` with `shops`, `shop_contacts`, `routes`, `route_stops`, `audits`, `photos` (+`localPath`), `outbox` (`id, kind, payloadJson, dependsOn, createdAt, attempts, lastError, state`), `pings_buffer` and `sync_cursors` (data-model.md). Run build_runner
+- [X] T051 Write failing tests in `apps/mobile/test/core/sync/sync_engine_test.dart` (fake API):
   - FIFO order with dependencies (PHOTO before AUDIT_CREATE and SHOP_CREATE)
   - backoff on network errors and 5xx
   - a repeated create counts as success
   - other 4xx → FAILED, kept and retried on the next sync, with status "Синхронизация…"
   - the pull applies tombstones but keeps items with pending outbox entries
-- [ ] T052 Implement `apps/mobile/lib/core/sync/` per contracts/sync.md: `outbox_repository.dart`, `sync_engine.dart`, `pull_service.dart`, and `sync_status_provider.dart` (Данные синхронизированы / Синхронизация…). Triggers: start, resume, connectivity, workmanager every 15 min, on demand
-- [ ] T053 Implement `apps/mobile/lib/core/router/app_router.dart` (go_router per contracts/screens.md; redirect: no session → `/login`; role prefixes; role home)
+- [X] T052 Implement `apps/mobile/lib/core/sync/` per contracts/sync.md: `outbox_repository.dart`, `sync_engine.dart`, `pull_service.dart`, and `sync_status_provider.dart` (Данные синхронизированы / Синхронизация…). Triggers: start, resume, connectivity, workmanager every 15 min, on demand
+- [X] T053 Implement `apps/mobile/lib/core/router/app_router.dart` (go_router per contracts/screens.md; redirect: no session → `/login`; role prefixes; role home)
 - [ ] T054 [P] Build the shared mobile widgets in `apps/mobile/lib/core/widgets/`, each from the frame where it first appears:
   - `app_top_bar.dart`, `search_field.dart`, `filter_chips.dart`, `shop_list_tile.dart` (`83:16884`)
   - `shop_card.dart` (`246:23300`), `stat_tile.dart` (`265:27616`)
@@ -223,14 +223,14 @@ sessions.
 
 ### Tests ⚠️
 
-- [ ] T056 [P] [US1] Write failing tests in `apps/api/test/auth.test.ts`:
+- [X] T056 [P] [US1] Write failing tests in `apps/api/test/auth.test.ts`:
   - admin login by email, agent login by phone
   - the first agent login binds the device, a different installId → 403 `DEVICE_NOT_BOUND`, and a missing device → 400
   - refresh rotates the token, and an old token → 401
   - refresh fails after the idle limit (web 12 h, mobile 30 days, by `lastUsedAt`)
   - deactivated: new login and refresh → 401, but an existing access token still syncs data recorded before `deactivatedAt` for 72 h
   - the 6th failed login in a minute → 429
-- [ ] T057 [P] [US1] Write failing tests in `apps/api/test/agents.test.ts`:
+- [X] T057 [P] [US1] Write failing tests in `apps/api/test/agents.test.ts`:
   - create returns a sequential `SL-` code and a temporary password
   - validation: fullName and regionId required, dailyVisitPlan 1–100, dailyAuditPlan ≤ dailyVisitPlan
   - PATCH `workStatus` Активен/Отпуск
@@ -242,8 +242,8 @@ sessions.
 
 ### Implementation
 
-- [ ] T058 [US1] Implement the auth module in `apps/api/src/modules/auth/` (routes, service, repository, schema): login with device binding, refresh with rotation and idle expiry, logout, `GET /v1/me` with the config subset, the deactivation grace check, and the login rate limit
-- [ ] T059 [US1] Implement the agents module in `apps/api/src/modules/agents/` (routes, service, repository, schema): list, create, get, patch (version), deactivate/reactivate (via patch `active`), reset-password, device rebind
+- [X] T058 [US1] Implement the auth module in `apps/api/src/modules/auth/` (routes, service, repository, schema): login with device binding, refresh with rotation and idle expiry, logout, `GET /v1/me` with the config subset, the deactivation grace check, and the login rate limit
+- [X] T059 [US1] Implement the agents module in `apps/api/src/modules/agents/` (routes, service, repository, schema): list, create, get, patch (version), deactivate/reactivate (via patch `active`), reset-password, device rebind
 - [ ] T060 [US1] Build the web sign-in (approved exception) in `apps/admin-web/src/app/login/page.tsx` + `src/features/auth/api/actions.ts`: email + password, using only the existing Figma components (FormField, Button, colors and type from `162:20071` / `495:3932`), refusing agents with a message
 - [ ] T061 [US1] Build the Salesmen table area of Figma `31:2307` (columns, search, status filter, pagination, "Add Salesman") in `apps/admin-web/src/app/(admin)/salesmen/page.tsx` + `src/features/agents/{api/,copy.ts,components/AgentsTable.tsx}`, with data from `GET /v1/agents`
 - [ ] T062 [US1] Build Add Salesman from Figma `495:3932` in `apps/admin-web/src/app/(admin)/salesmen/new/page.tsx`, `salesmen/[id]/edit/page.tsx` and `src/features/agents/components/AgentForm.tsx`, with exactly the frame's fields, the bound device (model/IMEI label + rebind) and Статус. Show the temporary password once, and offer reset password and deactivate

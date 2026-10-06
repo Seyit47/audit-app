@@ -35,6 +35,9 @@ export class UploadsService {
       throw invalid('Images must be at most 10 MB')
     }
     if (body.kind === 'ADMIN_UPLOAD' && !body.shopId) throw invalid('shopId is required for ADMIN_UPLOAD')
+    if (user.deactivatedAt != null && new Date(body.takenAt) >= user.deactivatedAt) {
+      throw new AppError(401, 'UNAUTHENTICATED', 'Account deactivated')
+    }
 
     const existing = await this.photos.findById(body.id)
     if (existing && existing.uploadedById !== user.id) throw notFound('Upload')

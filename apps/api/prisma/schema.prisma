@@ -46,6 +46,8 @@ model RefreshToken {
   user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   tokenHash  String    @unique
   deviceId   String?   @db.Uuid
+  /// Mobile sessions idle out after 30 days, web sessions after 12 h.
+  mobile     Boolean   @default(false)
   expiresAt  DateTime  @db.Timestamptz
   revokedAt  DateTime? @db.Timestamptz
   lastUsedAt DateTime  @default(now()) @db.Timestamptz
