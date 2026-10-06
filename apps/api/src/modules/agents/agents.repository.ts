@@ -90,12 +90,14 @@ export class AgentsRepository {
     return this.prisma.device.upsert({ where: { agentId: id }, update: { imeiLabel }, create: { id: newId(), agentId: id, imeiLabel } })
   }
 
-  /** Deactivates the account, ends its sessions and unassigns its shops (closing assignment history). */
+  /**
+   * Deactivates the account and unassigns its shops (closing assignment history). Sessions are kept:
+   * for 72 h they may only submit data recorded before deactivation (auth guard + grace routes).
+   */
   deactivate (id: string) {
     const now = new Date()
     return this.prisma.$transaction(async (tx) => {
       await tx.user.update({ where: { id }, data: { status: 'DEACTIVATED', deactivatedAt: now } })
-      await tx.refreshToken.updateMany({ where: { userId: id, revokedAt: null }, data: { revokedAt: now } })
       const shops = await tx.shop.findMany({ where: { assignedAgentId: id }, select: { id: true } })
       const shopIds = shops.map((s) => s.id)
       await tx.shopAssignment.updateMany({ where: { shopId: { in: shopIds }, to: null }, data: { to: now } })

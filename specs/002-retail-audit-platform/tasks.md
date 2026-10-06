@@ -228,7 +228,7 @@ sessions.
   - the first agent login binds the device, a different installId → 403 `DEVICE_NOT_BOUND`, and a missing device → 400
   - refresh rotates the token, and an old token → 401
   - refresh fails after the idle limit (web 12 h, mobile 30 days, by `lastUsedAt`)
-  - deactivated: new login and refresh → 401, but an existing access token still syncs data recorded before `deactivatedAt` for 72 h
+  - deactivated: new login → 401; for 72 h the session may refresh and sync data recorded before `deactivatedAt`, then refresh → 401
   - the 6th failed login in a minute → 429
 - [X] T057 [P] [US1] Write failing tests in `apps/api/test/agents.test.ts`:
   - create returns a sequential `SL-` code and a temporary password

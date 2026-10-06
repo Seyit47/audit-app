@@ -12,10 +12,11 @@ export interface TimelinePoint {
   stateLabel: string
 }
 
-// Dot fill and halo per state (122:9841). Figma draws the missed dot like a done one; only its label is red.
+// Dot fill and halo per state (122:9841). Missed uses the error color like its label (decided 2026-10-07;
+// Figma draws it green).
 const dots: Record<TimelineState, string> = {
   done: 'bg-success shadow-[0_0_0_4px_#ffffff]',
-  missed: 'bg-success shadow-[0_0_0_4px_#ffffff]',
+  missed: 'bg-error shadow-[0_0_0_4px_#ffffff]',
   active: 'bg-[#005cba] shadow-[0_0_0_4px_#d7e3ff]',
   planned: 'bg-[#c7c4d8] shadow-[0_0_0_4px_#ffffff]'
 }

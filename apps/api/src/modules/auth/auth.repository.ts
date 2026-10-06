@@ -27,7 +27,7 @@ export class AuthRepository {
   }
 
   findRefreshToken (tokenHash: string) {
-    return this.prisma.refreshToken.findUnique({ where: { tokenHash }, include: { user: { select: { id: true, role: true, status: true } } } })
+    return this.prisma.refreshToken.findUnique({ where: { tokenHash }, include: { user: { select: { id: true, role: true, status: true, deactivatedAt: true } } } })
   }
 
   /** Revokes a token only if it is still live, so a concurrent reuse can't rotate twice. */

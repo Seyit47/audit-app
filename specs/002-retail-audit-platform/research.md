@@ -54,7 +54,7 @@ in production (Principle IV). Each one names the requirement that justifies it.
   - **Device binding** (Add Salesman's "Привязка рабочего устройства"): the app sends a stable
     installId and model. The first login binds; after that it must match. Admins rebind from
     the device field. IMEI is an admin-entered label, because Android doesn't expose it to apps.
-  - **Deactivation grace**: queued data recorded before `deactivatedAt` is accepted for 72 h.
+  - **Deactivation grace**: for 72 h the session may still refresh, and only queued data recorded before `deactivatedAt` is accepted.
   - **Admin accounts**: created and reset by an operator CLI (A5).
   - **Sign-in screens**: the one approved non-Figma UI, built from existing components only.
 

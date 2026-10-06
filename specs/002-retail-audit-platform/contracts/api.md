@@ -38,10 +38,11 @@ presigned URLs valid for 10 min.
 | POST | `/auth/logout` | A G | Revoke |
 | GET | `/me` | A G | User, role, agent profile, and the settings subset the app needs (company name and logo, radius, accuracy, working hours, time zone) |
 
-**Deactivated agents**: refresh and new logins fail. Requests from an existing access token, and
-outbox submissions (`POST /audits`, `/uploads*`, `/shops`, `/tracking/pings`) whose recorded
-time is before `deactivatedAt`, are accepted for 72 h after deactivation. After that they
-return 401.
+**Deactivated agents**: new logins fail. For 72 h after deactivation the existing session may
+still refresh, but only outbox submissions (`POST /audits`, `/uploads*`, `/shops`,
+`/tracking/pings`) whose recorded time is before `deactivatedAt` are accepted; everything else
+returns 401. After 72 h refresh and submissions return 401. (Decided 2026-10-07: with 15-min
+access tokens, refusing refresh would shrink the grace period to 15 min.)
 
 ## Settings and regions (Settings page, approved exception A4)
 

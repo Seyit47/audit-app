@@ -64,13 +64,19 @@ export class AuthService {
   async refresh (refreshToken: string) {
     const token = await this.repo.findRefreshToken(sha256(refreshToken))
     const idleLimit = token?.mobile === true ? IDLE_LIMIT_MS.mobile : IDLE_LIMIT_MS.web
-    if (token == null || token.revokedAt != null || token.user.status !== 'ACTIVE' ||
+    if (token == null || token.revokedAt != null || !this.mayRefresh(token.user) ||
         Date.now() - token.lastUsedAt.getTime() > idleLimit) {
       throw unauthenticated('Session expired')
     }
     if (!await this.repo.revokeIfLive(token.id)) throw unauthenticated('Session expired')
     await this.repo.touch(token.userId)
     return this.issue(token.user.id, token.user.role, token.mobile, token.deviceId)
+  }
+
+  /** Active users, and deactivated ones within the grace period (their requests stay limited to `grace` routes). */
+  private mayRefresh (user: { status: string, deactivatedAt: Date | null }): boolean {
+    if (user.status === 'ACTIVE') return true
+    return user.deactivatedAt != null && Date.now() - user.deactivatedAt.getTime() <= DEACTIVATION_GRACE_MS
   }
 
   async logout (user: AuthUser, refreshToken: string) {

@@ -83,16 +83,17 @@ test('refresh fails after the idle limit: web 12 h, mobile 30 days', async () =>
   assert.strictEqual((await refresh(next)).statusCode, 401)
 })
 
-test('deactivated: no login or refresh; an existing token may still submit earlier data for 72 h', async () => {
+test('deactivated: no login; for 72 h the session may refresh and submit data recorded before deactivation', async () => {
   const g = await f.agent(app)
   const tokens = (await login({ login: g.phone, password: f.PASSWORD, device: device() })).json()
   const recordedAt = new Date(Date.now() - 60_000).toISOString()
   await app.prisma.user.update({ where: { id: g.userId }, data: { status: 'DEACTIVATED', deactivatedAt: new Date() } })
 
   assert.strictEqual((await login({ login: g.phone, password: f.PASSWORD, device: device() })).statusCode, 401)
-  assert.strictEqual((await refresh(tokens.refreshToken)).statusCode, 401)
+  const renewed = await refresh(tokens.refreshToken)
+  assert.strictEqual(renewed.statusCode, 200, 'refresh works during the grace period')
 
-  const auth = { authorization: `Bearer ${tokens.accessToken}` }
+  const auth = { authorization: `Bearer ${renewed.json().accessToken}` }
   const upload = (takenAt: string) => app.inject({
     method: 'POST', url: '/v1/uploads', headers: auth,
     payload: { id: crypto.randomUUID(), kind: 'AUDIT', mime: 'image/jpeg', sizeBytes: 10, sha256: 'a'.repeat(64), takenAt }
@@ -103,6 +104,7 @@ test('deactivated: no login or refresh; an existing token may still submit earli
 
   await app.prisma.user.update({ where: { id: g.userId }, data: { deactivatedAt: new Date(Date.now() - 73 * 3_600_000) } })
   assert.strictEqual((await upload(new Date(Date.now() - 74 * 3_600_000).toISOString())).statusCode, 401)
+  assert.strictEqual((await refresh(renewed.json().refreshToken)).statusCode, 401, 'no refresh after 72 h')
 })
 
 test('logout revokes the refresh token', async () => {
