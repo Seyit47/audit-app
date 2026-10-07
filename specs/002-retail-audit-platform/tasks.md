@@ -481,7 +481,7 @@ sessions.
 
 **Independent Test**: quickstart US9.
 
-- [ ] T120 [US9] Build the admin web Map from Figma `21:2` and `3:2` in `apps/admin-web/src/app/(admin)/map/page.tsx` + `src/features/map/components/{AdminMap,ShopCard,MapFilters,FilterBanner}.tsx`:
+- [X] T120 [US9] Build the admin web Map from Figma `21:2` and `3:2` in `apps/admin-web/src/app/(admin)/map/page.tsx` + `src/features/map/components/{AdminMap,ShopCard,MapFilters,FilterBanner}.tsx`:
   - clustered shops (`GET /v1/shops/map`), agent positions (30 s)
   - search, the filters panel (salesmen + region zones, Apply/Clear)
   - the "Filtered view" banner

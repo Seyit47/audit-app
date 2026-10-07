@@ -3,7 +3,7 @@
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { setWorkerUrl } from 'maplibre-gl'
 import { forwardRef, type ReactNode } from 'react'
-import MapGL, { Layer, Marker, Source, type MapRef, type ViewState } from 'react-map-gl/maplibre'
+import MapGL, { Layer, Marker, Source, type MapRef, type StyleSpecification, type ViewState } from 'react-map-gl/maplibre'
 import { FigmaIcon } from './FigmaIcon'
 
 // Served from /map by scripts/copy-maplibre-worker.mjs (Turbopack can't resolve the bundled worker).
@@ -21,14 +21,16 @@ export type InitialView = Partial<ViewState> & { bounds?: [[number, number], [nu
 
 export const MapView = forwardRef<MapRef, {
   initialView?: InitialView
-  mapStyle?: string
+  mapStyle?: string | StyleSpecification
   children?: ReactNode
   onClick?: (point: { lng: number, lat: number }) => void
+  /** After every camera move or data load, once the map has settled. */
+  onIdle?: () => void
   className?: string
-}>(function MapView ({ initialView = DEFAULT_VIEW, mapStyle = '/map/style.json', children, onClick, className = 'size-full' }, ref) {
+}>(function MapView ({ initialView = DEFAULT_VIEW, mapStyle = '/map/style.json', children, onClick, onIdle, className = 'size-full' }, ref) {
   return (
     <div className={className}>
-      <MapGL ref={ref} initialViewState={initialView} mapStyle={mapStyle} attributionControl={{ compact: true }} onClick={(e) => onClick?.({ lng: e.lngLat.lng, lat: e.lngLat.lat })} style={{ width: '100%', height: '100%' }}>
+      <MapGL ref={ref} initialViewState={initialView} mapStyle={mapStyle} attributionControl={{ compact: true }} onClick={(e) => onClick?.({ lng: e.lngLat.lng, lat: e.lngLat.lat })} onIdle={onIdle} style={{ width: '100%', height: '100%' }}>
         {children}
       </MapGL>
     </div>

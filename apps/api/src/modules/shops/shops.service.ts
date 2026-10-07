@@ -234,6 +234,7 @@ export class ShopsService {
       lng: s.lng,
       status: s.status,
       agentId: s.assignedAgentId,
+      regionId: s.regionId,
       visitState: visitState(s, dayStart, planned),
       lastVisitAt: s.lastVisitAt?.toISOString() ?? null,
       thumbUrl: (await this.facade(s.facadePhotoId))?.previewUrl400 ?? null

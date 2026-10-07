@@ -189,7 +189,7 @@ export class ShopsRepository {
   mapShops (where: Prisma.ShopWhereInput) {
     return this.prisma.shop.findMany({
       where: { deletedAt: null, ...where },
-      select: { id: true, code: true, name: true, address: true, lat: true, lng: true, status: true, assignedAgentId: true, facadePhotoId: true, lastVisitAt: true, nextDueAt: true },
+      select: { id: true, code: true, name: true, address: true, lat: true, lng: true, status: true, assignedAgentId: true, regionId: true, facadePhotoId: true, lastVisitAt: true, nextDueAt: true },
       orderBy: { code: 'asc' }
     })
   }

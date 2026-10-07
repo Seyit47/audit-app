@@ -81,7 +81,7 @@ access tokens, refusing refresh would shrink the grace period to 15 min.)
 |--------|------|------|---------|
 | GET | `/shops` | A G | **A**: page list with filters `q, status, regionId, agentId, sort` (`3:407`, `246:23300`). **G**: own shops, `?updatedAfter=` for sync (with tombstones) |
 | GET | `/shops/counts` | G | Chip counts: all, scheduled, overdue, visited (`83:16884`) |
-| GET | `/shops/map` | A G | Markers `[{id, lat, lng, status, visitState, thumbUrl, agentId}]`, with filters `agentIds[], regionIds[]` (`21:2`, `83:17636`) |
+| GET | `/shops/map` | A G | Markers `[{id, lat, lng, status, visitState, thumbUrl, agentId, regionId}]` (regionId draws the region zones), with filters `agentIds[], regionIds[]` (`21:2`, `83:17636`) |
 | GET | `/shops/:id` | A G | Details and KPIs: total audits, products carried, audit photos, compliance, contacts, agent, last and next visit |
 | POST | `/shops` | A G | **A** → ACTIVE (`252:25542`, `162:20071`). **G** → PENDING_REVIEW assigned to self (`252:26607`), requires `accuracyM ≤ 50` (else 422 `GPS_ACCURACY`). Idempotent on the client id |
 | PATCH | `/shops/:id` | A | Edit dialog fields + `status` (the toggle). Uses `version` → 409 if stale |
