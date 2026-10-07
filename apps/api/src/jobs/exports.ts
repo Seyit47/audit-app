@@ -131,10 +131,28 @@ async function agentReportPdf (app: FastifyInstance, p: Params, l: Locale): Prom
   return { pdf: Buffer.from(await pdfmake.createPdf(doc).getBuffer()) }
 }
 
+async function productsSheet (app: FastifyInstance, p: Params, l: Locale): Promise<Sheet> {
+  const rows = await app.services.products.all({ q: str(p.q), status: str(p.status) as never, categoryId: str(p.categoryId), regionId: str(p.regionId) })
+  const h = l === 'ru'
+    ? ['Артикул', 'Название', 'Категория', 'Бренд', 'Цена', 'Статус', 'Точки', 'Покрытие, %', 'Регионы', 'Соответствие, %', 'Остаток']
+    : ['SKU', 'Product', 'Category', 'Brand', 'Price', 'Status', 'Locations', 'Coverage, %', 'Regions', 'Compliance, %', 'Stock']
+  const keys = ['sku', 'name', 'category', 'brand', 'price', 'status', 'locations', 'coverage', 'regions', 'compliance', 'stock']
+  const widths = [12, 36, 18, 16, 10, 12, 10, 12, 30, 14, 10]
+  const status: Record<string, string> = l === 'ru' ? { ACTIVE: 'Активен', INACTIVE: 'Архив', DRAFT: 'Черновик' } : { ACTIVE: 'Active', INACTIVE: 'Archived', DRAFT: 'Draft' }
+  return {
+    columns: keys.map((key, i) => ({ header: h[i]!, key, width: widths[i]! })),
+    rows: rows.map((r) => ({
+      sku: r.sku, name: r.name, category: r.category.name, brand: r.brand ?? '', price: r.retailPrice, status: status[r.status],
+      locations: r.locations, coverage: r.coveragePct ?? '', regions: r.regions.join(', '), compliance: r.compliancePct ?? '', stock: r.stockTracked ? r.stockQty : ''
+    }))
+  }
+}
+
 /** One builder per export type. */
 export const BUILDERS: Record<string, ExportBuilder> = {
   SHOPS_XLSX: shopsSheet,
   AGENTS_XLSX: agentsSheet,
+  PRODUCTS_XLSX: productsSheet,
   AGENT_REPORT_XLSX: agentReportXlsx,
   AGENT_REPORT_PDF: agentReportPdf
 }

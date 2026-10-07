@@ -1,4 +1,5 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox'
+import { ShopProductsBody } from '../../../modules/products/products.schema.js'
 import { BulkAssignBody, BulkDeleteBody, ContactsBody, CreateShopBody, IdParams, ListShopsQuery, MapQuery, PatchShopBody, VisitsQuery } from '../../../modules/shops/shops.schema.js'
 
 const shops: FastifyPluginAsyncTypebox = async (fastify) => {
@@ -31,6 +32,12 @@ const shops: FastifyPluginAsyncTypebox = async (fastify) => {
 
   fastify.put('/:id/contacts', { schema: { params: IdParams, body: ContactsBody, tags }, config: { auth: 'ADMIN' } },
     async (req) => service.contacts(req.params.id, req.body))
+
+  fastify.get('/:id/products', { schema: { params: IdParams, tags }, config: { auth: 'ADMIN' } },
+    async (req) => ({ productIds: await fastify.services.products.shopProducts(req.params.id) }))
+
+  fastify.put('/:id/products', { schema: { params: IdParams, body: ShopProductsBody, tags }, config: { auth: 'ADMIN' } },
+    async (req) => fastify.services.products.setShopProducts(req.params.id, req.body.productIds))
 
   fastify.get('/:id/visits', { schema: { params: IdParams, querystring: VisitsQuery, tags }, config: { auth: 'ANY' } }, async (req) => {
     await service.assertVisible(req.user, req.params.id)

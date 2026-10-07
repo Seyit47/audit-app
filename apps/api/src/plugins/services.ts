@@ -16,6 +16,7 @@ import { AuditsService } from '../modules/audits/audits.service.js'
 import { TrackingService } from '../modules/tracking/tracking.service.js'
 import { AgentInsights } from '../modules/agents/agent-insights.js'
 import { GalleryService } from '../modules/photos/gallery.service.js'
+import { ProductsService } from '../modules/products/products.service.js'
 
 /** Composition root: builds repositories and services once and exposes them to routes. */
 export function buildServices (app: import('fastify').FastifyInstance) {
@@ -33,6 +34,7 @@ export function buildServices (app: import('fastify').FastifyInstance) {
     agentInsights,
     tracking: new TrackingService(app.prisma, settings),
     gallery: new GalleryService(app.prisma, app.storage, settings),
+    products: new ProductsService(app.prisma, app.storage),
     shops: new ShopsService(shopsRepo, photos, app.storage, settings),
     exports: new ExportsService(app.prisma, app.jobs, app.storage),
     routes: new RoutesService(app.prisma, settings),

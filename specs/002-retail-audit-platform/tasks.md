@@ -461,7 +461,7 @@ sessions.
 
 **Independent Test**: quickstart US8.
 
-- [ ] T114 [P] [US8] Write failing tests in `apps/api/test/products.test.ts`:
+- [X] T114 [P] [US8] Write failing tests in `apps/api/test/products.test.ts`:
   - create validation: SKU unique; name, category and price required; image PNG/JPG ≤ 5 MB
   - list filters and pagination
   - after `PUT /v1/shops/:id/products`, locations, coverage %, regions and last activity are correct
@@ -469,7 +469,7 @@ sessions.
   - Shop details "products carried" count
   - PRODUCTS_XLSX export
   - agents get 403
-- [ ] T115 [US8] Implement the products module in `apps/api/src/modules/products/` (routes, service, repository, schema): CRUD, categories, summary, distribution and compliance. Add `PUT /v1/shops/:id/products` to the shops module, and PRODUCTS_XLSX to `apps/api/src/jobs/exports.ts`
+- [X] T115 [US8] Implement the products module in `apps/api/src/modules/products/` (routes, service, repository, schema): CRUD, categories, summary, distribution and compliance. Add `PUT /v1/shops/:id/products` to the shops module, and PRODUCTS_XLSX to `apps/api/src/jobs/exports.ts`
 - [ ] T116 [US8] Build Products from Figma `30:574` in `apps/admin-web/src/app/(admin)/products/page.tsx` + `src/features/products/components/{ProductsSummary,ProductsTable}.tsx` (KPIs, search and filters, applied chips, table with coverage bars, Export Catalog, Add Product)
 - [ ] T117 [US8] Build Add Product from Figma `495:2311` in `apps/admin-web/src/app/(admin)/products/new/page.tsx`, `products/[id]/page.tsx` + `src/features/products/components/ProductForm.tsx`, with exactly the frame's fields
 - [ ] T118 [US8] Add the "Products carried" multi-select (approved exception A11) to `apps/admin-web/src/features/shops/components/ShopEditDialog.tsx`, built from the dialog's existing select field styles (`162:20071`), saved with `PUT /v1/shops/:id/products`

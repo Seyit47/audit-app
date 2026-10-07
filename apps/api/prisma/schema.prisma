@@ -206,6 +206,7 @@ model ProductCategory {
 enum ProductStatus {
   ACTIVE
   INACTIVE
+  DRAFT
 }
 
 model Product {
@@ -219,6 +220,7 @@ model Product {
   description      String?
   imageId          String?         @db.Uuid
   status           ProductStatus   @default(ACTIVE)
+  stockTracked     Boolean         @default(false)
   stockQty         Int             @default(0)
   minStockAlert    Int             @default(0)
   createdAt        DateTime        @default(now()) @db.Timestamptz
