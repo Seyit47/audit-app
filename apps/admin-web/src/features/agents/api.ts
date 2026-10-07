@@ -56,3 +56,23 @@ export interface AgentListQuery {
 export const listAgents = (query: AgentListQuery) => api<Page<AgentRow>>('/v1/agents', { query: { ...query } })
 export const getAgent = (id: string) => api<Agent>(`/v1/agents/${id}`)
 export const listRegions = () => api<Region[]>('/v1/regions')
+
+export interface AgentsSummary {
+  totalStaff: number
+  activeStaff: number
+  activePct: number | null
+  onRoute: number
+  onRoutePct: number | null
+  audits: number
+  auditsVsPlanPct: number | null
+  shopsVisited: number
+  shopsPlanned: number
+  shopsRemaining: number
+  photos: number
+  photosVerifiedPct: number | null
+  inactiveStaff: number
+  needsContact: number
+  noSignalMinutes: number
+}
+
+export const getAgentsSummary = (from?: string, to?: string) => api<AgentsSummary>('/v1/agents/summary', { query: { from, to } })

@@ -8,11 +8,10 @@ import { ShopHeader } from '@/features/shops/components/ShopHeader'
 import { ShopMiniMap } from '@/features/shops/components/ShopMiniMap'
 import { shopFormCopy, shopsCopy } from '@/features/shops/copy'
 import { ApiError } from '@/lib/api'
-import type { Locale } from '@/lib/i18n'
+import { sub, type Locale } from '@/lib/i18n'
 import { getLocale } from '@/lib/locale'
 
 const tag = (l: Locale) => (l === 'ru' ? 'ru-RU' : 'en-US')
-const sub = (s: string, n: number | string) => s.replace('{n}', String(n))
 
 function dayTime (iso: string, l: Locale, today: string, withDate = true) {
   const d = new Date(iso)

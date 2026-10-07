@@ -8,6 +8,14 @@ export const agentsCopy = defineCopy({
     description: 'Manage salesmen roster, territories, and live telemetry audit trails.',
     exportRoster: 'Export Roster',
     addSalesman: 'Add Salesman',
+    kpis: {
+      total: 'Total staff', people: ['person', 'people'], onStaff: '({n} on staff)',
+      onRoute: 'On route', active: ['active', 'active'], ofPool: 'of the whole pool',
+      audits: 'Audits completed', checklists: ['checklist', 'checklists'], vsPlan: 'vs daily plan',
+      shops: 'Shops visited', outlets: 'outlets', remaining: '{n} left', stops: ['stop', 'stops'],
+      photos: 'Photos uploaded', frames: ['photo', 'photos'], valid: 'valid',
+      inactive: 'Inactive staff', needContact: 'Need contact (>{n} min)'
+    },
     search: 'Search salesmen...',
     dateFrom: 'Date from:',
     dateTo: 'Date to:',
@@ -54,6 +62,14 @@ export const agentsCopy = defineCopy({
     description: 'Управляйте составом агентов, территориями и журналом активности.',
     exportRoster: 'Экспорт списка',
     addSalesman: 'Добавить агента',
+    kpis: {
+      total: 'Всего сотрудников', people: ['чел.', 'чел.', 'чел.'], onStaff: '(в штате {n})',
+      onRoute: 'На маршруте', active: ['активен', 'активны', 'активны'], ofPool: 'от общего пула',
+      audits: 'Аудитов завершено', checklists: ['чек-лист', 'чек-листа', 'чек-листов'], vsPlan: 'к плану дня',
+      shops: 'Магазинов посещено', outlets: 'ТТ', remaining: 'Осталось {n}', stops: ['точка', 'точки', 'точек'],
+      photos: 'Фото загружено', frames: ['кадр', 'кадра', 'кадров'], valid: 'валидных',
+      inactive: 'Неактивные сотр.', needContact: 'Требуют связи (>{n} мин)'
+    },
     search: 'Поиск агентов...',
     dateFrom: 'Дата от:',
     dateTo: 'Дата до:',

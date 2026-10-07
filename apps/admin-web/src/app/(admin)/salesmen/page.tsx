@@ -1,7 +1,8 @@
 import { Button } from '@/components/ui/Button'
 import { FigmaIcon } from '@/components/ui/FigmaIcon'
 import { PageHeader } from '@/components/ui/PageHeader'
-import { getAgent, listAgents, listRegions, type AgentListQuery } from '@/features/agents/api'
+import { getAgent, getAgentsSummary, listAgents, listRegions, type AgentListQuery } from '@/features/agents/api'
+import { AgentsSummary } from '@/features/agents/components/AgentsSummary'
 import { AgentFormDialog } from '@/features/agents/components/AgentFormDialog'
 import { api } from '@/lib/api'
 import { AgentsTable } from '@/features/agents/components/AgentsTable'
@@ -27,9 +28,10 @@ export default async function SalesmenPage ({ searchParams }: PageProps<'/salesm
     dir: (sp.dir as 'asc' | 'desc' | undefined) ?? 'asc'
   }
   const editing = sp.edit != null ? await getAgent(sp.edit) : null
-  const [page, regions, next] = await Promise.all([
+  const [page, regions, summary, next] = await Promise.all([
     listAgents(query),
     listRegions(),
+    getAgentsSummary(sp.from, sp.to),
     sp.add != null ? api<{ code: string }>('/v1/agents/next-code') : Promise.resolve({ code: '' })
   ])
   const href = (key: string, dir: 'asc' | 'desc') => {
@@ -51,6 +53,7 @@ export default async function SalesmenPage ({ searchParams }: PageProps<'/salesm
           </>
         }
       />
+      <AgentsSummary summary={summary} copy={copy} locale={locale} />
       <AgentsToolbar copy={copy} regions={regions} />
       <AgentsTable page={page} copy={copy} locale={locale} sort={{ key: query.sort!, dir: query.dir!, href }} />
       {(sp.add != null || editing != null) && (

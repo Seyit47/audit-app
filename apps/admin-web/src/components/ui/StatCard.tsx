@@ -19,7 +19,7 @@ export function StatCard ({ label, value, unit, icon, footer, footerIcon, footer
   return (
     <div className='flex flex-col justify-between overflow-clip rounded-2xl bg-pure-white p-4 shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]'>
       <div className='flex items-center justify-between gap-4'>
-        <p className='max-w-[110px] text-xs font-medium leading-4 text-muted'>{label}</p>
+        <p className='max-w-[76px] text-xs font-medium leading-4 text-muted'>{label}</p>
         <span className={`flex h-7 min-w-7 shrink-0 items-center justify-center rounded-lg px-[3px] ${alert ? 'bg-alert-bg' : 'bg-secondary-bg'}`}>
           <FigmaIcon {...icon} />
         </span>

@@ -24,6 +24,9 @@ export const shortPhone = (phone: string) => phone.replace(/^\+993\s?/, '').repl
 
 export const number = (n: number, locale: Locale) => new Intl.NumberFormat(tag(locale)).format(n)
 
+/** 92.3 → "92.3%" ("92,3%" in Russian); null → "—". */
+export const percent = (n: number | null, locale: Locale) => (n == null ? '—' : `${new Intl.NumberFormat(tag(locale), { maximumFractionDigits: 1 }).format(n)}%`)
+
 /** YYYY-MM-DD in the browser's local time. */
 export const isoDay = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 
