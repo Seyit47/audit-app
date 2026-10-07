@@ -100,6 +100,7 @@ export class ShopsService {
       const shop = await this.repo.create({
         ...fields,
         type: fields.type ?? 'OTHER',
+        regionId: fields.regionId === undefined ? await this.repo.nearestRegion(fields.lat, fields.lng) : fields.regionId,
         auditRadiusM: fields.auditRadiusM ?? settings.defaultAuditRadiusM,
         status: agent ? 'PENDING_REVIEW' : 'ACTIVE',
         assignedAgentId: agent ? user.id : (fields.assignedAgentId ?? null),

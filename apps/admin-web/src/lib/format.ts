@@ -26,3 +26,10 @@ export const number = (n: number, locale: Locale) => new Intl.NumberFormat(tag(l
 
 /** YYYY-MM-DD in the browser's local time. */
 export const isoDay = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+
+/** Turkmen numbers as in the frames: "+993 12 94-20-11". Other numbers are returned unchanged. */
+export function formatPhone (phone: string): string {
+  const d = phone.replace(/\D/g, '')
+  const m = /^993(\d{2})(\d{2})(\d{2})(\d{2})$/.exec(d)
+  return m == null ? phone : `+993 ${m[1]} ${m[2]}-${m[3]}-${m[4]}`
+}

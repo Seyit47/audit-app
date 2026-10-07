@@ -277,17 +277,17 @@ sessions.
 
 - [X] T067 [US4] Implement the shops module in `apps/api/src/modules/shops/` (routes, service, repository, schema, `shop.view.ts`): list, get (KPIs: total audits, products carried, audit photos, compliance), create, patch (version + status), contacts, bulk assign, bulk delete, visits (cursor, with missed visits from route stops; missed visits carry no reason), agent scoping
 - [X] T068 [US4] Implement the exports module in `apps/api/src/modules/exports/` and `apps/api/src/jobs/exports.ts` (exceljs SHOPS_XLSX → storage → presigned download)
-- [ ] T069 [US4] Build Shops from Figma `3:407` (row menu) and `53:151` (selection) in `apps/admin-web/src/app/(admin)/shops/page.tsx` + `src/features/shops/{api/,copy.ts,components/ShopsTable.tsx,components/BulkBar.tsx,components/AssignAgentDialog.tsx}`:
+- [X] T069 [US4] Build Shops from Figma `3:407` (row menu) and `53:151` (selection) in `apps/admin-web/src/app/(admin)/shops/page.tsx` + `src/features/shops/{api/,copy.ts,components/ShopsTable.tsx,components/BulkBar.tsx,components/AssignAgentDialog.tsx}`:
   - `GET /v1/shops` with status filter values including Pending Review
   - Export Shops, Add Shop
   - row menu actions as in the frame
   - bulk Assign salesman / View on Map (→ `/map?ids=`) / Delete Shop, with confirmation
-- [ ] T070 [US4] Build Shop details from Figma `47:7387` in `apps/admin-web/src/app/(admin)/shops/[id]/page.tsx` + `src/features/shops/components/{ShopHeader,ShopStats,ShopMiniMap,VisitHistory}.tsx`:
+- [X] T070 [US4] Build Shop details from Figma `47:7387` in `apps/admin-web/src/app/(admin)/shops/[id]/page.tsx` + `src/features/shops/components/{ShopHeader,ShopStats,ShopMiniMap,VisitHistory}.tsx`:
   - the Status toggle (PATCH status)
   - View on Map, Edit
   - stats, mini map
   - visit history with totals, photo strips and missed visits
-- [ ] T071 [US4] Build the edit/add dialog from Figma `162:20071` in `apps/admin-web/src/features/shops/components/ShopEditDialog.tsx`, with exactly the frame's fields:
+- [X] T071 [US4] Build the edit/add dialog from Figma `162:20071` in `apps/admin-web/src/features/shops/components/ShopEditDialog.tsx`, with exactly the frame's fields:
   - facade upload ≤ 10 MB, name *, assigned agent
   - address * + map pin + coordinates
   - contact phones with labels, add number

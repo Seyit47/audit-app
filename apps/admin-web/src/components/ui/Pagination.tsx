@@ -17,9 +17,11 @@ export function Pagination ({ page, size, total, noun, sizes = [10, 25, 50], onP
   const from = total === 0 ? 0 : (page - 1) * size + 1
   const to = Math.min(page * size, total)
 
-  // Up to 5 page buttons around the current page.
-  const start = Math.max(1, Math.min(page - 2, pages - 4))
-  const shown = Array.from({ length: Math.min(5, pages) }, (_, i) => start + i)
+  // Up to 3 pages around the current one, then "…" and the last page (3:407 footer).
+  const start = Math.max(1, Math.min(page - 1, pages - 2))
+  const shown: Array<number | null> = Array.from({ length: Math.min(3, pages) }, (_, i) => start + i)
+  if (shown.at(-1)! < pages - 1) shown.push(null)
+  if (shown.at(-1) !== pages && !shown.includes(pages)) shown.push(pages)
 
   return (
     <div className='flex items-center justify-between bg-pure-white p-3.5'>
@@ -39,14 +41,16 @@ export function Pagination ({ page, size, total, noun, sizes = [10, 25, 50], onP
         <button type='button' aria-label={copy.previous} disabled={page <= 1} onClick={() => onPage(page - 1)} className='flex size-7 items-center justify-center rounded disabled:opacity-40'>
           <FigmaIcon name='page-prev' width={4.933} height={8} />
         </button>
-        {shown.map((p) => (
-          <button
-            key={p} type='button' aria-current={p === page ? 'page' : undefined} onClick={() => onPage(p)}
-            className={`flex size-7 items-center justify-center rounded text-xs leading-4 ${p === page ? 'bg-accent font-semibold text-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]' : 'font-medium text-ink'}`}
-          >
-            {p}
-          </button>
-        ))}
+        {shown.map((p, i) => p == null
+          ? <span key={`gap-${i}`} className='px-1 text-xs leading-4 text-[#c7c4d8]'>…</span>
+          : (
+            <button
+              key={p} type='button' aria-current={p === page ? 'page' : undefined} onClick={() => onPage(p)}
+              className={`flex h-7 min-w-7 items-center justify-center rounded-lg px-1 text-xs leading-4 ${p === page ? 'bg-accent font-semibold text-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]' : 'font-medium text-muted'}`}
+            >
+              {p}
+            </button>
+            ))}
         <button type='button' aria-label={copy.next} disabled={page >= pages} onClick={() => onPage(page + 1)} className='flex size-7 items-center justify-center rounded disabled:opacity-40'>
           <FigmaIcon name='page-next' width={4.933} height={8} />
         </button>

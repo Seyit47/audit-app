@@ -40,7 +40,7 @@ test('list filters with totals: q, status, regionId, agentId', async () => {
   const g = await f.agent(app)
   await f.shop(app, { createdById: adminId, regionId: r.id, agentId: g.userId })
   await f.shop(app, { createdById: adminId, status: 'INACTIVE' })
-  const named = await post(shopBody({ name: 'Bahar Market' }))
+  const named = await post(shopBody({ name: 'Bahar Market', regionId: null }))
   assert.strictEqual(named.statusCode, 201)
   const list = async (qs: string) => (await app.inject({ url: `/v1/shops?${qs}`, headers: admin })).json()
   assert.strictEqual((await list('')).total, 3)

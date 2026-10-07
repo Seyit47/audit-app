@@ -46,7 +46,7 @@ export default async function SalesmenPage ({ searchParams }: PageProps<'/salesm
         description={copy.description}
         actions={
           <>
-            <Button variant='secondary' href='/salesmen/export' icon={<FigmaIcon name='export' width={13} height={13} />}>{copy.exportRoster}</Button>
+            <Button variant='secondary' href={`/export?${new URLSearchParams({ type: 'AGENTS_XLSX', back: '/salesmen', ...Object.fromEntries(Object.entries(sp).filter((e): e is [string, string] => e[1] != null && ['status', 'regionId', 'from', 'to', 'q'].includes(e[0]))) }).toString()}`} icon={<FigmaIcon name='export' width={13} height={13} />}>{copy.exportRoster}</Button>
             <Button href='/salesmen?add=1' icon={<FigmaIcon name='plus' width={10.5} height={10.5} />}>{copy.addSalesman}</Button>
           </>
         }

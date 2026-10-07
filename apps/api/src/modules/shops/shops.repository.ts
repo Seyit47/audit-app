@@ -58,6 +58,17 @@ export class ShopsRepository {
     return new Map(rows.map((r) => [r.shopId, { at: r.at, agentName: r.agentName }]))
   }
 
+  /** The region whose centroid is closest to a point (the edit dialog has no region field). */
+  async nearestRegion (lat: number, lng: number): Promise<string | null> {
+    const regions = await this.prisma.region.findMany({ where: { centroidLat: { not: null }, centroidLng: { not: null } } })
+    let best: { id: string, d: number } | null = null
+    for (const r of regions) {
+      const d = (r.centroidLat! - lat) ** 2 + ((r.centroidLng! - lng) * Math.cos(lat * Math.PI / 180)) ** 2
+      if (best == null || d < best.d) best = { id: r.id, d }
+    }
+    return best?.id ?? null
+  }
+
   async nextCode (): Promise<string> {
     const [row] = await this.prisma.$queryRaw<Array<{ n: bigint }>>`SELECT nextval('shop_code_seq') AS n`
     return `CL-${row!.n}`

@@ -20,12 +20,12 @@ export const MapView = forwardRef<MapRef, {
   initialView?: Partial<ViewState>
   mapStyle?: string
   children?: ReactNode
-  onClick?: () => void
+  onClick?: (point: { lng: number, lat: number }) => void
   className?: string
 }>(function MapView ({ initialView = DEFAULT_VIEW, mapStyle = '/map/style.json', children, onClick, className = 'size-full' }, ref) {
   return (
     <div className={className}>
-      <MapGL ref={ref} initialViewState={initialView} mapStyle={mapStyle} attributionControl={{ compact: true }} onClick={onClick} style={{ width: '100%', height: '100%' }}>
+      <MapGL ref={ref} initialViewState={initialView} mapStyle={mapStyle} attributionControl={{ compact: true }} onClick={(e) => onClick?.({ lng: e.lngLat.lng, lat: e.lngLat.lat })} style={{ width: '100%', height: '100%' }}>
         {children}
       </MapGL>
     </div>
