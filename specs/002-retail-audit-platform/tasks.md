@@ -453,7 +453,7 @@ sessions.
 - [X] T110 [US7] Implement the gallery endpoints in `apps/api/src/modules/photos/` (`photos.routes.ts`, `photos.service.ts`): list, summary, detail
 - [X] T111 [US7] Build Pictures from Figma `53:1375` and `138:11987` in `apps/admin-web/src/app/(admin)/pictures/page.tsx` + `src/features/photos/components/{PhotoGrid,PhotoFilters,PhotoDetailPanel}.tsx`: summary chips, Type/Location/Status/Date filters, the mode toggles switching grid ↔ grouped-by-date (B4), infinite scroll, Verified badge, the detail panel with related photos, and the Upload CTA → a dialog (existing `ImageUpload` + the shop select from `162:20071`) uploading `ADMIN_UPLOAD` photos to the chosen shop (B1)
 - [X] T112 [P] [US7] Build the agent Gallery and Photo detail from Figma `83:17954` and `83:18045` / `106:6558` and `106:6710` in `apps/mobile/lib/features/gallery/presentation/{gallery_screen,photo_detail_screen}.dart`, with the Параметры фильтрации button → `filter_sheet` (B3)
-- [ ] T113 [P] [US7] Build the admin mobile Gallery and Photo detail from Figma `248:24311` and `248:24402` in `apps/mobile/lib/features/admin/gallery/presentation/{admin_gallery_screen,admin_photo_detail_screen}.dart`, with the Параметры фильтрации button → `filter_sheet` (B3)
+- [X] T113 [P] [US7] Build the admin mobile Gallery and Photo detail from Figma `248:24311` and `248:24402` in `apps/mobile/lib/features/admin/gallery/presentation/{admin_gallery_screen,admin_photo_detail_screen}.dart`, with the Параметры фильтрации button → `filter_sheet` (B3)
 
 ---
 
@@ -473,7 +473,7 @@ sessions.
 - [X] T116 [US8] Build Products from Figma `30:574` in `apps/admin-web/src/app/(admin)/products/page.tsx` + `src/features/products/components/{ProductsSummary,ProductsTable}.tsx` (KPIs, search and filters, applied chips, table with coverage bars, Export Catalog, Add Product)
 - [X] T117 [US8] Build Add Product from Figma `495:2311` in `apps/admin-web/src/app/(admin)/products/new/page.tsx`, `products/[id]/page.tsx` + `src/features/products/components/ProductForm.tsx`, with exactly the frame's fields
 - [X] T118 [US8] Add the "Products carried" multi-select (approved exception A11) to `apps/admin-web/src/features/shops/components/ShopEditDialog.tsx`, built from the dialog's existing select field styles (`162:20071`), saved with `PUT /v1/shops/:id/products`
-- [ ] T119 [P] [US8] Build mobile admin Products (approved exception A7) in `apps/mobile/lib/features/admin/products/presentation/{products_screen,product_form_screen}.dart`: a list from `GET /v1/products` styled from the `246:23300` cards, and an add form with exactly the fields of Figma `495:2311`, built from existing mobile form components (`POST /v1/uploads` PRODUCT → `POST /v1/products`)
+- [X] T119 [P] [US8] Build mobile admin Products (approved exception A7) in `apps/mobile/lib/features/admin/products/presentation/{products_screen,product_form_screen}.dart`: a list from `GET /v1/products` styled from the `246:23300` cards, and an add form with exactly the fields of Figma `495:2311`, built from existing mobile form components (`POST /v1/uploads` PRODUCT → `POST /v1/products`)
 
 ---
 
@@ -487,7 +487,7 @@ sessions.
   - the "Filtered view" banner
   - the shop card with visit history
   - zoom and recenter; Layers (Figma style ↔ satellite), Fullscreen (browser API) and Refresh (reload markers and positions) (B2); supports `?ids=` from the Shops bulk "View on Map"
-- [ ] T121 [P] [US9] Build the admin mobile Map from Figma `248:23963` and `248:24102` in `apps/mobile/lib/features/admin/map/presentation/admin_map_screen.dart` (chips, Filters → `filter_sheet` (B3), markers, agent positions, sheet + Подробнее)
+- [X] T121 [P] [US9] Build the admin mobile Map from Figma `248:23963` and `248:24102` in `apps/mobile/lib/features/admin/map/presentation/admin_map_screen.dart` (chips, Filters → `filter_sheet` (B3), markers, agent positions, sheet + Подробнее)
 - [X] T122 [P] [US9] Build admin mobile Home from Figma `246:23129` in `apps/mobile/lib/features/admin/home/presentation/admin_home_screen.dart` (Карта, Магазины, Галерея, Агенты, Продукции → mobile Products (A7); theme toggle; RU/EN; avatar sign-out)
 - [X] T123 [P] [US9] Write failing tests in `apps/api/test/feed.test.ts`: `GET /v1/feed` lists violations and missed visits newest first with a cursor, `unreadCount` counts items newer than `feedSeenAt`, `POST /v1/feed/seen` resets it, admins only
 - [X] T124 [US9] Implement the feed module in `apps/api/src/modules/feed/` (routes, service, repository querying audits with `hasViolation` and MISSED route stops)

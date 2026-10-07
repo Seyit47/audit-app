@@ -5,7 +5,11 @@ import 'package:go_router/go_router.dart';
 import '../../features/admin/agent_details/presentation/agent_details_screen.dart';
 import '../../features/admin/agent_form/presentation/agent_form_screen.dart';
 import '../../features/admin/agents/presentation/agents_screen.dart';
+import '../../features/admin/gallery/presentation/admin_gallery_screen.dart';
 import '../../features/admin/home/presentation/admin_home_screen.dart';
+import '../../features/admin/map/presentation/admin_map_screen.dart';
+import '../../features/admin/products/presentation/product_form_screen.dart';
+import '../../features/admin/products/presentation/products_screen.dart';
 import '../../features/admin/shop_details/presentation/admin_shop_details_screen.dart';
 import '../../features/admin/shop_form/presentation/admin_shop_form_screen.dart';
 import '../../features/admin/shops/presentation/admin_shops_screen.dart';
@@ -52,6 +56,15 @@ final List<RouteBase> agentRoutes = [
   ]),
 ];
 final List<RouteBase> adminRoutes = [
+  GoRoute(path: 'map', builder: (_, _) => const AdminMapScreen()),
+  GoRoute(path: 'products', builder: (_, _) => const ProductsScreen(), routes: [
+    GoRoute(path: 'new', builder: (_, _) => const ProductFormScreen()),
+  ]),
+  GoRoute(
+    path: 'gallery',
+    builder: (_, state) => AdminGalleryScreen(shopId: state.uri.queryParameters['shopId'], agentId: state.uri.queryParameters['agentId']),
+    routes: [GoRoute(path: ':id', builder: (_, state) => AdminPhotoDetailScreen(photoId: state.pathParameters['id']!))],
+  ),
   GoRoute(path: 'agents', builder: (_, _) => const AgentsScreen(), routes: [
     GoRoute(path: 'new', builder: (_, _) => const AgentFormScreen()),
     GoRoute(path: ':id', builder: (_, state) => AgentDetailsScreen(agentId: state.pathParameters['id']!)),

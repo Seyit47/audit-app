@@ -92,7 +92,7 @@ class _AgentMapScreenState extends ConsumerState<AgentMapScreen> {
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             child: Column(children: [
               Row(children: [
-                _RoundButton(onTap: () => context.pop(), size: 44, radius: 8, child: AppIcon('back', width: 11.77, height: 20, color: c.textPrimary)),
+                MapRoundButton(onTap: () => context.pop(), size: 44, radius: 8, child: AppIcon('back', width: 11.77, height: 20, color: c.textPrimary)),
                 const SizedBox(width: 8),
                 Expanded(
                   child: SearchField(
@@ -114,10 +114,10 @@ class _AgentMapScreenState extends ConsumerState<AgentMapScreen> {
                 scrollDirection: Axis.horizontal,
                 clipBehavior: Clip.none,
                 child: Row(children: [
-                  _MapChip(label: l10n.mapAll, selected: _filter == _MapFilter.all, onTap: () => setState(() => _filter = _MapFilter.all)),
-                  _MapChip(label: l10n.mapNotVisited(base.where((s) => s.visit.state != VisitState.visited).length), dot: c.error, selected: _filter == _MapFilter.notVisited, onTap: () => setState(() => _filter = _MapFilter.notVisited)),
-                  _MapChip(label: l10n.mapVisited(base.where((s) => s.visit.state == VisitState.visited).length), dot: c.lightGreen, selected: _filter == _MapFilter.visited, onTap: () => setState(() => _filter = _MapFilter.visited)),
-                  _MapChip(label: l10n.mapRecent, dot: c.textSecondary, selected: _filter == _MapFilter.recent, onTap: () => setState(() => _filter = _MapFilter.recent)),
+                  MapChip(label: l10n.mapAll, selected: _filter == _MapFilter.all, onTap: () => setState(() => _filter = _MapFilter.all)),
+                  MapChip(label: l10n.mapNotVisited(base.where((s) => s.visit.state != VisitState.visited).length), dot: c.error, selected: _filter == _MapFilter.notVisited, onTap: () => setState(() => _filter = _MapFilter.notVisited)),
+                  MapChip(label: l10n.mapVisited(base.where((s) => s.visit.state == VisitState.visited).length), dot: c.lightGreen, selected: _filter == _MapFilter.visited, onTap: () => setState(() => _filter = _MapFilter.visited)),
+                  MapChip(label: l10n.mapRecent, dot: c.textSecondary, selected: _filter == _MapFilter.recent, onTap: () => setState(() => _filter = _MapFilter.recent)),
                 ]),
               ),
             ]),
@@ -127,17 +127,17 @@ class _AgentMapScreenState extends ConsumerState<AgentMapScreen> {
           right: 16,
           bottom: selected == null ? 120 : 300,
           child: Column(children: [
-            _RoundButton(
+            MapRoundButton(
               tooltip: l10n.myLocation, size: 40, radius: 999,
               onTap: () { if (position != null) _map.moveTo(position.latitude, position.longitude); },
               child: AppIcon('map-locate', width: 20, height: 20, color: c.textSecondary),
             ),
             const SizedBox(height: 8),
             Container(
-              decoration: BoxDecoration(color: c.card, borderRadius: BorderRadius.circular(16), border: Border.all(color: c.cardBorder), boxShadow: _shadow),
+              decoration: BoxDecoration(color: c.card, borderRadius: BorderRadius.circular(16), border: Border.all(color: c.cardBorder), boxShadow: mapControlShadow),
               child: Column(children: [
-                _ZoomButton(tooltip: l10n.zoomIn, icon: 'map-zoom-in', onTap: _map.zoomIn, divider: true),
-                _ZoomButton(tooltip: l10n.zoomOut, icon: 'map-zoom-out', onTap: _map.zoomOut),
+                MapZoomButton(tooltip: l10n.zoomIn, icon: 'map-zoom-in', onTap: _map.zoomIn, divider: true),
+                MapZoomButton(tooltip: l10n.zoomOut, icon: 'map-zoom-out', onTap: _map.zoomOut),
               ]),
             ),
           ]),
@@ -157,19 +157,21 @@ class _AgentMapScreenState extends ConsumerState<AgentMapScreen> {
   }
 }
 
-const _shadow = [
+const mapControlShadow = [
   BoxShadow(color: Color(0x1A000000), offset: Offset(0, 2), blurRadius: 4, spreadRadius: -2),
   BoxShadow(color: Color(0x1A000000), offset: Offset(0, 4), blurRadius: 6, spreadRadius: -1),
 ];
 
 /// The shop sheet of `83:17775` (83:17917).
 class ShopSheet extends StatelessWidget {
-  const ShopSheet({super.key, required this.item, required this.meters, this.action});
+  const ShopSheet({super.key, required this.item, required this.meters, this.action, this.extra});
 
   final ShopItem item;
   final double? meters;
   /// Replaces "Начать Аудит" (the admin map shows "Подробнее").
   final Widget? action;
+  /// Admin map (`248:24102`): type/code tags and the agent line under the header.
+  final Widget? extra;
 
   @override
   Widget build(BuildContext context) {
@@ -207,6 +209,7 @@ class ShopSheet extends StatelessWidget {
             ),
           ]),
         ),
+        if (extra != null) ...[extra!, const SizedBox(height: 10)],
         Container(
           height: 30,
           padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -259,8 +262,8 @@ class ShopSheet extends StatelessWidget {
 }
 
 /// The filter pills of the map top bar (`83:17754`): white, 28 px, a colored dot.
-class _MapChip extends StatelessWidget {
-  const _MapChip({required this.label, required this.selected, required this.onTap, this.dot});
+class MapChip extends StatelessWidget {
+  const MapChip({super.key, required this.label, required this.selected, required this.onTap, this.dot});
 
   final String label;
   final bool selected;
@@ -293,8 +296,8 @@ class _MapChip extends StatelessWidget {
   }
 }
 
-class _RoundButton extends StatelessWidget {
-  const _RoundButton({required this.child, required this.onTap, required this.size, required this.radius, this.tooltip});
+class MapRoundButton extends StatelessWidget {
+  const MapRoundButton({super.key, required this.child, required this.onTap, required this.size, required this.radius, this.tooltip});
 
   final Widget child;
   final VoidCallback onTap;
@@ -308,15 +311,15 @@ class _RoundButton extends StatelessWidget {
     final button = Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(color: c.card, borderRadius: BorderRadius.circular(radius), border: Border.all(color: c.cardBorder), boxShadow: _shadow),
+      decoration: BoxDecoration(color: c.card, borderRadius: BorderRadius.circular(radius), border: Border.all(color: c.cardBorder), boxShadow: mapControlShadow),
       child: Material(type: MaterialType.transparency, child: InkWell(borderRadius: BorderRadius.circular(radius), onTap: onTap, child: Center(child: child))),
     );
     return tooltip == null ? button : Tooltip(message: tooltip!, child: button);
   }
 }
 
-class _ZoomButton extends StatelessWidget {
-  const _ZoomButton({required this.tooltip, required this.icon, required this.onTap, this.divider = false});
+class MapZoomButton extends StatelessWidget {
+  const MapZoomButton({super.key, required this.tooltip, required this.icon, required this.onTap, this.divider = false});
 
   final String tooltip;
   final String icon;

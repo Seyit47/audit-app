@@ -564,5 +564,47 @@
   "agentCreated": "Агент добавлен",
   "tempPassword": "Временный пароль (показывается один раз, передайте его агенту):",
   "done": "Готово",
-  "planError": "План аудитов не может превышать план визитов"
+  "planError": "План аудитов не может превышать план визитов",
+  "productsTitle": "Продукции",
+  "productsEmpty": "Продукции нет",
+  "addProductTitle": "Добавить продукт",
+  "sku": "Артикул (SKU)",
+  "productName": "Название продукта",
+  "category": "Категория",
+  "selectCategory": "Выберите категорию",
+  "brand": "Бренд",
+  "retailPrice": "Розничная цена",
+  "description": "Описание",
+  "productImage": "Изображение продукта",
+  "productImageHint": "PNG или JPG, до 5 МБ",
+  "statusDRAFT": "Черновик",
+  "productStatus": "Статус",
+  "stockTracked": "Учитывать остатки",
+  "stockQty": "Остаток на складе",
+  "minStockAlert": "Минимальный остаток",
+  "coverage": "Покрытие: {pct}%",
+  "@coverage": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "locationsShort": "Точек: {count}",
+  "@locationsShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "price": "{price} TMT",
+  "@price": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "skuConflict": "Такой артикул уже есть"
 }

@@ -840,4 +840,73 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get planError => 'План аудитов не может превышать план визитов';
+
+  @override
+  String get productsTitle => 'Продукции';
+
+  @override
+  String get productsEmpty => 'Продукции нет';
+
+  @override
+  String get addProductTitle => 'Добавить продукт';
+
+  @override
+  String get sku => 'Артикул (SKU)';
+
+  @override
+  String get productName => 'Название продукта';
+
+  @override
+  String get category => 'Категория';
+
+  @override
+  String get selectCategory => 'Выберите категорию';
+
+  @override
+  String get brand => 'Бренд';
+
+  @override
+  String get retailPrice => 'Розничная цена';
+
+  @override
+  String get description => 'Описание';
+
+  @override
+  String get productImage => 'Изображение продукта';
+
+  @override
+  String get productImageHint => 'PNG или JPG, до 5 МБ';
+
+  @override
+  String get statusDRAFT => 'Черновик';
+
+  @override
+  String get productStatus => 'Статус';
+
+  @override
+  String get stockTracked => 'Учитывать остатки';
+
+  @override
+  String get stockQty => 'Остаток на складе';
+
+  @override
+  String get minStockAlert => 'Минимальный остаток';
+
+  @override
+  String coverage(String pct) {
+    return 'Покрытие: $pct%';
+  }
+
+  @override
+  String locationsShort(int count) {
+    return 'Точек: $count';
+  }
+
+  @override
+  String price(String price) {
+    return '$price TMT';
+  }
+
+  @override
+  String get skuConflict => 'Такой артикул уже есть';
 }

@@ -838,4 +838,73 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get planError => 'The audit plan cannot exceed the visit plan';
+
+  @override
+  String get productsTitle => 'Products';
+
+  @override
+  String get productsEmpty => 'No products';
+
+  @override
+  String get addProductTitle => 'Add product';
+
+  @override
+  String get sku => 'SKU';
+
+  @override
+  String get productName => 'Product name';
+
+  @override
+  String get category => 'Category';
+
+  @override
+  String get selectCategory => 'Select a category';
+
+  @override
+  String get brand => 'Brand';
+
+  @override
+  String get retailPrice => 'Retail price';
+
+  @override
+  String get description => 'Description';
+
+  @override
+  String get productImage => 'Product image';
+
+  @override
+  String get productImageHint => 'PNG or JPG, up to 5 MB';
+
+  @override
+  String get statusDRAFT => 'Draft';
+
+  @override
+  String get productStatus => 'Status';
+
+  @override
+  String get stockTracked => 'Track stock';
+
+  @override
+  String get stockQty => 'Stock quantity';
+
+  @override
+  String get minStockAlert => 'Minimum stock alert';
+
+  @override
+  String coverage(String pct) {
+    return 'Coverage: $pct%';
+  }
+
+  @override
+  String locationsShort(int count) {
+    return 'Outlets: $count';
+  }
+
+  @override
+  String price(String price) {
+    return '$price TMT';
+  }
+
+  @override
+  String get skuConflict => 'This SKU already exists';
 }

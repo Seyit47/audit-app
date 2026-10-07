@@ -1567,6 +1567,132 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'План аудитов не может превышать план визитов'**
   String get planError;
+
+  /// No description provided for @productsTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Продукции'**
+  String get productsTitle;
+
+  /// No description provided for @productsEmpty.
+  ///
+  /// In ru, this message translates to:
+  /// **'Продукции нет'**
+  String get productsEmpty;
+
+  /// No description provided for @addProductTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Добавить продукт'**
+  String get addProductTitle;
+
+  /// No description provided for @sku.
+  ///
+  /// In ru, this message translates to:
+  /// **'Артикул (SKU)'**
+  String get sku;
+
+  /// No description provided for @productName.
+  ///
+  /// In ru, this message translates to:
+  /// **'Название продукта'**
+  String get productName;
+
+  /// No description provided for @category.
+  ///
+  /// In ru, this message translates to:
+  /// **'Категория'**
+  String get category;
+
+  /// No description provided for @selectCategory.
+  ///
+  /// In ru, this message translates to:
+  /// **'Выберите категорию'**
+  String get selectCategory;
+
+  /// No description provided for @brand.
+  ///
+  /// In ru, this message translates to:
+  /// **'Бренд'**
+  String get brand;
+
+  /// No description provided for @retailPrice.
+  ///
+  /// In ru, this message translates to:
+  /// **'Розничная цена'**
+  String get retailPrice;
+
+  /// No description provided for @description.
+  ///
+  /// In ru, this message translates to:
+  /// **'Описание'**
+  String get description;
+
+  /// No description provided for @productImage.
+  ///
+  /// In ru, this message translates to:
+  /// **'Изображение продукта'**
+  String get productImage;
+
+  /// No description provided for @productImageHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'PNG или JPG, до 5 МБ'**
+  String get productImageHint;
+
+  /// No description provided for @statusDRAFT.
+  ///
+  /// In ru, this message translates to:
+  /// **'Черновик'**
+  String get statusDRAFT;
+
+  /// No description provided for @productStatus.
+  ///
+  /// In ru, this message translates to:
+  /// **'Статус'**
+  String get productStatus;
+
+  /// No description provided for @stockTracked.
+  ///
+  /// In ru, this message translates to:
+  /// **'Учитывать остатки'**
+  String get stockTracked;
+
+  /// No description provided for @stockQty.
+  ///
+  /// In ru, this message translates to:
+  /// **'Остаток на складе'**
+  String get stockQty;
+
+  /// No description provided for @minStockAlert.
+  ///
+  /// In ru, this message translates to:
+  /// **'Минимальный остаток'**
+  String get minStockAlert;
+
+  /// No description provided for @coverage.
+  ///
+  /// In ru, this message translates to:
+  /// **'Покрытие: {pct}%'**
+  String coverage(String pct);
+
+  /// No description provided for @locationsShort.
+  ///
+  /// In ru, this message translates to:
+  /// **'Точек: {count}'**
+  String locationsShort(int count);
+
+  /// No description provided for @price.
+  ///
+  /// In ru, this message translates to:
+  /// **'{price} TMT'**
+  String price(String price);
+
+  /// No description provided for @skuConflict.
+  ///
+  /// In ru, this message translates to:
+  /// **'Такой артикул уже есть'**
+  String get skuConflict;
 }
 
 class _AppLocalizationsDelegate
