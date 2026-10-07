@@ -7,6 +7,7 @@ import type { SearchHit } from '@/lib/search-actions'
 import { Avatar } from './Avatar'
 import { Icon } from './Icon'
 import { usePopup } from '@/lib/use-popup'
+import { FloatingScrollbar } from '@/components/ui/FloatingScrollbar'
 
 export interface SearchGroup { label: string, hits: SearchHit[] }
 
@@ -43,6 +44,7 @@ export function SearchAutocomplete ({ placeholder, defaultValue = '', load, onSu
   const router = useRouter()
   const id = useId()
   const box = useRef<HTMLDivElement>(null)
+  const list = useRef<HTMLDivElement>(null)
   const [q, setQ] = useState(defaultValue)
   const [open, setOpen] = useState(false)
   const [state, setState] = useState<{ term: string, groups: SearchGroup[] } | null>(null)
@@ -106,7 +108,8 @@ export function SearchAutocomplete ({ placeholder, defaultValue = '', load, onSu
         className={inputClassName ?? 'h-10 w-full rounded-lg bg-secondary-bg pl-10 pr-4 text-sm text-ink placeholder:text-muted hover:bg-line focus:bg-pure-white focus:outline-none focus:ring-2 focus:ring-accent/30'}
       />
       {show && (
-        <div id={id} role='listbox' className='anim-menu-in origin-top absolute inset-x-0 top-[calc(100%+6px)] z-40 flex max-h-[420px] min-w-80 flex-col overflow-y-auto rounded-xl border border-border bg-pure-white py-1.5 shadow-[0px_20px_25px_-5px_rgba(0,0,0,0.1),0px_8px_10px_-6px_rgba(0,0,0,0.1)]'>
+        <div ref={list} id={id} role='listbox' className='scrollbar-none anim-menu-in origin-top absolute inset-x-0 top-[calc(100%+6px)] z-40 flex max-h-[420px] min-w-80 flex-col overflow-y-auto rounded-xl border border-border bg-pure-white py-1.5 shadow-[0px_20px_25px_-5px_rgba(0,0,0,0.1),0px_8px_10px_-6px_rgba(0,0,0,0.1)]'>
+          <FloatingScrollbar target={list} />
           {loading && groups.length === 0 && (
             <div className='flex flex-col gap-2 px-3 py-2' aria-label={t.searching}>
               {[0, 1, 2].map((i) => (

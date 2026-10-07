@@ -1,5 +1,7 @@
+'use client'
+
 import Link from 'next/link'
-import type { ReactNode } from 'react'
+import { type ReactNode, useRef } from 'react'
 import { FigmaIcon } from '@/components/ui/FigmaIcon'
 import { hhmm } from '@/features/agents/components/RouteTimeline'
 import type { GalleryPhoto } from '@/features/photos/types'
@@ -7,8 +9,7 @@ import type { ShopDetails, Visit } from '@/features/shops/api'
 import { formatPhone } from '@/lib/format'
 import { sub, type Locale } from '@/lib/i18n'
 import type { MapCopy } from '../copy'
-
-const shadowXl = 'shadow-[0px_8px_10px_-6px_rgba(0,0,0,0.1),0px_20px_25px_-5px_rgba(0,0,0,0.1)]'
+import { FloatingScrollbar } from '@/components/ui/FloatingScrollbar'
 
 function Info ({ label, children }: { label: string, children: ReactNode }) {
   return (
@@ -28,17 +29,18 @@ function dayTime (iso: string, locale: Locale) {
 }
 
 /** "Right-side location drawer" of 3:2 (3:125): the selected shop with photos and recent visits. */
-export function ShopCard ({ shop, visits, totals, photos, closeHref, copy, history, locale }: {
+export function ShopCard ({ shop, visits, totals, photos, onClose, copy, history, locale }: {
   shop: ShopDetails
   visits: Visit[]
   totals: { all: number, completed: number, missed: number }
   photos: GalleryPhoto[]
-  closeHref: string
+  onClose: () => void
   copy: MapCopy
   /** Visit history labels shared with the shop details page. */
   history: { title: string, updatedAt: string, total: string, completed: string, missed: string, duration: string, comment: string, violation: string, missedStatus: string, noVisits: string }
   locale: Locale
 }) {
+  const body = useRef<HTMLDivElement>(null)
   const c = copy.card
   const status = shop.status === 'ACTIVE'
     ? <span className='flex items-center gap-1 rounded bg-[#72f8df] px-2 py-0.5 text-[10px] font-bold leading-[15px] text-[#00201b]'><FigmaIcon name='map-verified' width={11} height={10.5} />{c.verified}</span>
@@ -48,7 +50,7 @@ export function ShopCard ({ shop, visits, totals, photos, closeHref, copy, histo
   const more = shop.kpis.auditPhotos > 5 ? shop.kpis.auditPhotos - 4 : 0
 
   return (
-    <aside className={`anim-panel-left absolute bottom-2 left-4 top-[68px] z-20 flex w-96 flex-col overflow-hidden rounded-2xl bg-pure-white ${shadowXl}`}>
+    <div className='flex size-full flex-col'>
       <div className='flex items-start justify-between gap-4 p-4'>
         <div className='flex min-w-0 flex-col gap-[3px]'>
           <div className='flex items-center gap-2'>
@@ -58,10 +60,11 @@ export function ShopCard ({ shop, visits, totals, photos, closeHref, copy, histo
           <Link href={`/shops/${shop.id}`} title={c.details} className='truncate text-lg font-bold leading-[22.5px] text-ink hover:text-accent'>{shop.name}</Link>
           <p className='pt-px text-xs font-medium leading-4 text-muted'>{shop.address}</p>
         </div>
-        <Link href={closeHref} aria-label={c.close} className='flex size-7 shrink-0 items-center justify-center'><FigmaIcon name='map-card-close' width={10} height={10} /></Link>
+        <button data-ripple type='button' onClick={onClose} aria-label={c.close} className='flex size-7 shrink-0 items-center justify-center rounded-full'><FigmaIcon name='map-card-close' width={10} height={10} /></button>
       </div>
 
-      <div className='flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-2'>
+      <div ref={body} className='scrollbar-none flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-2'>
+        <FloatingScrollbar target={body} />
         <div className='flex flex-col gap-1.5 rounded-xl bg-secondary-bg p-3'>
           <Info label={c.region}>{shop.region?.name ?? c.none}</Info>
           <Info label={c.address}><span className='font-medium'>{shop.address}{shop.addressDetail != null ? `, ${shop.addressDetail}` : ''}</span></Info>
@@ -145,6 +148,6 @@ export function ShopCard ({ shop, visits, totals, photos, closeHref, copy, histo
           ))}
         </section>
       </div>
-    </aside>
+    </div>
   )
 }

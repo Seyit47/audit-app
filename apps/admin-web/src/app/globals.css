@@ -99,6 +99,13 @@ a, button, [role='button'], [role='menuitem'], [role='switch'], [role='tab'], in
   transition-timing-function: var(--ease-standard);
 }
 
+/* Native vertical scrollbars take width, so a page or panel that starts scrolling shifts its content.
+   They are hidden where a FloatingScrollbar draws a thin thumb over the content instead. */
+html { scrollbar-width: none; }
+html::-webkit-scrollbar { display: none; }
+.scrollbar-none { scrollbar-width: none; }
+.scrollbar-none::-webkit-scrollbar { display: none; }
+
 /* Interactive elements show a pointer; disabled ones say so. Utilities (e.g. cursor-default) still win. */
 @layer base {
   button, summary, select, label[for], [role='button'], [role='menuitem'], [role='option'], [role='tab'], [role='radio'], [role='switch'],

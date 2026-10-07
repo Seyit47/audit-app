@@ -4,6 +4,7 @@ import { useRef, useState } from 'react'
 import { Checkbox } from './Checkbox'
 import { FigmaIcon } from './FigmaIcon'
 import { usePopup } from '@/lib/use-popup'
+import { FloatingScrollbar } from '@/components/ui/FloatingScrollbar'
 
 export interface MultiOption { value: string, label: string, hint?: string }
 
@@ -20,6 +21,7 @@ export function MultiSelect ({ id, options, value, onChange, placeholder, search
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState('')
   const ref = useRef<HTMLDivElement>(null)
+  const list = useRef<HTMLUListElement>(null)
   usePopup(open, () => setOpen(false), [ref])
   const chosen = new Set(value)
   const shown = options.filter((o) => `${o.label} ${o.hint ?? ''}`.toLowerCase().includes(q.toLowerCase()))
@@ -37,7 +39,8 @@ export function MultiSelect ({ id, options, value, onChange, placeholder, search
       {open && (
         <div className='anim-menu-in origin-top absolute inset-x-0 top-full mt-1 z-40 flex max-h-64 flex-col rounded-lg border border-border bg-pure-white shadow-[0px_20px_25px_-5px_rgba(0,0,0,0.1),0px_8px_10px_-6px_rgba(0,0,0,0.1)]'>
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={searchPlaceholder} aria-label={searchPlaceholder} className='m-2 h-9 rounded-md border border-border px-3 text-xs hover:border-slate-400 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20' />
-          <ul role='listbox' aria-multiselectable className='overflow-y-auto pb-1'>
+          <ul ref={list} role='listbox' aria-multiselectable className='scrollbar-none overflow-y-auto pb-1'>
+            <FloatingScrollbar target={list} />
             {shown.map((o) => (
               <li key={o.value} role='option' aria-selected={chosen.has(o.value)}>
                 <label className='flex cursor-pointer items-center gap-3 px-3 py-2 text-xs leading-4 text-ink hover:bg-secondary-bg'>

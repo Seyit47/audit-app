@@ -2,9 +2,10 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Icon } from '@/components/ui/Icon'
 import type { LayoutCopy } from './copy'
+import { FloatingScrollbar } from '@/components/ui/FloatingScrollbar'
 
 // Every row is one height so moving the active item never shifts the others. The active-tab image
 // (nav-active-bg.svg, 3:414) is taller: its tab body matches the row and the corner curves stick out
@@ -25,6 +26,7 @@ const navItems = (copy: LayoutCopy) => [
 export function Sidebar ({ companyName, logoUrl, copy }: { companyName: string | null, logoUrl: string | null, copy: LayoutCopy }) {
   const pathname = usePathname()
   const items = navItems(copy)
+  const nav = useRef<HTMLElement>(null)
   // The clicked item turns active at once, before its page has rendered.
   const [pending, setPending] = useState<{ from: string, to: string } | null>(null)
   const current = pending != null && pending.from === pathname ? pending.to : pathname
@@ -44,7 +46,8 @@ export function Sidebar ({ companyName, logoUrl, copy }: { companyName: string |
         </p>
       </div>
 
-      <nav className='flex flex-1 flex-col overflow-auto py-4 pl-3'>
+      <nav ref={nav} className='scrollbar-none flex flex-1 flex-col overflow-auto py-4 pl-3'>
+        <FloatingScrollbar target={nav} />
         {items.map((item) => {
           const active = current.startsWith(item.match)
           return active

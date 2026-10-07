@@ -14,9 +14,10 @@ import { navigationStarted } from '@/lib/feedback'
 import { useUrlState } from '@/lib/url-state'
 import type { MapCopy } from '../copy'
 import { hullRing } from '../hull'
-import type { AgentPosition, MapFilterState, MapShop } from '../types'
+import type { AgentPosition, MapFilterState, MapShop, ShopCardData } from '../types'
 import { FilterBanner } from './FilterBanner'
 import { MapFilters } from './MapFilters'
+import { ShopCard } from './ShopCard'
 
 const shadowMd = 'shadow-[0px_2px_4px_-2px_rgba(0,0,0,0.1),0px_4px_6px_-1px_rgba(0,0,0,0.1)]'
 const square = `relative flex size-10 items-center justify-center rounded-xl bg-pure-white ${shadowMd}`
@@ -41,19 +42,23 @@ function viewOf (shops: MapShop[]): InitialView {
   return { bounds: [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]], fitBoundsOptions: { padding: { top: 96, bottom: 48, left: 64, right: 64 }, maxZoom: 15 } }
 }
 
+// A shop card fetched in the last 30 s is reused; only called from event handlers.
+const now = () => Date.now()
+const stale = (at: number) => now() - at > 30_000
+
 /** Admin Map of 21:2 / 3:2: clustered shops, agent positions, region zones, search, filters and controls (B2). */
-export default function AdminMapCanvas ({ shops, positions, regions, agents, filters, selectedId, copy, locale, satelliteTiles, children }: {
+export default function AdminMapCanvas ({ shops, positions, regions, agents, filters, initialCard, history, copy, locale, satelliteTiles }: {
   shops: MapShop[]
   positions: AgentPosition[]
   regions: Array<{ id: string, name: string }>
   agents: Array<{ id: string, fullName: string }>
   filters: MapFilterState & { ids: string[] }
-  selectedId: string | null
+  /** The card for a link that opened with `?shop=`. */
+  initialCard: ShopCardData | null
+  history: React.ComponentProps<typeof ShopCard>['history']
   copy: MapCopy
   locale: Locale
   satelliteTiles: string
-  /** The selected shop's card, rendered on the server. */
-  children?: React.ReactNode
 }) {
   const router = useRouter()
   const { set } = useUrlState()
@@ -63,10 +68,36 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
   const [panel, setPanel] = useState(false)
   const [satellite, setSatellite] = useState(false)
   const [clusters, setClusters] = useState<Clustered[]>([])
-  // The clicked shop's card shows at once; the server card replaces it when it arrives.
-  const [click, setClick] = useState<{ id: string, from: string | null } | null>(null)
-  const clicked = click != null && click.from === selectedId ? click.id : null
-  const pendingShop = clicked != null && clicked !== selectedId ? shops.find((s) => s.id === clicked) : undefined
+  // Selecting a shop is client-side: its card is fetched from /data/shops/:id/card (cached, and prefetched
+  // on marker hover) and only `?shop=` changes in the URL, so the map page is not re-rendered on the server.
+  const [selectedId, setSelectedId] = useState<string | null>(initialCard?.shop.id ?? null)
+  const [cards, setCards] = useState<Record<string, ShopCardData | null>>(() => initialCard == null ? {} : { [initialCard.shop.id]: initialCard })
+  const fetched = useRef(new Map<string, number>())
+  // A refresh from the server (auto-refresh, the refresh button) brings a fresh card for the selected shop.
+  const [seenInitial, setSeenInitial] = useState(initialCard)
+  if (initialCard !== seenInitial) {
+    setSeenInitial(initialCard)
+    if (initialCard != null) setCards((all) => ({ ...all, [initialCard.shop.id]: initialCard }))
+  }
+  const loadCard = (id: string) => {
+    const at = fetched.current.get(id)
+    if (at != null && !stale(at)) return // fresh enough (the page auto-refreshes every 30 s)
+    fetched.current.set(id, now())
+    fetch(`/data/shops/${id}/card`)
+      .then(async (r) => (r.ok ? await r.json() as ShopCardData : null))
+      .then((card) => setCards((all) => ({ ...all, [id]: card })))
+      .catch(() => { fetched.current.delete(id) })
+  }
+  const writeShopParam = (id: string | null) => {
+    const next = new URLSearchParams(window.location.search)
+    if (id == null) next.delete('shop'); else next.set('shop', id)
+    const qs = next.toString()
+    window.history.replaceState(null, '', qs === '' ? window.location.pathname : `?${qs}`)
+  }
+  const select = (id: string) => { setSelectedId(id); loadCard(id); writeShopParam(id) }
+  const closeCard = () => { setSelectedId(null); writeShopParam(null) }
+  const selectedCard = selectedId == null ? undefined : cards[selectedId]
+  const selectedShop = selectedId == null ? undefined : shops.find((s) => s.id === selectedId)
 
   const visible = useMemo(() => {
     const needle = q.trim().toLowerCase()
@@ -131,7 +162,7 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
         </Source>
         {clusters.map((c) => c.kind === 'cluster'
           ? <ClusterMarker key={`c${c.id}`} longitude={c.lng} latitude={c.lat} count={c.count} unitLabel={c.count >= 100 ? copy.unit : undefined} onClick={() => { void expand(c.id, c.lng, c.lat) }} />
-          : <ShopMarker key={c.shop.id} longitude={c.shop.lng} latitude={c.shop.lat} label={c.shop.name} active={c.shop.id === (clicked ?? selectedId)} onClick={() => { setClick({ id: c.shop.id, from: selectedId }); set({ shop: c.shop.id }) }} />)}
+          : <ShopMarker key={c.shop.id} longitude={c.shop.lng} latitude={c.shop.lat} label={c.shop.name} active={c.shop.id === selectedId} onHover={() => loadCard(c.shop.id)} onClick={() => select(c.shop.id)} />)}
         {positions.map((p) => (
           <Marker key={p.agentId} longitude={p.lng} latitude={p.lat} anchor='center'>
             <Link href={`/salesmen/${p.agentId}`} className='group relative flex flex-col items-center' title={`${p.fullName} · ${sub(copy.hereNow, new Date(p.recordedAt).toLocaleTimeString(locale === 'ru' ? 'ru-RU' : 'en-US', { hour: '2-digit', minute: '2-digit' }))}`}>
@@ -160,7 +191,7 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
             onPick={(hit) => {
               const s = shops.find((x) => x.id === hit.id)
               if (s != null) map.current?.flyTo({ center: [s.lng, s.lat], zoom: Math.max(map.current.getZoom(), 15) })
-              setClick({ id: hit.id, from: selectedId }); set({ shop: hit.id })
+              select(hit.id)
             }}
             onSubmit={search}
           />
@@ -188,17 +219,22 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
         </div>
       </div>
 
-      {pendingShop != null
-        ? (
-          <aside className='anim-panel-left absolute bottom-2 left-4 top-[68px] z-20 flex w-96 flex-col gap-4 overflow-hidden rounded-2xl bg-pure-white p-4 shadow-[0px_8px_10px_-6px_rgba(0,0,0,0.1),0px_20px_25px_-5px_rgba(0,0,0,0.1)]'>
-            <Bone className='h-5 w-40' />
-            <p className='text-lg font-bold leading-[22.5px] text-ink'>{pendingShop.name}</p>
-            <p className='-mt-3 text-xs font-medium leading-4 text-muted'>{pendingShop.address}</p>
-            <Bone className='h-72 rounded-xl' />
-            <Bone className='h-24 rounded-xl' />
-          </aside>
-          )
-        : children}
+      {/* One frame slides in once; the placeholder, the card and other shops' cards swap inside it. */}
+      {selectedId != null && selectedCard !== null && (
+        <aside className='anim-panel-left absolute bottom-2 left-4 top-[68px] z-20 flex w-96 flex-col overflow-hidden rounded-2xl bg-pure-white shadow-[0px_8px_10px_-6px_rgba(0,0,0,0.1),0px_20px_25px_-5px_rgba(0,0,0,0.1)]'>
+          {selectedCard != null
+            ? <ShopCard key={selectedCard.shop.id} {...selectedCard} onClose={closeCard} copy={copy} history={history} locale={locale} />
+            : (
+              <div className='flex flex-col gap-4 p-4'>
+                <Bone className='h-5 w-40' />
+                <p className='text-lg font-bold leading-[22.5px] text-ink'>{selectedShop?.name}</p>
+                <p className='-mt-3 text-xs font-medium leading-4 text-muted'>{selectedShop?.address}</p>
+                <Bone className='h-72 rounded-xl' />
+                <Bone className='h-24 rounded-xl' />
+              </div>
+              )}
+        </aside>
+      )}
       {panel && (
         <MapFilters
           agents={agents} regions={regions} value={filters} copy={copy} onClose={() => setPanel(false)}

@@ -59,7 +59,7 @@ export function RowMenu ({ items, label = 'Actions' }: { items: RowMenuItem[], l
             const cls = `relative flex w-full items-center gap-2 px-3 text-left text-xs font-medium leading-4 hover:bg-secondary-bg ${item.danger === true ? 'text-danger' : 'text-ink'} ${item.separated === true ? 'mt-1 border-t border-secondary-bg pb-2 pt-3' : 'py-2'}`
             const body = <><FigmaIcon {...item.icon} />{item.label}</>
             return item.href != null
-              ? <Link key={item.label} role='menuitem' data-ripple href={item.href} className={cls} onClick={() => setAt(null)}>{body}</Link>
+              ? <Link key={item.label} role='menuitem' data-ripple href={item.href} prefetch className={cls} onClick={() => setAt(null)}>{body}</Link>
               : <button key={item.label} role='menuitem' data-ripple type='button' className={cls} onClick={() => { setAt(null); item.onSelect?.() }}>{body}</button>
           })}
         </div>,

@@ -86,7 +86,7 @@ export function FeedPanel ({ initialUnread, copy, locale }: { initialUnread: num
       {open && mounted && createPortal(
         <div ref={panel} style={{ top }} className='fixed right-4 z-40'>
           <SidePanel
-            className='w-[420px] overflow-y-auto' style={{ maxHeight: `calc(100vh - ${top + 16}px)` }}
+            scroll className='w-[420px]' style={{ maxHeight: `calc(100vh - ${top + 16}px)` }}
             closeLabel={copy.close} onClose={() => setOpen(false)}
             header={(
               <div className='flex flex-col'>

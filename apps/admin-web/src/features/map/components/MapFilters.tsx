@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { FigmaIcon } from '@/components/ui/FigmaIcon'
 import { sub } from '@/lib/i18n'
 import type { MapCopy } from '../copy'
 import type { MapFilterState } from '../types'
+import { FloatingScrollbar } from '@/components/ui/FloatingScrollbar'
 
 const shadowXl = 'shadow-[0px_8px_10px_-6px_rgba(0,0,0,0.1),0px_20px_25px_-5px_rgba(0,0,0,0.1)]'
 
@@ -28,6 +29,7 @@ export function MapFilters ({ agents, regions, value, copy, onApply, onClose }: 
   const [regionIds, setRegionIds] = useState(value.regionIds)
   const [q, setQ] = useState('')
   const [regionsOpen, setRegionsOpen] = useState(true)
+  const body = useRef<HTMLDivElement>(null)
   const matches = q.trim() === ''
     ? []
     : agents.filter((a) => !agentIds.includes(a.id) && a.fullName.toLowerCase().includes(q.trim().toLowerCase())).slice(0, 6)
@@ -46,7 +48,8 @@ export function MapFilters ({ agents, regions, value, copy, onApply, onClose }: 
         <button data-ripple type='button' onClick={onClose} aria-label={p.close} className='flex size-7 items-center justify-center rounded-full'><FigmaIcon name='map-panel-close' width={10} height={10} /></button>
       </div>
 
-      <div className='flex min-h-0 flex-col gap-4 overflow-y-auto px-4 py-3'>
+      <div ref={body} className='scrollbar-none flex min-h-0 flex-col gap-4 overflow-y-auto px-4 py-3'>
+        <FloatingScrollbar target={body} />
         <div className='flex flex-col gap-1.5'>
           <div className='flex items-center justify-between'>
             <span className='text-xs font-semibold leading-4 text-ink'>{p.salesman}</span>

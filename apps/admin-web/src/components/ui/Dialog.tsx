@@ -1,9 +1,10 @@
 'use client'
 
-import { useCallback, useEffect, useState, useSyncExternalStore, type ReactNode } from 'react'
+import { type ReactNode, useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { createPortal } from 'react-dom'
 import { lockScroll } from '@/lib/scroll-lock'
 import { FigmaIcon } from './FigmaIcon'
+import { FloatingScrollbar } from '@/components/ui/FloatingScrollbar'
 
 /**
  * Centered dialog of 162:20071 (162:20592): header with title, code badge and subtitle,
@@ -43,6 +44,7 @@ export function Dialog ({ open, onClose, title, badge, subtitle, footer, childre
   closeLabel: string
   variant?: keyof typeof variants
 }) {
+  const body = useRef<HTMLDivElement>(null)
   const v = variants[variant]
   const [leaving, setLeaving] = useState(false)
   // false during SSR and hydration, true after: the portal needs document.body.
@@ -89,7 +91,7 @@ export function Dialog ({ open, onClose, title, badge, subtitle, footer, childre
             <FigmaIcon name='dialog-close' width={20} height={20} />
           </button>
         </header>
-        <div className={`flex min-h-0 flex-1 flex-col overflow-y-auto ${v.body}`}>{children}</div>
+        <div ref={body} className={`scrollbar-none flex min-h-0 flex-1 flex-col overflow-y-auto ${v.body}`}>{children}<FloatingScrollbar target={body} /></div>
         {footer != null && (
           <footer className={`flex shrink-0 items-center gap-3 ${v.footer}`}>{footer}</footer>
         )}

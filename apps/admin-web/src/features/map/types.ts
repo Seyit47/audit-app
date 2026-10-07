@@ -1,3 +1,6 @@
+import type { GalleryPhoto } from '@/features/photos/types'
+import type { ShopDetails, Visit } from '@/features/shops/api'
+
 export interface MapShop {
   id: string
   code: string
@@ -27,3 +30,10 @@ export interface AgentPosition {
 }
 
 export interface MapFilterState { agentIds: string[], regionIds: string[] }
+
+export interface ShopCardData {
+  shop: ShopDetails
+  visits: Visit[]
+  totals: { all: number, completed: number, missed: number }
+  photos: GalleryPhoto[]
+}

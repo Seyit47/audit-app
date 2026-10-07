@@ -6,6 +6,7 @@ import { NavigationProgress } from "@/components/motion/NavigationProgress";
 import { RippleRoot } from "@/components/motion/RippleRoot";
 import { Snackbar } from "@/components/motion/Snackbar";
 import { getLocale } from "@/lib/locale";
+import { FloatingScrollbar } from '@/components/ui/FloatingScrollbar'
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin", "cyrillic"] });
 const spaceGrotesk = Space_Grotesk({ variable: "--font-space-grotesk", subsets: ["latin"] });
@@ -22,6 +23,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <RippleRoot />
         {children}
         <Snackbar />
+        <FloatingScrollbar />
       </body>
     </html>
   );

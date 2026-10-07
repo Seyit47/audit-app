@@ -76,16 +76,18 @@ export function ClusterMarker ({ longitude, latitude, count, unitLabel, onClick 
 }
 
 /** Shop marker of 21:2 (21:108) with the dark label pin when active (21:120). */
-export function ShopMarker ({ longitude, latitude, label, active = false, onClick }: {
+export function ShopMarker ({ longitude, latitude, label, active = false, onClick, onHover }: {
   longitude: number
   latitude: number
   label: string
   active?: boolean
   onClick?: () => void
+  /** Pointer over the marker: start loading what a click will show. */
+  onHover?: () => void
 }) {
   return (
     <Marker longitude={longitude} latitude={latitude} anchor='bottom' onClick={(e) => { e.originalEvent.stopPropagation(); onClick?.() }}>
-      <button type='button' aria-label={label} aria-pressed={active} className='flex flex-col items-center'>
+      <button type='button' aria-label={label} aria-pressed={active} onPointerEnter={onHover} onFocus={onHover} className='flex flex-col items-center'>
         {active && (
           <span className={`mb-2.5 flex items-center gap-1.5 rounded-md bg-[#2e303b] px-2.5 py-1 text-[11px] font-semibold leading-[16.5px] tracking-[-0.28px] text-[#f0effe] ${shadowLg}`}>
             {label}
