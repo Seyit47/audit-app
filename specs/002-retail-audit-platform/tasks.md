@@ -489,8 +489,8 @@ sessions.
   - zoom and recenter; Layers (Figma style ↔ satellite), Fullscreen (browser API) and Refresh (reload markers and positions) (B2); supports `?ids=` from the Shops bulk "View on Map"
 - [ ] T121 [P] [US9] Build the admin mobile Map from Figma `248:23963` and `248:24102` in `apps/mobile/lib/features/admin/map/presentation/admin_map_screen.dart` (chips, Filters → `filter_sheet` (B3), markers, agent positions, sheet + Подробнее)
 - [X] T122 [P] [US9] Build admin mobile Home from Figma `246:23129` in `apps/mobile/lib/features/admin/home/presentation/admin_home_screen.dart` (Карта, Магазины, Галерея, Агенты, Продукции → mobile Products (A7); theme toggle; RU/EN; avatar sign-out)
-- [ ] T123 [P] [US9] Write failing tests in `apps/api/test/feed.test.ts`: `GET /v1/feed` lists violations and missed visits newest first with a cursor, `unreadCount` counts items newer than `feedSeenAt`, `POST /v1/feed/seen` resets it, admins only
-- [ ] T124 [US9] Implement the feed module in `apps/api/src/modules/feed/` (routes, service, repository querying audits with `hasViolation` and MISSED route stops)
+- [X] T123 [P] [US9] Write failing tests in `apps/api/test/feed.test.ts`: `GET /v1/feed` lists violations and missed visits newest first with a cursor, `unreadCount` counts items newer than `feedSeenAt`, `POST /v1/feed/seen` resets it, admins only
+- [X] T124 [US9] Implement the feed module in `apps/api/src/modules/feed/` (routes, service, repository querying audits with `hasViolation` and MISSED route stops)
 - [ ] T125 [US9] Build the bell activity feed (approved exception A6) in `apps/admin-web/src/components/layout/FeedPanel.tsx`: the existing `SidePanel` + `VisitHistoryItem` cards, the unread dot on the Figma bell (poll 30 s), opening calls `POST /v1/feed/seen`, items link to the shop or agent. Mount it in `Topbar.tsx`
 
 ---
@@ -498,7 +498,7 @@ sessions.
 ## Phase 12: Polish & Cross-Cutting Concerns
 
 - [ ] T126 Build the Settings page (approved exception A4) in `apps/admin-web/src/app/(admin)/settings/page.tsx` + `src/features/settings/`, built only from existing web components (PageHeader, FormField, ImageUpload, DataTable, Button from `495:3932` / `162:20071` / `3:407`): company name and logo, working hours and time zone, visit frequency, audit radius, GPS accuracy, no-signal threshold, regions CRUD
-- [ ] T127 Implement the retention job in `apps/api/src/jobs/retention.ts` (nightly; purge pings and exports older than `RETENTION_YEARS`), with a test in `apps/api/test/retention.test.ts`
+- [X] T127 Implement the retention job in `apps/api/src/jobs/retention.ts` (nightly; purge pings and exports older than `RETENTION_YEARS`), with a test in `apps/api/test/retention.test.ts`
 - [ ] T128 Run the design pass on all 46 frames in `contracts/figma-frames.md` (web 1440; mobile 390, light and dark), comparing each with `get_screenshot`. Review every approved-exception screen (sign-in, chip, Settings, feed, mobile Add Salesman and Products, permission, multi-select, upload dialog, filter sheets) for consistency with the existing components. Fix differences and record the results in `specs/002-retail-audit-platform/quickstart.md`
 - [ ] T129 [P] Run the performance pass: `apps/api/prisma/seed-load.ts` (10k shops, 100k photos) and a `bench` script for SC-005, adding indexes in a new migration if needed. Measure SC-008 with `flutter run --profile --trace-startup` and record it in quickstart.md
 - [ ] T130 [P] Run the security pass: `apps/api/test/scoping.test.ts` covering every agent-reachable endpoint (SC-007); CORS limited to `WEB_ORIGIN`; cookie flags; presigned expiry; secrets only in env

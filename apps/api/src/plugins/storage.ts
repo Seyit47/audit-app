@@ -1,5 +1,5 @@
 import fp from 'fastify-plugin'
-import { CreateBucketCommand, GetObjectCommand, HeadBucketCommand, HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { CreateBucketCommand, GetObjectCommand, DeleteObjectCommand, HeadBucketCommand, HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
 const URL_TTL_S = 600
@@ -11,6 +11,7 @@ export interface Storage {
   head: (key: string) => Promise<{ sizeBytes: number, contentType: string } | null>
   getObject: (key: string) => Promise<Buffer>
   putObject: (key: string, body: Buffer, contentType: string) => Promise<void>
+  deleteObject: (key: string) => Promise<void>
 }
 
 declare module 'fastify' {
@@ -60,6 +61,9 @@ export default fp(async (fastify) => {
     },
     async putObject (key, body, contentType) {
       await s3.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: body, ContentType: contentType }))
+    },
+    async deleteObject (key) {
+      await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }))
     }
   }
   fastify.decorate('storage', storage)
