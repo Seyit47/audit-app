@@ -19,7 +19,9 @@
     "typecheck": "tsc --noEmit && tsc -p test/tsconfig.json",
     "lint": "eslint .",
     "job:routes": "FASTIFY_AUTOLOAD_TYPESCRIPT=1 tsx scripts/jobs.ts routes",
-    "job:end-of-day": "FASTIFY_AUTOLOAD_TYPESCRIPT=1 tsx scripts/jobs.ts end-of-day"
+    "job:end-of-day": "FASTIFY_AUTOLOAD_TYPESCRIPT=1 tsx scripts/jobs.ts end-of-day",
+    "seed:load": "tsx prisma/seed-load.ts",
+    "bench": "FASTIFY_AUTOLOAD_TYPESCRIPT=1 tsx scripts/bench.ts"
   },
   "keywords": [],
   "dependencies": {

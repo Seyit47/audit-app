@@ -39,11 +39,18 @@ cd apps/mobile && flutter run --dart-define-from-file=env/dev.json
 ## 3. Reliability, security, performance
 
 ```bash
-pnpm --filter api test                       # includes the scoping suite (SC-007)
-pnpm --filter api test:offline-soak          # 100 queued audits → no duplicates or loss (SC-002)
-pnpm --filter api seed:load && pnpm --filter api bench   # SC-005
+pnpm --filter api test                       # scoping (SC-007) and offline soak (SC-002) suites
+# SC-005: on an empty, migrated database (never the dev one):
+DATABASE_URL=postgresql://…/audit_load pnpm --filter api seed:load
+DATABASE_URL=postgresql://…/audit_load pnpm --filter api bench
 cd apps/mobile && flutter run --profile --trace-startup   # SC-008 (< 2 s)
 ```
+
+Recorded 2026-10-07 (10,000 shops, 100 agents, 30,000 audits, 100,000 photos; dev laptop, local
+PostgreSQL 16): every list's first page has a median under 90 ms. The slowest were `/shops/map`
+(84 ms) and the grouped gallery `/photos?groups=true` (65 ms, after moving the day counts into
+SQL; it took 6 s when counted in the API). No extra indexes were needed. SC-008 still has to be
+measured on a mid-range Android device.
 
 ## 4. Design check (Constitution I)
 

@@ -1,5 +1,5 @@
 import { Type, type Static } from '@sinclair/typebox'
-import type { Prisma, PrismaClient } from '../../generated/prisma/client.js'
+import { Prisma, type PrismaClient } from '../../generated/prisma/client.js'
 import type { AuthUser } from '../../plugins/auth.js'
 import type { Storage } from '../../plugins/storage.js'
 import { notFound } from '../../lib/app-error.js'
@@ -74,16 +74,35 @@ export class GalleryService {
     return {
       items: await Promise.all(page.map((p) => this.item(p))),
       nextCursor: rows.length > limit && last ? encodeCursor(last.takenAt, last.id) : null,
-      ...(q.groups ? { groups: await this.groups(where) } : {})
+      ...(q.groups ? { groups: await this.groups(user, q) } : {})
     }
   }
 
-  private async groups (where: Prisma.PhotoWhereInput) {
+  /** Per-day counts of the filtered set, counted in SQL (the same filters as [where]). */
+  private async groups (user: AuthUser, q: GalleryQuery) {
     const tz = (await this.settings.get()).timezone
-    const all = await this.prisma.photo.findMany({ where, select: { takenAt: true } })
-    const counts = new Map<string, number>()
-    for (const p of all) { const d = localDate(p.takenAt, tz); counts.set(d, (counts.get(d) ?? 0) + 1) }
-    return [...counts.entries()].sort((a, b) => b[0].localeCompare(a[0])).map(([date, count]) => ({ date, count }))
+    const cond: Prisma.Sql[] = [Prisma.sql`p."status" = 'READY'`, Prisma.sql`p."kind"::text = ANY(${q.type ? [q.type] : [...GALLERY_KINDS]})`]
+    const uploader = user.role === 'AGENT' ? user.id : q.agentId
+    if (uploader) cond.push(Prisma.sql`p."uploadedById" = ${uploader}::uuid`)
+    if (q.shopId) cond.push(Prisma.sql`(p."shopId" = ${q.shopId}::uuid OR a."shopId" = ${q.shopId}::uuid)`)
+    if (q.regionId) cond.push(Prisma.sql`(s."regionId" = ${q.regionId}::uuid OR sa."regionId" = ${q.regionId}::uuid)`)
+    if (q.verified !== undefined) cond.push(q.verified ? Prisma.sql`p."verifiedAt" IS NOT NULL` : Prisma.sql`p."verifiedAt" IS NULL`)
+    if (q.from) cond.push(Prisma.sql`p."takenAt" >= ${new Date(q.from)}`)
+    if (q.to) cond.push(Prisma.sql`p."takenAt" < ${new Date(q.to)}`)
+    if (q.q) {
+      const like = `%${q.q}%`
+      cond.push(Prisma.sql`(s."name" ILIKE ${like} OR sa."name" ILIKE ${like} OR g."fullName" ILIKE ${like})`)
+    }
+    const rows = await this.prisma.$queryRaw<Array<{ date: string, count: number }>>`
+      SELECT to_char((p."takenAt" AT TIME ZONE ${tz})::date, 'YYYY-MM-DD') AS date, count(*)::int AS count
+      FROM "Photo" p
+      LEFT JOIN "Shop" s ON s."id" = p."shopId"
+      LEFT JOIN "Audit" a ON a."id" = p."auditId"
+      LEFT JOIN "Shop" sa ON sa."id" = a."shopId"
+      LEFT JOIN "Agent" g ON g."userId" = p."uploadedById"
+      WHERE ${Prisma.join(cond, ' AND ')}
+      GROUP BY 1 ORDER BY 1 DESC`
+    return rows
   }
 
   async summary (user: AuthUser) {
