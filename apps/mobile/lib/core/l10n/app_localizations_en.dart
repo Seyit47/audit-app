@@ -308,4 +308,63 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get locating => 'Locating…';
+
+  @override
+  String get auditTitle => 'Audit';
+
+  @override
+  String get offlineSaved => 'Saved offline';
+
+  @override
+  String get geoLocating => 'Determining location...';
+
+  @override
+  String geoOutside(int meters) {
+    return 'You are outside the shop ($meters m)';
+  }
+
+  @override
+  String geoInaccurate(int meters) {
+    return 'Weak GPS signal (accuracy $meters m)';
+  }
+
+  @override
+  String get geoUnavailable => 'Location unavailable';
+
+  @override
+  String get recheck => 'Check again';
+
+  @override
+  String get photoEmptyTitle => 'No POSM photo yet';
+
+  @override
+  String get photoEmptyHint =>
+      'Photograph posters, wobblers, price tags and shelf talkers in the shopper\'s view';
+
+  @override
+  String get takePhoto => 'Take photo';
+
+  @override
+  String get removePhoto => 'Remove photo';
+
+  @override
+  String get auditComment => 'Audit comment';
+
+  @override
+  String get auditCommentHint =>
+      'Write remarks or more details about the outlet...';
+
+  @override
+  String get violationChip => 'Violation';
+
+  @override
+  String get finishAudit => 'Finish audit';
+
+  @override
+  String get auditSaved => 'Audit saved. It will be sent when online.';
+
+  @override
+  String photoLimit(int count) {
+    return 'At most $count photos';
+  }
 }

@@ -47,12 +47,18 @@ Future<void> shoot(
   bool dark = false,
   String locale = 'ru',
   double height = 844,
+  /// Runs in real async against the providers before the first frame (start controllers, fill
+  /// forms): drift work inside the widget test's fake async never completes.
+  Future<void> Function(ProviderContainer container)? before,
 }) async {
   tester.view.physicalSize = Size(390 * 2, height * 2);
   tester.view.devicePixelRatio = 2;
   addTearDown(tester.view.reset);
-  await tester.pumpWidget(ProviderScope(
-    overrides: [databaseProvider.overrideWithValue(db), ...overrides],
+  final container = ProviderContainer(overrides: [databaseProvider.overrideWithValue(db), ...overrides]);
+  addTearDown(container.dispose);
+  if (before != null) await tester.runAsync(() => before(container));
+  await tester.pumpWidget(UncontrolledProviderScope(
+    container: container,
     child: RepaintBoundary(
       key: _boundary,
       child: MaterialApp(
@@ -72,10 +78,13 @@ Future<void> shoot(
       ),
     ),
   ));
-  for (var i = 0; i < 5; i++) {
-    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
-    await tester.pump(const Duration(milliseconds: 100));
+  Future<void> settle() async {
+    for (var i = 0; i < 5; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
   }
+  await settle();
   final out = Platform.environment['SCREENS_OUT'] ?? 'build/screens';
   await tester.runAsync(() async {
     final boundary = _boundary.currentContext!.findRenderObject()! as RenderRepaintBoundary;

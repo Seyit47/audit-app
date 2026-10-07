@@ -40,6 +40,8 @@ abstract interface class SyncApi {
   Future<ShopsPage> shops({String? updatedAfter});
   /// `{id, date, updatedAt, stops: [...]}`; `id` is null when there is no route today.
   Future<Map<String, Object?>> routeToday();
+  /// The user, agent profile and the company settings subset (`GET /me`).
+  Future<Map<String, Object?>> me();
   /// The agent's own photos, newest first (the server scopes `/photos` to them).
   Future<List<Map<String, Object?>>> myPhotos();
 }
@@ -96,6 +98,9 @@ class HttpSyncApi implements SyncApi {
       cursor: res['cursor'] as String?,
     );
   }
+
+  @override
+  Future<Map<String, Object?>> me() async => (await _api.get<Map<String, dynamic>>('/me')).cast<String, Object?>();
 
   @override
   Future<Map<String, Object?>> routeToday() async => (await _api.get<Map<String, dynamic>>('/routes/today')).cast<String, Object?>();

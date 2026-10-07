@@ -20,10 +20,16 @@ class PullService {
 
   /// The pull order of contracts/sync.md: today's route, shops, then own photos.
   Future<void> pullAll() async {
+    await pullMe();
     await pullRoute();
     await pullShops();
     await pullPhotos();
   }
+
+  static const meCursor = 'me';
+
+  /// Keeps `/me` (agent profile and company settings) for offline use.
+  Future<void> pullMe() async => _setCursor(meCursor, jsonEncode(await _api.me()));
 
   /// Replaces the local route with today's; stops finished offline stay DONE until synced.
   Future<void> pullRoute() async {

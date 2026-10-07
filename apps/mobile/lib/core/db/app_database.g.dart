@@ -3807,6 +3807,435 @@ class PhotosCompanion extends UpdateCompanion<Photo> {
   }
 }
 
+class $AuditDraftsTable extends AuditDrafts
+    with TableInfo<$AuditDraftsTable, AuditDraft> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AuditDraftsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _shopIdMeta = const VerificationMeta('shopId');
+  @override
+  late final GeneratedColumn<String> shopId = GeneratedColumn<String>(
+    'shop_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _auditIdMeta = const VerificationMeta(
+    'auditId',
+  );
+  @override
+  late final GeneratedColumn<String> auditId = GeneratedColumn<String>(
+    'audit_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _routeStopIdMeta = const VerificationMeta(
+    'routeStopId',
+  );
+  @override
+  late final GeneratedColumn<String> routeStopId = GeneratedColumn<String>(
+    'route_stop_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _startedAtMeta = const VerificationMeta(
+    'startedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
+    'started_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _commentMeta = const VerificationMeta(
+    'comment',
+  );
+  @override
+  late final GeneratedColumn<String> comment = GeneratedColumn<String>(
+    'comment',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _hasViolationMeta = const VerificationMeta(
+    'hasViolation',
+  );
+  @override
+  late final GeneratedColumn<bool> hasViolation = GeneratedColumn<bool>(
+    'has_violation',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("has_violation" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    shopId,
+    auditId,
+    routeStopId,
+    startedAt,
+    comment,
+    hasViolation,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'audit_drafts';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AuditDraft> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('shop_id')) {
+      context.handle(
+        _shopIdMeta,
+        shopId.isAcceptableOrUnknown(data['shop_id']!, _shopIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_shopIdMeta);
+    }
+    if (data.containsKey('audit_id')) {
+      context.handle(
+        _auditIdMeta,
+        auditId.isAcceptableOrUnknown(data['audit_id']!, _auditIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_auditIdMeta);
+    }
+    if (data.containsKey('route_stop_id')) {
+      context.handle(
+        _routeStopIdMeta,
+        routeStopId.isAcceptableOrUnknown(
+          data['route_stop_id']!,
+          _routeStopIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(
+        _startedAtMeta,
+        startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startedAtMeta);
+    }
+    if (data.containsKey('comment')) {
+      context.handle(
+        _commentMeta,
+        comment.isAcceptableOrUnknown(data['comment']!, _commentMeta),
+      );
+    }
+    if (data.containsKey('has_violation')) {
+      context.handle(
+        _hasViolationMeta,
+        hasViolation.isAcceptableOrUnknown(
+          data['has_violation']!,
+          _hasViolationMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {shopId};
+  @override
+  AuditDraft map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AuditDraft(
+      shopId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}shop_id'],
+      )!,
+      auditId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}audit_id'],
+      )!,
+      routeStopId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}route_stop_id'],
+      ),
+      startedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}started_at'],
+      )!,
+      comment: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}comment'],
+      )!,
+      hasViolation: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}has_violation'],
+      )!,
+    );
+  }
+
+  @override
+  $AuditDraftsTable createAlias(String alias) {
+    return $AuditDraftsTable(attachedDatabase, alias);
+  }
+}
+
+class AuditDraft extends DataClass implements Insertable<AuditDraft> {
+  final String shopId;
+  final String auditId;
+  final String? routeStopId;
+  final DateTime startedAt;
+  final String comment;
+  final bool hasViolation;
+  const AuditDraft({
+    required this.shopId,
+    required this.auditId,
+    this.routeStopId,
+    required this.startedAt,
+    required this.comment,
+    required this.hasViolation,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['shop_id'] = Variable<String>(shopId);
+    map['audit_id'] = Variable<String>(auditId);
+    if (!nullToAbsent || routeStopId != null) {
+      map['route_stop_id'] = Variable<String>(routeStopId);
+    }
+    map['started_at'] = Variable<DateTime>(startedAt);
+    map['comment'] = Variable<String>(comment);
+    map['has_violation'] = Variable<bool>(hasViolation);
+    return map;
+  }
+
+  AuditDraftsCompanion toCompanion(bool nullToAbsent) {
+    return AuditDraftsCompanion(
+      shopId: Value(shopId),
+      auditId: Value(auditId),
+      routeStopId: routeStopId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(routeStopId),
+      startedAt: Value(startedAt),
+      comment: Value(comment),
+      hasViolation: Value(hasViolation),
+    );
+  }
+
+  factory AuditDraft.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AuditDraft(
+      shopId: serializer.fromJson<String>(json['shopId']),
+      auditId: serializer.fromJson<String>(json['auditId']),
+      routeStopId: serializer.fromJson<String?>(json['routeStopId']),
+      startedAt: serializer.fromJson<DateTime>(json['startedAt']),
+      comment: serializer.fromJson<String>(json['comment']),
+      hasViolation: serializer.fromJson<bool>(json['hasViolation']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'shopId': serializer.toJson<String>(shopId),
+      'auditId': serializer.toJson<String>(auditId),
+      'routeStopId': serializer.toJson<String?>(routeStopId),
+      'startedAt': serializer.toJson<DateTime>(startedAt),
+      'comment': serializer.toJson<String>(comment),
+      'hasViolation': serializer.toJson<bool>(hasViolation),
+    };
+  }
+
+  AuditDraft copyWith({
+    String? shopId,
+    String? auditId,
+    Value<String?> routeStopId = const Value.absent(),
+    DateTime? startedAt,
+    String? comment,
+    bool? hasViolation,
+  }) => AuditDraft(
+    shopId: shopId ?? this.shopId,
+    auditId: auditId ?? this.auditId,
+    routeStopId: routeStopId.present ? routeStopId.value : this.routeStopId,
+    startedAt: startedAt ?? this.startedAt,
+    comment: comment ?? this.comment,
+    hasViolation: hasViolation ?? this.hasViolation,
+  );
+  AuditDraft copyWithCompanion(AuditDraftsCompanion data) {
+    return AuditDraft(
+      shopId: data.shopId.present ? data.shopId.value : this.shopId,
+      auditId: data.auditId.present ? data.auditId.value : this.auditId,
+      routeStopId: data.routeStopId.present
+          ? data.routeStopId.value
+          : this.routeStopId,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      comment: data.comment.present ? data.comment.value : this.comment,
+      hasViolation: data.hasViolation.present
+          ? data.hasViolation.value
+          : this.hasViolation,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AuditDraft(')
+          ..write('shopId: $shopId, ')
+          ..write('auditId: $auditId, ')
+          ..write('routeStopId: $routeStopId, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('comment: $comment, ')
+          ..write('hasViolation: $hasViolation')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    shopId,
+    auditId,
+    routeStopId,
+    startedAt,
+    comment,
+    hasViolation,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AuditDraft &&
+          other.shopId == this.shopId &&
+          other.auditId == this.auditId &&
+          other.routeStopId == this.routeStopId &&
+          other.startedAt == this.startedAt &&
+          other.comment == this.comment &&
+          other.hasViolation == this.hasViolation);
+}
+
+class AuditDraftsCompanion extends UpdateCompanion<AuditDraft> {
+  final Value<String> shopId;
+  final Value<String> auditId;
+  final Value<String?> routeStopId;
+  final Value<DateTime> startedAt;
+  final Value<String> comment;
+  final Value<bool> hasViolation;
+  final Value<int> rowid;
+  const AuditDraftsCompanion({
+    this.shopId = const Value.absent(),
+    this.auditId = const Value.absent(),
+    this.routeStopId = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.comment = const Value.absent(),
+    this.hasViolation = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AuditDraftsCompanion.insert({
+    required String shopId,
+    required String auditId,
+    this.routeStopId = const Value.absent(),
+    required DateTime startedAt,
+    this.comment = const Value.absent(),
+    this.hasViolation = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : shopId = Value(shopId),
+       auditId = Value(auditId),
+       startedAt = Value(startedAt);
+  static Insertable<AuditDraft> custom({
+    Expression<String>? shopId,
+    Expression<String>? auditId,
+    Expression<String>? routeStopId,
+    Expression<DateTime>? startedAt,
+    Expression<String>? comment,
+    Expression<bool>? hasViolation,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (shopId != null) 'shop_id': shopId,
+      if (auditId != null) 'audit_id': auditId,
+      if (routeStopId != null) 'route_stop_id': routeStopId,
+      if (startedAt != null) 'started_at': startedAt,
+      if (comment != null) 'comment': comment,
+      if (hasViolation != null) 'has_violation': hasViolation,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AuditDraftsCompanion copyWith({
+    Value<String>? shopId,
+    Value<String>? auditId,
+    Value<String?>? routeStopId,
+    Value<DateTime>? startedAt,
+    Value<String>? comment,
+    Value<bool>? hasViolation,
+    Value<int>? rowid,
+  }) {
+    return AuditDraftsCompanion(
+      shopId: shopId ?? this.shopId,
+      auditId: auditId ?? this.auditId,
+      routeStopId: routeStopId ?? this.routeStopId,
+      startedAt: startedAt ?? this.startedAt,
+      comment: comment ?? this.comment,
+      hasViolation: hasViolation ?? this.hasViolation,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (shopId.present) {
+      map['shop_id'] = Variable<String>(shopId.value);
+    }
+    if (auditId.present) {
+      map['audit_id'] = Variable<String>(auditId.value);
+    }
+    if (routeStopId.present) {
+      map['route_stop_id'] = Variable<String>(routeStopId.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<DateTime>(startedAt.value);
+    }
+    if (comment.present) {
+      map['comment'] = Variable<String>(comment.value);
+    }
+    if (hasViolation.present) {
+      map['has_violation'] = Variable<bool>(hasViolation.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AuditDraftsCompanion(')
+          ..write('shopId: $shopId, ')
+          ..write('auditId: $auditId, ')
+          ..write('routeStopId: $routeStopId, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('comment: $comment, ')
+          ..write('hasViolation: $hasViolation, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $OutboxTable extends Outbox with TableInfo<$OutboxTable, OutboxData> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -5159,6 +5588,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $RouteStopsTable routeStops = $RouteStopsTable(this);
   late final $AuditsTable audits = $AuditsTable(this);
   late final $PhotosTable photos = $PhotosTable(this);
+  late final $AuditDraftsTable auditDrafts = $AuditDraftsTable(this);
   late final $OutboxTable outbox = $OutboxTable(this);
   late final $PingsBufferTable pingsBuffer = $PingsBufferTable(this);
   late final $SyncCursorsTable syncCursors = $SyncCursorsTable(this);
@@ -5173,6 +5603,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     routeStops,
     audits,
     photos,
+    auditDrafts,
     outbox,
     pingsBuffer,
     syncCursors,
@@ -7463,6 +7894,238 @@ typedef $$PhotosTableProcessedTableManager =
       Photo,
       PrefetchHooks Function()
     >;
+typedef $$AuditDraftsTableCreateCompanionBuilder =
+    AuditDraftsCompanion Function({
+      required String shopId,
+      required String auditId,
+      Value<String?> routeStopId,
+      required DateTime startedAt,
+      Value<String> comment,
+      Value<bool> hasViolation,
+      Value<int> rowid,
+    });
+typedef $$AuditDraftsTableUpdateCompanionBuilder =
+    AuditDraftsCompanion Function({
+      Value<String> shopId,
+      Value<String> auditId,
+      Value<String?> routeStopId,
+      Value<DateTime> startedAt,
+      Value<String> comment,
+      Value<bool> hasViolation,
+      Value<int> rowid,
+    });
+
+class $$AuditDraftsTableFilterComposer
+    extends Composer<_$AppDatabase, $AuditDraftsTable> {
+  $$AuditDraftsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get shopId => $composableBuilder(
+    column: $table.shopId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get auditId => $composableBuilder(
+    column: $table.auditId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get routeStopId => $composableBuilder(
+    column: $table.routeStopId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get startedAt => $composableBuilder(
+    column: $table.startedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get comment => $composableBuilder(
+    column: $table.comment,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get hasViolation => $composableBuilder(
+    column: $table.hasViolation,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$AuditDraftsTableOrderingComposer
+    extends Composer<_$AppDatabase, $AuditDraftsTable> {
+  $$AuditDraftsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get shopId => $composableBuilder(
+    column: $table.shopId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get auditId => $composableBuilder(
+    column: $table.auditId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get routeStopId => $composableBuilder(
+    column: $table.routeStopId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
+    column: $table.startedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get comment => $composableBuilder(
+    column: $table.comment,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get hasViolation => $composableBuilder(
+    column: $table.hasViolation,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$AuditDraftsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AuditDraftsTable> {
+  $$AuditDraftsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get shopId =>
+      $composableBuilder(column: $table.shopId, builder: (column) => column);
+
+  GeneratedColumn<String> get auditId =>
+      $composableBuilder(column: $table.auditId, builder: (column) => column);
+
+  GeneratedColumn<String> get routeStopId => $composableBuilder(
+    column: $table.routeStopId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get comment =>
+      $composableBuilder(column: $table.comment, builder: (column) => column);
+
+  GeneratedColumn<bool> get hasViolation => $composableBuilder(
+    column: $table.hasViolation,
+    builder: (column) => column,
+  );
+}
+
+class $$AuditDraftsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $AuditDraftsTable,
+          AuditDraft,
+          $$AuditDraftsTableFilterComposer,
+          $$AuditDraftsTableOrderingComposer,
+          $$AuditDraftsTableAnnotationComposer,
+          $$AuditDraftsTableCreateCompanionBuilder,
+          $$AuditDraftsTableUpdateCompanionBuilder,
+          (
+            AuditDraft,
+            BaseReferences<_$AppDatabase, $AuditDraftsTable, AuditDraft>,
+          ),
+          AuditDraft,
+          PrefetchHooks Function()
+        > {
+  $$AuditDraftsTableTableManager(_$AppDatabase db, $AuditDraftsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AuditDraftsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AuditDraftsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AuditDraftsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> shopId = const Value.absent(),
+                Value<String> auditId = const Value.absent(),
+                Value<String?> routeStopId = const Value.absent(),
+                Value<DateTime> startedAt = const Value.absent(),
+                Value<String> comment = const Value.absent(),
+                Value<bool> hasViolation = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AuditDraftsCompanion(
+                shopId: shopId,
+                auditId: auditId,
+                routeStopId: routeStopId,
+                startedAt: startedAt,
+                comment: comment,
+                hasViolation: hasViolation,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String shopId,
+                required String auditId,
+                Value<String?> routeStopId = const Value.absent(),
+                required DateTime startedAt,
+                Value<String> comment = const Value.absent(),
+                Value<bool> hasViolation = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AuditDraftsCompanion.insert(
+                shopId: shopId,
+                auditId: auditId,
+                routeStopId: routeStopId,
+                startedAt: startedAt,
+                comment: comment,
+                hasViolation: hasViolation,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$AuditDraftsTable, AuditDraft>(table),
+                  BaseReferences<_$AppDatabase, $AuditDraftsTable, AuditDraft>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$AuditDraftsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $AuditDraftsTable,
+      AuditDraft,
+      $$AuditDraftsTableFilterComposer,
+      $$AuditDraftsTableOrderingComposer,
+      $$AuditDraftsTableAnnotationComposer,
+      $$AuditDraftsTableCreateCompanionBuilder,
+      $$AuditDraftsTableUpdateCompanionBuilder,
+      (
+        AuditDraft,
+        BaseReferences<_$AppDatabase, $AuditDraftsTable, AuditDraft>,
+      ),
+      AuditDraft,
+      PrefetchHooks Function()
+    >;
 typedef $$OutboxTableCreateCompanionBuilder = OutboxCompanion Function({
   required String id,
   required OutboxKind kind,
@@ -8197,6 +8860,8 @@ class $AppDatabaseManager {
       $$AuditsTableTableManager(_db, _db.audits);
   $$PhotosTableTableManager get photos =>
       $$PhotosTableTableManager(_db, _db.photos);
+  $$AuditDraftsTableTableManager get auditDrafts =>
+      $$AuditDraftsTableTableManager(_db, _db.auditDrafts);
   $$OutboxTableTableManager get outbox =>
       $$OutboxTableTableManager(_db, _db.outbox);
   $$PingsBufferTableTableManager get pingsBuffer =>

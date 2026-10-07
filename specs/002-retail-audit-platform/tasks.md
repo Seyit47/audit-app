@@ -333,7 +333,7 @@ sessions.
   Add CLI scripts `job:routes` and `job:end-of-day` to `apps/api/package.json`
 - [X] T079 [US3] Implement the routes module in `apps/api/src/modules/routes/` (`GET /v1/routes/today`), and `GET /v1/shops/counts` + `GET /v1/shops/map` in `apps/api/src/modules/shops/`
 - [X] T080 [US3] Implement drift-backed repositories in `apps/mobile/lib/features/shops/data/shops_local_repository.dart` and `lib/features/route/data/route_local_repository.dart`, plus `lib/features/shops/domain/visit_state.dart`
-- [ ] T081 [US3] Build agent Home from Figma `83:16786` / `101:1880` in `apps/mobile/lib/features/home/presentation/agent_home_screen.dart`: avatar (sign-out menu), theme toggle, RU/EN, "Начать аудит" (opens the next route stop's audit), Мои магазины, Карта, Галерея, sync status
+- [X] T081 [US3] Build agent Home from Figma `83:16786` / `101:1880` in `apps/mobile/lib/features/home/presentation/agent_home_screen.dart`: avatar (sign-out menu), theme toggle, RU/EN, "Начать аудит" (opens the next route stop's audit), Мои магазины, Карта, Галерея, sync status
 - [X] T082 [US3] Build Shops from Figma `83:16884` / `101:1985` in `apps/mobile/lib/features/shops/presentation/shops_screen.dart`: title + count, Добавить, search, chips Все/Запланирован/Просрочен/Пройден with counts, the Filters button → `filter_sheet` (B3), tiles, pull-to-refresh
 - [X] T083 [US3] Build Shop details from Figma `83:17057` / `106:4035` in `apps/mobile/lib/features/shop_details/presentation/shop_details_screen.dart`: header with coordinates and distance, contact + call, last/next visit with the overdue warning, Карта (geo URI) and Аудит, audit history with violations and photos
 - [X] T084 [US3] Create the MapLibre styles matching the Figma map palette (sampled from `get_design_context` of `83:17636`, `106:5485` and `21:2`): `apps/mobile/assets/map/style-light.json`, `style-dark.json` and `apps/admin-web/public/map/style.json`. The tile source comes from env
@@ -360,7 +360,7 @@ sessions.
   - **immutability**: there is no PATCH or DELETE (405), and a direct SQL UPDATE is rejected by the trigger
   - **violation**: `hasViolation` is stored and returned. `/shops/:id/visits` and `/photos/:id` expose it, so the clients render "Зафиксировано нарушение" + the comment
   - **missed visits**: appear in `/shops/:id/visits` as MISSED with no reason
-- [ ] T087 [P] [US2] Write failing tests in `apps/mobile/test/features/audit/audit_controller_test.dart`:
+- [X] T087 [P] [US2] Write failing tests in `apps/mobile/test/features/audit/audit_controller_test.dart`:
   - the geofence and accuracy check with the cached shop
   - Finish is disabled without a photo or comment, and enabled with ≥ 1 photo and a comment
   - at most 20 photos
@@ -371,16 +371,16 @@ sessions.
 ### Implementation
 
 - [X] T088 [US2] Implement the audits module in `apps/api/src/modules/audits/` (routes, service, a repository with no update/delete, schema, `audit.view.ts`): check-start, create (transactional linking and the computations above), list, get
-- [ ] T089 [US2] Implement the camera capture in `apps/mobile/lib/core/widgets/photo_capture.dart` (camera only; file + takenAt + GPS saved before anything else) and the draft persistence in `apps/mobile/lib/features/audit/data/audit_local_repository.dart`
-- [ ] T090 [US2] Implement `apps/mobile/lib/features/audit/presentation/audit_controller.dart` (locate, geofence, photos, comment, violation chip state, finish → outbox, local stop status)
-- [ ] T091 [US2] Build the Audit screen from Figma `83:17207` → `83:17285` / `106:4374` → `106:6229` in `apps/mobile/lib/features/audit/presentation/audit_screen.dart`:
+- [X] T089 [US2] Implement the camera capture in `apps/mobile/lib/core/widgets/photo_capture.dart` (camera only; file + takenAt + GPS saved before anything else) and the draft persistence in `apps/mobile/lib/features/audit/data/audit_local_repository.dart`
+- [X] T090 [US2] Implement `apps/mobile/lib/features/audit/presentation/audit_controller.dart` (locate, geofence, photos, comment, violation chip state, finish → outbox, local stop status)
+- [X] T091 [US2] Build the Audit screen from Figma `83:17207` → `83:17285` / `106:4374` → `106:6229` in `apps/mobile/lib/features/audit/presentation/audit_screen.dart`:
   - header "Проведение Аудита" with "Офлайн-режим сохранён"
   - the location bar
   - the POSM empty state + "Сделать фото"; the photo grid with delete
   - the comment field
   - **approved exception 2**: a violation chip/toggle inside the "Section - Step 3: Global Audit Feedback & Quick Chips" section, under the textarea, labelled "Нарушение". It is styled only from existing Figma elements: the filter chip from `83:16884` for the off state, and the Error / Error bg variables plus the warning icon from "Зафиксировано нарушение" in `83:17057` for the on state, in light and dark. No other layout changes
   - "Завершить аудит" disabled and enabled
-- [ ] T092 [US2] Trigger sync right after Finish and Save in `apps/mobile/lib/core/sync/sync_engine.dart`, and show "Синхронизация…" while the outbox has items, in the Home sync badge
+- [X] T092 [US2] Trigger sync right after Finish and Save in `apps/mobile/lib/core/sync/sync_engine.dart`, and show "Синхронизация…" while the outbox has items, in the Home sync badge
 
 **Checkpoint**: the P1 MVP (US1, US4, US3, US2) is complete.
 

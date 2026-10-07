@@ -48,6 +48,14 @@ class FakeApi implements SyncApi {
     return route;
   }
 
+  Map<String, Object?> meJson = const {'config': {'companyName': 'Co', 'defaultAuditRadiusM': 100, 'minGpsAccuracyM': 50, 'workStart': '08:00', 'workEnd': '19:00', 'timezone': 'Asia/Ashgabat'}};
+
+  @override
+  Future<Map<String, Object?>> me() async {
+    calls.add('me');
+    return meJson;
+  }
+
   List<Map<String, Object?>> photos = const [];
 
   @override

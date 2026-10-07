@@ -202,5 +202,43 @@
   "zoomOut": "Отдалить карту",
   "startAudit": "Начать Аудит",
   "auditOnlyOnSite": "Начать аудит можно только на территории магазина",
-  "locating": "Определяем местоположение…"
+  "locating": "Определяем местоположение…",
+  "auditTitle": "Проведение Аудита",
+  "offlineSaved": "Офлайн-режим сохранён",
+  "geoLocating": "Определение местоположения...",
+  "geoOutside": "Вы вне территории магазина ({meters} м)",
+  "@geoOutside": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "geoInaccurate": "Слабый сигнал GPS (точность {meters} м)",
+  "@geoInaccurate": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "geoUnavailable": "Местоположение недоступно",
+  "recheck": "Проверить заново",
+  "photoEmptyTitle": "Фото POSM ещё не сделано",
+  "photoEmptyHint": "Сфотографируйте постеры, воблеры, ценники и шелфтокеры в зоне видимости покупателя",
+  "takePhoto": "Сделать фото",
+  "removePhoto": "Удалить фото",
+  "auditComment": "Комментарий к аудиту",
+  "auditCommentHint": "Напишите замечания или дополнительную информацию о состоянии торговой точки...",
+  "violationChip": "Нарушение",
+  "finishAudit": "Завершить аудит",
+  "auditSaved": "Аудит сохранён. Он отправится при появлении сети.",
+  "photoLimit": "Не больше {count} фото",
+  "@photoLimit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

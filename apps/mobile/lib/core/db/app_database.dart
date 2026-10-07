@@ -114,6 +114,20 @@ class Photos extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// An audit being filled in, so it survives an app restart (T089). Its photos are `Photos` rows
+/// with the draft's `auditId` and status DRAFT.
+class AuditDrafts extends Table {
+  TextColumn get shopId => text()();
+  TextColumn get auditId => text()();
+  TextColumn get routeStopId => text().nullable()();
+  DateTimeColumn get startedAt => dateTime()();
+  TextColumn get comment => text().withDefault(const Constant(''))();
+  BoolColumn get hasViolation => boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column> get primaryKey => {shopId};
+}
+
 // ---------- Outbox & buffers ----------
 
 enum OutboxKind { photo, shopCreate, auditCreate, pings }
@@ -156,15 +170,20 @@ class SyncCursors extends Table {
   Set<Column> get primaryKey => {name};
 }
 
-@DriftDatabase(tables: [Shops, ShopContacts, Routes, RouteStops, Audits, Photos, Outbox, PingsBuffer, SyncCursors])
+@DriftDatabase(tables: [Shops, ShopContacts, Routes, RouteStops, Audits, Photos, AuditDrafts, Outbox, PingsBuffer, SyncCursors])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _open());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
-  MigrationStrategy get migration => MigrationStrategy(beforeOpen: (_) => customStatement('PRAGMA foreign_keys = ON'));
+  MigrationStrategy get migration => MigrationStrategy(
+        onUpgrade: (m, from, to) async {
+          if (from < 2) await m.createTable(auditDrafts);
+        },
+        beforeOpen: (_) => customStatement('PRAGMA foreign_keys = ON'),
+      );
 
   /// Removes everything (sign-out wipe). Theme and locale live in shared preferences.
   Future<void> wipe() => transaction(() async {

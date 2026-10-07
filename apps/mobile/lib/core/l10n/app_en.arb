@@ -87,5 +87,22 @@
   "zoomOut": "Zoom out",
   "startAudit": "Start audit",
   "auditOnlyOnSite": "You can start the audit only on the shop's premises",
-  "locating": "Locating…"
+  "locating": "Locating…",
+  "auditTitle": "Audit",
+  "offlineSaved": "Saved offline",
+  "geoLocating": "Determining location...",
+  "geoOutside": "You are outside the shop ({meters} m)",
+  "geoInaccurate": "Weak GPS signal (accuracy {meters} m)",
+  "geoUnavailable": "Location unavailable",
+  "recheck": "Check again",
+  "photoEmptyTitle": "No POSM photo yet",
+  "photoEmptyHint": "Photograph posters, wobblers, price tags and shelf talkers in the shopper's view",
+  "takePhoto": "Take photo",
+  "removePhoto": "Remove photo",
+  "auditComment": "Audit comment",
+  "auditCommentHint": "Write remarks or more details about the outlet...",
+  "violationChip": "Violation",
+  "finishAudit": "Finish audit",
+  "auditSaved": "Audit saved. It will be sent when online.",
+  "photoLimit": "At most {count} photos"
 }

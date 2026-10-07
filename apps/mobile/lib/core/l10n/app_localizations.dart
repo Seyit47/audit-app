@@ -625,6 +625,108 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Определяем местоположение…'**
   String get locating;
+
+  /// No description provided for @auditTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Проведение Аудита'**
+  String get auditTitle;
+
+  /// No description provided for @offlineSaved.
+  ///
+  /// In ru, this message translates to:
+  /// **'Офлайн-режим сохранён'**
+  String get offlineSaved;
+
+  /// No description provided for @geoLocating.
+  ///
+  /// In ru, this message translates to:
+  /// **'Определение местоположения...'**
+  String get geoLocating;
+
+  /// No description provided for @geoOutside.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вы вне территории магазина ({meters} м)'**
+  String geoOutside(int meters);
+
+  /// No description provided for @geoInaccurate.
+  ///
+  /// In ru, this message translates to:
+  /// **'Слабый сигнал GPS (точность {meters} м)'**
+  String geoInaccurate(int meters);
+
+  /// No description provided for @geoUnavailable.
+  ///
+  /// In ru, this message translates to:
+  /// **'Местоположение недоступно'**
+  String get geoUnavailable;
+
+  /// No description provided for @recheck.
+  ///
+  /// In ru, this message translates to:
+  /// **'Проверить заново'**
+  String get recheck;
+
+  /// No description provided for @photoEmptyTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Фото POSM ещё не сделано'**
+  String get photoEmptyTitle;
+
+  /// No description provided for @photoEmptyHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сфотографируйте постеры, воблеры, ценники и шелфтокеры в зоне видимости покупателя'**
+  String get photoEmptyHint;
+
+  /// No description provided for @takePhoto.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сделать фото'**
+  String get takePhoto;
+
+  /// No description provided for @removePhoto.
+  ///
+  /// In ru, this message translates to:
+  /// **'Удалить фото'**
+  String get removePhoto;
+
+  /// No description provided for @auditComment.
+  ///
+  /// In ru, this message translates to:
+  /// **'Комментарий к аудиту'**
+  String get auditComment;
+
+  /// No description provided for @auditCommentHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Напишите замечания или дополнительную информацию о состоянии торговой точки...'**
+  String get auditCommentHint;
+
+  /// No description provided for @violationChip.
+  ///
+  /// In ru, this message translates to:
+  /// **'Нарушение'**
+  String get violationChip;
+
+  /// No description provided for @finishAudit.
+  ///
+  /// In ru, this message translates to:
+  /// **'Завершить аудит'**
+  String get finishAudit;
+
+  /// No description provided for @auditSaved.
+  ///
+  /// In ru, this message translates to:
+  /// **'Аудит сохранён. Он отправится при появлении сети.'**
+  String get auditSaved;
+
+  /// No description provided for @photoLimit.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не больше {count} фото'**
+  String photoLimit(int count);
 }
 
 class _AppLocalizationsDelegate

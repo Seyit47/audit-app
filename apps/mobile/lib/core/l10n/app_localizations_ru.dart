@@ -309,4 +309,63 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get locating => 'Определяем местоположение…';
+
+  @override
+  String get auditTitle => 'Проведение Аудита';
+
+  @override
+  String get offlineSaved => 'Офлайн-режим сохранён';
+
+  @override
+  String get geoLocating => 'Определение местоположения...';
+
+  @override
+  String geoOutside(int meters) {
+    return 'Вы вне территории магазина ($meters м)';
+  }
+
+  @override
+  String geoInaccurate(int meters) {
+    return 'Слабый сигнал GPS (точность $meters м)';
+  }
+
+  @override
+  String get geoUnavailable => 'Местоположение недоступно';
+
+  @override
+  String get recheck => 'Проверить заново';
+
+  @override
+  String get photoEmptyTitle => 'Фото POSM ещё не сделано';
+
+  @override
+  String get photoEmptyHint =>
+      'Сфотографируйте постеры, воблеры, ценники и шелфтокеры в зоне видимости покупателя';
+
+  @override
+  String get takePhoto => 'Сделать фото';
+
+  @override
+  String get removePhoto => 'Удалить фото';
+
+  @override
+  String get auditComment => 'Комментарий к аудиту';
+
+  @override
+  String get auditCommentHint =>
+      'Напишите замечания или дополнительную информацию о состоянии торговой точки...';
+
+  @override
+  String get violationChip => 'Нарушение';
+
+  @override
+  String get finishAudit => 'Завершить аудит';
+
+  @override
+  String get auditSaved => 'Аудит сохранён. Он отправится при появлении сети.';
+
+  @override
+  String photoLimit(int count) {
+    return 'Не больше $count фото';
+  }
 }
