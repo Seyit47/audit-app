@@ -367,4 +367,67 @@ class AppLocalizationsEn extends AppLocalizations {
   String photoLimit(int count) {
     return 'At most $count photos';
   }
+
+  @override
+  String get addShopTitle => 'Add shop';
+
+  @override
+  String get shopName => 'Shop name';
+
+  @override
+  String get shopNameHint => 'Maya shop';
+
+  @override
+  String get address => 'Address';
+
+  @override
+  String get addressHint => 'West Boulevard';
+
+  @override
+  String get owner => 'Owner';
+
+  @override
+  String get ownerHint => 'John Doe';
+
+  @override
+  String get phoneNumber => 'Phone number';
+
+  @override
+  String get phoneHint => '+993 62 112233';
+
+  @override
+  String get clear => 'Clear';
+
+  @override
+  String get currentLocation => 'Current location';
+
+  @override
+  String coordsLine(String lat, String lng) {
+    return 'Lat: $lat° N, Long: $lng° E';
+  }
+
+  @override
+  String accuracyLine(int meters) {
+    return 'GPS accuracy: $meters m';
+  }
+
+  @override
+  String get storefrontPhoto => 'Storefront Photo';
+
+  @override
+  String photoCaptured(String size) {
+    return 'Photo captured · $size';
+  }
+
+  @override
+  String get photoNotTaken => 'No photo yet';
+
+  @override
+  String get storefrontHint => 'Photograph the shop front and its sign';
+
+  @override
+  String get retake => 'Retake';
+
+  @override
+  String get shopSaved => 'Shop saved and sent for review';
 }

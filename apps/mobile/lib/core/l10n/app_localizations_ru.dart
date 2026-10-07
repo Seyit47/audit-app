@@ -368,4 +368,67 @@ class AppLocalizationsRu extends AppLocalizations {
   String photoLimit(int count) {
     return 'Не больше $count фото';
   }
+
+  @override
+  String get addShopTitle => 'Добавить Магазин';
+
+  @override
+  String get shopName => 'Название магазина';
+
+  @override
+  String get shopNameHint => 'Maya shop';
+
+  @override
+  String get address => 'Адрес';
+
+  @override
+  String get addressHint => 'West Boulevard';
+
+  @override
+  String get owner => 'Владелец';
+
+  @override
+  String get ownerHint => 'John Doe';
+
+  @override
+  String get phoneNumber => 'Номер телефона';
+
+  @override
+  String get phoneHint => '+993 62 112233';
+
+  @override
+  String get clear => 'Очистить';
+
+  @override
+  String get currentLocation => 'Текущее местоположение';
+
+  @override
+  String coordsLine(String lat, String lng) {
+    return 'Lat: $lat° N, Long: $lng° E';
+  }
+
+  @override
+  String accuracyLine(int meters) {
+    return 'Точность GPS: $meters м';
+  }
+
+  @override
+  String get storefrontPhoto => 'Фото витрины';
+
+  @override
+  String photoCaptured(String size) {
+    return 'Фото сделано · $size';
+  }
+
+  @override
+  String get photoNotTaken => 'Фото ещё не сделано';
+
+  @override
+  String get storefrontHint => 'Сфотографируйте фасад и вывеску магазина';
+
+  @override
+  String get retake => 'Переснять';
+
+  @override
+  String get shopSaved => 'Магазин сохранён и отправлен на проверку';
 }

@@ -240,5 +240,48 @@
         "type": "int"
       }
     }
-  }
+  },
+  "addShopTitle": "Добавить Магазин",
+  "shopName": "Название магазина",
+  "shopNameHint": "Maya shop",
+  "address": "Адрес",
+  "addressHint": "West Boulevard",
+  "owner": "Владелец",
+  "ownerHint": "John Doe",
+  "phoneNumber": "Номер телефона",
+  "phoneHint": "+993 62 112233",
+  "clear": "Очистить",
+  "currentLocation": "Текущее местоположение",
+  "coordsLine": "Lat: {lat}° N, Long: {lng}° E",
+  "@coordsLine": {
+    "placeholders": {
+      "lat": {
+        "type": "String"
+      },
+      "lng": {
+        "type": "String"
+      }
+    }
+  },
+  "accuracyLine": "Точность GPS: {meters} м",
+  "@accuracyLine": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "storefrontPhoto": "Фото витрины",
+  "photoCaptured": "Фото сделано · {size}",
+  "@photoCaptured": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "photoNotTaken": "Фото ещё не сделано",
+  "storefrontHint": "Сфотографируйте фасад и вывеску магазина",
+  "retake": "Переснять",
+  "shopSaved": "Магазин сохранён и отправлен на проверку"
 }

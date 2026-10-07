@@ -727,6 +727,120 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Не больше {count} фото'**
   String photoLimit(int count);
+
+  /// No description provided for @addShopTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Добавить Магазин'**
+  String get addShopTitle;
+
+  /// No description provided for @shopName.
+  ///
+  /// In ru, this message translates to:
+  /// **'Название магазина'**
+  String get shopName;
+
+  /// No description provided for @shopNameHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Maya shop'**
+  String get shopNameHint;
+
+  /// No description provided for @address.
+  ///
+  /// In ru, this message translates to:
+  /// **'Адрес'**
+  String get address;
+
+  /// No description provided for @addressHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'West Boulevard'**
+  String get addressHint;
+
+  /// No description provided for @owner.
+  ///
+  /// In ru, this message translates to:
+  /// **'Владелец'**
+  String get owner;
+
+  /// No description provided for @ownerHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'John Doe'**
+  String get ownerHint;
+
+  /// No description provided for @phoneNumber.
+  ///
+  /// In ru, this message translates to:
+  /// **'Номер телефона'**
+  String get phoneNumber;
+
+  /// No description provided for @phoneHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'+993 62 112233'**
+  String get phoneHint;
+
+  /// No description provided for @clear.
+  ///
+  /// In ru, this message translates to:
+  /// **'Очистить'**
+  String get clear;
+
+  /// No description provided for @currentLocation.
+  ///
+  /// In ru, this message translates to:
+  /// **'Текущее местоположение'**
+  String get currentLocation;
+
+  /// No description provided for @coordsLine.
+  ///
+  /// In ru, this message translates to:
+  /// **'Lat: {lat}° N, Long: {lng}° E'**
+  String coordsLine(String lat, String lng);
+
+  /// No description provided for @accuracyLine.
+  ///
+  /// In ru, this message translates to:
+  /// **'Точность GPS: {meters} м'**
+  String accuracyLine(int meters);
+
+  /// No description provided for @storefrontPhoto.
+  ///
+  /// In ru, this message translates to:
+  /// **'Фото витрины'**
+  String get storefrontPhoto;
+
+  /// No description provided for @photoCaptured.
+  ///
+  /// In ru, this message translates to:
+  /// **'Фото сделано · {size}'**
+  String photoCaptured(String size);
+
+  /// No description provided for @photoNotTaken.
+  ///
+  /// In ru, this message translates to:
+  /// **'Фото ещё не сделано'**
+  String get photoNotTaken;
+
+  /// No description provided for @storefrontHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сфотографируйте фасад и вывеску магазина'**
+  String get storefrontHint;
+
+  /// No description provided for @retake.
+  ///
+  /// In ru, this message translates to:
+  /// **'Переснять'**
+  String get retake;
+
+  /// No description provided for @shopSaved.
+  ///
+  /// In ru, this message translates to:
+  /// **'Магазин сохранён и отправлен на проверку'**
+  String get shopSaved;
 }
 
 class _AppLocalizationsDelegate

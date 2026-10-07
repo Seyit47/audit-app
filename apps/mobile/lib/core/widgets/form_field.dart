@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
+import 'app_icon.dart';
 
 /// Label (+ red asterisk) above a control, from the add-shop form (`252:26487` / `101:2472`).
 class AppFormField extends StatelessWidget {
-  const AppFormField({super.key, required this.label, required this.child, this.required = false, this.error});
+  const AppFormField({super.key, required this.label, required this.child, this.required = false, this.error, this.valid = false});
 
   final String label;
   final Widget child;
   final bool required;
   final String? error;
+  /// The green check of the filled form (`252:26607`).
+  final bool valid;
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +27,7 @@ class AppFormField extends StatelessWidget {
             const SizedBox(width: 4),
             Text('*', style: AppTextStyles.label.copyWith(color: c.error, fontWeight: FontWeight.w700)),
           ],
+          if (valid) ...[const Spacer(), AppIcon('field-valid', width: 13.33, height: 13.33, color: c.success)],
         ]),
         const SizedBox(height: 6),
         child,
@@ -82,14 +86,14 @@ class AppTextInput extends StatelessWidget {
         textInputAction: textInputAction,
         autofillHints: autofillHints,
         enabled: enabled,
-        style: AppTextStyles.bodyMedium.copyWith(color: c.textSecondary, height: 17 / 14),
+        style: AppTextStyles.bodyMedium.copyWith(color: c.textPrimary, height: 17 / 14),
         cursorColor: c.accent,
         decoration: InputDecoration(
           isDense: true,
           filled: true,
           fillColor: c.inputBg,
           hintText: hint,
-          hintStyle: AppTextStyles.bodyMedium.copyWith(color: c.textSecondary.withValues(alpha: 0.5)),
+          hintStyle: AppTextStyles.bodyMedium.copyWith(color: c.textSecondary),
           contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13.5),
           prefixIcon: prefix == null ? null : Padding(padding: const EdgeInsets.only(left: 12, right: 8), child: prefix),
           prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),

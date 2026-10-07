@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -10,6 +8,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/app_image.dart';
+import '../../../core/widgets/photo_target.dart';
 import '../data/audit_local_repository.dart';
 import '../domain/geofence.dart';
 import 'audit_controller.dart';
@@ -87,7 +86,7 @@ class _AuditScreenState extends ConsumerState<AuditScreen> {
           Expanded(
             child: ListView(padding: const EdgeInsets.fromLTRB(16, 16, 16, 16), children: [
               if (s.photos.isEmpty)
-                _EmptyPhotos(onTake: s.canAddPhoto ? ctrl.takePhoto : null)
+                PhotoEmptyTarget(title: l10n.photoEmptyTitle, hint: l10n.photoEmptyHint, buttonLabel: l10n.takePhoto, onTake: s.canAddPhoto ? ctrl.takePhoto : null)
               else
                 _PhotoGrid(photos: s.photos, canAdd: s.canAddPhoto, onAdd: ctrl.takePhoto, onRemove: ctrl.removePhoto),
               const SizedBox(height: 16),
@@ -219,63 +218,6 @@ class _LocationBar extends StatelessWidget {
   }
 }
 
-class _EmptyPhotos extends StatelessWidget {
-  const _EmptyPhotos({required this.onTake});
-
-  final VoidCallback? onTake;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final c = context.colors;
-    return _Dashed(
-      color: c.border,
-      radius: 12,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: c.accent6, borderRadius: BorderRadius.circular(12)),
-        child: Column(children: [
-          Container(
-            width: 48, height: 48, alignment: Alignment.center,
-            decoration: BoxDecoration(color: c.accent6, shape: BoxShape.circle, boxShadow: const [BoxShadow(color: Color(0x0D000000), offset: Offset(0, 1), blurRadius: 2)]),
-            child: const AppIcon('camera', width: 21.67, height: 19.5),
-          ),
-          const SizedBox(height: 8),
-          Text(l10n.photoEmptyTitle, textAlign: TextAlign.center, style: AppTextStyles.label.copyWith(color: c.textPrimary)),
-          const SizedBox(height: 4),
-          SizedBox(
-            width: 259,
-            child: Text(l10n.photoEmptyHint, textAlign: TextAlign.center,
-                style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 11, height: 17.88 / 11, color: c.textSecondary)),
-          ),
-          const SizedBox(height: 12),
-          Material(
-            color: c.accent,
-            borderRadius: BorderRadius.circular(8),
-            elevation: 2,
-            shadowColor: const Color(0x33000000),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(8),
-              onTap: onTake,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: SizedBox(
-                  height: 40,
-                  child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    const AppIcon('camera-add', width: 16.5, height: 15),
-                    const SizedBox(width: 8),
-                    Text(l10n.takePhoto, style: AppTextStyles.label.copyWith(color: Colors.white)),
-                  ]),
-                ),
-              ),
-            ),
-          ),
-        ]),
-      ),
-    );
-  }
-}
-
 /// "Фотоматериалы (N фото)": the add tile and photos with delete, 3 per row.
 class _PhotoGrid extends StatelessWidget {
   const _PhotoGrid({required this.photos, required this.canAdd, required this.onAdd, required this.onRemove});
@@ -301,7 +243,7 @@ class _PhotoGrid extends StatelessWidget {
         children: [
           Tooltip(
             message: canAdd ? l10n.takePhoto : l10n.photoLimit(AuditLocalRepository.maxPhotos),
-            child: _Dashed(
+            child: DashedBorder(
               color: const Color(0xFFD6D5E8),
               radius: 8,
               child: Material(
@@ -420,38 +362,3 @@ class _FinishButton extends StatelessWidget {
   }
 }
 
-/// A 1 px dashed rounded border (the photo targets of `83:17207` / `83:17285`).
-class _Dashed extends StatelessWidget {
-  const _Dashed({required this.child, required this.color, required this.radius});
-
-  final Widget child;
-  final Color color;
-  final double radius;
-
-  @override
-  Widget build(BuildContext context) => CustomPaint(foregroundPainter: _DashPainter(color, radius), child: child);
-}
-
-class _DashPainter extends CustomPainter {
-  _DashPainter(this.color, this.radius);
-
-  final Color color;
-  final double radius;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
-    final path = Path()..addRRect(RRect.fromRectAndRadius(Offset.zero & size, Radius.circular(radius)).deflate(0.5));
-    for (final ui.PathMetric m in path.computeMetrics()) {
-      for (double d = 0; d < m.length; d += 7) {
-        canvas.drawPath(m.extractPath(d, d + 4), paint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(_DashPainter old) => old.color != color || old.radius != radius;
-}

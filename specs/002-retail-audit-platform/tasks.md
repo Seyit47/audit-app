@@ -392,7 +392,7 @@ sessions.
 
 - [X] T093 [P] [US5] Write failing tests in `apps/api/test/shop-agent-create.test.ts`: an agent create → PENDING_REVIEW assigned to self, idempotent, facade required, `accuracyM > 50` → 422 GPS_ACCURACY; an admin PATCH status ACTIVE approves it and it appears in the agent's next pull
 - [X] T094 [US5] Extend `apps/api/src/modules/shops/shops.service.ts` for agent creation (PENDING_REVIEW, self-assignment, GPS accuracy ≤ 50 m)
-- [ ] T095 [US5] Build agent Add shop from Figma `252:26487` → `252:26607` / `101:2472` → `106:5970` in `apps/mobile/lib/features/add_shop/presentation/add_shop_screen.dart` + `add_shop_controller.dart`:
+- [X] T095 [US5] Build agent Add shop from Figma `252:26487` → `252:26607` / `101:2472` → `106:5970` in `apps/mobile/lib/features/add_shop/presentation/add_shop_screen.dart` + `add_shop_controller.dart`:
   - exactly the frame's fields, with valid checks
   - Текущее местоположение + Проверить заново
   - storefront photo (camera) with Retake and delete
