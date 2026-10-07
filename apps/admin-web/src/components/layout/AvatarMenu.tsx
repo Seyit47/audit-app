@@ -30,7 +30,7 @@ export function AvatarMenu ({ copy, locale }: { copy: LayoutCopy, locale: Locale
         <Icon name='avatar' width={12} height={12} />
       </button>
       {open && (
-        <div className='anim-menu-in origin-top-right absolute right-0 top-10 z-20 flex w-44 flex-col rounded-xl bg-pure-white py-1.5 shadow-[0px_20px_25px_-5px_rgba(0,0,0,0.1),0px_8px_10px_-6px_rgba(0,0,0,0.1)]'>
+        <div className='anim-menu-in origin-top-right absolute right-0 top-10 z-40 flex w-44 flex-col rounded-xl bg-pure-white py-1.5 shadow-[0px_20px_25px_-5px_rgba(0,0,0,0.1),0px_8px_10px_-6px_rgba(0,0,0,0.1)]'>
           <div className={`flex items-center justify-between gap-2 px-3 py-2 ${pending ? 'opacity-60' : ''}`}>
             <span className='text-xs font-medium leading-4 text-ink'>{copy.language}</span>
             <SegmentedControl

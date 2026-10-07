@@ -1,6 +1,9 @@
 'use client'
 
-import { useCallback, useEffect, useState, useTransition } from 'react'
+import { usePathname } from 'next/navigation'
+import { useCallback, useEffect, useState, useSyncExternalStore, useTransition } from 'react'
+import { createPortal } from 'react-dom'
+import { Bone } from '@/components/ui/Skeleton'
 import { Icon } from '@/components/ui/Icon'
 import { SidePanel } from '@/components/ui/SidePanel'
 import { VisitHistoryItem } from '@/components/ui/VisitHistoryItem'
@@ -10,6 +13,7 @@ import type { FeedItem } from '@/features/feed/types'
 import type { Locale } from '@/lib/i18n'
 
 const POLL_MS = 30_000
+const noop = () => () => {}
 
 function when (iso: string, locale: Locale, today: string) {
   const d = new Date(iso)
@@ -30,6 +34,18 @@ export function FeedPanel ({ initialUnread, copy, locale }: { initialUnread: num
   const [cursor, setCursor] = useState<string | null>(null)
   const [failed, setFailed] = useState(false)
   const [pending, startTransition] = useTransition()
+  const mounted = useSyncExternalStore(noop, () => true, () => false)
+  // Following a link in the feed closes it.
+  const pathname = usePathname()
+  const [openedAt, setOpenedAt] = useState(pathname)
+  if (open && openedAt !== pathname) { setOpen(false); setOpenedAt(pathname) }
+
+  useEffect(() => {
+    if (!open) return
+    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
+    document.addEventListener('keydown', esc)
+    return () => document.removeEventListener('keydown', esc)
+  }, [open])
 
   const poll = useCallback(async () => {
     try { setUnread((await loadFeed()).unreadCount) } catch { /* keep the last count */ }
@@ -40,7 +56,7 @@ export function FeedPanel ({ initialUnread, copy, locale }: { initialUnread: num
   }, [poll])
 
   const show = () => {
-    setOpen(true)
+    setOpen(true); setOpenedAt(pathname)
     startTransition(async () => {
       try {
         const page = await loadFeed()
@@ -64,10 +80,11 @@ export function FeedPanel ({ initialUnread, copy, locale }: { initialUnread: num
         <Icon name='bell' width={13.333} height={16.667} />
         {unread > 0 && <span className='absolute left-5 top-2 size-2 rounded-full bg-[#ba1a1a]' />}
       </button>
-      {open && (
-        <div className='anim-panel-right fixed right-4 top-[72px] z-30'>
+      {/* Portaled: the header's backdrop blur would otherwise contain this fixed panel. */}
+      {open && mounted && createPortal(
+        <div className='fixed right-4 top-[72px] z-40'>
           <SidePanel
-            className='max-h-[calc(100vh-88px)] w-[420px] overflow-y-auto'
+            className='h-[calc(100vh-88px)] w-[420px] overflow-y-auto'
             closeLabel={copy.close} onClose={() => setOpen(false)}
             header={(
               <div className='flex flex-col'>
@@ -78,6 +95,12 @@ export function FeedPanel ({ initialUnread, copy, locale }: { initialUnread: num
           >
             <div className='flex flex-col gap-3'>
               {failed && <p className='text-center text-xs text-error'>{copy.error}</p>}
+              {!failed && pending && items.length === 0 && [0, 1, 2, 3].map((i) => (
+                <div key={i} className='flex flex-col gap-2.5 rounded-xl bg-pure-white p-5 shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
+                  <Bone className='h-3 w-24' />
+                  <div className='flex items-center gap-3'><Bone className='size-10 rounded-lg' /><div className='flex flex-1 flex-col gap-1.5'><Bone className='h-3.5 w-40' /><Bone className='h-3 w-28' /></div></div>
+                </div>
+              ))}
               {!failed && !pending && items.length === 0 && <p className='py-6 text-center text-xs text-muted'>{copy.empty}</p>}
               {items.map((it) => it.type === 'VIOLATION'
                 ? (
@@ -105,7 +128,8 @@ export function FeedPanel ({ initialUnread, copy, locale }: { initialUnread: num
               )}
             </div>
           </SidePanel>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )

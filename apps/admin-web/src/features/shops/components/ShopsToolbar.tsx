@@ -12,7 +12,7 @@ import type { ShopsCopy } from '../copy'
 export function ShopsToolbar ({ copy, regions }: { copy: ShopsCopy, regions: Region[] }) {
   const { params, set } = useUrlState()
   return (
-    <Card className='flex items-center justify-between gap-4 p-4'>
+    <Card className='relative z-20 flex items-center justify-between gap-4 p-4'>
       <SearchAutocomplete
         key={params.get('q') ?? ''}
         placeholder={copy.search} defaultValue={params.get('q') ?? ''}

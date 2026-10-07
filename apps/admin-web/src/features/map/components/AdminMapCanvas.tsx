@@ -145,7 +145,7 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
         ))}
       </MapView>
 
-      <div className='pointer-events-none absolute inset-x-4 top-6 z-10 flex items-center justify-between gap-4'>
+      <div className='pointer-events-none absolute inset-x-4 top-6 z-30 flex items-center justify-between gap-4'>
         <div className='pointer-events-auto flex items-center gap-4'>
           <SearchAutocomplete
             className='w-[440px]' placeholder={copy.search} delay={120}
