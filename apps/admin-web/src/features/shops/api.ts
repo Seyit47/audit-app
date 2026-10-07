@@ -44,3 +44,5 @@ export const getShop = (id: string) => api<ShopDetails>(`/v1/shops/${id}`)
 export const getVisits = (id: string, cursor?: string) =>
   api<CursorPage<Visit> & { totals: { all: number, completed: number, missed: number } }>(`/v1/shops/${id}/visits`, { query: { cursor, limit: 20 } })
 export const listAgentOptions = () => api<Page<{ id: string, fullName: string, code: string, active: boolean }>>('/v1/agents', { query: { size: 100, sort: 'fullName' } })
+export const getShopProducts = (id: string) => api<{ productIds: string[] }>(`/v1/shops/${id}/products`)
+export const listProductOptions = () => api<Page<{ id: string, name: string, sku: string, status: string }>>('/v1/products', { query: { size: 100, status: 'ACTIVE' } })

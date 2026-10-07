@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { FigmaIcon } from '@/components/ui/FigmaIcon'
 import { VisitHistoryItem } from '@/components/ui/VisitHistoryItem'
-import { getShop, getVisits, listAgentOptions } from '@/features/shops/api'
+import { getShop, getShopProducts, getVisits, listAgentOptions, listProductOptions } from '@/features/shops/api'
 import { ShopEditDialog } from '@/features/shops/components/ShopEditDialog'
 import { ShopHeader } from '@/features/shops/components/ShopHeader'
 import { ShopMiniMap } from '@/features/shops/components/ShopMiniMap'
@@ -55,7 +55,12 @@ export default async function ShopDetailsPage ({ params, searchParams }: PagePro
     if (err instanceof ApiError && err.status === 404) notFound()
     throw err
   }
-  const [visits, agents] = await Promise.all([getVisits(id, sp.cursor), sp.edit != null ? listAgentOptions() : Promise.resolve(null)])
+  const [visits, agents, products, carried] = await Promise.all([
+    getVisits(id, sp.cursor),
+    sp.edit != null ? listAgentOptions() : Promise.resolve(null),
+    sp.edit != null ? listProductOptions() : Promise.resolve(null),
+    sp.edit != null ? getShopProducts(id) : Promise.resolve({ productIds: [] })
+  ])
   const k = shop.kpis
 
   return (
@@ -129,7 +134,7 @@ export default async function ShopDetailsPage ({ params, searchParams }: PagePro
         </section>
       </div>
       {sp.edit != null && agents != null && (
-        <ShopEditDialog shop={shop} agents={agents.items.filter((a) => a.active)} copy={shopFormCopy[locale]} closeHref={`/shops/${id}`} />
+        <ShopEditDialog shop={shop} agents={agents.items.filter((a) => a.active)} products={products?.items ?? []} productIds={carried.productIds} copy={shopFormCopy[locale]} closeHref={`/shops/${id}`} />
       )}
     </div>
   )

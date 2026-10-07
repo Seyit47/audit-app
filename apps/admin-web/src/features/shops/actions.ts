@@ -12,6 +12,8 @@ export interface ShopInput {
   facadePhotoId: string | null
   assignedAgentId: string | null
   contacts: Array<{ phone: string, label: string | null }>
+  /** Products carried (gap A11). */
+  productIds: string[]
 }
 
 const revalidate = (id?: string) => {
@@ -21,7 +23,9 @@ const revalidate = (id?: string) => {
 
 export async function createShop (input: ShopInput) {
   return run(async () => {
-    const shop = await api<{ id: string }>('/v1/shops', { method: 'POST', body: input })
+    const { productIds, ...body } = input
+    const shop = await api<{ id: string }>('/v1/shops', { method: 'POST', body })
+    await api(`/v1/shops/${shop.id}/products`, { method: 'PUT', body: { productIds } })
     revalidate()
     return { id: shop.id }
   })
@@ -29,9 +33,10 @@ export async function createShop (input: ShopInput) {
 
 export async function updateShop (id: string, version: number, input: ShopInput) {
   return run(async () => {
-    const { contacts, ...fields } = input
+    const { contacts, productIds, ...fields } = input
     const shop = await api<{ version: number }>(`/v1/shops/${id}`, { method: 'PATCH', body: { version, ...fields } })
     await api(`/v1/shops/${id}/contacts`, { method: 'PUT', body: { contacts } })
+    await api(`/v1/shops/${id}/products`, { method: 'PUT', body: { productIds } })
     revalidate(id)
     return { version: shop.version }
   })

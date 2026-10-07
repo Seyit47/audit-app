@@ -8,6 +8,7 @@ import { Dialog } from '@/components/ui/Dialog'
 import { FigmaIcon } from '@/components/ui/FigmaIcon'
 import { FormField, SelectInput, TextInput } from '@/components/ui/FormField'
 import { ImageUpload } from '@/components/ui/ImageUpload'
+import { MultiSelect } from '@/components/ui/MultiSelect'
 import { createShop, setShopStatus, updateShop, type ShopInput } from '../actions'
 import type { Shop } from '../api'
 import type { ShopFormCopy } from '../copy'
@@ -19,9 +20,11 @@ const MAX_PHONES = 4
 type Phone = { phone: string, label: string }
 
 /** Edit / add shop dialog of Figma 162:20071, with exactly the frame's fields. */
-export function ShopEditDialog ({ shop, agents, copy, closeHref }: {
+export function ShopEditDialog ({ shop, agents, products, productIds, copy, closeHref }: {
   shop: Shop | null
   agents: Array<{ id: string, fullName: string, code: string }>
+  products: Array<{ id: string, name: string, sku: string }>
+  productIds: string[]
   copy: ShopFormCopy
   closeHref: string
 }) {
@@ -33,6 +36,7 @@ export function ShopEditDialog ({ shop, agents, copy, closeHref }: {
   const [agentId, setAgentId] = useState(shop?.agent?.id ?? '')
   const [point, setPoint] = useState<{ lat: number, lng: number } | null>(shop != null ? { lat: shop.lat, lng: shop.lng } : null)
   const [picking, setPicking] = useState(shop == null)
+  const [carried, setCarried] = useState<string[]>(productIds)
   const [facadeId, setFacadeId] = useState<string | null>(shop?.facade?.id ?? null)
   const [phones, setPhones] = useState<Phone[]>(shop?.contacts.length ? shop.contacts.map((c) => ({ phone: c.phone, label: c.label ?? '' })) : [{ phone: '', label: '' }])
   const close = () => router.replace(closeHref, { scroll: false })
@@ -46,7 +50,8 @@ export function ShopEditDialog ({ shop, agents, copy, closeHref }: {
       lng: point.lng,
       facadePhotoId: facadeId,
       assignedAgentId: agentId === '' ? null : agentId,
-      contacts: phones.filter((p) => p.phone.trim() !== '').map((p) => ({ phone: p.phone.trim(), label: p.label.trim() || null }))
+      contacts: phones.filter((p) => p.phone.trim() !== '').map((p) => ({ phone: p.phone.trim(), label: p.label.trim() || null })),
+      productIds: carried
     }
     setError(null)
     startTransition(async () => {
@@ -112,6 +117,15 @@ export function ShopEditDialog ({ shop, agents, copy, closeHref }: {
           </div>
         </FormField>
       </div>
+
+      <FormField label={copy.products} htmlFor='shop-products'>
+        <MultiSelect
+          id='shop-products' value={carried} onChange={setCarried}
+          options={products.map((p) => ({ value: p.id, label: p.name, hint: p.sku }))}
+          placeholder={copy.productsPlaceholder} searchPlaceholder={copy.productsSearch}
+          summary={(n) => copy.productsSelected.replace('{n}', String(n))}
+        />
+      </FormField>
 
       <div className='flex flex-col gap-3'>
         <FormField

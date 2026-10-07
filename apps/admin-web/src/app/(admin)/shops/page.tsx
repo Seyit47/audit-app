@@ -1,5 +1,5 @@
 import { listRegions } from '@/features/agents/api'
-import { listAgentOptions, listShops, getShop, type ShopListQuery } from '@/features/shops/api'
+import { getShopProducts, listProductOptions, listAgentOptions, listShops, getShop, type ShopListQuery } from '@/features/shops/api'
 import { ShopEditDialog } from '@/features/shops/components/ShopEditDialog'
 import { ShopsToolbar } from '@/features/shops/components/ShopsToolbar'
 import { ShopsView } from '@/features/shops/components/ShopsView'
@@ -20,11 +20,14 @@ export default async function ShopsPage ({ searchParams }: PageProps<'/shops'>) 
     regionId: sp.regionId,
     agentId: sp.agentId
   }
-  const [page, regions, agents, editing] = await Promise.all([
+  const dialog = sp.add != null || sp.edit != null
+  const [page, regions, agents, editing, products, carried] = await Promise.all([
     listShops(query),
     listRegions(),
     listAgentOptions(),
-    sp.edit != null ? getShop(sp.edit) : Promise.resolve(null)
+    sp.edit != null ? getShop(sp.edit) : Promise.resolve(null),
+    dialog ? listProductOptions() : Promise.resolve(null),
+    sp.edit != null ? getShopProducts(sp.edit) : Promise.resolve({ productIds: [] })
   ])
   const keep = (omit: string[]) => new URLSearchParams(Object.entries(sp).filter((e): e is [string, string] => e[1] != null && !omit.includes(e[0])))
   const exportHref = `/export?${new URLSearchParams({ type: 'SHOPS_XLSX', back: '/shops', ...Object.fromEntries(keep(['page', 'size', 'add', 'edit', 'exportFailed'])) }).toString()}`
@@ -37,7 +40,7 @@ export default async function ShopsPage ({ searchParams }: PageProps<'/shops'>) 
         <ShopsToolbar copy={copy} regions={regions} />
       </ShopsView>
       {(sp.add != null || editing != null) && (
-        <ShopEditDialog key={editing?.id ?? 'new'} shop={editing} agents={activeAgents} copy={shopFormCopy[locale]} closeHref={`/shops?${keep(['add', 'edit']).toString()}`} />
+        <ShopEditDialog key={editing?.id ?? 'new'} shop={editing} agents={activeAgents} products={products?.items ?? []} productIds={carried.productIds} copy={shopFormCopy[locale]} closeHref={`/shops?${keep(['add', 'edit']).toString()}`} />
       )}
     </div>
   )

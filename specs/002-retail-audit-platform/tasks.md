@@ -470,9 +470,9 @@ sessions.
   - PRODUCTS_XLSX export
   - agents get 403
 - [X] T115 [US8] Implement the products module in `apps/api/src/modules/products/` (routes, service, repository, schema): CRUD, categories, summary, distribution and compliance. Add `PUT /v1/shops/:id/products` to the shops module, and PRODUCTS_XLSX to `apps/api/src/jobs/exports.ts`
-- [ ] T116 [US8] Build Products from Figma `30:574` in `apps/admin-web/src/app/(admin)/products/page.tsx` + `src/features/products/components/{ProductsSummary,ProductsTable}.tsx` (KPIs, search and filters, applied chips, table with coverage bars, Export Catalog, Add Product)
-- [ ] T117 [US8] Build Add Product from Figma `495:2311` in `apps/admin-web/src/app/(admin)/products/new/page.tsx`, `products/[id]/page.tsx` + `src/features/products/components/ProductForm.tsx`, with exactly the frame's fields
-- [ ] T118 [US8] Add the "Products carried" multi-select (approved exception A11) to `apps/admin-web/src/features/shops/components/ShopEditDialog.tsx`, built from the dialog's existing select field styles (`162:20071`), saved with `PUT /v1/shops/:id/products`
+- [X] T116 [US8] Build Products from Figma `30:574` in `apps/admin-web/src/app/(admin)/products/page.tsx` + `src/features/products/components/{ProductsSummary,ProductsTable}.tsx` (KPIs, search and filters, applied chips, table with coverage bars, Export Catalog, Add Product)
+- [X] T117 [US8] Build Add Product from Figma `495:2311` in `apps/admin-web/src/app/(admin)/products/new/page.tsx`, `products/[id]/page.tsx` + `src/features/products/components/ProductForm.tsx`, with exactly the frame's fields
+- [X] T118 [US8] Add the "Products carried" multi-select (approved exception A11) to `apps/admin-web/src/features/shops/components/ShopEditDialog.tsx`, built from the dialog's existing select field styles (`162:20071`), saved with `PUT /v1/shops/:id/products`
 - [ ] T119 [P] [US8] Build mobile admin Products (approved exception A7) in `apps/mobile/lib/features/admin/products/presentation/{products_screen,product_form_screen}.dart`: a list from `GET /v1/products` styled from the `246:23300` cards, and an add form with exactly the fields of Figma `495:2311`, built from existing mobile form components (`POST /v1/uploads` PRODUCT → `POST /v1/products`)
 
 ---

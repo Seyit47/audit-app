@@ -66,6 +66,7 @@ export const shopFormCopy = defineCopy({
     agent: 'Assigned sales representative', agentHint: 'The sales agent receives automatic shelf audit tasks and photo reports', noAgent: 'Not assigned',
     address: 'Actual address and geolocation', pickOnMap: 'Point on the interactive map', gpsBound: 'GPS bound', gpsMissing: 'No GPS',
     coords: 'Coordinates', zone: 'Zone', calibrate: 'Calibrate GPS', mapHint: 'Click the map to set the shop location',
+    products: 'Products carried', productsPlaceholder: 'No products selected', productsSearch: 'Search products...', productsSelected: '{n} products',
     phones: 'Shop contact phones', phonesHint: 'Up to 4 numbers supported', phoneLabel: 'Label (e.g. Purchasing)', addPhone: 'Add another number', removePhone: 'Remove number',
     archive: 'Archive the shop', restore: 'Restore the shop', cancel: 'Cancel', save: 'Save changes',
     errors: { required: 'Fill in the name, address and location', CONFLICT: 'Someone changed this shop. Reload the page and try again.', generic: 'Could not save. Try again.' }
@@ -78,6 +79,7 @@ export const shopFormCopy = defineCopy({
     agent: 'Закрепленный торговый представитель', agentHint: 'Торговый агент получает автоматические задачи аудита полки и сбор фотоотчетов', noAgent: 'Не назначен',
     address: 'Фактический адрес и геопозиция', pickOnMap: 'Указать на интерактивной карте', gpsBound: 'GPS привязан', gpsMissing: 'Нет GPS',
     coords: 'Координаты', zone: 'Зона', calibrate: 'Калибровать GPS', mapHint: 'Нажмите на карту, чтобы указать точку',
+    products: 'Ассортимент точки', productsPlaceholder: 'Продукты не выбраны', productsSearch: 'Поиск продукта...', productsSelected: 'Продуктов: {n}',
     phones: 'Контактные телефоны точки', phonesHint: 'Поддерживается до 4 номеров', phoneLabel: 'Подпись (напр. Закупки)', addPhone: 'Добавить еще один номер', removePhone: 'Удалить номер',
     archive: 'Архивировать торговую точку', restore: 'Восстановить торговую точку', cancel: 'Отменить', save: 'Сохранить изменения',
     errors: { required: 'Заполните название, адрес и геопозицию', CONFLICT: 'Магазин изменён другим пользователем. Обновите страницу и повторите.', generic: 'Не удалось сохранить. Попробуйте ещё раз.' }
