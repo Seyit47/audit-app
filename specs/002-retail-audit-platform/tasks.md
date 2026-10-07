@@ -504,7 +504,7 @@ sessions.
 - [X] T130 [P] Run the security pass: `apps/api/test/scoping.test.ts` covering every agent-reachable endpoint (SC-007); CORS limited to `WEB_ORIGIN`; cookie flags; presigned expiry; secrets only in env
 - [X] T131 [P] Add the offline reliability test `apps/api/test/offline-soak.test.ts`: 100 queued audits with retries and duplicates sent out of order → exactly 100 audits, zero lost photos (SC-002). Script: `test:offline-soak`
 - [ ] T132 Run all of quickstart.md (scenarios, reliability, design, `docker compose --profile prod up -d`, `flutter build appbundle`). Time an audit flow under 2 minutes (SC-001) and check that a synced audit appears for admins within 1 minute (SC-003). Fix the gaps and confirm CI is green
-- [ ] T133 Update `README.md` with the production deploy, env per app, PostgreSQL/SeaweedFS backups, the operator CLIs and the mobile release steps
+- [X] T133 Update `README.md` with the production deploy, env per app, PostgreSQL/SeaweedFS backups, the operator CLIs and the mobile release steps
 
 ---
 
