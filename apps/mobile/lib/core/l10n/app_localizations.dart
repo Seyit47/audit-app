@@ -325,6 +325,240 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Просмотреть список продукций'**
   String get homeProductsHint;
+
+  /// No description provided for @shopsTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Магазины'**
+  String get shopsTitle;
+
+  /// No description provided for @add.
+  ///
+  /// In ru, this message translates to:
+  /// **'Добавить'**
+  String get add;
+
+  /// No description provided for @search.
+  ///
+  /// In ru, this message translates to:
+  /// **'Поиск'**
+  String get search;
+
+  /// No description provided for @filters.
+  ///
+  /// In ru, this message translates to:
+  /// **'Фильтры'**
+  String get filters;
+
+  /// No description provided for @apply.
+  ///
+  /// In ru, this message translates to:
+  /// **'Применить'**
+  String get apply;
+
+  /// No description provided for @reset.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сбросить'**
+  String get reset;
+
+  /// No description provided for @chipAll.
+  ///
+  /// In ru, this message translates to:
+  /// **'Все ({count})'**
+  String chipAll(int count);
+
+  /// No description provided for @chipScheduled.
+  ///
+  /// In ru, this message translates to:
+  /// **'Запланирован ({count})'**
+  String chipScheduled(int count);
+
+  /// No description provided for @chipOverdue.
+  ///
+  /// In ru, this message translates to:
+  /// **'Просрочен ({count})'**
+  String chipOverdue(int count);
+
+  /// No description provided for @chipVisited.
+  ///
+  /// In ru, this message translates to:
+  /// **'Пройден ({count})'**
+  String chipVisited(int count);
+
+  /// No description provided for @chipNotVisited.
+  ///
+  /// In ru, this message translates to:
+  /// **'Назначен ({count})'**
+  String chipNotVisited(int count);
+
+  /// No description provided for @lastVisit.
+  ///
+  /// In ru, this message translates to:
+  /// **'Последний визит:'**
+  String get lastVisit;
+
+  /// No description provided for @never.
+  ///
+  /// In ru, this message translates to:
+  /// **'—'**
+  String get never;
+
+  /// No description provided for @shopsEmpty.
+  ///
+  /// In ru, this message translates to:
+  /// **'Магазинов нет'**
+  String get shopsEmpty;
+
+  /// No description provided for @filterRegion.
+  ///
+  /// In ru, this message translates to:
+  /// **'Регион'**
+  String get filterRegion;
+
+  /// No description provided for @filterStatus.
+  ///
+  /// In ru, this message translates to:
+  /// **'Статус'**
+  String get filterStatus;
+
+  /// No description provided for @fromYou.
+  ///
+  /// In ru, this message translates to:
+  /// **'{distance} от вас'**
+  String fromYou(String distance);
+
+  /// No description provided for @contactPerson.
+  ///
+  /// In ru, this message translates to:
+  /// **'Контакт'**
+  String get contactPerson;
+
+  /// No description provided for @lastVisitDays.
+  ///
+  /// In ru, this message translates to:
+  /// **'{date} ({days} дн. назад)'**
+  String lastVisitDays(String date, int days);
+
+  /// No description provided for @lastVisitToday.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сегодня, {time}'**
+  String lastVisitToday(String time);
+
+  /// No description provided for @nextVisit.
+  ///
+  /// In ru, this message translates to:
+  /// **'Следующий визит:'**
+  String get nextVisit;
+
+  /// No description provided for @nextVisitOverdue.
+  ///
+  /// In ru, this message translates to:
+  /// **'Срочно (просрочен на {days} дн.)'**
+  String nextVisitOverdue(int days);
+
+  /// No description provided for @nextVisitToday.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сегодня'**
+  String get nextVisitToday;
+
+  /// No description provided for @mapButton.
+  ///
+  /// In ru, this message translates to:
+  /// **'Карта'**
+  String get mapButton;
+
+  /// No description provided for @auditButton.
+  ///
+  /// In ru, this message translates to:
+  /// **'Аудит'**
+  String get auditButton;
+
+  /// No description provided for @auditHistory.
+  ///
+  /// In ru, this message translates to:
+  /// **'История аудитов'**
+  String get auditHistory;
+
+  /// No description provided for @auditHistoryCount.
+  ///
+  /// In ru, this message translates to:
+  /// **'Всего зафиксировано {count} записей'**
+  String auditHistoryCount(int count);
+
+  /// No description provided for @violationRecorded.
+  ///
+  /// In ru, this message translates to:
+  /// **'Зафиксировано нарушение'**
+  String get violationRecorded;
+
+  /// No description provided for @photoMaterials.
+  ///
+  /// In ru, this message translates to:
+  /// **'Фотоматериалы ({count} фото)'**
+  String photoMaterials(int count);
+
+  /// No description provided for @seeAll.
+  ///
+  /// In ru, this message translates to:
+  /// **'Смотреть все'**
+  String get seeAll;
+
+  /// No description provided for @morePhotos.
+  ///
+  /// In ru, this message translates to:
+  /// **'+{count} фото'**
+  String morePhotos(int count);
+
+  /// No description provided for @accuracyInside.
+  ///
+  /// In ru, this message translates to:
+  /// **'Точность {meters} метров (в радиусе магазина)'**
+  String accuracyInside(int meters);
+
+  /// No description provided for @accuracyOutside.
+  ///
+  /// In ru, this message translates to:
+  /// **'Точность {meters} метров (вне радиуса магазина)'**
+  String accuracyOutside(int meters);
+
+  /// No description provided for @visitMissed.
+  ///
+  /// In ru, this message translates to:
+  /// **'Пропущен'**
+  String get visitMissed;
+
+  /// No description provided for @pendingSync.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ожидает синхронизации'**
+  String get pendingSync;
+
+  /// No description provided for @noAudits.
+  ///
+  /// In ru, this message translates to:
+  /// **'Аудитов пока нет'**
+  String get noAudits;
+
+  /// No description provided for @sortNewest.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сначала новые'**
+  String get sortNewest;
+
+  /// No description provided for @sortOldest.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сначала старые'**
+  String get sortOldest;
+
+  /// No description provided for @shopNotFound.
+  ///
+  /// In ru, this message translates to:
+  /// **'Магазин не найден'**
+  String get shopNotFound;
 }
 
 class _AppLocalizationsDelegate

@@ -37,5 +37,145 @@
   "save": "Сохранить",
   "retry": "Повторить",
   "homeAgentsHint": "Просмотреть список агентов",
-  "homeProductsHint": "Просмотреть список продукций"
+  "homeProductsHint": "Просмотреть список продукций",
+  "shopsTitle": "Магазины",
+  "add": "Добавить",
+  "search": "Поиск",
+  "filters": "Фильтры",
+  "apply": "Применить",
+  "reset": "Сбросить",
+  "chipAll": "Все ({count})",
+  "@chipAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chipScheduled": "Запланирован ({count})",
+  "@chipScheduled": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chipOverdue": "Просрочен ({count})",
+  "@chipOverdue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chipVisited": "Пройден ({count})",
+  "@chipVisited": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "chipNotVisited": "Назначен ({count})",
+  "@chipNotVisited": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lastVisit": "Последний визит:",
+  "never": "—",
+  "shopsEmpty": "Магазинов нет",
+  "filterRegion": "Регион",
+  "filterStatus": "Статус",
+  "fromYou": "{distance} от вас",
+  "@fromYou": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "contactPerson": "Контакт",
+  "lastVisitDays": "{date} ({days} дн. назад)",
+  "@lastVisitDays": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "lastVisitToday": "Сегодня, {time}",
+  "@lastVisitToday": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "nextVisit": "Следующий визит:",
+  "nextVisitOverdue": "Срочно (просрочен на {days} дн.)",
+  "@nextVisitOverdue": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "nextVisitToday": "Сегодня",
+  "mapButton": "Карта",
+  "auditButton": "Аудит",
+  "auditHistory": "История аудитов",
+  "auditHistoryCount": "Всего зафиксировано {count} записей",
+  "@auditHistoryCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "violationRecorded": "Зафиксировано нарушение",
+  "photoMaterials": "Фотоматериалы ({count} фото)",
+  "@photoMaterials": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "seeAll": "Смотреть все",
+  "morePhotos": "+{count} фото",
+  "@morePhotos": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "accuracyInside": "Точность {meters} метров (в радиусе магазина)",
+  "@accuracyInside": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "accuracyOutside": "Точность {meters} метров (вне радиуса магазина)",
+  "@accuracyOutside": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "visitMissed": "Пропущен",
+  "pendingSync": "Ожидает синхронизации",
+  "noAudits": "Аудитов пока нет",
+  "sortNewest": "Сначала новые",
+  "sortOldest": "Сначала старые",
+  "shopNotFound": "Магазин не найден"
 }

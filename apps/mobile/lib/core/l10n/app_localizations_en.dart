@@ -125,4 +125,149 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeProductsHint => 'View the list of products';
+
+  @override
+  String get shopsTitle => 'Shops';
+
+  @override
+  String get add => 'Add';
+
+  @override
+  String get search => 'Search';
+
+  @override
+  String get filters => 'Filters';
+
+  @override
+  String get apply => 'Apply';
+
+  @override
+  String get reset => 'Reset';
+
+  @override
+  String chipAll(int count) {
+    return 'All ($count)';
+  }
+
+  @override
+  String chipScheduled(int count) {
+    return 'Scheduled ($count)';
+  }
+
+  @override
+  String chipOverdue(int count) {
+    return 'Overdue ($count)';
+  }
+
+  @override
+  String chipVisited(int count) {
+    return 'Visited ($count)';
+  }
+
+  @override
+  String chipNotVisited(int count) {
+    return 'Assigned ($count)';
+  }
+
+  @override
+  String get lastVisit => 'Last visit:';
+
+  @override
+  String get never => '—';
+
+  @override
+  String get shopsEmpty => 'No shops';
+
+  @override
+  String get filterRegion => 'Region';
+
+  @override
+  String get filterStatus => 'Status';
+
+  @override
+  String fromYou(String distance) {
+    return '$distance from you';
+  }
+
+  @override
+  String get contactPerson => 'Contact';
+
+  @override
+  String lastVisitDays(String date, int days) {
+    return '$date ($days days ago)';
+  }
+
+  @override
+  String lastVisitToday(String time) {
+    return 'Today, $time';
+  }
+
+  @override
+  String get nextVisit => 'Next visit:';
+
+  @override
+  String nextVisitOverdue(int days) {
+    return 'Urgent ($days days overdue)';
+  }
+
+  @override
+  String get nextVisitToday => 'Today';
+
+  @override
+  String get mapButton => 'Map';
+
+  @override
+  String get auditButton => 'Audit';
+
+  @override
+  String get auditHistory => 'Audit history';
+
+  @override
+  String auditHistoryCount(int count) {
+    return '$count records in total';
+  }
+
+  @override
+  String get violationRecorded => 'Violation recorded';
+
+  @override
+  String photoMaterials(int count) {
+    return 'Photos ($count)';
+  }
+
+  @override
+  String get seeAll => 'See all';
+
+  @override
+  String morePhotos(int count) {
+    return '+$count photos';
+  }
+
+  @override
+  String accuracyInside(int meters) {
+    return 'Accuracy $meters m (inside the shop radius)';
+  }
+
+  @override
+  String accuracyOutside(int meters) {
+    return 'Accuracy $meters m (outside the shop radius)';
+  }
+
+  @override
+  String get visitMissed => 'Missed';
+
+  @override
+  String get pendingSync => 'Waiting to sync';
+
+  @override
+  String get noAudits => 'No audits yet';
+
+  @override
+  String get sortNewest => 'Newest first';
+
+  @override
+  String get sortOldest => 'Oldest first';
+
+  @override
+  String get shopNotFound => 'Shop not found';
 }

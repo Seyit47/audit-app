@@ -126,4 +126,149 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get homeProductsHint => 'Просмотреть список продукций';
+
+  @override
+  String get shopsTitle => 'Магазины';
+
+  @override
+  String get add => 'Добавить';
+
+  @override
+  String get search => 'Поиск';
+
+  @override
+  String get filters => 'Фильтры';
+
+  @override
+  String get apply => 'Применить';
+
+  @override
+  String get reset => 'Сбросить';
+
+  @override
+  String chipAll(int count) {
+    return 'Все ($count)';
+  }
+
+  @override
+  String chipScheduled(int count) {
+    return 'Запланирован ($count)';
+  }
+
+  @override
+  String chipOverdue(int count) {
+    return 'Просрочен ($count)';
+  }
+
+  @override
+  String chipVisited(int count) {
+    return 'Пройден ($count)';
+  }
+
+  @override
+  String chipNotVisited(int count) {
+    return 'Назначен ($count)';
+  }
+
+  @override
+  String get lastVisit => 'Последний визит:';
+
+  @override
+  String get never => '—';
+
+  @override
+  String get shopsEmpty => 'Магазинов нет';
+
+  @override
+  String get filterRegion => 'Регион';
+
+  @override
+  String get filterStatus => 'Статус';
+
+  @override
+  String fromYou(String distance) {
+    return '$distance от вас';
+  }
+
+  @override
+  String get contactPerson => 'Контакт';
+
+  @override
+  String lastVisitDays(String date, int days) {
+    return '$date ($days дн. назад)';
+  }
+
+  @override
+  String lastVisitToday(String time) {
+    return 'Сегодня, $time';
+  }
+
+  @override
+  String get nextVisit => 'Следующий визит:';
+
+  @override
+  String nextVisitOverdue(int days) {
+    return 'Срочно (просрочен на $days дн.)';
+  }
+
+  @override
+  String get nextVisitToday => 'Сегодня';
+
+  @override
+  String get mapButton => 'Карта';
+
+  @override
+  String get auditButton => 'Аудит';
+
+  @override
+  String get auditHistory => 'История аудитов';
+
+  @override
+  String auditHistoryCount(int count) {
+    return 'Всего зафиксировано $count записей';
+  }
+
+  @override
+  String get violationRecorded => 'Зафиксировано нарушение';
+
+  @override
+  String photoMaterials(int count) {
+    return 'Фотоматериалы ($count фото)';
+  }
+
+  @override
+  String get seeAll => 'Смотреть все';
+
+  @override
+  String morePhotos(int count) {
+    return '+$count фото';
+  }
+
+  @override
+  String accuracyInside(int meters) {
+    return 'Точность $meters метров (в радиусе магазина)';
+  }
+
+  @override
+  String accuracyOutside(int meters) {
+    return 'Точность $meters метров (вне радиуса магазина)';
+  }
+
+  @override
+  String get visitMissed => 'Пропущен';
+
+  @override
+  String get pendingSync => 'Ожидает синхронизации';
+
+  @override
+  String get noAudits => 'Аудитов пока нет';
+
+  @override
+  String get sortNewest => 'Сначала новые';
+
+  @override
+  String get sortOldest => 'Сначала старые';
+
+  @override
+  String get shopNotFound => 'Магазин не найден';
 }

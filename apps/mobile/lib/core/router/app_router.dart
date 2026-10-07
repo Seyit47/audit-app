@@ -6,6 +6,8 @@ import '../../features/admin/home/presentation/admin_home_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/home/presentation/agent_home_screen.dart';
 import '../../features/permission/presentation/permission_screen.dart';
+import '../../features/shop_details/presentation/shop_details_screen.dart';
+import '../../features/shops/presentation/shops_screen.dart';
 import '../auth/session_provider.dart';
 import 'redirect.dart';
 
@@ -28,7 +30,11 @@ List<RouteBase> appRoutes() => [
       GoRoute(path: Paths.adminHome, builder: (_, _) => const AdminHomeScreen(), routes: adminRoutes),
     ];
 
-final List<RouteBase> agentRoutes = [];
+final List<RouteBase> agentRoutes = [
+  GoRoute(path: 'shops', builder: (_, _) => const ShopsScreen(), routes: [
+    GoRoute(path: ':id', builder: (_, state) => ShopDetailsScreen(shopId: state.pathParameters['id']!)),
+  ]),
+];
 final List<RouteBase> adminRoutes = [];
 
 final appRouterProvider = Provider<GoRouter>((ref) {

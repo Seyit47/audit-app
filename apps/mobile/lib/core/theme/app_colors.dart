@@ -41,6 +41,11 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.syncBadgeBg,
     required this.syncBadgeBorder,
     required this.glow,
+    required this.card,
+    required this.cardBorder,
+    required this.cardShadow,
+    required this.chipBg,
+    required this.chipBorder,
   });
 
   final Color mainBg;
@@ -81,6 +86,12 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color syncBadgeBg;
   final Color syncBadgeBorder;
   final List<Color> glow;
+  // Cards, search bars and chips (`83:16884` / `101:1985`).
+  final Color card;
+  final Color cardBorder;
+  final Color cardShadow;
+  final Color chipBg;
+  final Color chipBorder;
 
   static const light = AppColors(
     mainBg: Color(0xFFFBF8FF),
@@ -119,6 +130,11 @@ class AppColors extends ThemeExtension<AppColors> {
     syncBadgeBg: Color(0xB3F3F2FF),
     syncBadgeBorder: Color(0x4DC7C4D8),
     glow: [Color(0x0D493EE5), Color(0x1A493EE5), Color(0xFFF2F4FE)],
+    card: Color(0xFFFFFFFF),
+    cardBorder: Color(0x00000000),
+    cardShadow: Color(0x0D191B25),
+    chipBg: Color(0xFFEDEDFB),
+    chipBorder: Color(0x00000000),
   );
 
   static const dark = AppColors(
@@ -158,6 +174,11 @@ class AppColors extends ThemeExtension<AppColors> {
     syncBadgeBg: Color(0xFF121A2C),
     syncBadgeBorder: Color(0x0DFFFFFF),
     glow: [Color(0x0D493EE5), Color(0x0D493EE5), Color(0x0D493EE5)],
+    card: Color(0xFF121A2C),
+    cardBorder: Color(0x0DFFFFFF),
+    cardShadow: Color(0x0D000000),
+    chipBg: Color(0xFF121A2C),
+    chipBorder: Color(0x0DFFFFFF),
   );
 
   @override
