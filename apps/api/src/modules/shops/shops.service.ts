@@ -44,11 +44,11 @@ export class ShopsService {
     const sortKey = q.sort ?? 'createdAt'
     const dir = q.dir ?? (sortKey === 'createdAt' ? 'desc' : 'asc')
     const { items, total } = await this.repo.list(q, { [sortKey]: dir }, skip, take)
-    const last = await this.repo.lastVisits(items.map((s) => s.id))
+    const [last, audits] = await Promise.all([this.repo.lastVisits(items.map((s) => s.id)), this.repo.auditCounts(items.map((s) => s.id))])
     return {
       items: await Promise.all(items.map(async (s) => {
         const v = last.get(s.id)
-        return { ...await this.view(s), lastVisit: v == null ? null : { at: v.at.toISOString(), agentName: v.agentName } }
+        return { ...await this.view(s), lastVisit: v == null ? null : { at: v.at.toISOString(), agentName: v.agentName }, auditCount: audits.get(s.id) ?? 0 }
       })),
       total,
       page,

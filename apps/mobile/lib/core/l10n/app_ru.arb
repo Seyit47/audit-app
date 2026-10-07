@@ -319,5 +319,71 @@
     }
   },
   "noPhotos": "Фото пока нет",
-  "searchShop": "Поиск по магазину"
+  "searchShop": "Поиск по магазину",
+  "totalShops": "Всего точек: {count}",
+  "@totalShops": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sortAZ": "Сортировка: A-Z",
+  "sortZA": "Сортировка: Z-A",
+  "typeHYPERMARKET": "Гипермаркет",
+  "typeSUPERMARKET": "Супермаркет",
+  "typeMARKET": "Маркет",
+  "typeMINIMARKET": "Минимаркет",
+  "typeOTHER": "Другое",
+  "statusACTIVE": "Активен",
+  "statusPENDING_REVIEW": "На проверке",
+  "statusINACTIVE": "Неактивен",
+  "agentLabel": "Агент: ",
+  "unassigned": "Не назначен",
+  "auditsTotal": "{count} аудитов всего",
+  "@auditsTotal": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lastVisitShort": "Посл. визит: {date}",
+  "@lastVisitShort": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "details": "Подробнее",
+  "callShop": "Позвонить в магазин",
+  "navigate": "В навигаторе",
+  "loadError": "Не удалось загрузить. Потяните, чтобы обновить.",
+  "shopDetailsTitle": "Детали магазина",
+  "actions": "Действия",
+  "share": "Поделиться",
+  "editShop": "Редактировать точку",
+  "totalAudits": "Всего аудитов",
+  "auditsCount": "{count} аудитов",
+  "@auditsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lastVisitTitle": "Крайний визит",
+  "addressRegion": "Адрес и регион",
+  "responsibleAgent": "Ответственный агент",
+  "contact": "Связаться",
+  "onShift": "На смене",
+  "offShift": "Не на смене",
+  "photoReports": "Фотоотчёты аудитов",
+  "openGallery": "Открыть галерею",
+  "geolocation": "Геолокация объекта",
+  "agent": "Агент",
+  "editShopTitle": "Редактировать магазин",
+  "selectAgent": "Выберите агента",
+  "saveFailed": "Не удалось сохранить. Проверьте поля и попробуйте ещё раз."
 }

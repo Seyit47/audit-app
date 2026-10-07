@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/admin/home/presentation/admin_home_screen.dart';
+import '../../features/admin/shop_details/presentation/admin_shop_details_screen.dart';
+import '../../features/admin/shop_form/presentation/admin_shop_form_screen.dart';
+import '../../features/admin/shops/presentation/admin_shops_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/home/presentation/agent_home_screen.dart';
 import '../../features/add_shop/presentation/add_shop_screen.dart';
@@ -45,7 +48,14 @@ final List<RouteBase> agentRoutes = [
     GoRoute(path: ':id', builder: (_, state) => ShopDetailsScreen(shopId: state.pathParameters['id']!)),
   ]),
 ];
-final List<RouteBase> adminRoutes = [];
+final List<RouteBase> adminRoutes = [
+  GoRoute(path: 'shops', builder: (_, _) => const AdminShopsScreen(), routes: [
+    GoRoute(path: 'new', builder: (_, _) => const AdminShopFormScreen()),
+    GoRoute(path: ':id', builder: (_, state) => AdminShopDetailsScreen(shopId: state.pathParameters['id']!), routes: [
+      GoRoute(path: 'edit', builder: (_, state) => AdminShopFormScreen(shopId: state.pathParameters['id'])),
+    ]),
+  ]),
+];
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final refresh = ValueNotifier(0);

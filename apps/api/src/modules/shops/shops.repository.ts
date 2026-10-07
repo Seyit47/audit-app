@@ -186,6 +186,12 @@ export class ShopsRepository {
     })
   }
 
+  /** Audits per shop for the admin list cards (246:23300 "32 аудита всего"). */
+  async auditCounts (shopIds: string[]) {
+    const rows = await this.prisma.audit.groupBy({ by: ['shopId'], where: { shopId: { in: shopIds } }, _count: true })
+    return new Map(rows.map((r) => [r.shopId, r._count]))
+  }
+
   mapShops (where: Prisma.ShopWhereInput) {
     return this.prisma.shop.findMany({
       where: { deletedAt: null, ...where },

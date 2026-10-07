@@ -481,4 +481,126 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get searchShop => 'Search by shop';
+
+  @override
+  String totalShops(int count) {
+    return 'Total outlets: $count';
+  }
+
+  @override
+  String get sortAZ => 'Sort: A-Z';
+
+  @override
+  String get sortZA => 'Sort: Z-A';
+
+  @override
+  String get typeHYPERMARKET => 'Hypermarket';
+
+  @override
+  String get typeSUPERMARKET => 'Supermarket';
+
+  @override
+  String get typeMARKET => 'Market';
+
+  @override
+  String get typeMINIMARKET => 'Minimarket';
+
+  @override
+  String get typeOTHER => 'Other';
+
+  @override
+  String get statusACTIVE => 'Active';
+
+  @override
+  String get statusPENDING_REVIEW => 'Pending review';
+
+  @override
+  String get statusINACTIVE => 'Inactive';
+
+  @override
+  String get agentLabel => 'Salesman: ';
+
+  @override
+  String get unassigned => 'Unassigned';
+
+  @override
+  String auditsTotal(int count) {
+    return '$count audits in total';
+  }
+
+  @override
+  String lastVisitShort(String date) {
+    return 'Last visit: $date';
+  }
+
+  @override
+  String get details => 'Details';
+
+  @override
+  String get callShop => 'Call the shop';
+
+  @override
+  String get navigate => 'Navigate';
+
+  @override
+  String get loadError => 'Could not load. Pull to refresh.';
+
+  @override
+  String get shopDetailsTitle => 'Shop Details';
+
+  @override
+  String get actions => 'Actions';
+
+  @override
+  String get share => 'Share';
+
+  @override
+  String get editShop => 'Edit shop';
+
+  @override
+  String get totalAudits => 'Total audits';
+
+  @override
+  String auditsCount(int count) {
+    return '$count audits';
+  }
+
+  @override
+  String get lastVisitTitle => 'Last visit';
+
+  @override
+  String get addressRegion => 'Address & region';
+
+  @override
+  String get responsibleAgent => 'Responsible salesman';
+
+  @override
+  String get contact => 'Contact';
+
+  @override
+  String get onShift => 'On shift';
+
+  @override
+  String get offShift => 'Off shift';
+
+  @override
+  String get photoReports => 'Audit photo reports';
+
+  @override
+  String get openGallery => 'Open gallery';
+
+  @override
+  String get geolocation => 'Shop location';
+
+  @override
+  String get agent => 'Salesman';
+
+  @override
+  String get editShopTitle => 'Edit shop';
+
+  @override
+  String get selectAgent => 'Select a salesman';
+
+  @override
+  String get saveFailed => 'Could not save. Check the fields and try again.';
 }

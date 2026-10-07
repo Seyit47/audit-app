@@ -294,9 +294,9 @@ sessions.
   - Cancel / Save (409 → reload prompt)
 
   It is opened from Shop details (Edit) and Shops (Add Shop)
-- [ ] T072 [P] [US4] Build admin mobile Shops from Figma `246:23300` in `apps/mobile/lib/features/admin/shops/presentation/admin_shops_screen.dart` + `data/admin_shops_repository.dart`: infinite pages, total, Сортировка A-Z, search, Filters → `filter_sheet` (B3), cards with Подробнее / call / navigate, Добавить
-- [ ] T073 [P] [US4] Build admin mobile Shop details from Figma `248:24538` in `apps/mobile/lib/features/admin/shop_details/presentation/admin_shop_details_screen.dart`: KPIs, address and region, agent + Связаться, photo reports (`GET /v1/photos?shopId&limit=3`), geolocation mini map + В навигаторе, audit history, Редактировать точку (→ form). If the frame has a share icon, it opens the OS share sheet with name, address and map link (B5)
-- [ ] T074 [US4] Build admin mobile Add/Edit shop from Figma `252:25423` (empty) and `252:25542` (filled) in `apps/mobile/lib/features/admin/shop_form/presentation/admin_shop_form_screen.dart`:
+- [X] T072 [P] [US4] Build admin mobile Shops from Figma `246:23300` in `apps/mobile/lib/features/admin/shops/presentation/admin_shops_screen.dart` + `data/admin_shops_repository.dart`: infinite pages, total, Сортировка A-Z, search, Filters → `filter_sheet` (B3), cards with Подробнее / call / navigate, Добавить
+- [X] T073 [P] [US4] Build admin mobile Shop details from Figma `248:24538` in `apps/mobile/lib/features/admin/shop_details/presentation/admin_shop_details_screen.dart`: KPIs, address and region, agent + Связаться, photo reports (`GET /v1/photos?shopId&limit=3`), geolocation mini map + В навигаторе, audit history, Редактировать точку (→ form). If the frame has a share icon, it opens the OS share sheet with name, address and map link (B5)
+- [X] T074 [US4] Build admin mobile Add/Edit shop from Figma `252:25423` (empty) and `252:25542` (filled) in `apps/mobile/lib/features/admin/shop_form/presentation/admin_shop_form_screen.dart`:
   - exactly the frame's fields
   - Проверить заново location
   - facade via Открыть галерею (image_picker) or Сделать фото (camera)

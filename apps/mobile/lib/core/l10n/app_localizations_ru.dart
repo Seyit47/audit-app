@@ -482,4 +482,127 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get searchShop => 'Поиск по магазину';
+
+  @override
+  String totalShops(int count) {
+    return 'Всего точек: $count';
+  }
+
+  @override
+  String get sortAZ => 'Сортировка: A-Z';
+
+  @override
+  String get sortZA => 'Сортировка: Z-A';
+
+  @override
+  String get typeHYPERMARKET => 'Гипермаркет';
+
+  @override
+  String get typeSUPERMARKET => 'Супермаркет';
+
+  @override
+  String get typeMARKET => 'Маркет';
+
+  @override
+  String get typeMINIMARKET => 'Минимаркет';
+
+  @override
+  String get typeOTHER => 'Другое';
+
+  @override
+  String get statusACTIVE => 'Активен';
+
+  @override
+  String get statusPENDING_REVIEW => 'На проверке';
+
+  @override
+  String get statusINACTIVE => 'Неактивен';
+
+  @override
+  String get agentLabel => 'Агент: ';
+
+  @override
+  String get unassigned => 'Не назначен';
+
+  @override
+  String auditsTotal(int count) {
+    return '$count аудитов всего';
+  }
+
+  @override
+  String lastVisitShort(String date) {
+    return 'Посл. визит: $date';
+  }
+
+  @override
+  String get details => 'Подробнее';
+
+  @override
+  String get callShop => 'Позвонить в магазин';
+
+  @override
+  String get navigate => 'В навигаторе';
+
+  @override
+  String get loadError => 'Не удалось загрузить. Потяните, чтобы обновить.';
+
+  @override
+  String get shopDetailsTitle => 'Детали магазина';
+
+  @override
+  String get actions => 'Действия';
+
+  @override
+  String get share => 'Поделиться';
+
+  @override
+  String get editShop => 'Редактировать точку';
+
+  @override
+  String get totalAudits => 'Всего аудитов';
+
+  @override
+  String auditsCount(int count) {
+    return '$count аудитов';
+  }
+
+  @override
+  String get lastVisitTitle => 'Крайний визит';
+
+  @override
+  String get addressRegion => 'Адрес и регион';
+
+  @override
+  String get responsibleAgent => 'Ответственный агент';
+
+  @override
+  String get contact => 'Связаться';
+
+  @override
+  String get onShift => 'На смене';
+
+  @override
+  String get offShift => 'Не на смене';
+
+  @override
+  String get photoReports => 'Фотоотчёты аудитов';
+
+  @override
+  String get openGallery => 'Открыть галерею';
+
+  @override
+  String get geolocation => 'Геолокация объекта';
+
+  @override
+  String get agent => 'Агент';
+
+  @override
+  String get editShopTitle => 'Редактировать магазин';
+
+  @override
+  String get selectAgent => 'Выберите агента';
+
+  @override
+  String get saveFailed =>
+      'Не удалось сохранить. Проверьте поля и попробуйте ещё раз.';
 }

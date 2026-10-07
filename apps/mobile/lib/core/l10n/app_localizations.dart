@@ -931,6 +931,234 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Поиск по магазину'**
   String get searchShop;
+
+  /// No description provided for @totalShops.
+  ///
+  /// In ru, this message translates to:
+  /// **'Всего точек: {count}'**
+  String totalShops(int count);
+
+  /// No description provided for @sortAZ.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сортировка: A-Z'**
+  String get sortAZ;
+
+  /// No description provided for @sortZA.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сортировка: Z-A'**
+  String get sortZA;
+
+  /// No description provided for @typeHYPERMARKET.
+  ///
+  /// In ru, this message translates to:
+  /// **'Гипермаркет'**
+  String get typeHYPERMARKET;
+
+  /// No description provided for @typeSUPERMARKET.
+  ///
+  /// In ru, this message translates to:
+  /// **'Супермаркет'**
+  String get typeSUPERMARKET;
+
+  /// No description provided for @typeMARKET.
+  ///
+  /// In ru, this message translates to:
+  /// **'Маркет'**
+  String get typeMARKET;
+
+  /// No description provided for @typeMINIMARKET.
+  ///
+  /// In ru, this message translates to:
+  /// **'Минимаркет'**
+  String get typeMINIMARKET;
+
+  /// No description provided for @typeOTHER.
+  ///
+  /// In ru, this message translates to:
+  /// **'Другое'**
+  String get typeOTHER;
+
+  /// No description provided for @statusACTIVE.
+  ///
+  /// In ru, this message translates to:
+  /// **'Активен'**
+  String get statusACTIVE;
+
+  /// No description provided for @statusPENDING_REVIEW.
+  ///
+  /// In ru, this message translates to:
+  /// **'На проверке'**
+  String get statusPENDING_REVIEW;
+
+  /// No description provided for @statusINACTIVE.
+  ///
+  /// In ru, this message translates to:
+  /// **'Неактивен'**
+  String get statusINACTIVE;
+
+  /// No description provided for @agentLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Агент: '**
+  String get agentLabel;
+
+  /// No description provided for @unassigned.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не назначен'**
+  String get unassigned;
+
+  /// No description provided for @auditsTotal.
+  ///
+  /// In ru, this message translates to:
+  /// **'{count} аудитов всего'**
+  String auditsTotal(int count);
+
+  /// No description provided for @lastVisitShort.
+  ///
+  /// In ru, this message translates to:
+  /// **'Посл. визит: {date}'**
+  String lastVisitShort(String date);
+
+  /// No description provided for @details.
+  ///
+  /// In ru, this message translates to:
+  /// **'Подробнее'**
+  String get details;
+
+  /// No description provided for @callShop.
+  ///
+  /// In ru, this message translates to:
+  /// **'Позвонить в магазин'**
+  String get callShop;
+
+  /// No description provided for @navigate.
+  ///
+  /// In ru, this message translates to:
+  /// **'В навигаторе'**
+  String get navigate;
+
+  /// No description provided for @loadError.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось загрузить. Потяните, чтобы обновить.'**
+  String get loadError;
+
+  /// No description provided for @shopDetailsTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Детали магазина'**
+  String get shopDetailsTitle;
+
+  /// No description provided for @actions.
+  ///
+  /// In ru, this message translates to:
+  /// **'Действия'**
+  String get actions;
+
+  /// No description provided for @share.
+  ///
+  /// In ru, this message translates to:
+  /// **'Поделиться'**
+  String get share;
+
+  /// No description provided for @editShop.
+  ///
+  /// In ru, this message translates to:
+  /// **'Редактировать точку'**
+  String get editShop;
+
+  /// No description provided for @totalAudits.
+  ///
+  /// In ru, this message translates to:
+  /// **'Всего аудитов'**
+  String get totalAudits;
+
+  /// No description provided for @auditsCount.
+  ///
+  /// In ru, this message translates to:
+  /// **'{count} аудитов'**
+  String auditsCount(int count);
+
+  /// No description provided for @lastVisitTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Крайний визит'**
+  String get lastVisitTitle;
+
+  /// No description provided for @addressRegion.
+  ///
+  /// In ru, this message translates to:
+  /// **'Адрес и регион'**
+  String get addressRegion;
+
+  /// No description provided for @responsibleAgent.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ответственный агент'**
+  String get responsibleAgent;
+
+  /// No description provided for @contact.
+  ///
+  /// In ru, this message translates to:
+  /// **'Связаться'**
+  String get contact;
+
+  /// No description provided for @onShift.
+  ///
+  /// In ru, this message translates to:
+  /// **'На смене'**
+  String get onShift;
+
+  /// No description provided for @offShift.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не на смене'**
+  String get offShift;
+
+  /// No description provided for @photoReports.
+  ///
+  /// In ru, this message translates to:
+  /// **'Фотоотчёты аудитов'**
+  String get photoReports;
+
+  /// No description provided for @openGallery.
+  ///
+  /// In ru, this message translates to:
+  /// **'Открыть галерею'**
+  String get openGallery;
+
+  /// No description provided for @geolocation.
+  ///
+  /// In ru, this message translates to:
+  /// **'Геолокация объекта'**
+  String get geolocation;
+
+  /// No description provided for @agent.
+  ///
+  /// In ru, this message translates to:
+  /// **'Агент'**
+  String get agent;
+
+  /// No description provided for @editShopTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Редактировать магазин'**
+  String get editShopTitle;
+
+  /// No description provided for @selectAgent.
+  ///
+  /// In ru, this message translates to:
+  /// **'Выберите агента'**
+  String get selectAgent;
+
+  /// No description provided for @saveFailed.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось сохранить. Проверьте поля и попробуйте ещё раз.'**
+  String get saveFailed;
 }
 
 class _AppLocalizationsDelegate
