@@ -8,7 +8,7 @@ const MAX_THUMBS = 7
  * Visit history card of 47:7387: done (151:13021) and missed (151:13142). Missed visits have no
  * reason block, since no reason is collected (spec gap A2).
  */
-export function VisitHistoryItem ({ when, aside, status, statusLabel, thumbnailUrl, title, subtitle, comment, photos = [], morePhotosLabel, onPhoto, photoHref }: {
+export function VisitHistoryItem ({ when, aside, status, statusLabel, thumbnailUrl, title, titleHref, subtitle, comment, photos = [], morePhotosLabel, onPhoto, photoHref }: {
   when: string
   /** "Длительность: 30 мин" for done visits, "Отклонён" for missed ones. */
   aside: string
@@ -16,6 +16,8 @@ export function VisitHistoryItem ({ when, aside, status, statusLabel, thumbnailU
   statusLabel: string
   thumbnailUrl?: string | null
   title: string
+  /** Makes the title a link (e.g. to the shop). */
+  titleHref?: string
   subtitle: string
   /** Full line, e.g. `Комментарий агента: «…»`. */
   comment?: ReactNode
@@ -45,7 +47,7 @@ export function VisitHistoryItem ({ when, aside, status, statusLabel, thumbnailU
           </span>
           <div className='flex min-w-0 flex-col gap-0.5'>
             <div className='flex items-center gap-2'>
-              <h3 className='truncate text-sm font-bold leading-5 text-ink'>{title}</h3>
+              <h3 className='truncate text-sm font-bold leading-5 text-ink'>{titleHref != null ? <a href={titleHref} className='hover:text-accent'>{title}</a> : title}</h3>
               {missed
                 ? <span className='shrink-0 rounded bg-[#ffdad6] px-2 py-0.5 text-[11px] font-semibold leading-[16.5px] text-error'>{statusLabel}</span>
                 : (

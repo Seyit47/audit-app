@@ -491,7 +491,7 @@ sessions.
 - [X] T122 [P] [US9] Build admin mobile Home from Figma `246:23129` in `apps/mobile/lib/features/admin/home/presentation/admin_home_screen.dart` (Карта, Магазины, Галерея, Агенты, Продукции → mobile Products (A7); theme toggle; RU/EN; avatar sign-out)
 - [X] T123 [P] [US9] Write failing tests in `apps/api/test/feed.test.ts`: `GET /v1/feed` lists violations and missed visits newest first with a cursor, `unreadCount` counts items newer than `feedSeenAt`, `POST /v1/feed/seen` resets it, admins only
 - [X] T124 [US9] Implement the feed module in `apps/api/src/modules/feed/` (routes, service, repository querying audits with `hasViolation` and MISSED route stops)
-- [ ] T125 [US9] Build the bell activity feed (approved exception A6) in `apps/admin-web/src/components/layout/FeedPanel.tsx`: the existing `SidePanel` + `VisitHistoryItem` cards, the unread dot on the Figma bell (poll 30 s), opening calls `POST /v1/feed/seen`, items link to the shop or agent. Mount it in `Topbar.tsx`
+- [X] T125 [US9] Build the bell activity feed (approved exception A6) in `apps/admin-web/src/components/layout/FeedPanel.tsx`: the existing `SidePanel` + `VisitHistoryItem` cards, the unread dot on the Figma bell (poll 30 s), opening calls `POST /v1/feed/seen`, items link to the shop or agent. Mount it in `Topbar.tsx`
 
 ---
 

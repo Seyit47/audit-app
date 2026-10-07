@@ -1,0 +1,112 @@
+'use client'
+
+import { useCallback, useEffect, useState, useTransition } from 'react'
+import { Icon } from '@/components/ui/Icon'
+import { SidePanel } from '@/components/ui/SidePanel'
+import { VisitHistoryItem } from '@/components/ui/VisitHistoryItem'
+import { loadFeed, markFeedSeen } from '@/features/feed/actions'
+import type { FeedCopy } from '@/features/feed/copy'
+import type { FeedItem } from '@/features/feed/types'
+import type { Locale } from '@/lib/i18n'
+
+const POLL_MS = 30_000
+
+function when (iso: string, locale: Locale, today: string) {
+  const d = new Date(iso)
+  const tag = locale === 'ru' ? 'ru-RU' : 'en-US'
+  const time = new Intl.DateTimeFormat(tag, { hour: '2-digit', minute: '2-digit', hour12: false }).format(d)
+  if (d.toDateString() === new Date().toDateString()) return `${today}, ${time}`
+  return `${new Intl.DateTimeFormat(tag, { day: 'numeric', month: 'short' }).format(d)}, ${time}`
+}
+
+/**
+ * Bell activity feed (approved exception A6): the Figma bell (3:853) with its unread dot, polled every
+ * 30 s, and a side panel of violations and missed visits built from the visit history cards.
+ */
+export function FeedPanel ({ initialUnread, copy, locale }: { initialUnread: number, copy: FeedCopy, locale: Locale }) {
+  const [unread, setUnread] = useState(initialUnread)
+  const [open, setOpen] = useState(false)
+  const [items, setItems] = useState<FeedItem[]>([])
+  const [cursor, setCursor] = useState<string | null>(null)
+  const [failed, setFailed] = useState(false)
+  const [pending, startTransition] = useTransition()
+
+  const poll = useCallback(async () => {
+    try { setUnread((await loadFeed()).unreadCount) } catch { /* keep the last count */ }
+  }, [])
+  useEffect(() => {
+    const id = setInterval(() => { if (document.visibilityState === 'visible') void poll() }, POLL_MS)
+    return () => clearInterval(id)
+  }, [poll])
+
+  const show = () => {
+    setOpen(true)
+    startTransition(async () => {
+      try {
+        const page = await loadFeed()
+        setItems(page.items); setCursor(page.nextCursor); setFailed(false)
+        await markFeedSeen()
+        setUnread(0)
+      } catch {
+        setFailed(true)
+      }
+    })
+  }
+  const more = () => startTransition(async () => {
+    if (cursor == null) return
+    const page = await loadFeed(cursor)
+    setItems((xs) => [...xs, ...page.items]); setCursor(page.nextCursor)
+  })
+
+  return (
+    <>
+      <button type='button' aria-label={copy.open} aria-expanded={open} onClick={() => (open ? setOpen(false) : show())} className='relative flex size-9 items-center justify-center rounded-lg text-muted'>
+        <Icon name='bell' width={13.333} height={16.667} />
+        {unread > 0 && <span className='absolute left-5 top-2 size-2 rounded-full bg-[#ba1a1a]' />}
+      </button>
+      {open && (
+        <div className='fixed right-4 top-[72px] z-30'>
+          <SidePanel
+            className='max-h-[calc(100vh-88px)] w-[420px] overflow-y-auto'
+            closeLabel={copy.close} onClose={() => setOpen(false)}
+            header={(
+              <div className='flex flex-col'>
+                <h2 className='text-base font-bold leading-6 text-ink'>{copy.title}</h2>
+                <p className='text-xs leading-4 text-muted'>{copy.subtitle}</p>
+              </div>
+            )}
+          >
+            <div className='flex flex-col gap-3'>
+              {failed && <p className='text-center text-xs text-error'>{copy.error}</p>}
+              {!failed && !pending && items.length === 0 && <p className='py-6 text-center text-xs text-muted'>{copy.empty}</p>}
+              {items.map((it) => it.type === 'VIOLATION'
+                ? (
+                  <VisitHistoryItem
+                    key={`v${it.id}`} status='missed' statusLabel={copy.violation}
+                    when={when(it.at, locale, copy.today)} aside=''
+                    thumbnailUrl={it.photos[0]?.previewUrl400}
+                    title={it.shop.name} titleHref={`/shops/${it.shop.id}`}
+                    subtitle={`${it.agent.fullName} · ${it.shop.code}`}
+                    comment={it.comment !== '' ? <><span>{copy.comment}</span> <span className='font-normal'>«{it.comment}»</span></> : undefined}
+                    photos={it.photos.map((p) => ({ id: p.id, url: p.previewUrl400 }))}
+                    photoHref={(p) => `/pictures?photo=${p.id}`}
+                  />
+                  )
+                : (
+                  <VisitHistoryItem
+                    key={`m${it.id}`} status='missed' statusLabel={copy.missed}
+                    when={when(it.at, locale, copy.today)} aside=''
+                    title={it.shop.name} titleHref={`/shops/${it.shop.id}`}
+                    subtitle={`${it.agent.fullName} · ${it.shop.code}`}
+                  />
+                  ))}
+              {cursor != null && (
+                <button type='button' onClick={more} disabled={pending} className='self-center rounded-lg bg-dark-accent px-4 py-2 text-xs font-semibold text-ink'>{copy.more}</button>
+              )}
+            </div>
+          </SidePanel>
+        </div>
+      )}
+    </>
+  )
+}
