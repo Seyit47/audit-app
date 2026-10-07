@@ -73,6 +73,9 @@ test('ADMIN_UPLOAD requires shopId and is admin only', async () => {
   assert.strictEqual((await createUpload(bearer(app, { id: a.id, role: 'ADMIN' }), { ...base, id: randomUUID() })).statusCode, 400)
   assert.strictEqual((await createUpload(bearer(app, { id: agent.userId, role: 'AGENT' }), { ...base, id: randomUUID(), shopId: s.id })).statusCode, 403)
   assert.strictEqual((await createUpload(bearer(app, { id: a.id, role: 'ADMIN' }), { ...base, id: randomUUID(), shopId: s.id })).statusCode, 200)
+  const unknownShop = await createUpload(bearer(app, { id: a.id, role: 'ADMIN' }), { ...base, id: randomUUID(), shopId: randomUUID() })
+  assert.strictEqual(unknownShop.statusCode, 400)
+  assert.strictEqual(unknownShop.json().error.code, 'VALIDATION_FAILED')
 })
 
 test('DB trigger allows preview fields on a READY audit photo but rejects storageKey changes', async () => {

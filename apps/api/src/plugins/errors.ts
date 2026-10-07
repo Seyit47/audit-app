@@ -1,5 +1,6 @@
 import fp from 'fastify-plugin'
 import { randomUUID } from 'node:crypto'
+import { Prisma } from '../generated/prisma/client.js'
 import { AppError } from '../lib/app-error.js'
 
 interface ErrorBody { error: { code: string, message: string, details?: unknown }, requestId: string }
@@ -21,6 +22,9 @@ export default fp(async (fastify) => {
     if (e.validation) {
       return send(400, 'VALIDATION_FAILED', 'Request validation failed',
         e.validation.map((v) => ({ field: v.instancePath ?? '', message: v.message ?? 'invalid' })))
+    }
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2003') {
+      return send(400, 'VALIDATION_FAILED', 'Referenced record does not exist')
     }
     if (e.statusCode === 429) return send(429, 'RATE_LIMITED', 'Too many requests')
     if (e.statusCode === 401) return send(401, 'UNAUTHENTICATED', 'Authentication required')

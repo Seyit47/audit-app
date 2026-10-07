@@ -397,7 +397,7 @@ sessions.
   - Текущее местоположение + Проверить заново
   - storefront photo (camera) with Retake and delete
   - Сохранить enabled only when valid → outbox PHOTO + SHOP_CREATE
-- [ ] T096 [US5] Make sure the "Pending Review" badge renders in `apps/admin-web/src/features/shops/components/ShopsTable.tsx` (matching the frame's row style), and that the Status toggle in `ShopHeader.tsx` approves it
+- [X] T096 [US5] Make sure the "Pending Review" badge renders in `apps/admin-web/src/features/shops/components/ShopsTable.tsx` (matching the frame's row style), and that the Status toggle in `ShopHeader.tsx` approves it
 
 ---
 
@@ -451,7 +451,7 @@ sessions.
   - detail with shop, agent, comment, violation and related photos
   - an agent sees own photos only
 - [X] T110 [US7] Implement the gallery endpoints in `apps/api/src/modules/photos/` (`photos.routes.ts`, `photos.service.ts`): list, summary, detail
-- [ ] T111 [US7] Build Pictures from Figma `53:1375` and `138:11987` in `apps/admin-web/src/app/(admin)/pictures/page.tsx` + `src/features/photos/components/{PhotoGrid,PhotoFilters,PhotoDetailPanel}.tsx`: summary chips, Type/Location/Status/Date filters, the mode toggles switching grid ↔ grouped-by-date (B4), infinite scroll, Verified badge, the detail panel with related photos, and the Upload CTA → a dialog (existing `ImageUpload` + the shop select from `162:20071`) uploading `ADMIN_UPLOAD` photos to the chosen shop (B1)
+- [X] T111 [US7] Build Pictures from Figma `53:1375` and `138:11987` in `apps/admin-web/src/app/(admin)/pictures/page.tsx` + `src/features/photos/components/{PhotoGrid,PhotoFilters,PhotoDetailPanel}.tsx`: summary chips, Type/Location/Status/Date filters, the mode toggles switching grid ↔ grouped-by-date (B4), infinite scroll, Verified badge, the detail panel with related photos, and the Upload CTA → a dialog (existing `ImageUpload` + the shop select from `162:20071`) uploading `ADMIN_UPLOAD` photos to the chosen shop (B1)
 - [ ] T112 [P] [US7] Build the agent Gallery and Photo detail from Figma `83:17954` and `83:18045` / `106:6558` and `106:6710` in `apps/mobile/lib/features/gallery/presentation/{gallery_screen,photo_detail_screen}.dart`, with the Параметры фильтрации button → `filter_sheet` (B3)
 - [ ] T113 [P] [US7] Build the admin mobile Gallery and Photo detail from Figma `248:24311` and `248:24402` in `apps/mobile/lib/features/admin/gallery/presentation/{admin_gallery_screen,admin_photo_detail_screen}.dart`, with the Параметры фильтрации button → `filter_sheet` (B3)
 
