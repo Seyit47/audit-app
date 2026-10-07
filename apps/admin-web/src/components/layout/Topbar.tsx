@@ -1,6 +1,7 @@
 import { Icon } from '@/components/ui/Icon'
 import { AvatarMenu } from './AvatarMenu'
 import { GlobalSearch } from './GlobalSearch'
+import { HelpMenu } from './HelpMenu'
 import type { Locale } from '@/lib/i18n'
 import type { LayoutCopy } from './copy'
 
@@ -16,10 +17,7 @@ export function Topbar ({ copy, locale, bell }: { copy: LayoutCopy, locale: Loca
             <Icon name='bell' width={13.333} height={16.667} />
           </button>
         )}
-        {/* Help has no designed behavior (spec A6): rendered, inert. */}
-        <button type='button' aria-label={copy.help} className='flex size-9 cursor-default items-center justify-center rounded-lg text-muted'>
-          <Icon name='help' width={16.667} height={16.667} />
-        </button>
+        <HelpMenu label={copy.help} locale={locale} />
         <div className='flex h-6 w-[9px] px-1'><div className='h-6 w-px bg-line' /></div>
         <AvatarMenu copy={copy} locale={locale} />
       </div>
