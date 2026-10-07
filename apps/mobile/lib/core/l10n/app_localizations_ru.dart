@@ -271,4 +271,42 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get shopNotFound => 'Магазин не найден';
+
+  @override
+  String get mapSearch => 'Поиск магазина, владельца, телефона…';
+
+  @override
+  String get mapAll => 'Все';
+
+  @override
+  String mapNotVisited(int count) {
+    return 'Не посещённые($count)';
+  }
+
+  @override
+  String mapVisited(int count) {
+    return 'Посещённые($count)';
+  }
+
+  @override
+  String get mapRecent => 'Недавно';
+
+  @override
+  String get myLocation => 'Моё местоположение';
+
+  @override
+  String get zoomIn => 'Приблизить карту';
+
+  @override
+  String get zoomOut => 'Отдалить карту';
+
+  @override
+  String get startAudit => 'Начать Аудит';
+
+  @override
+  String get auditOnlyOnSite =>
+      'Начать аудит можно только на территории магазина';
+
+  @override
+  String get locating => 'Определяем местоположение…';
 }

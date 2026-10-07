@@ -559,6 +559,72 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Магазин не найден'**
   String get shopNotFound;
+
+  /// No description provided for @mapSearch.
+  ///
+  /// In ru, this message translates to:
+  /// **'Поиск магазина, владельца, телефона…'**
+  String get mapSearch;
+
+  /// No description provided for @mapAll.
+  ///
+  /// In ru, this message translates to:
+  /// **'Все'**
+  String get mapAll;
+
+  /// No description provided for @mapNotVisited.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не посещённые({count})'**
+  String mapNotVisited(int count);
+
+  /// No description provided for @mapVisited.
+  ///
+  /// In ru, this message translates to:
+  /// **'Посещённые({count})'**
+  String mapVisited(int count);
+
+  /// No description provided for @mapRecent.
+  ///
+  /// In ru, this message translates to:
+  /// **'Недавно'**
+  String get mapRecent;
+
+  /// No description provided for @myLocation.
+  ///
+  /// In ru, this message translates to:
+  /// **'Моё местоположение'**
+  String get myLocation;
+
+  /// No description provided for @zoomIn.
+  ///
+  /// In ru, this message translates to:
+  /// **'Приблизить карту'**
+  String get zoomIn;
+
+  /// No description provided for @zoomOut.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отдалить карту'**
+  String get zoomOut;
+
+  /// No description provided for @startAudit.
+  ///
+  /// In ru, this message translates to:
+  /// **'Начать Аудит'**
+  String get startAudit;
+
+  /// No description provided for @auditOnlyOnSite.
+  ///
+  /// In ru, this message translates to:
+  /// **'Начать аудит можно только на территории магазина'**
+  String get auditOnlyOnSite;
+
+  /// No description provided for @locating.
+  ///
+  /// In ru, this message translates to:
+  /// **'Определяем местоположение…'**
+  String get locating;
 }
 
 class _AppLocalizationsDelegate

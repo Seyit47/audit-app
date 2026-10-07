@@ -177,5 +177,30 @@
   "noAudits": "Аудитов пока нет",
   "sortNewest": "Сначала новые",
   "sortOldest": "Сначала старые",
-  "shopNotFound": "Магазин не найден"
+  "shopNotFound": "Магазин не найден",
+  "mapSearch": "Поиск магазина, владельца, телефона…",
+  "mapAll": "Все",
+  "mapNotVisited": "Не посещённые({count})",
+  "@mapNotVisited": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mapVisited": "Посещённые({count})",
+  "@mapVisited": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mapRecent": "Недавно",
+  "myLocation": "Моё местоположение",
+  "zoomIn": "Приблизить карту",
+  "zoomOut": "Отдалить карту",
+  "startAudit": "Начать Аудит",
+  "auditOnlyOnSite": "Начать аудит можно только на территории магазина",
+  "locating": "Определяем местоположение…"
 }

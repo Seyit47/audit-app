@@ -46,6 +46,10 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.cardShadow,
     required this.chipBg,
     required this.chipBorder,
+    required this.infoBg,
+    required this.infoBorder,
+    required this.alertBg,
+    required this.alertBorder,
   });
 
   final Color mainBg;
@@ -92,6 +96,11 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color cardShadow;
   final Color chipBg;
   final Color chipBorder;
+  // Info bar ("Последний визит") and alert bar of the shop sheet (`83:17917` / `106:5732`).
+  final Color infoBg;
+  final Color infoBorder;
+  final Color alertBg;
+  final Color alertBorder;
 
   static const light = AppColors(
     mainBg: Color(0xFFFBF8FF),
@@ -135,6 +144,10 @@ class AppColors extends ThemeExtension<AppColors> {
     cardShadow: Color(0x0D191B25),
     chipBg: Color(0xFFEDEDFB),
     chipBorder: Color(0x00000000),
+    infoBg: Color(0x0F493EE5),
+    infoBorder: Color(0x00000000),
+    alertBg: Color(0x66FFDAD6),
+    alertBorder: Color(0x00000000),
   );
 
   static const dark = AppColors(
@@ -179,6 +192,10 @@ class AppColors extends ThemeExtension<AppColors> {
     cardShadow: Color(0x0D000000),
     chipBg: Color(0xFF121A2C),
     chipBorder: Color(0x0DFFFFFF),
+    infoBg: Color(0xFF121D31),
+    infoBorder: Color(0x0DFFFFFF),
+    alertBg: Color(0xFF211528),
+    alertBorder: Color(0xFF562035),
   );
 
   @override

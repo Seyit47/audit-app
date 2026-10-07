@@ -76,5 +76,16 @@
   "noAudits": "No audits yet",
   "sortNewest": "Newest first",
   "sortOldest": "Oldest first",
-  "shopNotFound": "Shop not found"
+  "shopNotFound": "Shop not found",
+  "mapSearch": "Search shop, owner, phone...",
+  "mapAll": "All",
+  "mapNotVisited": "Not visited ({count})",
+  "mapVisited": "Visited ({count})",
+  "mapRecent": "Recent",
+  "myLocation": "My location",
+  "zoomIn": "Zoom in",
+  "zoomOut": "Zoom out",
+  "startAudit": "Start audit",
+  "auditOnlyOnSite": "You can start the audit only on the shop's premises",
+  "locating": "Locating…"
 }

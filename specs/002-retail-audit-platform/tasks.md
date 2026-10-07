@@ -336,8 +336,8 @@ sessions.
 - [ ] T081 [US3] Build agent Home from Figma `83:16786` / `101:1880` in `apps/mobile/lib/features/home/presentation/agent_home_screen.dart`: avatar (sign-out menu), theme toggle, RU/EN, "Начать аудит" (opens the next route stop's audit), Мои магазины, Карта, Галерея, sync status
 - [X] T082 [US3] Build Shops from Figma `83:16884` / `101:1985` in `apps/mobile/lib/features/shops/presentation/shops_screen.dart`: title + count, Добавить, search, chips Все/Запланирован/Просрочен/Пройден with counts, the Filters button → `filter_sheet` (B3), tiles, pull-to-refresh
 - [X] T083 [US3] Build Shop details from Figma `83:17057` / `106:4035` in `apps/mobile/lib/features/shop_details/presentation/shop_details_screen.dart`: header with coordinates and distance, contact + call, last/next visit with the overdue warning, Карта (geo URI) and Аудит, audit history with violations and photos
-- [ ] T084 [US3] Create the MapLibre styles matching the Figma map palette (sampled from `get_design_context` of `83:17636`, `106:5485` and `21:2`): `apps/mobile/assets/map/style-light.json`, `style-dark.json` and `apps/admin-web/public/map/style.json`. The tile source comes from env
-- [ ] T085 [US3] Build the agent Map from Figma `83:17636` and `83:17775` / `106:5485` and `106:5609` in `apps/mobile/lib/features/map/presentation/agent_map_screen.dart`:
+- [X] T084 [US3] Create the MapLibre styles matching the Figma map palette (sampled from `get_design_context` of `83:17636`, `106:5485` and `21:2`): `apps/mobile/assets/map/style-light.json`, `style-dark.json` and `apps/admin-web/public/map/style.json`. The tile source comes from env
+- [X] T085 [US3] Build the agent Map from Figma `83:17636` and `83:17775` / `106:5485` and `106:5609` in `apps/mobile/lib/features/map/presentation/agent_map_screen.dart`:
   - search, chips Все / Не посещённые / Посещённые, Filters button → `filter_sheet` (B3)
   - photo pins by state, current location, zoom and recenter
   - sheet with the shop, distance, last visit, the geofence warning and Начать Аудит (enabled only inside the radius)

@@ -270,4 +270,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shopNotFound => 'Shop not found';
+
+  @override
+  String get mapSearch => 'Search shop, owner, phone...';
+
+  @override
+  String get mapAll => 'All';
+
+  @override
+  String mapNotVisited(int count) {
+    return 'Not visited ($count)';
+  }
+
+  @override
+  String mapVisited(int count) {
+    return 'Visited ($count)';
+  }
+
+  @override
+  String get mapRecent => 'Recent';
+
+  @override
+  String get myLocation => 'My location';
+
+  @override
+  String get zoomIn => 'Zoom in';
+
+  @override
+  String get zoomOut => 'Zoom out';
+
+  @override
+  String get startAudit => 'Start audit';
+
+  @override
+  String get auditOnlyOnSite =>
+      'You can start the audit only on the shop\'s premises';
+
+  @override
+  String get locating => 'Locating…';
 }
