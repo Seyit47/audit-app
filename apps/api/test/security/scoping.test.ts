@@ -69,7 +69,7 @@ test('admin endpoints answer 403 to an agent', async () => {
     ['GET', '/v1/agents'], ['GET', '/v1/agents/summary'], ['GET', '/v1/agents/positions'], ['GET', `/v1/agents/${w.other.userId}`],
     ['GET', `/v1/agents/${w.other.userId}/track`], ['POST', '/v1/agents', {}], ['GET', '/v1/settings'], ['PATCH', '/v1/settings', {}],
     ['POST', '/v1/regions', { name: 'X' }], ['GET', '/v1/feed'], ['POST', '/v1/exports', { type: 'SHOPS_XLSX' }],
-    ['PATCH', `/v1/shops/${id}`, { version: 1 }], ['PUT', `/v1/shops/${id}/contacts`, { contacts: [] }], ['POST', '/v1/shops/bulk-delete', { shopIds: [id] }],
+    ['PATCH', `/v1/shops/${id}`, { version: 1 }], ['PUT', `/v1/shops/${id}/contacts`, { contacts: [] }], ['POST', '/v1/shops/bulk/delete', { shopIds: [id] }], ['POST', '/v1/shops/bulk/assign', { shopIds: [id], agentId: null }],
     ['POST', '/v1/products', {}], ['GET', '/v1/routes', undefined]
   ]
   for (const [method, url, payload] of calls) {
