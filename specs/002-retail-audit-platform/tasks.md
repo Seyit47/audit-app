@@ -312,7 +312,7 @@ sessions.
 
 ### Tests ⚠️
 
-- [ ] T075 [P] [US3] Write failing tests in `apps/api/test/route-generator.test.ts`:
+- [X] T075 [P] [US3] Write failing tests in `apps/api/test/route-generator.test.ts`:
   - only assigned, non-deleted, ACTIVE shops with `nextDueAt <= date` are selected, overdue first
   - the count is capped at `dailyVisitPlan`, and the first `dailyAuditPlan` stops are audit tasks
   - agents on Отпуск or deactivated get no route
@@ -320,18 +320,18 @@ sessions.
   - it is idempotent per (agent, date)
   - the end-of-day job marks the remaining stops MISSED
   - the re-order after DONE starts from that shop
-- [ ] T076 [P] [US3] Write failing tests in `apps/api/test/routes.test.ts`: `GET /v1/routes/today` returns only the agent's own route, and `GET /v1/shops/counts` + `GET /v1/shops/map` match the route and visit states
+- [X] T076 [P] [US3] Write failing tests in `apps/api/test/routes.test.ts`: `GET /v1/routes/today` returns only the agent's own route, and `GET /v1/shops/counts` + `GET /v1/shops/map` match the route and visit states
 - [ ] T077 [P] [US3] Write failing tests in `apps/mobile/test/features/shops/visit_state_test.dart` (scheduled / overdue with days / visited / not visited) and `apps/mobile/test/core/sync/pull_service_test.dart` (shops, contacts and today's route land in drift; cursors advance)
 
 ### Implementation
 
-- [ ] T078 [US3] Implement the route generator in `apps/api/src/modules/routes/route-generator.ts` and the jobs in `apps/api/src/jobs/routes.ts`:
+- [X] T078 [US3] Implement the route generator in `apps/api/src/modules/routes/route-generator.ts` and the jobs in `apps/api/src/jobs/routes.ts`:
   - daily at `company_settings.workStart`
   - end-of-day misses at `company_settings.workEnd` (company time zone); both are re-scheduled when settings change
   - re-order after DONE
 
   Add CLI scripts `job:routes` and `job:end-of-day` to `apps/api/package.json`
-- [ ] T079 [US3] Implement the routes module in `apps/api/src/modules/routes/` (`GET /v1/routes/today`), and `GET /v1/shops/counts` + `GET /v1/shops/map` in `apps/api/src/modules/shops/`
+- [X] T079 [US3] Implement the routes module in `apps/api/src/modules/routes/` (`GET /v1/routes/today`), and `GET /v1/shops/counts` + `GET /v1/shops/map` in `apps/api/src/modules/shops/`
 - [ ] T080 [US3] Implement drift-backed repositories in `apps/mobile/lib/features/shops/data/shops_local_repository.dart` and `lib/features/route/data/route_local_repository.dart`, plus `lib/features/shops/domain/visit_state.dart`
 - [ ] T081 [US3] Build agent Home from Figma `83:16786` / `101:1880` in `apps/mobile/lib/features/home/presentation/agent_home_screen.dart`: avatar (sign-out menu), theme toggle, RU/EN, "Начать аудит" (opens the next route stop's audit), Мои магазины, Карта, Галерея, sync status
 - [ ] T082 [US3] Build Shops from Figma `83:16884` / `101:1985` in `apps/mobile/lib/features/shops/presentation/shops_screen.dart`: title + count, Добавить, search, chips Все/Запланирован/Просрочен/Пройден with counts, the Filters button → `filter_sheet` (B3), tiles, pull-to-refresh

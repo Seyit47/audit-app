@@ -1,5 +1,5 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox'
-import { BulkAssignBody, BulkDeleteBody, ContactsBody, CreateShopBody, IdParams, ListShopsQuery, PatchShopBody, VisitsQuery } from '../../../modules/shops/shops.schema.js'
+import { BulkAssignBody, BulkDeleteBody, ContactsBody, CreateShopBody, IdParams, ListShopsQuery, MapQuery, PatchShopBody, VisitsQuery } from '../../../modules/shops/shops.schema.js'
 
 const shops: FastifyPluginAsyncTypebox = async (fastify) => {
   const service = fastify.services.shops
@@ -12,6 +12,10 @@ const shops: FastifyPluginAsyncTypebox = async (fastify) => {
     const { status, shop } = await service.create(req.user, req.body)
     return reply.status(status).send(shop)
   })
+
+  fastify.get('/counts', { schema: { tags }, config: { auth: 'AGENT' } }, async (req) => service.counts(req.user.id))
+
+  fastify.get('/map', { schema: { querystring: MapQuery, tags }, config: { auth: 'ANY' } }, async (req) => service.map(req.user, req.query))
 
   fastify.post('/bulk/assign', { schema: { body: BulkAssignBody, tags }, config: { auth: 'ADMIN' } },
     async (req) => service.bulkAssign(req.body.shopIds, req.body.agentId))

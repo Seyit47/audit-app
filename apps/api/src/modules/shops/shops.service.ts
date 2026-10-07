@@ -6,10 +6,22 @@ import type { PhotosRepository } from '../photos/photos.repository.js'
 import { photoView } from '../photos/photo.view.js'
 import type { SettingsService } from '../settings/settings.service.js'
 import { isUniqueViolation, type ShopsRepository } from './shops.repository.js'
-import type { ContactsBody, CreateShopBody, ListShopsQuery, PatchShopBody } from './shops.schema.js'
+import type { ContactsBody, CreateShopBody, ListShopsQuery, MapQuery, PatchShopBody } from './shops.schema.js'
+import { localDate, startOfLocalDay } from '../../lib/time.js'
 import { facadeView, shopView } from './shop.view.js'
 
 const pct = (part: number, all: number) => (all === 0 ? null : Math.round((part / all) * 100))
+
+export type VisitState = 'VISITED' | 'OVERDUE' | 'SCHEDULED' | 'ASSIGNED'
+
+/** Пройден > Просрочен > Запланирован > Assigned (83:16884 chips). */
+export function visitState (s: { lastVisitAt: Date | null, nextDueAt: Date | null, id: string }, dayStart: Date, planned: Set<string>): VisitState {
+  const dayEnd = new Date(dayStart.getTime() + 86_400_000)
+  if (s.lastVisitAt != null && s.lastVisitAt >= dayStart) return 'VISITED'
+  if (s.nextDueAt != null && s.nextDueAt < dayStart) return 'OVERDUE'
+  if (planned.has(s.id) || (s.nextDueAt != null && s.nextDueAt < dayEnd)) return 'SCHEDULED'
+  return 'ASSIGNED'
+}
 
 /** Shops (US4, US5): admin management, agent scope and sync, visit history. */
 export class ShopsService {
@@ -178,6 +190,54 @@ export class ShopsService {
       nextCursor: merged.length > limit && lastItem != null ? encodeCursor(lastItem.at, lastItem.id) : null,
       totals: { all: completed + missedCount, completed, missed: missedCount }
     }
+  }
+
+  private async today () {
+    const tz = (await this.settings.get()).timezone
+    const day = localDate(new Date(), tz)
+    return { dayStart: startOfLocalDay(day, tz), date: new Date(`${day}T00:00:00Z`) }
+  }
+
+  /** Chip counts of the agent Shops screen (83:16884). */
+  async counts (agentId: string) {
+    const { dayStart, date } = await this.today()
+    const [shops, planned] = await Promise.all([
+      this.repo.mapShops({ assignedAgentId: agentId, status: { not: 'INACTIVE' } }),
+      this.repo.plannedToday(agentId, date)
+    ])
+    const c = { all: shops.length, scheduled: 0, overdue: 0, visited: 0, assigned: 0 }
+    for (const s of shops) {
+      const st = visitState(s, dayStart, planned)
+      c[st === 'VISITED' ? 'visited' : st === 'OVERDUE' ? 'overdue' : st === 'SCHEDULED' ? 'scheduled' : 'assigned']++
+    }
+    return c
+  }
+
+  /** Map markers (21:2, 83:17636): agents get their own shops; admins can filter. */
+  async map (user: AuthUser, q: MapQuery) {
+    const { dayStart, date } = await this.today()
+    const where = user.role === 'AGENT'
+      ? { assignedAgentId: user.id, status: { not: 'INACTIVE' as const } }
+      : {
+          ...(q.agentIds?.length ? { assignedAgentId: { in: q.agentIds } } : {}),
+          ...(q.regionIds?.length ? { regionId: { in: q.regionIds } } : {}),
+          ...(q.ids?.length ? { id: { in: q.ids } } : {}),
+          ...(q.status ? { status: q.status } : {})
+        }
+    const [shops, planned] = await Promise.all([this.repo.mapShops(where), this.repo.plannedToday(user.role === 'AGENT' ? user.id : null, date)])
+    return Promise.all(shops.map(async (s) => ({
+      id: s.id,
+      code: s.code,
+      name: s.name,
+      address: s.address,
+      lat: s.lat,
+      lng: s.lng,
+      status: s.status,
+      agentId: s.assignedAgentId,
+      visitState: visitState(s, dayStart, planned),
+      lastVisitAt: s.lastVisitAt?.toISOString() ?? null,
+      thumbUrl: (await this.facade(s.facadePhotoId))?.previewUrl400 ?? null
+    })))
   }
 
   async assertVisible (user: AuthUser, shopId: string) {

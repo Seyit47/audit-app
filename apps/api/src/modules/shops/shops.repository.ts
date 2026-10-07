@@ -186,6 +186,23 @@ export class ShopsRepository {
     })
   }
 
+  mapShops (where: Prisma.ShopWhereInput) {
+    return this.prisma.shop.findMany({
+      where: { deletedAt: null, ...where },
+      select: { id: true, code: true, name: true, address: true, lat: true, lng: true, status: true, assignedAgentId: true, facadePhotoId: true, lastVisitAt: true, nextDueAt: true },
+      orderBy: { code: 'asc' }
+    })
+  }
+
+  /** Shops on the agent's route for the date that are still to visit. */
+  async plannedToday (agentId: string | null, date: Date) {
+    const stops = await this.prisma.routeStop.findMany({
+      where: { route: { date, ...(agentId ? { agentId } : {}) }, status: { in: ['PLANNED', 'IN_PROGRESS'] } },
+      select: { shopId: true }
+    })
+    return new Set(stops.map((s) => s.shopId))
+  }
+
   isAssigned (shopId: string, agentId: string) {
     return this.prisma.shop.count({ where: { id: shopId, assignedAgentId: agentId, deletedAt: null } }).then((n) => n > 0)
   }

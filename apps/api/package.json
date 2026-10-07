@@ -17,7 +17,9 @@
     "admin:create": "tsx scripts/admin.ts create",
     "admin:reset-password": "tsx scripts/admin.ts reset-password",
     "typecheck": "tsc --noEmit && tsc -p test/tsconfig.json",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "job:routes": "FASTIFY_AUTOLOAD_TYPESCRIPT=1 tsx scripts/jobs.ts routes",
+    "job:end-of-day": "FASTIFY_AUTOLOAD_TYPESCRIPT=1 tsx scripts/jobs.ts end-of-day"
   },
   "keywords": [],
   "dependencies": {

@@ -67,3 +67,11 @@ export const VisitsQuery = Type.Object({
 }, { additionalProperties: false })
 
 export const IdParams = Type.Object({ id: Uuid })
+
+export const MapQuery = Type.Object({
+  agentIds: Type.Optional(Type.Array(Uuid)),
+  regionIds: Type.Optional(Type.Array(Uuid)),
+  ids: Type.Optional(Type.Array(Uuid)),
+  status: Type.Optional(ShopStatus)
+}, { additionalProperties: false })
+export type MapQuery = Static<typeof MapQuery>
