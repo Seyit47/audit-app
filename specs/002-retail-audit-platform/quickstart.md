@@ -67,3 +67,21 @@ flutter build appbundle --dart-define-from-file=env/prod.json
 
 **Expected**: `/health` is ok, the admin web is served over HTTPS behind the reverse proxy, and
 the app points to the production API.
+
+## Validation log (2026-10-07)
+
+- **Tests**: API 78/78 (scoping, offline soak, uploads, routes, audits…), mobile 32/32, admin web
+  build passes. API `build:ts` and the compiled server start (`/health` ok, login ok).
+- **Web**: every admin page was driven in Chrome (sign-in, salesmen, salesman details, shops, map
+  with filters and shop card, pictures upload, products, settings, bell feed) and compared with its
+  Figma frame.
+- **Mobile**: screens rendered at 390 px light/dark with `test_screens` and compared with the
+  frames. The debug APK ran on an Android 15 emulator: agent sign-in → location screen → Home →
+  Shops → Shop details → Audit (geofence inside the radius, camera photo, comment) → Finish while
+  the sync was failing, then both queued audits reached the server with their photos; agent Map
+  with tiles, pins and the shop sheet; admin Home and Gallery. This run found and fixed the
+  empty-JSON upload 500 and the pin size.
+- **Open**: `docker compose --profile prod` (Docker isn't installed on the dev machine),
+  `flutter build appbundle` with the release keystore, SC-001 (audit < 2 min) and SC-008
+  (cold start < 2 s) timed on a mid-range phone, and replacing the 41 approximated icons listed
+  in `design/figma/pending-icons.txt` with exact Figma exports once the Figma API limit resets.
