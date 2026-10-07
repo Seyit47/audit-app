@@ -26,6 +26,9 @@ export default fp(async (fastify) => {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2003') {
       return send(400, 'VALIDATION_FAILED', 'Referenced record does not exist')
     }
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+      return send(409, 'CONFLICT', 'A record with these values already exists')
+    }
     if (e.statusCode === 429) return send(429, 'RATE_LIMITED', 'Too many requests')
     if (e.statusCode === 401) return send(401, 'UNAUTHENTICATED', 'Authentication required')
     request.log.error({ err }, 'Unhandled error')
