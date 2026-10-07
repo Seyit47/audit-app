@@ -841,6 +841,96 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Магазин сохранён и отправлен на проверку'**
   String get shopSaved;
+
+  /// No description provided for @galleryTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Галерея'**
+  String get galleryTitle;
+
+  /// No description provided for @galleryLibrary.
+  ///
+  /// In ru, this message translates to:
+  /// **'Медиатека инспекций'**
+  String get galleryLibrary;
+
+  /// No description provided for @photoCount.
+  ///
+  /// In ru, this message translates to:
+  /// **'{count} фото'**
+  String photoCount(int count);
+
+  /// No description provided for @cloudUpToDate.
+  ///
+  /// In ru, this message translates to:
+  /// **'Облако актуально'**
+  String get cloudUpToDate;
+
+  /// No description provided for @quickSearch.
+  ///
+  /// In ru, this message translates to:
+  /// **'Быстрый поиск'**
+  String get quickSearch;
+
+  /// No description provided for @filterParams.
+  ///
+  /// In ru, this message translates to:
+  /// **'Параметры фильтрации'**
+  String get filterParams;
+
+  /// No description provided for @filterDate.
+  ///
+  /// In ru, this message translates to:
+  /// **'Дата'**
+  String get filterDate;
+
+  /// No description provided for @dateToday.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сегодня'**
+  String get dateToday;
+
+  /// No description provided for @date7.
+  ///
+  /// In ru, this message translates to:
+  /// **'7 дней'**
+  String get date7;
+
+  /// No description provided for @date30.
+  ///
+  /// In ru, this message translates to:
+  /// **'30 дней'**
+  String get date30;
+
+  /// No description provided for @filterShop.
+  ///
+  /// In ru, this message translates to:
+  /// **'Магазин'**
+  String get filterShop;
+
+  /// No description provided for @todayDate.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сегодня, {date}'**
+  String todayDate(String date);
+
+  /// No description provided for @relatedPhotos.
+  ///
+  /// In ru, this message translates to:
+  /// **'Связанные фото аудита ({count})'**
+  String relatedPhotos(int count);
+
+  /// No description provided for @noPhotos.
+  ///
+  /// In ru, this message translates to:
+  /// **'Фото пока нет'**
+  String get noPhotos;
+
+  /// No description provided for @searchShop.
+  ///
+  /// In ru, this message translates to:
+  /// **'Поиск по магазину'**
+  String get searchShop;
 }
 
 class _AppLocalizationsDelegate

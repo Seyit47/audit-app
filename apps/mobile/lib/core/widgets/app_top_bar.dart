@@ -7,9 +7,12 @@ import 'app_icon.dart';
 
 /// Screen header of `83:16884`: back, title, optional count badge and an action on the right.
 class AppTopBar extends StatelessWidget {
-  const AppTopBar({super.key, this.title, this.count, this.action, this.onBack});
+  const AppTopBar({super.key, this.title, this.titleWidget, this.count, this.action, this.onBack});
 
   final String? title;
+
+  /// Replaces [title] (e.g. the date and time of the photo detail, `83:18045`).
+  final Widget? titleWidget;
   final int? count;
   final Widget? action;
   final VoidCallback? onBack;
@@ -21,40 +24,52 @@ class AppTopBar extends StatelessWidget {
       height: 64,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(children: [
-          SizedBox(
-            width: 36,
-            height: 44,
-            child: OverflowBox(
-              maxWidth: 44,
-              child: IconButton(
-                onPressed: onBack ?? () => context.pop(),
-                tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-                icon: AppIcon('back', width: 11.77, height: 20, color: c.textPrimary),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 36,
+              height: 44,
+              child: OverflowBox(
+                maxWidth: 44,
+                child: IconButton(
+                  onPressed: onBack ?? () => context.pop(),
+                  tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                  icon: AppIcon('back', width: 11.77, height: 20, color: c.textPrimary),
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Row(children: [
-              if (title != null)
-                Flexible(
-                  child: Text(title!, overflow: TextOverflow.ellipsis, maxLines: 1,
-                      style: AppTextStyles.title.copyWith(fontSize: 20, height: 1.5, letterSpacing: -0.5, color: c.textPrimary)),
-                ),
-              if (count != null) ...[
-                const SizedBox(width: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(color: c.darkAccent, borderRadius: BorderRadius.circular(999)),
-                  child: Text('$count', style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 11, height: 1.5, fontWeight: FontWeight.w600, color: c.accent)),
-                ),
-              ],
-            ]),
-          ),
-          if (action != null) const SizedBox(width: 12),
-          ?action,
-        ]),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Row(
+                children: [
+                  if (titleWidget != null) Flexible(child: titleWidget!),
+                  if (title != null)
+                    Flexible(
+                      child: Text(
+                        title!,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: AppTextStyles.title.copyWith(fontSize: 20, height: 1.5, letterSpacing: -0.5, color: c.textPrimary),
+                      ),
+                    ),
+                  if (count != null) ...[
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(color: c.darkAccent, borderRadius: BorderRadius.circular(999)),
+                      child: Text(
+                        '$count',
+                        style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 11, height: 1.5, fontWeight: FontWeight.w600, color: c.accent),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            if (action != null) const SizedBox(width: 12),
+            ?action,
+          ],
+        ),
       ),
     );
   }
@@ -86,10 +101,16 @@ class HeaderButton extends StatelessWidget {
             height: 36,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: Row(mainAxisSize: MainAxisSize.min, children: [
-                if (icon != null) ...[AppIcon(icon!, width: 10.5, height: 10.5), const SizedBox(width: 6)],
-                Text(label, style: const TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 1.5, fontWeight: FontWeight.w600, color: Colors.white)),
-              ]),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (icon != null) ...[AppIcon(icon!, width: 10.5, height: 10.5), const SizedBox(width: 6)],
+                  Text(
+                    label,
+                    style: const TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 1.5, fontWeight: FontWeight.w600, color: Colors.white),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

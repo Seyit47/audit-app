@@ -430,4 +430,55 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shopSaved => 'Shop saved and sent for review';
+
+  @override
+  String get galleryTitle => 'Gallery';
+
+  @override
+  String get galleryLibrary => 'Inspection library';
+
+  @override
+  String photoCount(int count) {
+    return '$count photos';
+  }
+
+  @override
+  String get cloudUpToDate => 'Cloud up to date';
+
+  @override
+  String get quickSearch => 'Quick search';
+
+  @override
+  String get filterParams => 'Filter options';
+
+  @override
+  String get filterDate => 'Date';
+
+  @override
+  String get dateToday => 'Today';
+
+  @override
+  String get date7 => '7 days';
+
+  @override
+  String get date30 => '30 days';
+
+  @override
+  String get filterShop => 'Shop';
+
+  @override
+  String todayDate(String date) {
+    return 'Today, $date';
+  }
+
+  @override
+  String relatedPhotos(int count) {
+    return 'Related audit photos ($count)';
+  }
+
+  @override
+  String get noPhotos => 'No photos yet';
+
+  @override
+  String get searchShop => 'Search by shop';
 }

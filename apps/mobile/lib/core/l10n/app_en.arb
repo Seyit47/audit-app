@@ -123,5 +123,20 @@
   "photoNotTaken": "No photo yet",
   "storefrontHint": "Photograph the shop front and its sign",
   "retake": "Retake",
-  "shopSaved": "Shop saved and sent for review"
+  "shopSaved": "Shop saved and sent for review",
+  "galleryTitle": "Gallery",
+  "galleryLibrary": "Inspection library",
+  "photoCount": "{count} photos",
+  "cloudUpToDate": "Cloud up to date",
+  "quickSearch": "Quick search",
+  "filterParams": "Filter options",
+  "filterDate": "Date",
+  "dateToday": "Today",
+  "date7": "7 days",
+  "date30": "30 days",
+  "filterShop": "Shop",
+  "todayDate": "Today, {date}",
+  "relatedPhotos": "Related audit photos ({count})",
+  "noPhotos": "No photos yet",
+  "searchShop": "Search by shop"
 }

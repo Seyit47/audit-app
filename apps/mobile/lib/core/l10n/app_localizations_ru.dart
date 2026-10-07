@@ -431,4 +431,55 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get shopSaved => 'Магазин сохранён и отправлен на проверку';
+
+  @override
+  String get galleryTitle => 'Галерея';
+
+  @override
+  String get galleryLibrary => 'Медиатека инспекций';
+
+  @override
+  String photoCount(int count) {
+    return '$count фото';
+  }
+
+  @override
+  String get cloudUpToDate => 'Облако актуально';
+
+  @override
+  String get quickSearch => 'Быстрый поиск';
+
+  @override
+  String get filterParams => 'Параметры фильтрации';
+
+  @override
+  String get filterDate => 'Дата';
+
+  @override
+  String get dateToday => 'Сегодня';
+
+  @override
+  String get date7 => '7 дней';
+
+  @override
+  String get date30 => '30 дней';
+
+  @override
+  String get filterShop => 'Магазин';
+
+  @override
+  String todayDate(String date) {
+    return 'Сегодня, $date';
+  }
+
+  @override
+  String relatedPhotos(int count) {
+    return 'Связанные фото аудита ($count)';
+  }
+
+  @override
+  String get noPhotos => 'Фото пока нет';
+
+  @override
+  String get searchShop => 'Поиск по магазину';
 }

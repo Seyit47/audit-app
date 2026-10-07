@@ -22,6 +22,12 @@ Future<void> seed(AppDatabase db) async {
         ));
     await db.into(db.shopContacts).insert(ShopContactsCompanion.insert(id: 'c$i', shopId: id, phone: '+993 62 11233', label: const Value('Администратор'), position: 0));
   }
+  for (var i = 0; i < 18; i++) {
+    final taken = (i < 7 ? today : today.subtract(Duration(days: 3 + i ~/ 8))).add(Duration(hours: 9, minutes: i * 7));
+    await db.into(db.photos).insert(PhotosCompanion.insert(
+          id: 'ph$i', kind: 'AUDIT', auditId: Value(i < 5 ? 'a1' : 'a$i'), shopId: const Value('s0'), mime: 'image/jpeg', sizeBytes: 1, sha256: 'x',
+          takenAt: taken, status: const Value('READY')));
+  }
   await db.into(db.routes).insert(RoutesCompanion.insert(id: 'r1', date: today, updatedAt: now));
   for (final (i, shop) in ['s3', 's4', 's5'].indexed) {
     await db.into(db.routeStops).insert(RouteStopsCompanion.insert(

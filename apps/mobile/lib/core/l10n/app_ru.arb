@@ -283,5 +283,41 @@
   "photoNotTaken": "Фото ещё не сделано",
   "storefrontHint": "Сфотографируйте фасад и вывеску магазина",
   "retake": "Переснять",
-  "shopSaved": "Магазин сохранён и отправлен на проверку"
+  "shopSaved": "Магазин сохранён и отправлен на проверку",
+  "galleryTitle": "Галерея",
+  "galleryLibrary": "Медиатека инспекций",
+  "photoCount": "{count} фото",
+  "@photoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cloudUpToDate": "Облако актуально",
+  "quickSearch": "Быстрый поиск",
+  "filterParams": "Параметры фильтрации",
+  "filterDate": "Дата",
+  "dateToday": "Сегодня",
+  "date7": "7 дней",
+  "date30": "30 дней",
+  "filterShop": "Магазин",
+  "todayDate": "Сегодня, {date}",
+  "@todayDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "relatedPhotos": "Связанные фото аудита ({count})",
+  "@relatedPhotos": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noPhotos": "Фото пока нет",
+  "searchShop": "Поиск по магазину"
 }

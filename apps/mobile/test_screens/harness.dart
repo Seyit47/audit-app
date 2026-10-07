@@ -4,6 +4,8 @@ import 'dart:ui' as ui;
 import 'package:audit_mobile/core/db/app_database.dart';
 import 'package:audit_mobile/core/db/database_provider.dart';
 import 'package:audit_mobile/core/l10n/app_localizations.dart';
+import 'package:audit_mobile/core/sync/sync_providers.dart';
+import 'package:audit_mobile/core/sync/sync_status.dart';
 import 'package:audit_mobile/core/theme/app_theme.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
@@ -54,7 +56,7 @@ Future<void> shoot(
   tester.view.physicalSize = Size(390 * 2, height * 2);
   tester.view.devicePixelRatio = 2;
   addTearDown(tester.view.reset);
-  final container = ProviderContainer(overrides: [databaseProvider.overrideWithValue(db), ...overrides]);
+  final container = ProviderContainer(overrides: [databaseProvider.overrideWithValue(db), syncStatusProvider.overrideWithValue(SyncStatus.synced), ...overrides]);
   addTearDown(container.dispose);
   if (before != null) await tester.runAsync(() => before(container));
   await tester.pumpWidget(UncontrolledProviderScope(
