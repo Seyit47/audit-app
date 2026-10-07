@@ -352,7 +352,7 @@ sessions.
 
 ### Tests ⚠️
 
-- [ ] T086 [P] [US2] Write failing tests in `apps/api/test/audits.test.ts`:
+- [X] T086 [P] [US2] Write failing tests in `apps/api/test/audits.test.ts`:
   - **check-start**: 422 GEOFENCE outside `auditRadiusM` (with distance), 422 GPS_ACCURACY above 50 m
   - **create**: idempotent on id. It requires 1–20 of the caller's own READY AUDIT photos with `auditId` NULL, links them in the same transaction (a photo already linked → 409), and requires a comment
   - **server computations**: distanceM, withinRadius, clockSkewFlag (> 10 min); updates the shop's lastVisitAt/nextDueAt and the stop DONE; auto-verifies photos when withinRadius and there is no skew
@@ -370,7 +370,7 @@ sessions.
 
 ### Implementation
 
-- [ ] T088 [US2] Implement the audits module in `apps/api/src/modules/audits/` (routes, service, a repository with no update/delete, schema, `audit.view.ts`): check-start, create (transactional linking and the computations above), list, get
+- [X] T088 [US2] Implement the audits module in `apps/api/src/modules/audits/` (routes, service, a repository with no update/delete, schema, `audit.view.ts`): check-start, create (transactional linking and the computations above), list, get
 - [ ] T089 [US2] Implement the camera capture in `apps/mobile/lib/core/widgets/photo_capture.dart` (camera only; file + takenAt + GPS saved before anything else) and the draft persistence in `apps/mobile/lib/features/audit/data/audit_local_repository.dart`
 - [ ] T090 [US2] Implement `apps/mobile/lib/features/audit/presentation/audit_controller.dart` (locate, geofence, photos, comment, violation chip state, finish → outbox, local stop status)
 - [ ] T091 [US2] Build the Audit screen from Figma `83:17207` → `83:17285` / `106:4374` → `106:6229` in `apps/mobile/lib/features/audit/presentation/audit_screen.dart`:

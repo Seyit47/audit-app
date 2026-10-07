@@ -11,6 +11,8 @@ import { ShopsRepository } from '../modules/shops/shops.repository.js'
 import { ShopsService } from '../modules/shops/shops.service.js'
 import { ExportsService } from '../modules/exports/exports.service.js'
 import { RoutesService } from '../modules/routes/routes.service.js'
+import { AuditsRepository } from '../modules/audits/audits.repository.js'
+import { AuditsService } from '../modules/audits/audits.service.js'
 
 /** Composition root: builds repositories and services once and exposes them to routes. */
 export function buildServices (app: import('fastify').FastifyInstance) {
@@ -26,6 +28,7 @@ export function buildServices (app: import('fastify').FastifyInstance) {
     shops: new ShopsService(shopsRepo, photos, app.storage, settings),
     exports: new ExportsService(app.prisma, app.jobs, app.storage),
     routes: new RoutesService(app.prisma, settings),
+    audits: new AuditsService(new AuditsRepository(app.prisma), settings, app.storage, app.jobs),
     uploads: new UploadsService(photos, app.storage, app.jobs)
   }
 }
