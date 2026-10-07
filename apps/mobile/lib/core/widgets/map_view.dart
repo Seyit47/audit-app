@@ -147,8 +147,9 @@ class _AppMapViewState extends State<AppMapView> {
     final style = _style;
     if (style == null) return ColoredBox(color: Theme.of(context).scaffoldBackgroundColor);
     final start = widget.initial ?? (widget.markers.isEmpty ? (37.95, 58.38) : (widget.markers.first.lat, widget.markers.first.lng));
+    // A theme change swaps the style on the existing map (MapLibre reloads it in place and calls
+    // _onStyleLoaded again) instead of destroying and recreating the native map view.
     return MapLibreMap(
-      key: ValueKey(_brightness),
       styleString: style,
       initialCameraPosition: CameraPosition(target: LatLng(start.$1, start.$2), zoom: 13),
       myLocationEnabled: true,

@@ -5,8 +5,12 @@ import 'app_colors.dart';
 import 'app_text_styles.dart';
 
 abstract final class AppTheme {
-  static ThemeData light() => _build(AppColors.light, Brightness.light);
-  static ThemeData dark() => _build(AppColors.dark, Brightness.dark);
+  // Built once: ColorScheme.fromSeed generates whole tonal palettes, and a new ThemeData instance on every
+  // rebuild would make MaterialApp treat the theme as changed.
+  static final ThemeData _light = _build(AppColors.light, Brightness.light);
+  static final ThemeData _dark = _build(AppColors.dark, Brightness.dark);
+  static ThemeData light() => _light;
+  static ThemeData dark() => _dark;
 
   static ThemeData _build(AppColors c, Brightness brightness) {
     final scheme = ColorScheme.fromSeed(seedColor: c.accent, brightness: brightness).copyWith(
