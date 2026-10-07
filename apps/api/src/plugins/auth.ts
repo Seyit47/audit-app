@@ -55,7 +55,8 @@ export default fp(async (fastify) => {
   fastify.addHook('onRoute', (route) => {
     const required = route.config?.auth
     if (!required) return
-    const existing = route.preHandler ? [route.preHandler].flat() : []
-    route.preHandler = [guard(required, route.config?.grace === true), ...existing]
+    // onRequest: the role check runs before body validation, so a wrong role gets 403, not 400.
+    const existing = route.onRequest ? [route.onRequest].flat() : []
+    route.onRequest = [...existing, guard(required, route.config?.grace === true)]
   })
 }, { name: 'auth', dependencies: ['env', 'errors'] })

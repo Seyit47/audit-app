@@ -91,7 +91,7 @@ class HttpSyncApi implements SyncApi {
 
   @override
   Future<ShopsPage> shops({String? updatedAfter}) async {
-    final res = await _api.get<Map<String, dynamic>>('/shops', query: {'mine': true, 'updatedAfter': ?updatedAfter});
+    final res = await _api.get<Map<String, dynamic>>('/shops', query: {'updatedAfter': ?updatedAfter});
     return ShopsPage(
       items: [for (final item in res['items'] as List) ShopRecord(json: (item as Map).cast<String, Object?>())],
       tombstones: [for (final id in res['tombstones'] as List? ?? const []) id as String],
