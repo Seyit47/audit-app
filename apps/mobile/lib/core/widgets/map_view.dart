@@ -65,10 +65,12 @@ class _AppMapViewState extends State<AppMapView> {
   bool _ready = false;
   final _symbols = <String, Symbol>{};
   final _added = <String>{};
+  double _dpr = 3;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _dpr = MediaQuery.devicePixelRatioOf(context);
     final b = Theme.of(context).brightness;
     if (b != _brightness) {
       _brightness = b;
@@ -115,7 +117,8 @@ class _AppMapViewState extends State<AppMapView> {
         await map.addImage(m.imageKey, await renderPin(m.color, await _photo(m.imageUrl)));
         _added.add(m.imageKey);
       }
-      final options = SymbolOptions(geometry: LatLng(m.lat, m.lng), iconImage: m.imageKey, iconAnchor: 'bottom', iconSize: 1 / _pinScale);
+      // MapLibre sizes icons in physical pixels: the 3x pin at devicePixelRatio / 3 is 37 dp wide.
+      final options = SymbolOptions(geometry: LatLng(m.lat, m.lng), iconImage: m.imageKey, iconAnchor: 'bottom', iconSize: _dpr / _pinScale);
       final existing = _symbols[m.id];
       if (existing == null) {
         _symbols[m.id] = await map.addSymbol(options, {'id': m.id});
