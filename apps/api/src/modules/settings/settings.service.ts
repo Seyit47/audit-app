@@ -15,6 +15,9 @@ export class SettingsService {
 
   onChange (listener: Listener): void { this.listeners.push(listener) }
 
+  /** Drops the cache (tests and the operator CLI change settings directly). */
+  invalidate (): void { this.cached = undefined }
+
   async get (): Promise<CompanySettings> {
     if (this.cached && Date.now() - this.cached.at < CACHE_MS) return this.cached.value
     const value = await this.prisma.companySettings.upsert({ where: { id: 1 }, update: {}, create: { id: 1 } })

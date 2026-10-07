@@ -15,4 +15,5 @@ export async function resetDb (app: FastifyInstance): Promise<void> {
     await app.prisma.$executeRawUnsafe(`ALTER TABLE "Audit" ENABLE TRIGGER audit_immutable; ALTER TABLE "Photo" ENABLE TRIGGER audit_photo_guard;`)
   }
   await app.prisma.companySettings.upsert({ where: { id: 1 }, update: { companyName: 'COMPANY NAME', workStart: '00:00', workEnd: '23:59', timezone: 'Asia/Ashgabat', visitFrequencyDays: 7, defaultAuditRadiusM: 100, minGpsAccuracyM: 50, noSignalMinutes: 45 }, create: { id: 1, workStart: '00:00', workEnd: '23:59' } })
+  app.services.settings.invalidate()
 }

@@ -407,11 +407,11 @@ sessions.
 
 ### Tests ⚠️
 
-- [ ] T097 [P] [US6] Write failing tests in `apps/api/test/tracking.test.ts`:
+- [X] T097 [P] [US6] Write failing tests in `apps/api/test/tracking.test.ts`:
   - pings are accepted only for ACTIVE agents within working hours (ON_LEAVE or outside hours → rejected)
   - batches of ≤ 200, `trigger` stored
   - `agent_positions` upserted
-- [ ] T098 [P] [US6] Write failing tests in `apps/api/test/agent-insights.test.ts`:
+- [X] T098 [P] [US6] Write failing tests in `apps/api/test/agent-insights.test.ts`:
   - `/agents/summary`: total staff, on route %, audits, shops visited and remaining, photos, needs contact (> 45 min without a ping while working)
   - timeline statuses and photo counts
   - the track polyline
@@ -425,8 +425,8 @@ sessions.
 
 ### Implementation
 
-- [ ] T100 [US6] Implement the tracking module in `apps/api/src/modules/tracking/` (`POST /v1/tracking/pings`, `GET /v1/agents/positions`)
-- [ ] T101 [US6] Add summary, timeline and track to `apps/api/src/modules/agents/`, and the agent report generators (pdfmake, exceljs) to `apps/api/src/jobs/exports.ts`
+- [X] T100 [US6] Implement the tracking module in `apps/api/src/modules/tracking/` (`POST /v1/tracking/pings`, `GET /v1/agents/positions`)
+- [X] T101 [US6] Add summary, timeline and track to `apps/api/src/modules/agents/`, and the agent report generators (pdfmake, exceljs) to `apps/api/src/jobs/exports.ts`
 - [ ] T102 [US6] Implement `apps/mobile/lib/core/location/tracker.dart`: geolocator foreground service gated by session + ACTIVE + working hours, geofences for today's stops, battery_plus, pings_buffer → outbox PINGS, the permission explanation screen first (A9), then the OS dialogs
 - [X] T103 [US6] Build the location-permission explanation screen (approved exception A9) in `apps/mobile/lib/features/permission/presentation/permission_screen.dart`, using only existing mobile components (icon tile from `83:16786`, text styles, `primary_button.dart`), RU/EN copy. It is shown once before tracking first needs background location, then requests the OS permissions
 - [ ] T104 [US6] Add the KPI cards, Дата от/до, Сегодня/Вчера/Текущая неделя, Top Performer / On Leave / Inactive badges and "Требуют связи (>45 мин)" from Figma `31:2307` to `apps/admin-web/src/app/(admin)/salesmen/page.tsx` + `src/features/agents/components/AgentsSummary.tsx`

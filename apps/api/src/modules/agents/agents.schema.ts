@@ -47,3 +47,7 @@ export const ListAgentsQuery = Type.Object({
 export type ListAgentsQuery = Static<typeof ListAgentsQuery>
 
 export const IdParams = Type.Object({ id: Type.String({ format: 'uuid' }) })
+
+export const PeriodQuery = Type.Object({ from: Type.Optional(Day), to: Type.Optional(Day) }, { additionalProperties: false })
+export const DateQuery = Type.Object({ date: Type.Optional(Day) }, { additionalProperties: false })
+export const CursorQuery = Type.Object({ cursor: Type.Optional(Type.String()), limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 50 })) }, { additionalProperties: false })

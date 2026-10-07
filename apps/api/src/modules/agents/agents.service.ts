@@ -9,6 +9,7 @@ import type { PhotosRepository } from '../photos/photos.repository.js'
 import { photoView, type PhotoView } from '../photos/photo.view.js'
 import { isUniqueViolation, type AgentDetail, type AgentsRepository } from './agents.repository.js'
 import type { CreateAgentBody, ListAgentsQuery, PatchAgentBody } from './agents.schema.js'
+import type { AgentInsights } from './agent-insights.js'
 
 const invalid = (message: string) => new AppError(400, 'VALIDATION_FAILED', message)
 const temporaryPassword = () => randomBytes(9).toString('base64url')
@@ -21,11 +22,13 @@ export class AgentsService {
   private readonly settings: SettingsService
   private readonly photos: PhotosRepository
   private readonly storage: Storage
-  constructor (repo: AgentsRepository, settings: SettingsService, photos: PhotosRepository, storage: Storage) {
+  private readonly insights: AgentInsights
+  constructor (repo: AgentsRepository, settings: SettingsService, photos: PhotosRepository, storage: Storage, insights: AgentInsights) {
     this.repo = repo
     this.settings = settings
     this.photos = photos
     this.storage = storage
+    this.insights = insights
   }
 
   async list (query: ListAgentsQuery): Promise<Page<Awaited<ReturnType<AgentsService['row']>>>> {
@@ -47,10 +50,16 @@ export class AgentsService {
     return { items: rows.slice(skip, skip + take), total: rows.length, page, size }
   }
 
-  async get (id: string) {
+  async get (id: string, period?: { from?: string, to?: string }) {
     const agent = await this.repo.get(id)
     if (agent == null) throw notFound('Agent')
-    return this.view(agent)
+    const settings = await this.settings.get()
+    const seenAt = agent.position?.recordedAt
+    return {
+      ...await this.view(agent),
+      online: seenAt != null && Date.now() - seenAt.getTime() <= settings.noSignalMinutes * 60_000,
+      kpis: await this.insights.kpis(id, period?.from, period?.to)
+    }
   }
 
   async create (body: CreateAgentBody) {
