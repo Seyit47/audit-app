@@ -8,7 +8,7 @@ const MAX_THUMBS = 7
  * Visit history card of 47:7387: done (151:13021) and missed (151:13142). Missed visits have no
  * reason block, since no reason is collected (spec gap A2).
  */
-export function VisitHistoryItem ({ when, aside, status, statusLabel, thumbnailUrl, title, subtitle, comment, photos = [], morePhotosLabel, onPhoto }: {
+export function VisitHistoryItem ({ when, aside, status, statusLabel, thumbnailUrl, title, subtitle, comment, photos = [], morePhotosLabel, onPhoto, photoHref }: {
   when: string
   /** "Длительность: 30 мин" for done visits, "Отклонён" for missed ones. */
   aside: string
@@ -21,7 +21,9 @@ export function VisitHistoryItem ({ when, aside, status, statusLabel, thumbnailU
   comment?: ReactNode
   photos?: VisitPhoto[]
   morePhotosLabel?: (n: number) => string
+  /** Client callers pass `onPhoto`; server pages pass `photoHref` (event handlers can't cross to the client). */
   onPhoto?: (photo: VisitPhoto) => void
+  photoHref?: (photo: VisitPhoto) => string
 }) {
   const missed = status === 'missed'
   const shown = photos.length > MAX_THUMBS ? photos.slice(0, MAX_THUMBS) : photos
@@ -63,11 +65,9 @@ export function VisitHistoryItem ({ when, aside, status, statusLabel, thumbnailU
         <div className='flex items-center gap-1.5 pt-3'>
           {shown.map((p, i) => {
             const more = photos.length > MAX_THUMBS && i === MAX_THUMBS - 1
-            return (
-              <button
-                key={p.id} type='button' onClick={() => onPhoto?.(p)}
-                className='relative flex size-[60px] shrink-0 items-center justify-center overflow-hidden rounded-lg bg-dark-accent'
-              >
+            const cls = 'relative flex size-[60px] shrink-0 items-center justify-center overflow-hidden rounded-lg bg-dark-accent'
+            const inner = (
+              <>
                 {/* eslint-disable-next-line @next/next/no-img-element -- presigned preview URL */}
                 <img src={p.url} alt='' loading='lazy' className='absolute inset-0 size-full object-cover' />
                 {more && (
@@ -75,8 +75,11 @@ export function VisitHistoryItem ({ when, aside, status, statusLabel, thumbnailU
                     {morePhotosLabel?.(hidden) ?? `+${hidden}`}
                   </span>
                 )}
-              </button>
+              </>
             )
+            if (onPhoto != null) return <button key={p.id} type='button' onClick={() => onPhoto(p)} className={cls}>{inner}</button>
+            if (photoHref != null) return <a key={p.id} href={photoHref(p)} className={cls}>{inner}</a>
+            return <span key={p.id} className={cls}>{inner}</span>
           })}
         </div>
       )}

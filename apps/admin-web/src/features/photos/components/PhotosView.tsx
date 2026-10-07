@@ -22,7 +22,7 @@ function stamp (iso: string, l: Locale) {
 }
 
 /** Pictures of 53:1375 (grid) and 138:11987 (detail panel). */
-export function PhotosView ({ first, query, summary, regions, shops, copy, locale }: {
+export function PhotosView ({ first, query, summary, regions, shops, copy, locale, initialDetail = null }: {
   first: GalleryPage
   query: GalleryQuery
   summary: { total: number, today: number }
@@ -30,13 +30,15 @@ export function PhotosView ({ first, query, summary, regions, shops, copy, local
   shops: Array<{ id: string, name: string, code: string }>
   copy: PhotosCopy
   locale: Locale
+  /** Opened from `?photo=<id>` (e.g. a Salesman details photo report). */
+  initialDetail?: PhotoDetail | null
 }) {
   const { params, set } = useUrlState()
   const [items, setItems] = useState<GalleryPhoto[]>(first.items)
   const [cursor, setCursor] = useState<string | null>(first.nextCursor)
   const groups = first.groups ?? []
   const [loading, startLoading] = useTransition()
-  const [detail, setDetail] = useState<PhotoDetail | null>(null)
+  const [detail, setDetail] = useState<PhotoDetail | null>(initialDetail)
   const [showFilters, setShowFilters] = useState(true)
   const [uploading, setUploading] = useState(false)
   const mode = (params.get('mode') ?? 'grid') as 'grid' | 'byDate'

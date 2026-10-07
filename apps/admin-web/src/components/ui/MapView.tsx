@@ -16,8 +16,11 @@ export const DEFAULT_VIEW: Partial<ViewState> = { longitude: 58.383, latitude: 3
  * MapLibre canvas in the Figma 21:2 palette (`/map/style.json`, research R-12). Markers and
  * overlays are passed as children; controls are app UI positioned by the page.
  */
+/** A start view; `bounds` ([[west, south], [east, north]]) fits the camera to them instead. */
+export type InitialView = Partial<ViewState> & { bounds?: [[number, number], [number, number]], fitBoundsOptions?: { padding?: number | { top: number, bottom: number, left: number, right: number }, maxZoom?: number } }
+
 export const MapView = forwardRef<MapRef, {
-  initialView?: Partial<ViewState>
+  initialView?: InitialView
   mapStyle?: string
   children?: ReactNode
   onClick?: (point: { lng: number, lat: number }) => void

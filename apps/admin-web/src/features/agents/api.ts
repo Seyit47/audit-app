@@ -76,3 +76,38 @@ export interface AgentsSummary {
 }
 
 export const getAgentsSummary = (from?: string, to?: string) => api<AgentsSummary>('/v1/agents/summary', { query: { from, to } })
+
+export interface AgentDetails extends Agent {
+  online: boolean
+  kpis: { audits: number, assignedShops: number, visitedShops: number, photos: number }
+}
+
+export type StopStatus = 'PLANNED' | 'IN_PROGRESS' | 'DONE' | 'MISSED'
+
+export interface TimelineStop {
+  id: string
+  status: StopStatus
+  plannedAt: string
+  isAuditTask: boolean
+  shop: { id: string, name: string, code: string, lat: number, lng: number }
+  photoCount: number
+  audit: { id: string, startedAt: string, finishedAt: string, durationMin: number } | null
+}
+
+export interface AgentTrack {
+  points: Array<{ lat: number, lng: number, recordedAt: string, trigger: string }>
+  checkpoints: Array<{ id: string, status: StopStatus, lat: number, lng: number, name: string, at: string }>
+  current: { lat: number, lng: number, accuracyM: number, recordedAt: string } | null
+}
+
+type VisitShop = { id: string, name: string, code: string, address: string }
+export type AgentVisit =
+  | { type: 'AUDIT', id: string, at: string, startedAt: string, durationMin: number, shop: VisitShop, comment: string, hasViolation: boolean, photoCount: number, photos: Image[] }
+  | { type: 'MISSED', id: string, at: string, shop: VisitShop }
+
+export interface AgentVisits { items: AgentVisit[], nextCursor: string | null, totals: { all: number, completed: number, missed: number } }
+
+export const getAgentDetails = (id: string, from?: string, to?: string) => api<AgentDetails>(`/v1/agents/${id}`, { query: { from, to } })
+export const getTimeline = (id: string, date?: string) => api<TimelineStop[]>(`/v1/agents/${id}/timeline`, { query: { date } })
+export const getTrack = (id: string, date?: string) => api<AgentTrack>(`/v1/agents/${id}/track`, { query: { date } })
+export const getAgentVisits = (id: string, cursor?: string) => api<AgentVisits>(`/v1/agents/${id}/visits`, { query: { cursor } })

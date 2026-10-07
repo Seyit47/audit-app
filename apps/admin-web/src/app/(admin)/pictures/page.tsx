@@ -1,7 +1,7 @@
 import { listRegions } from '@/features/agents/api'
 import { PhotosView } from '@/features/photos/components/PhotosView'
 import { photosCopy } from '@/features/photos/copy'
-import type { GalleryPage, GalleryQuery } from '@/features/photos/types'
+import type { GalleryPage, GalleryQuery, PhotoDetail } from '@/features/photos/types'
 import { api } from '@/lib/api'
 import { getLocale } from '@/lib/locale'
 
@@ -19,15 +19,16 @@ export default async function PicturesPage ({ searchParams }: PageProps<'/pictur
   const sp = (await searchParams) as Search
   const locale = await getLocale()
   const query: GalleryQuery = { type: sp.type, regionId: sp.regionId, verified: sp.verified, from: since(sp.date), shopId: sp.shopId, agentId: sp.agentId, q: sp.q }
-  const [first, summary, regions, shops] = await Promise.all([
+  const [first, summary, regions, shops, detail] = await Promise.all([
     api<GalleryPage>('/v1/photos', { query: { ...query, limit: 24, groups: sp.mode === 'byDate' || undefined } }),
     api<{ total: number, today: number }>('/v1/photos/summary'),
     listRegions(),
-    api<{ items: Array<{ id: string, name: string, code: string }> }>('/v1/shops', { query: { size: 100, sort: 'name', dir: 'asc' } })
+    api<{ items: Array<{ id: string, name: string, code: string }> }>('/v1/shops', { query: { size: 100, sort: 'name', dir: 'asc' } }),
+    sp.photo != null ? api<PhotoDetail>(`/v1/photos/${sp.photo}`).catch(() => null) : Promise.resolve(null)
   ])
   return (
     <div className='flex flex-col gap-2.5 p-4'>
-      <PhotosView key={JSON.stringify([query, sp.mode])} first={first} query={query} summary={summary} regions={regions} shops={shops.items} copy={photosCopy[locale]} locale={locale} />
+      <PhotosView key={JSON.stringify([query, sp.mode])} first={first} query={query} summary={summary} regions={regions} shops={shops.items} copy={photosCopy[locale]} locale={locale} initialDetail={detail} />
     </div>
   )
 }

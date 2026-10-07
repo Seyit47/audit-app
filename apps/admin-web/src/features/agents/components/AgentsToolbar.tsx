@@ -25,13 +25,29 @@ function presetRange (p: Preset): { from: string, to: string } {
   return { from: isoDay(now), to: isoDay(now) }
 }
 
-/** "Search & Filters Toolbar" of 31:2307 (31:2430): dates, presets, status, region, applied chips. */
-export function AgentsToolbar ({ copy, regions }: { copy: AgentsCopy, regions: Region[] }) {
+/** Дата от / Дата до and the Сегодня / Вчера / Текущая неделя presets (31:2430, 122:8163), in the URL. */
+export function PeriodFilter ({ copy }: { copy: AgentsCopy }) {
   const { params, set } = useUrlState()
   const today = presetRange('today')
   const from = params.get('from') ?? today.from
   const to = params.get('to') ?? params.get('from') ?? today.to
   const preset = (['today', 'yesterday', 'week'] as const).find((p) => { const r = presetRange(p); return r.from === from && r.to === to }) ?? null
+  return (
+    <>
+      <DateField label={copy.dateFrom} value={from} max={to} onChange={(v) => set({ from: v, to })} />
+      <DateField label={copy.dateTo} value={to} min={from} onChange={(v) => set({ from, to: v })} />
+      <SegmentedControl
+        options={[{ value: 'today', label: copy.presets.today }, { value: 'yesterday', label: copy.presets.yesterday }, { value: 'week', label: copy.presets.week }]}
+        value={preset}
+        onChange={(p) => set(presetRange(p))}
+      />
+    </>
+  )
+}
+
+/** "Search & Filters Toolbar" of 31:2307 (31:2430): dates, presets, status, region, applied chips. */
+export function AgentsToolbar ({ copy, regions }: { copy: AgentsCopy, regions: Region[] }) {
+  const { params, set } = useUrlState()
   const status = params.get('status') ?? ''
   const regionId = params.get('regionId') ?? ''
   const regionName = regions.find((r) => r.id === regionId)?.name
@@ -39,13 +55,7 @@ export function AgentsToolbar ({ copy, regions }: { copy: AgentsCopy, regions: R
   return (
     <Card className='flex flex-col gap-3 p-4'>
       <div className='flex flex-wrap items-center gap-3'>
-        <DateField label={copy.dateFrom} value={from} max={to} onChange={(v) => set({ from: v, to })} />
-        <DateField label={copy.dateTo} value={to} min={from} onChange={(v) => set({ from, to: v })} />
-        <SegmentedControl
-          options={[{ value: 'today', label: copy.presets.today }, { value: 'yesterday', label: copy.presets.yesterday }, { value: 'week', label: copy.presets.week }]}
-          value={preset}
-          onChange={(p) => set(presetRange(p))}
-        />
+        <PeriodFilter copy={copy} />
         <FilterSelect
           label={copy.status}
           value={status}

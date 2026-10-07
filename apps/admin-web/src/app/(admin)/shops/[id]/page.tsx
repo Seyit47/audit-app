@@ -116,6 +116,7 @@ export default async function ShopDetailsPage ({ params, searchParams }: PagePro
                 comment={<><span>{v.hasViolation ? d.violation : d.comment}</span> <span className='font-normal'>«{v.comment}»</span></>}
                 photos={v.photos.map((p) => ({ id: p.id, url: p.previewUrl400 }))}
                 morePhotosLabel={(n) => sub(d.morePhotos, n + (v.photoCount - v.photos.length))}
+                photoHref={(ph) => `/pictures?photo=${ph.id}`}
               />
               )
             : (
