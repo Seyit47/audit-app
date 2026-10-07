@@ -2,7 +2,8 @@
 
 import { Card } from '@/components/ui/Card'
 import { FilterSelect } from '@/components/ui/FilterSelect'
-import { SearchField } from '@/components/ui/SearchField'
+import { SearchAutocomplete } from '@/components/ui/SearchAutocomplete'
+import { search } from '@/lib/search-actions'
 import { useUrlState } from '@/lib/url-state'
 import type { Region } from '@/features/agents/api'
 import type { ShopsCopy } from '../copy'
@@ -12,9 +13,12 @@ export function ShopsToolbar ({ copy, regions }: { copy: ShopsCopy, regions: Reg
   const { params, set } = useUrlState()
   return (
     <Card className='flex items-center justify-between gap-4 p-4'>
-      <form role='search' onSubmit={(e) => { e.preventDefault(); set({ q: String(new FormData(e.currentTarget).get('q') ?? '') }) }}>
-        <SearchField placeholder={copy.search} defaultValue={params.get('q') ?? ''} />
-      </form>
+      <SearchAutocomplete
+        key={params.get('q') ?? ''}
+        placeholder={copy.search} defaultValue={params.get('q') ?? ''}
+        load={async (q) => [{ label: copy.title, hits: (await search(q, ['shops'])).shops ?? [] }]}
+        onSubmit={(q) => set({ q })}
+      />
       <div className='flex items-center gap-3'>
         <FilterSelect
           label={copy.status}

@@ -1,6 +1,6 @@
 import { Icon } from '@/components/ui/Icon'
-import { SearchField } from '@/components/ui/SearchField'
 import { AvatarMenu } from './AvatarMenu'
+import { GlobalSearch } from './GlobalSearch'
 import type { Locale } from '@/lib/i18n'
 import type { LayoutCopy } from './copy'
 
@@ -8,9 +8,7 @@ import type { LayoutCopy } from './copy'
 export function Topbar ({ copy, locale, bell }: { copy: LayoutCopy, locale: Locale, bell?: React.ReactNode }) {
   return (
     <header className='sticky top-0 z-10 mt-0.5 flex h-16 shrink-0 items-center justify-between bg-white/90 px-4 shadow-[0px_1px_8px_0px_rgba(0,0,0,0.04)] backdrop-blur-[12px]'>
-      <form action='/shops' role='search'>
-        <SearchField placeholder={copy.searchPlaceholder} />
-      </form>
+      <GlobalSearch copy={copy} />
 
       <div className='flex items-center gap-3'>
         {bell ?? (

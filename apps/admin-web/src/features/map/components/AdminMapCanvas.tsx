@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { Layer, Marker, Source, type MapRef, type StyleSpecification } from 'react-map-gl/maplibre'
 import { FigmaIcon } from '@/components/ui/FigmaIcon'
+import { SearchAutocomplete } from '@/components/ui/SearchAutocomplete'
 import { Bone } from '@/components/ui/Skeleton'
 import { ClusterMarker, DEFAULT_VIEW, MapView, RegionZone, ShopMarker, type InitialView } from '@/components/ui/MapView'
 import { plural, sub, type Locale } from '@/lib/i18n'
@@ -146,10 +147,23 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
 
       <div className='pointer-events-none absolute inset-x-4 top-6 z-10 flex items-center justify-between gap-4'>
         <div className='pointer-events-auto flex items-center gap-4'>
-          <form onSubmit={(e) => { e.preventDefault(); search() }} role='search' className={`flex h-10 w-[440px] items-center gap-2.5 rounded-xl bg-pure-white px-3.5 ${shadowMd}`}>
-            <FigmaIcon name='map-search' width={15} height={15} />
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={copy.search} aria-label={copy.search} className='min-w-0 flex-1 bg-transparent text-sm leading-[17px] text-ink placeholder:text-muted focus:outline-none' />
-          </form>
+          <SearchAutocomplete
+            className='w-[440px]' placeholder={copy.search} delay={120}
+            icon={<FigmaIcon name='map-search' width={15} height={15} className='pointer-events-none absolute left-3.5 top-1/2 z-[1] -translate-y-1/2' />}
+            inputClassName={`h-10 w-full rounded-xl bg-pure-white pl-[39.5px] pr-3.5 text-sm leading-[17px] text-ink placeholder:text-muted hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-accent/30 ${shadowMd}`}
+            onQueryChange={setQ}
+            load={async (term) => {
+              const needle = term.toLowerCase()
+              const hits = shops.filter((s) => `${s.name} ${s.code} ${s.address}`.toLowerCase().includes(needle)).slice(0, 8)
+              return [{ label: copy.search, hits: hits.map((s) => ({ id: s.id, title: s.name, detail: s.address, image: s.thumbUrl, href: `/map?shop=${s.id}` })) }]
+            }}
+            onPick={(hit) => {
+              const s = shops.find((x) => x.id === hit.id)
+              if (s != null) map.current?.flyTo({ center: [s.lng, s.lat], zoom: Math.max(map.current.getZoom(), 15) })
+              setClick({ id: hit.id, from: selectedId }); set({ shop: hit.id })
+            }}
+            onSubmit={search}
+          />
           {filtered && <FilterBanner text={sub(copy.filtered, banner)} />}
         </div>
         <div className='pointer-events-auto flex items-center gap-3'>
