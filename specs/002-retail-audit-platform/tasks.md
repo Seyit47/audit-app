@@ -417,7 +417,7 @@ sessions.
   - the track polyline
   - date ranges (from/to and presets)
   - AGENT_REPORT_PDF/XLSX contents
-- [ ] T099 [P] [US6] Write failing tests in `apps/mobile/test/core/location/tracker_test.dart`:
+- [X] T099 [P] [US6] Write failing tests in `apps/mobile/test/core/location/tracker_test.dart`:
   - no collection off working hours, on Отпуск or signed out
   - a 2-min heartbeat and 25 m filter
   - GEOFENCE_ENTER/EXIT pings for today's stops
@@ -427,7 +427,7 @@ sessions.
 
 - [X] T100 [US6] Implement the tracking module in `apps/api/src/modules/tracking/` (`POST /v1/tracking/pings`, `GET /v1/agents/positions`)
 - [X] T101 [US6] Add summary, timeline and track to `apps/api/src/modules/agents/`, and the agent report generators (pdfmake, exceljs) to `apps/api/src/jobs/exports.ts`
-- [ ] T102 [US6] Implement `apps/mobile/lib/core/location/tracker.dart`: geolocator foreground service gated by session + ACTIVE + working hours, geofences for today's stops, battery_plus, pings_buffer → outbox PINGS, the permission explanation screen first (A9), then the OS dialogs
+- [X] T102 [US6] Implement `apps/mobile/lib/core/location/tracker.dart`: geolocator foreground service gated by session + ACTIVE + working hours, geofences for today's stops, battery_plus, pings_buffer → outbox PINGS, the permission explanation screen first (A9), then the OS dialogs
 - [X] T103 [US6] Build the location-permission explanation screen (approved exception A9) in `apps/mobile/lib/features/permission/presentation/permission_screen.dart`, using only existing mobile components (icon tile from `83:16786`, text styles, `primary_button.dart`), RU/EN copy. It is shown once before tracking first needs background location, then requests the OS permissions
 - [X] T104 [US6] Add the KPI cards, Дата от/до, Сегодня/Вчера/Текущая неделя, Top Performer / On Leave / Inactive badges and "Требуют связи (>45 мин)" from Figma `31:2307` to `apps/admin-web/src/app/(admin)/salesmen/page.tsx` + `src/features/agents/components/AgentsSummary.tsx`
 - [X] T105 [US6] Build Salesman details from Figma `122:7981` in `apps/admin-web/src/app/(admin)/salesmen/[id]/page.tsx` + `src/features/agents/components/{AgentHeader,AgentKpis,RouteMap,RouteTimeline,PhotoReports,AgentVisitHistory}.tsx`:
