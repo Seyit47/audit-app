@@ -176,6 +176,9 @@ export class ShopsService {
           comment: a.comment,
           hasViolation: a.hasViolation,
           withinRadius: a.withinRadius,
+          lat: a.lat,
+          lng: a.lng,
+          gpsAccuracyM: a.gpsAccuracyM,
           photoCount: a.photos.length,
           photos: await Promise.all(a.photos.slice(0, 8).map((p) => photoView(this.storage, p)))
         }

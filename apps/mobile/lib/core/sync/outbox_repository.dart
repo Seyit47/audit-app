@@ -79,6 +79,17 @@ class OutboxRepository {
     }
     return ids;
   }
+
+  /// Route stops finished on the device whose audit is not synced yet; the pull keeps them DONE.
+  Future<Set<String>> pendingStopIds() async {
+    final ids = <String>{};
+    for (final item in await open()) {
+      if (item.kind != OutboxKind.auditCreate) continue;
+      final stop = (jsonDecode(item.payloadJson) as Map<String, dynamic>)['routeStopId'];
+      if (stop is String) ids.add(stop);
+    }
+    return ids;
+  }
 }
 
 List<String> dependenciesOf(OutboxData item) => (jsonDecode(item.dependsOn) as List).cast<String>();

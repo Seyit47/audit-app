@@ -321,7 +321,7 @@ sessions.
   - the end-of-day job marks the remaining stops MISSED
   - the re-order after DONE starts from that shop
 - [X] T076 [P] [US3] Write failing tests in `apps/api/test/routes.test.ts`: `GET /v1/routes/today` returns only the agent's own route, and `GET /v1/shops/counts` + `GET /v1/shops/map` match the route and visit states
-- [ ] T077 [P] [US3] Write failing tests in `apps/mobile/test/features/shops/visit_state_test.dart` (scheduled / overdue with days / visited / not visited) and `apps/mobile/test/core/sync/pull_service_test.dart` (shops, contacts and today's route land in drift; cursors advance)
+- [X] T077 [P] [US3] Write failing tests in `apps/mobile/test/features/shops/visit_state_test.dart` (scheduled / overdue with days / visited / not visited) and `apps/mobile/test/core/sync/pull_service_test.dart` (shops, contacts and today's route land in drift; cursors advance)
 
 ### Implementation
 
@@ -332,7 +332,7 @@ sessions.
 
   Add CLI scripts `job:routes` and `job:end-of-day` to `apps/api/package.json`
 - [X] T079 [US3] Implement the routes module in `apps/api/src/modules/routes/` (`GET /v1/routes/today`), and `GET /v1/shops/counts` + `GET /v1/shops/map` in `apps/api/src/modules/shops/`
-- [ ] T080 [US3] Implement drift-backed repositories in `apps/mobile/lib/features/shops/data/shops_local_repository.dart` and `lib/features/route/data/route_local_repository.dart`, plus `lib/features/shops/domain/visit_state.dart`
+- [X] T080 [US3] Implement drift-backed repositories in `apps/mobile/lib/features/shops/data/shops_local_repository.dart` and `lib/features/route/data/route_local_repository.dart`, plus `lib/features/shops/domain/visit_state.dart`
 - [ ] T081 [US3] Build agent Home from Figma `83:16786` / `101:1880` in `apps/mobile/lib/features/home/presentation/agent_home_screen.dart`: avatar (sign-out menu), theme toggle, RU/EN, "Начать аудит" (opens the next route stop's audit), Мои магазины, Карта, Галерея, sync status
 - [ ] T082 [US3] Build Shops from Figma `83:16884` / `101:1985` in `apps/mobile/lib/features/shops/presentation/shops_screen.dart`: title + count, Добавить, search, chips Все/Запланирован/Просрочен/Пройден with counts, the Filters button → `filter_sheet` (B3), tiles, pull-to-refresh
 - [ ] T083 [US3] Build Shop details from Figma `83:17057` / `106:4035` in `apps/mobile/lib/features/shop_details/presentation/shop_details_screen.dart`: header with coordinates and distance, contact + call, last/next visit with the overdue warning, Карта (geo URI) and Аудит, audit history with violations and photos

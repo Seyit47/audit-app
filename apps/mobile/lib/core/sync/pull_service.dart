@@ -18,6 +18,76 @@ class PullService {
 
   static const lastPullCursor = 'lastPullAt';
 
+  /// The pull order of contracts/sync.md: today's route, shops, then own photos.
+  Future<void> pullAll() async {
+    await pullRoute();
+    await pullShops();
+    await pullPhotos();
+  }
+
+  /// Replaces the local route with today's; stops finished offline stay DONE until synced.
+  Future<void> pullRoute() async {
+    final route = await _api.routeToday();
+    final keep = await _outbox.pendingStopIds();
+    await _db.transaction(() async {
+      final local = {for (final s in await _db.select(_db.routeStops).get()) s.id: s};
+      await _db.delete(_db.routes).go();
+      final id = route['id'] as String?;
+      if (id == null) return;
+      await _db.into(_db.routes).insert(RoutesCompanion.insert(
+            id: id,
+            date: DateTime.parse(route['date']! as String),
+            updatedAt: DateTime.parse((route['updatedAt'] ?? route['date'])! as String),
+          ));
+      for (final stop in (route['stops'] as List? ?? const []).cast<Map>()) {
+        final stopId = stop['id']! as String;
+        final mine = keep.contains(stopId) ? local[stopId] : null;
+        await _db.into(_db.routeStops).insert(RouteStopsCompanion.insert(
+              id: stopId,
+              routeId: id,
+              shopId: stop['shopId']! as String,
+              position: stop['position']! as int,
+              plannedAt: DateTime.parse(stop['plannedAt']! as String),
+              isAuditTask: stop['isAuditTask']! as bool,
+              status: mine?.status ?? stop['status']! as String,
+              auditId: Value(mine?.auditId ?? stop['auditId'] as String?),
+            ));
+      }
+    });
+  }
+
+  /// Mirrors the agent's latest photos for the gallery, keeping local files of unsynced ones.
+  Future<void> pullPhotos() async {
+    final items = await _api.myPhotos();
+    await _db.transaction(() async {
+      for (final p in items) {
+        final id = p['id']! as String;
+        final existing = await (_db.select(_db.photos)..where((x) => x.id.equals(id))).getSingleOrNull();
+        final remote = PhotosCompanion(
+          url: Value(p['url'] as String?),
+          previewUrl: Value((p['previewUrl400'] ?? p['url']) as String?),
+          auditId: Value(p['auditId'] as String?),
+          shopId: Value((p['shop'] as Map?)?['id'] as String?),
+          status: const Value('READY'),
+        );
+        if (existing != null) {
+          await (_db.update(_db.photos)..where((x) => x.id.equals(id))).write(remote);
+        } else {
+          await _db.into(_db.photos).insert(remote.copyWith(
+                id: Value(id),
+                kind: Value(p['kind']! as String),
+                mime: const Value('image/jpeg'),
+                sizeBytes: const Value(0),
+                sha256: const Value(''),
+                takenAt: Value(DateTime.parse(p['takenAt']! as String)),
+                lat: Value((p['lat'] as num?)?.toDouble()),
+                lng: Value((p['lng'] as num?)?.toDouble()),
+              ));
+        }
+      }
+    });
+  }
+
   Future<void> pullShops() async {
     final page = await _api.shops(updatedAfter: await _cursor('shops'));
     final keep = await _outbox.pendingShopIds();

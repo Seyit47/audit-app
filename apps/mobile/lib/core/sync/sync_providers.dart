@@ -72,7 +72,7 @@ class SyncController extends Notifier<SyncState> {
     state = SyncState(running: true, lastPullAt: state.lastPullAt);
     try {
       await ref.read(syncEngineProvider).run();
-      await pull.pullShops();
+      await pull.pullAll();
     } on ApiException catch (e) {
       // Offline or a server outage: the outbox keeps everything; the next trigger retries.
       if (!e.isRetryable) rethrow;

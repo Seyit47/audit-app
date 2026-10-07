@@ -36,7 +36,7 @@ void callbackDispatcher() {
       final api = HttpSyncApi(ApiClient(tokens: store, onSessionExpired: () {}));
       final outbox = OutboxRepository(db);
       await SyncEngine(db: db, api: api, outbox: outbox).run();
-      await PullService(db: db, api: api, outbox: outbox).pullShops();
+      await PullService(db: db, api: api, outbox: outbox).pullAll();
       return true;
     } catch (_) {
       return false;

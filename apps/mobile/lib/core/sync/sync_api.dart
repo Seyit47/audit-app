@@ -38,6 +38,10 @@ abstract interface class SyncApi {
   Future<void> createAudit(Map<String, Object?> body);
   Future<void> sendPings(List<Map<String, Object?>> pings);
   Future<ShopsPage> shops({String? updatedAfter});
+  /// `{id, date, updatedAt, stops: [...]}`; `id` is null when there is no route today.
+  Future<Map<String, Object?>> routeToday();
+  /// The agent's own photos, newest first (the server scopes `/photos` to them).
+  Future<List<Map<String, Object?>>> myPhotos();
 }
 
 class HttpSyncApi implements SyncApi {
@@ -91,5 +95,14 @@ class HttpSyncApi implements SyncApi {
       tombstones: [for (final id in res['tombstones'] as List? ?? const []) id as String],
       cursor: res['cursor'] as String?,
     );
+  }
+
+  @override
+  Future<Map<String, Object?>> routeToday() async => (await _api.get<Map<String, dynamic>>('/routes/today')).cast<String, Object?>();
+
+  @override
+  Future<List<Map<String, Object?>>> myPhotos() async {
+    final res = await _api.get<Map<String, dynamic>>('/photos', query: {'limit': 50});
+    return [for (final item in res['items'] as List) (item as Map).cast<String, Object?>()];
   }
 }
