@@ -79,8 +79,8 @@ export function StatusSwitch<T extends string> ({ options, value, onChange }: { 
         const on = o.value === value
         return (
           <button
-            key={o.value} type='button' role='radio' aria-checked={on} onClick={() => onChange(o.value)} data-ripple
-            className={`flex h-[30px] flex-1 items-center justify-center gap-1.5 rounded-lg text-xs leading-4 ${on ? 'bg-pure-white font-semibold shadow-[0px_1px_2px_rgba(0,0,0,0.05)]' : 'font-medium text-default-black'} ${on && i === 0 ? 'text-success' : on ? 'text-ink' : ''}`}
+            key={o.value} type='button' role='radio' aria-checked={on} onClick={() => { if (!on) onChange(o.value) }} data-ripple={!on || undefined}
+            className={`flex h-[30px] flex-1 items-center justify-center gap-1.5 rounded-lg text-xs leading-4 ${on ? 'cursor-default bg-pure-white font-semibold shadow-[0px_1px_2px_rgba(0,0,0,0.05)]' : 'font-medium text-default-black'} ${on && i === 0 ? 'text-success' : on ? 'text-ink' : ''}`}
           >
             {on && i === 0 && <span className='size-2 rounded-full bg-light-green' />}
             {o.label}

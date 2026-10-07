@@ -32,7 +32,7 @@ function Table ({ rows = 8 }: { rows?: number }) {
 
 export function ListSkeleton ({ stats = false }: { stats?: boolean }) {
   return (
-    <div className='flex flex-col gap-2.5 p-4'>
+    <div className='route-skeleton flex flex-col gap-2.5 p-4'>
       <Header />
       {stats && <div className='grid grid-cols-6 gap-3.5'>{Array.from({ length: 6 }, (_, i) => <Bone key={i} className='h-[125px] rounded-2xl' />)}</div>}
       <Bone className='h-16 rounded-xl' />
@@ -43,7 +43,7 @@ export function ListSkeleton ({ stats = false }: { stats?: boolean }) {
 
 export function DetailsSkeleton () {
   return (
-    <div className='flex flex-col gap-4 p-4'>
+    <div className='route-skeleton flex flex-col gap-4 p-4'>
       <Bone className='h-4 w-64' />
       <Bone className='h-24 rounded-xl' />
       <div className='flex gap-4'>
@@ -59,7 +59,7 @@ export function DetailsSkeleton () {
 
 export function GridSkeleton () {
   return (
-    <div className='flex flex-col gap-2.5 p-4'>
+    <div className='route-skeleton flex flex-col gap-2.5 p-4'>
       <Header />
       <div className='flex gap-3'>{Array.from({ length: 4 }, (_, i) => <Bone key={i} className='h-10 w-40' />)}</div>
       <div className='grid grid-cols-4 gap-2.5'>{Array.from({ length: 12 }, (_, i) => <Bone key={i} className='aspect-[287/170] rounded-xl' />)}</div>
@@ -69,7 +69,7 @@ export function GridSkeleton () {
 
 export function FormSkeleton () {
   return (
-    <div className='flex flex-col gap-4 p-4'>
+    <div className='route-skeleton flex flex-col gap-4 p-4'>
       <Header actions={0} />
       <div className='grid grid-cols-[3fr_2fr] gap-4'>
         <div className='flex flex-col gap-4'>{Array.from({ length: 3 }, (_, i) => <Bone key={i} className='h-48 rounded-xl' />)}</div>
@@ -80,5 +80,5 @@ export function FormSkeleton () {
 }
 
 export function MapSkeleton () {
-  return <div className='h-screen pl-4'><div className='size-full bg-secondary-bg' /></div>
+  return <div className='route-skeleton h-screen pl-4'><div className='size-full bg-secondary-bg' /></div>
 }

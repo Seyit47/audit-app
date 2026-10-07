@@ -45,9 +45,9 @@ export function Pagination ({ page, size, total, noun, sizes = [10, 25, 50], onP
           ? <span key={`gap-${i}`} className='px-1 text-xs leading-4 text-[#c7c4d8]'>…</span>
           : (
             <button
-              data-ripple
-              key={p} type='button' aria-current={p === page ? 'page' : undefined} onClick={() => onPage(p)}
-              className={`flex h-7 min-w-7 items-center justify-center rounded-lg px-1 text-xs leading-4 ${p === page ? 'bg-accent font-semibold text-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]' : 'font-medium text-muted'}`}
+              data-ripple={p !== page || undefined}
+              key={p} type='button' aria-current={p === page ? 'page' : undefined} onClick={() => { if (p !== page) onPage(p) }}
+              className={`flex h-7 min-w-7 items-center justify-center rounded-lg px-1 text-xs leading-4 ${p === page ? 'cursor-default bg-accent font-semibold text-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]' : 'font-medium text-muted'}`}
             >
               {p}
             </button>

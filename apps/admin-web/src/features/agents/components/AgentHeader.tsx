@@ -3,6 +3,7 @@ import { formatPhone, lastActivity } from '@/lib/format'
 import { sub, type Locale } from '@/lib/i18n'
 import type { AgentDetails } from '../api'
 import type { AgentsCopy } from '../copy'
+import { ExportMenu } from './ExportMenu'
 
 /** Header of 122:7981 (122:9104): title, live badge, profile line, online status and report export. */
 export function AgentHeader ({ agent, copy, locale, exportHref }: {
@@ -35,15 +36,7 @@ export function AgentHeader ({ agent, copy, locale, exportHref }: {
           </span>
         </div>
       </div>
-      <details className='group relative shrink-0'>
-        <summary data-ripple className='flex cursor-pointer list-none items-center gap-2 rounded-lg bg-secondary-bg px-4 py-2 text-xs font-semibold leading-4 text-ink shadow-[0px_1px_2px_rgba(0,0,0,0.05)] [&::-webkit-details-marker]:hidden'>
-          <FigmaIcon name='export-download' width={12} height={12} />{d.export}
-        </summary>
-        <div className='anim-menu-in origin-top-right absolute right-0 z-40 mt-1 flex w-full flex-col overflow-hidden rounded-lg bg-pure-white py-1 shadow-[0px_4px_6px_-4px_rgba(0,0,0,0.1),0px_10px_15px_-3px_rgba(0,0,0,0.1)]'>
-          <a href={exportHref('AGENT_REPORT_PDF')} data-ripple className='px-4 py-2 text-xs font-medium leading-4 text-ink'>{d.exportPdf}</a>
-          <a href={exportHref('AGENT_REPORT_XLSX')} data-ripple className='px-4 py-2 text-xs font-medium leading-4 text-ink'>{d.exportXls}</a>
-        </div>
-      </details>
+      <ExportMenu label={d.export} items={[{ label: d.exportPdf, href: exportHref('AGENT_REPORT_PDF') }, { label: d.exportXls, href: exportHref('AGENT_REPORT_XLSX') }]} />
     </div>
   )
 }

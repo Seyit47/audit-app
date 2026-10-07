@@ -1,10 +1,11 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { Icon } from '@/components/ui/Icon'
 import type { Locale } from '@/lib/i18n'
 import { helpCopy, helpKey, type HelpTopic } from './help-copy'
+import { usePopup } from '@/lib/use-popup'
 
 /** Header help button (3:853): a popover listing what the current page lets you do. */
 export function HelpMenu ({ label, locale }: { label: string, locale: Locale }) {
@@ -15,14 +16,7 @@ export function HelpMenu ({ label, locale }: { label: string, locale: Locale }) 
   const copy = helpCopy[locale]
   const topic = (copy.pages as Record<string, HelpTopic>)[helpKey(pathname)]
 
-  useEffect(() => {
-    if (!open) return
-    const close = (e: MouseEvent) => { if (ref.current?.contains(e.target as Node) !== true) setOpenAt(null) }
-    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpenAt(null) }
-    document.addEventListener('mousedown', close)
-    document.addEventListener('keydown', esc)
-    return () => { document.removeEventListener('mousedown', close); document.removeEventListener('keydown', esc) }
-  }, [open])
+  usePopup(open, () => setOpenAt(null), [ref])
 
   if (topic == null) return null
   return (
@@ -35,7 +29,7 @@ export function HelpMenu ({ label, locale }: { label: string, locale: Locale }) 
         <Icon name='help' width={16.667} height={16.667} />
       </button>
       {open && (
-        <div role='dialog' aria-label={copy.heading} className='anim-menu-in origin-top-right absolute right-0 top-11 z-40 flex w-[360px] flex-col gap-3 rounded-xl bg-pure-white p-4 shadow-[0px_20px_25px_-5px_rgba(0,0,0,0.1),0px_8px_10px_-6px_rgba(0,0,0,0.1)]'>
+        <div role='dialog' aria-label={copy.heading} className='anim-menu-in origin-top-right absolute right-0 top-full mt-2 z-40 flex w-[360px] flex-col gap-3 rounded-xl bg-pure-white p-4 shadow-[0px_20px_25px_-5px_rgba(0,0,0,0.1),0px_8px_10px_-6px_rgba(0,0,0,0.1)]'>
           <div className='flex flex-col'>
             <p className='text-[10px] font-semibold uppercase leading-4 tracking-[0.5px] text-subtle'>{copy.heading}</p>
             <h2 className='text-base font-bold leading-6 text-ink'>{topic.title}</h2>

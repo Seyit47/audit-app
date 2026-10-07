@@ -139,7 +139,7 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
               <span className='relative flex size-8 items-center justify-center rounded-full border-2 border-white bg-accent'>
                 <FigmaIcon name='marker-walk' width={8.66} height={14.34} />
               </span>
-              <span className={`absolute top-10 hidden whitespace-nowrap rounded-md bg-[#2e303b] px-2.5 py-1 text-[11px] font-semibold leading-[16.5px] text-[#f0effe] group-hover:block ${shadowMd}`}>{p.fullName}</span>
+              <span className={`absolute top-full mt-1 hidden whitespace-nowrap rounded-md bg-[#2e303b] px-2.5 py-1 text-[11px] font-semibold leading-[16.5px] text-[#f0effe] group-hover:block ${shadowMd}`}>{p.fullName}</span>
             </Link>
           </Marker>
         ))}

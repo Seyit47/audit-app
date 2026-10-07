@@ -2,9 +2,10 @@
 
 import { guard } from '@/lib/feedback'
 import { usePathname } from 'next/navigation'
-import { useCallback, useEffect, useState, useSyncExternalStore, useTransition } from 'react'
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, useTransition } from 'react'
 import { createPortal } from 'react-dom'
 import { Bone } from '@/components/ui/Skeleton'
+import { usePopup } from '@/lib/use-popup'
 import { Icon } from '@/components/ui/Icon'
 import { SidePanel } from '@/components/ui/SidePanel'
 import { VisitHistoryItem } from '@/components/ui/VisitHistoryItem'
@@ -36,17 +37,16 @@ export function FeedPanel ({ initialUnread, copy, locale }: { initialUnread: num
   const [failed, setFailed] = useState(false)
   const [pending, startTransition] = useTransition()
   const mounted = useSyncExternalStore(noop, () => true, () => false)
+  const bell = useRef<HTMLButtonElement>(null)
+  // Where the panel opens: just below the bell, measured when it opens.
+  const [top, setTop] = useState(0)
   // Following a link in the feed closes it.
   const pathname = usePathname()
   const [openedAt, setOpenedAt] = useState(pathname)
   if (open && openedAt !== pathname) { setOpen(false); setOpenedAt(pathname) }
 
-  useEffect(() => {
-    if (!open) return
-    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
-    document.addEventListener('keydown', esc)
-    return () => document.removeEventListener('keydown', esc)
-  }, [open])
+  const panel = useRef<HTMLDivElement>(null)
+  usePopup(open, () => setOpen(false), [bell, panel])
 
   const poll = useCallback(async () => {
     try { setUnread((await loadFeed()).unreadCount) } catch { /* keep the last count */ }
@@ -57,6 +57,7 @@ export function FeedPanel ({ initialUnread, copy, locale }: { initialUnread: num
   }, [poll])
 
   const show = () => {
+    setTop((bell.current?.getBoundingClientRect().bottom ?? 0) + 8)
     setOpen(true); setOpenedAt(pathname)
     startTransition(() => guard(async () => {
       try {
@@ -77,15 +78,15 @@ export function FeedPanel ({ initialUnread, copy, locale }: { initialUnread: num
 
   return (
     <>
-      <button data-ripple type='button' aria-label={copy.open} aria-expanded={open} onClick={() => (open ? setOpen(false) : show())} className='relative flex size-9 items-center justify-center rounded-lg text-muted'>
+      <button ref={bell} data-ripple type='button' aria-label={copy.open} aria-expanded={open} onClick={() => (open ? setOpen(false) : show())} className='relative flex size-9 items-center justify-center rounded-lg text-muted'>
         <Icon name='bell' width={13.333} height={16.667} />
         {unread > 0 && <span className='absolute left-5 top-2 size-2 rounded-full bg-[#ba1a1a]' />}
       </button>
       {/* Portaled: the header's backdrop blur would otherwise contain this fixed panel. */}
       {open && mounted && createPortal(
-        <div className='fixed right-4 top-[72px] z-40'>
+        <div ref={panel} style={{ top }} className='fixed right-4 z-40'>
           <SidePanel
-            className='h-[calc(100vh-88px)] w-[420px] overflow-y-auto'
+            className='w-[420px] overflow-y-auto' style={{ maxHeight: `calc(100vh - ${top + 16}px)` }}
             closeLabel={copy.close} onClose={() => setOpen(false)}
             header={(
               <div className='flex flex-col'>

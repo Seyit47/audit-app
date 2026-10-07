@@ -2,6 +2,7 @@
 
 import { guard } from '@/lib/feedback'
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react'
+import { useFlip } from '@/components/motion/useFlip'
 import { FigmaIcon } from '@/components/ui/FigmaIcon'
 import { FilterSelect } from '@/components/ui/FilterSelect'
 import { PhotoTile, VerifiedTag } from '@/components/ui/PhotoTile'
@@ -11,7 +12,7 @@ import { Bone } from '@/components/ui/Skeleton'
 import { formatPhone } from '@/lib/format'
 import type { Locale } from '@/lib/i18n'
 import { useUrlState } from '@/lib/url-state'
-import { loadPhoto, loadPhotos } from '../actions'
+import { loadPhotos } from '../actions'
 import type { PhotosCopy } from '../copy'
 import type { GalleryPage, GalleryPhoto, GalleryQuery, PhotoDetail } from '../types'
 import { UploadPhotosDialog } from './UploadPhotosDialog'
@@ -65,23 +66,51 @@ export function PhotosView ({ first, query, summary, regions, shops, copy, local
 
   // The panel opens at once with the tapped photo; the details fill in when they arrive.
   const [opening, setOpening] = useState<GalleryPhoto | null>(null)
+  // The grid goes from 4 to 2 columns while a photo is open; the tiles glide there.
+  const split = detail != null || opening != null
+  const gridBox = useRef<HTMLDivElement>(null)
+  const capture = useFlip(gridBox, split)
+  const close = () => { capture(); setDetail(null); setOpening(null) }
+  // Details are fetched once per photo and cached; hovering a tile starts the fetch, so a click usually
+  // finds them ready and the panel switches without a placeholder.
+  const details = useRef(new Map<string, Promise<PhotoDetail>>())
+  const fetchDetail = (id: string) => {
+    let pending = details.current.get(id)
+    if (pending == null) {
+      pending = fetch(`/data/photos/${id}`).then(async (r) => { if (!r.ok) throw new Error(`photo ${r.status}`); return await r.json() as PhotoDetail })
+      pending.catch(() => details.current.delete(id))
+      details.current.set(id, pending)
+    }
+    return pending
+  }
+  const latest = useRef<string | null>(null)
   const open = (p: GalleryPhoto) => {
-    setOpening(p)
-    startLoading(() => guard(async () => { setDetail(await loadPhoto(p.id)); setOpening(null) }, () => setOpening(null)))
+    if (p.id === detail?.id && opening == null) return
+    if (!split) capture()
+    latest.current = p.id
+    const pending = fetchDetail(p.id)
+    // Show the placeholder only if the details take a moment; a cached photo swaps in directly.
+    const slow = setTimeout(() => { if (latest.current === p.id) setOpening(p) }, 80)
+    void guard(async () => {
+      const d = await pending
+      if (latest.current !== p.id) return
+      setDetail(d); setOpening(null)
+    }, () => { if (latest.current === p.id) setOpening(null) }).finally(() => clearTimeout(slow))
+    if (!split) setOpening(p) // the first open needs the panel at once to start the layout change
   }
   const activeFilters = ['type', 'regionId', 'verified', 'date'].filter((k) => params.get(k) != null).length
 
   const tile = (p: GalleryPhoto, size = 'h-[170px] w-full') => (
     <PhotoTile
-      key={p.id} src={p.previewUrl400} alt={p.shop?.name ?? ''} className={size}
+      key={p.id} flipId={p.id} src={p.previewUrl400} alt={p.shop?.name ?? ''} className={size}
       verifiedLabel={p.verified ? copy.verified : null}
       title={p.agent?.fullName ?? p.shop?.name} address={p.shop?.address} date={stamp(p.takenAt, locale)}
-      active={detail?.id === p.id} onSelect={() => open(p)}
+      active={(opening ?? detail)?.id === p.id} onSelect={() => open(p)} onPrefetch={() => { void fetchDetail(p.id).catch(() => {}) }}
     />
   )
 
   const grid = (list: GalleryPhoto[]) => (
-    <div className={`grid gap-2.5 ${detail != null || opening != null ? 'grid-cols-2' : 'grid-cols-4'}`}>{list.map((p) => tile(p))}</div>
+    <div className={`grid gap-2.5 ${split ? 'grid-cols-2' : 'grid-cols-4'}`}>{list.map((p) => tile(p))}</div>
   )
 
   const byDay = new Map<string, GalleryPhoto[]>()
@@ -89,31 +118,37 @@ export function PhotosView ({ first, query, summary, regions, shops, copy, local
 
   return (
     <>
-      <div className='flex items-center justify-between gap-4'>
+      {/* Title row and filter bar are one block: the bar's spacing collapses with it. */}
+      <div className='flex flex-col'>
+      <div className='flex flex-wrap items-center justify-between gap-4'>
         <div className='flex flex-col gap-1'>
           <h1 className='text-3xl font-bold leading-9 tracking-[-0.75px] text-ink'>{copy.title}</h1>
           <p className='max-w-[460px] text-sm leading-5 text-muted'>{copy.description}</p>
         </div>
         <div className='flex items-center gap-3'>
-          <span className='flex h-8 items-center gap-2.5 rounded-lg bg-secondary-bg px-3.5 shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
+          <span className='flex h-8 shrink-0 items-center gap-2.5 whitespace-nowrap rounded-lg bg-secondary-bg px-3.5 shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
             <FigmaIcon name='photos-counter' width={15} height={15} />
             <span className='text-xs font-bold leading-4 text-ink'>{sub(copy.total, summary.total.toLocaleString(tag(locale)))}</span>
             <span className='text-xs leading-4 text-muted/30'>|</span>
             <span className='flex items-center gap-1 text-xs font-semibold leading-4 text-success'><span className='size-1.5 rounded-full bg-success' />{sub(copy.today, summary.today)}</span>
           </span>
           <SegmentedControl options={[{ value: 'grid', label: copy.modes.grid }, { value: 'byDate', label: copy.modes.byDate }]} value={mode} onChange={(m) => set({ mode: m === 'grid' ? null : m })} />
-          <button data-ripple type='button' onClick={() => setShowFilters(!showFilters)} aria-expanded={showFilters} className='flex h-10 items-center gap-2 rounded-lg bg-pure-white px-3 text-xs font-semibold leading-4 text-ink shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
+          <button data-ripple type='button' onClick={() => setShowFilters(!showFilters)} aria-expanded={showFilters} className='flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-lg bg-pure-white px-3 text-xs font-semibold leading-4 text-ink shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
             <FigmaIcon name='filters' width={13.5} height={13.5} />{copy.filters}
             {activeFilters > 0 && <span className='flex size-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-white'>{activeFilters}</span>}
           </button>
-          <button data-ripple type='button' onClick={() => setUploading(true)} className='flex h-10 items-center gap-2 rounded-lg bg-accent px-4 text-sm font-medium leading-5 text-white shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
+          <button data-ripple type='button' onClick={() => setUploading(true)} className='flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-lg bg-accent px-4 text-sm font-medium leading-5 text-white shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
             <FigmaIcon name='upload-photo' width={16.5} height={15} />{copy.upload}
           </button>
         </div>
       </div>
 
-      {showFilters && (
-        <div className='flex flex-wrap items-center gap-3'>
+      {/* Collapses smoothly (rows 1fr → 0fr); its top spacing is inside, so nothing is left behind and the grid slides up. */}
+      <div
+        inert={!showFilters}
+        className={`grid transition-[grid-template-rows,opacity] duration-300 ease-[var(--ease-standard)] ${showFilters ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+      >
+        <div className='flex min-h-0 flex-wrap items-center gap-3 overflow-hidden pt-2.5'>
           <FilterSelect size='lg' label={copy.type} value={params.get('type') ?? ''} onChange={(v) => set({ type: v })}
             options={[{ value: '', label: copy.allTypes }, ...(['AUDIT', 'FACADE', 'ADMIN_UPLOAD'] as const).map((t) => ({ value: t, label: copy.types[t] }))]} />
           <FilterSelect size='lg' label={copy.location} value={params.get('regionId') ?? ''} onChange={(v) => set({ regionId: v })}
@@ -123,10 +158,11 @@ export function PhotosView ({ first, query, summary, regions, shops, copy, local
           <FilterSelect size='lg' label={copy.date} value={params.get('date') ?? '7'} onChange={(v) => set({ date: v === '7' ? null : v })}
             options={(['today', '7', '30', 'all'] as const).map((d) => ({ value: d, label: copy.dates[d] }))} />
         </div>
-      )}
+      </div>
+      </div>
 
       <div className='flex items-start gap-2.5'>
-        <div className='min-w-0 flex-1'>
+        <div ref={gridBox} className='min-w-0 flex-1'>
           {items.length === 0 && <p className='rounded-xl bg-pure-white p-10 text-center text-sm text-muted'>{copy.empty}</p>}
           {mode === 'grid'
             ? grid(items)
@@ -141,9 +177,14 @@ export function PhotosView ({ first, query, summary, regions, shops, copy, local
             ))}
           <div ref={sentinel} className='h-8 pt-2 text-center text-xs text-muted'>{loading && cursor != null ? copy.loading : ''}</div>
         </div>
-        {opening != null && detail?.id !== opening.id
-          ? <PendingDetail photo={opening} copy={copy} onClose={() => setOpening(null)} />
-          : detail != null && <Detail detail={detail} copy={copy} locale={locale} onClose={() => setDetail(null)} onOpen={open} />}
+        {/* One shell slides in once; switching from the placeholder to the details (or to another photo) happens inside it. */}
+        {split && (
+          <div className='anim-panel-right sticky top-20 shrink-0 self-start'>
+            {opening != null && detail?.id !== opening.id
+              ? <PendingDetail photo={opening} copy={copy} onClose={close} />
+              : detail != null && <Detail detail={detail} copy={copy} locale={locale} onClose={close} onOpen={open} />}
+          </div>
+        )}
       </div>
 
       {uploading && <UploadPhotosDialog shops={shops} copy={copy} onClose={() => setUploading(false)} />}
@@ -152,15 +193,35 @@ export function PhotosView ({ first, query, summary, regions, shops, copy, local
 }
 
 function PendingDetail ({ photo, copy, onClose }: { photo: GalleryPhoto, copy: PhotosCopy, onClose: () => void }) {
+  // Same frame as Detail, filled with what the grid already knows, so only the loading parts change.
   return (
     <SidePanel
-      closeLabel={copy.close} onClose={onClose} className='sticky top-20 w-[582px]'
-      header={<div className='flex items-center gap-5'><Bone className='size-[72px] rounded-xl' /><div className='flex flex-col gap-2'><Bone className='h-7 w-56' /><Bone className='h-4 w-72' /></div></div>}
+      closeLabel={copy.close} onClose={onClose} className='w-[582px]' animate={false}
+      header={photo.shop == null
+        ? <span className='text-2xl font-bold text-ink'>{photo.agent?.fullName}</span>
+        : (
+          <div className='flex items-center gap-5'>
+            <Bone className='size-[72px] shrink-0 rounded-xl' />
+            <div className='flex min-w-0 flex-col gap-1'>
+              <div className='flex min-w-0 items-center gap-3'>
+                <span className='min-w-0 truncate text-2xl font-bold leading-8 tracking-[-0.6px] text-ink'>{photo.shop.name}</span>
+                <span className='shrink-0 whitespace-nowrap rounded bg-dark-accent px-2.5 py-0.5 text-xs font-semibold leading-4 text-muted'>{photo.shop.code}</span>
+              </div>
+              <span className='flex items-center gap-1.5 text-xs font-medium leading-4 text-muted'><FigmaIcon name='pin-accent-small' width={10.67} height={13.33} />{photo.shop.address}</span>
+              <Bone className='h-4 w-64' />
+            </div>
+          </div>
+          )}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element -- presigned URL */}
-      <img src={photo.previewUrl1200} alt='' className='aspect-[550/350] w-full rounded-xl object-cover' />
-      <Bone className='h-16 rounded-xl' />
-      <div className='flex gap-2'>{Array.from({ length: 5 }, (_, i) => <Bone key={i} className='size-20 rounded-lg' />)}</div>
+      <div className='relative h-[350px] overflow-hidden rounded-xl bg-dark-accent shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
+        {/* eslint-disable-next-line @next/next/no-img-element -- presigned URL */}
+        <img src={photo.previewUrl1200} alt='' className='size-full object-cover' />
+        {photo.verified && <VerifiedTag label={copy.verified} />}
+      </div>
+      <div className='flex flex-col gap-2'>
+        <Bone className='h-4 w-48' />
+        <Bone className='h-[51px] rounded-lg' />
+      </div>
     </SidePanel>
   )
 }
@@ -174,7 +235,7 @@ function Detail ({ detail: d, copy, locale, onClose, onOpen }: { detail: PhotoDe
     <SidePanel
       closeLabel={copy.close}
       onClose={onClose}
-      className='sticky top-20 w-[582px]'
+      className='w-[582px]' animate={false}
       header={d.shop == null
         ? <span className='text-2xl font-bold text-ink'>{d.agent?.fullName}</span>
         : (
@@ -184,10 +245,10 @@ function Detail ({ detail: d, copy, locale, onClose, onOpen }: { detail: PhotoDe
               {d.shop.facade != null && <img src={d.shop.facade.previewUrl400} alt='' className='size-full object-cover' />}
             </span>
             <div className='flex min-w-0 flex-col gap-1'>
-              <div className='flex items-center gap-3'>
-                <span className='truncate text-2xl font-bold leading-8 tracking-[-0.6px] text-ink'>{d.shop.name}</span>
-                <span className='rounded bg-dark-accent px-2.5 py-0.5 text-xs font-semibold leading-4 text-muted'>{d.shop.code}</span>
-                {d.shop.status === 'ACTIVE' && <span className='flex items-center gap-1.5 rounded-full bg-success-10 px-2.5 py-0.5 text-xs font-medium leading-4 text-success'><span className='size-1.5 rounded-full bg-success' />{copy.statusActive}</span>}
+              <div className='flex min-w-0 items-center gap-3'>
+                <span className='min-w-0 truncate text-2xl font-bold leading-8 tracking-[-0.6px] text-ink'>{d.shop.name}</span>
+                <span className='shrink-0 whitespace-nowrap rounded bg-dark-accent px-2.5 py-0.5 text-xs font-semibold leading-4 text-muted'>{d.shop.code}</span>
+                {d.shop.status === 'ACTIVE' && <span className='flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-success-10 px-2.5 py-0.5 text-xs font-medium leading-4 text-success'><span className='size-1.5 rounded-full bg-success' />{copy.statusActive}</span>}
               </div>
               <span className='flex items-center gap-1.5 text-xs font-medium leading-4 text-muted'><FigmaIcon name='pin-accent-small' width={10.67} height={13.33} />{d.shop.address}</span>
               {d.shop.agent != null && <span className='flex items-center gap-1.5 text-xs font-medium leading-4 text-muted'><FigmaIcon name='assigned-agent' width={13.33} height={13.33} />{copy.assigned} {d.shop.agent.fullName} · {formatPhone(d.shop.agent.phone)}</span>}

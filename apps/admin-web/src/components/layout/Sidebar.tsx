@@ -6,6 +6,12 @@ import { useState } from 'react'
 import { Icon } from '@/components/ui/Icon'
 import type { LayoutCopy } from './copy'
 
+// Every row is one height so moving the active item never shifts the others. The active-tab image
+// (nav-active-bg.svg, 3:414) is taller: its tab body matches the row and the corner curves stick out
+// above and below, so it is centred on the row.
+const ROW = 44
+const TAB = 64
+
 // Icon sizes are the Figma slot sizes (3:414).
 const navItems = (copy: LayoutCopy) => [
   { href: '/map', label: copy.nav.map, icon: 'nav-grid', w: 15, h: 15, match: '/map' },
@@ -43,9 +49,9 @@ export function Sidebar ({ companyName, logoUrl, copy }: { companyName: string |
           const active = current.startsWith(item.match)
           return active
             ? (
-              <Link key={item.label} href={item.href} aria-current='page' className='relative h-11 w-full shrink-0 text-accent'>
+              <Link key={item.label} href={item.href} aria-current='page' onClick={(e) => { if (current === pathname) e.preventDefault() }} style={{ height: ROW }} className='relative w-full shrink-0 cursor-default text-accent'>
                 {/* eslint-disable-next-line @next/next/no-img-element -- static Figma SVG at its own size */}
-                <img src='/icons/nav-active-bg.svg' alt='' width={218} height={64} className='anim-fade-in pointer-events-none absolute inset-x-0 -top-2.5 h-16 w-full' />
+                <img src='/icons/nav-active-bg.svg' alt='' width={218} height={TAB} style={{ top: (ROW - TAB) / 2, height: TAB }} className='anim-fade-in pointer-events-none absolute inset-x-0 w-full' />
                 <span className='relative flex h-full items-center gap-3 pl-[12.5px]'>
                   <Icon name={item.icon} width={item.w} height={item.h} />
                   <span className='text-sm font-medium leading-6'>{item.label}</span>
@@ -53,7 +59,7 @@ export function Sidebar ({ companyName, logoUrl, copy }: { companyName: string |
               </Link>
               )
             : (
-              <Link data-ripple key={item.label} href={item.href} onClick={() => setPending({ from: pathname, to: item.href })} className='flex h-11 w-full shrink-0 items-center gap-3 rounded-lg pl-[12.5px] pr-3 text-white'>
+              <Link data-ripple key={item.label} href={item.href} onClick={() => setPending({ from: pathname, to: item.href })} style={{ height: ROW }} className='flex w-full shrink-0 items-center gap-3 rounded-lg pl-[12.5px] pr-3 text-white'>
                 <Icon name={item.icon} width={item.w} height={item.h} />
                 <span className='text-sm font-medium leading-6'>{item.label}</span>
               </Link>

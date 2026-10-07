@@ -59,7 +59,7 @@ export function MapFilters ({ agents, regions, value, copy, onApply, onClose }: 
               className='h-8 w-full rounded-lg bg-secondary-bg pl-7 pr-3 text-xs leading-[14.5px] text-ink placeholder:text-muted focus:outline-none'
             />
             {matches.length > 0 && (
-              <ul className={`absolute inset-x-0 top-9 z-10 flex flex-col rounded-lg bg-pure-white p-1 ${shadowXl}`}>
+              <ul className={`absolute inset-x-0 top-full mt-1 z-10 flex flex-col rounded-lg bg-pure-white p-1 ${shadowXl}`}>
                 {matches.map((a) => (
                   <li key={a.id}>
                     <button data-ripple type='button' onClick={() => { setAgentIds((ids) => [...ids, a.id]); setQ('') }} className='w-full rounded-md px-2.5 py-1.5 text-left text-xs leading-4 text-muted'>{a.fullName}</button>

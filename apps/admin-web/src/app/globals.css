@@ -154,6 +154,8 @@ a, button, [role='button'], [role='menuitem'], [role='switch'], [role='tab'], in
 .anim-rise-in { animation: rise-in var(--dur-long) var(--ease-decelerate) backwards; }
 .anim-snackbar-in { animation: snackbar-in var(--dur-medium) var(--ease-decelerate) backwards; }
 /* Staggered list rows: set --i on each row. */
+/* Route skeletons appear only when a page takes a moment: a fast navigation never flashes them. */
+.route-skeleton { animation: fade-in var(--dur-medium) var(--ease-standard) 150ms backwards; }
 .anim-stagger > * { animation: rise-in var(--dur-medium) var(--ease-decelerate) backwards; animation-delay: calc(min(var(--i, 0), 12) * 25ms); }
 
 .skeleton {

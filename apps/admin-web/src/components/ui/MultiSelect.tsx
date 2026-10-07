@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { Checkbox } from './Checkbox'
 import { FigmaIcon } from './FigmaIcon'
+import { usePopup } from '@/lib/use-popup'
 
 export interface MultiOption { value: string, label: string, hint?: string }
 
@@ -19,12 +20,7 @@ export function MultiSelect ({ id, options, value, onChange, placeholder, search
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState('')
   const ref = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    if (!open) return
-    const close = (e: MouseEvent) => { if (!ref.current?.contains(e.target as Node)) setOpen(false) }
-    document.addEventListener('mousedown', close)
-    return () => document.removeEventListener('mousedown', close)
-  }, [open])
+  usePopup(open, () => setOpen(false), [ref])
   const chosen = new Set(value)
   const shown = options.filter((o) => `${o.label} ${o.hint ?? ''}`.toLowerCase().includes(q.toLowerCase()))
   const names = options.filter((o) => chosen.has(o.value)).map((o) => o.label)
@@ -39,7 +35,7 @@ export function MultiSelect ({ id, options, value, onChange, placeholder, search
         <FigmaIcon name='select-chevron' width={16} height={16} className='pointer-events-none absolute right-3 top-1/2 -translate-y-1/2' />
       </button>
       {open && (
-        <div className='anim-menu-in origin-top absolute inset-x-0 top-11 z-40 flex max-h-64 flex-col rounded-lg border border-border bg-pure-white shadow-[0px_20px_25px_-5px_rgba(0,0,0,0.1),0px_8px_10px_-6px_rgba(0,0,0,0.1)]'>
+        <div className='anim-menu-in origin-top absolute inset-x-0 top-full mt-1 z-40 flex max-h-64 flex-col rounded-lg border border-border bg-pure-white shadow-[0px_20px_25px_-5px_rgba(0,0,0,0.1),0px_8px_10px_-6px_rgba(0,0,0,0.1)]'>
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={searchPlaceholder} aria-label={searchPlaceholder} className='m-2 h-9 rounded-md border border-border px-3 text-xs hover:border-slate-400 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20' />
           <ul role='listbox' aria-multiselectable className='overflow-y-auto pb-1'>
             {shown.map((o) => (

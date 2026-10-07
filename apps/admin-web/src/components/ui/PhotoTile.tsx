@@ -14,7 +14,7 @@ export function VerifiedTag ({ label }: { label: string }) {
  * Photo card of 138:11987 (138:12115): image, "Verified" pin, and the bottom gradient with shop,
  * address and date, shown on hover/focus and while the card is active.
  */
-export function PhotoTile ({ src, alt, verifiedLabel, title, address, date, active = false, onSelect, className = 'h-[170px] w-[286px]' }: {
+export function PhotoTile ({ src, alt, verifiedLabel, title, address, date, active = false, onSelect, onPrefetch, flipId, className = 'h-[170px] w-[286px]' }: {
   src: string
   alt: string
   /** Shown as the pin when the photo is verified. */
@@ -24,12 +24,16 @@ export function PhotoTile ({ src, alt, verifiedLabel, title, address, date, acti
   date?: string
   active?: boolean
   onSelect?: () => void
+  /** Hover or focus: start loading what a click will show. */
+  onPrefetch?: () => void
+  /** Key for grid reflow animation (useFlip). */
+  flipId?: string
   className?: string
 }) {
   const overlay = title != null || address != null || date != null
   return (
     <button
-      type='button' onClick={onSelect} aria-pressed={active}
+      type='button' onClick={onSelect} onPointerEnter={onPrefetch} onFocus={onPrefetch} aria-pressed={active} data-flip={flipId}
       className={`group relative shrink-0 overflow-hidden rounded-xl bg-dark-accent text-left shadow-[0px_1px_2px_rgba(0,0,0,0.05)] focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${className}`}
     >
       {/* eslint-disable-next-line @next/next/no-img-element -- presigned preview URL */}

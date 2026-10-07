@@ -28,7 +28,7 @@ type Props = {
 export function Button ({ variant = 'primary', size = 'sm', icon, href, prefetch, children, className = '', type = 'button', ...rest }: Props) {
   const weight = size === 'md' && variant === 'outline' ? 'font-medium' : ''
   const pad = variant === 'primary' ? primaryPadding[size] : ''
-  const cls = `inline-flex items-center justify-center gap-2 rounded-lg py-2 text-center whitespace-nowrap hover:shadow-md active:shadow-none disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none aria-disabled:pointer-events-none aria-disabled:opacity-50 ${sizes[size]} ${variants[variant]} ${pad} ${weight} ${className}`
+  const cls = `inline-flex shrink-0 items-center justify-center gap-2 rounded-lg py-2 text-center whitespace-nowrap hover:shadow-md active:shadow-none disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none aria-disabled:pointer-events-none aria-disabled:opacity-50 ${sizes[size]} ${variants[variant]} ${pad} ${weight} ${className}`
   // Export links start a server job: a plain link, never prefetched.
   if (href?.startsWith('/export')) return <a href={href} data-ripple className={cls}>{icon}{children}</a>
   if (href != null) return <Link href={href} prefetch={prefetch} data-ripple className={cls}>{icon}{children}</Link>

@@ -6,6 +6,7 @@ import { navigationStarted } from '@/lib/feedback'
 import type { SearchHit } from '@/lib/search-actions'
 import { Avatar } from './Avatar'
 import { Icon } from './Icon'
+import { usePopup } from '@/lib/use-popup'
 
 export interface SearchGroup { label: string, hits: SearchHit[] }
 
@@ -65,12 +66,7 @@ export function SearchAutocomplete ({ placeholder, defaultValue = '', load, onSu
     return () => { live = false; clearTimeout(timer) }
   }, [term, delay])
 
-  useEffect(() => {
-    if (!open) return
-    const close = (e: MouseEvent) => { if (box.current?.contains(e.target as Node) !== true) setOpen(false) }
-    document.addEventListener('mousedown', close)
-    return () => document.removeEventListener('mousedown', close)
-  }, [open])
+  usePopup(open && q.trim() !== '', () => setOpen(false), [box])
 
   const pick = (hit: SearchHit) => {
     setOpen(false)
