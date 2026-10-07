@@ -31,6 +31,10 @@ export default fp(async (fastify) => {
     }
     if (e.statusCode === 429) return send(429, 'RATE_LIMITED', 'Too many requests')
     if (e.statusCode === 401) return send(401, 'UNAUTHENTICATED', 'Authentication required')
+    // Other client errors raised by Fastify itself (empty JSON body, bad content type, payload too large…).
+    if (e.statusCode != null && e.statusCode >= 400 && e.statusCode < 500) {
+      return send(e.statusCode, e.statusCode === 404 ? 'NOT_FOUND' : e.statusCode === 403 ? 'FORBIDDEN' : 'VALIDATION_FAILED', e.message)
+    }
     request.log.error({ err }, 'Unhandled error')
     return send(500, 'INTERNAL_ERROR', 'Something went wrong')
   })

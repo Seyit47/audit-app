@@ -85,3 +85,10 @@ test('DB trigger allows preview fields on a READY audit photo but rejects storag
   await app.prisma.photo.update({ where: { id }, data: { previewKeys: { '400': 'p' }, width: 1, height: 1 } })
   await assert.rejects(app.prisma.photo.update({ where: { id }, data: { storageKey: 'other' } }))
 })
+
+test('a JSON POST with an empty body is a 400, not a 500', async () => {
+  const a = await f.admin(app)
+  const res = await app.inject({ method: 'POST', url: `/v1/uploads/${randomUUID()}/complete`, headers: { ...bearer(app, { id: a.id, role: 'ADMIN' }), 'content-type': 'application/json' } })
+  assert.strictEqual(res.statusCode, 400)
+  assert.strictEqual(res.json().error.code, 'VALIDATION_FAILED')
+})

@@ -41,8 +41,9 @@ class ApiClient {
   Future<T> get<T>(String path, {Map<String, dynamic>? query}) =>
       _call(() => dio.get<T>(path, queryParameters: query));
 
+  /// A POST without a body still sends `{}`: the JSON content type with an empty body is a 400.
   Future<T> post<T>(String path, {Object? body, bool auth = true}) =>
-      _call(() => dio.post<T>(path, data: body, options: Options(extra: {_noAuth: !auth})));
+      _call(() => dio.post<T>(path, data: body ?? const <String, Object?>{}, options: Options(extra: {_noAuth: !auth})));
 
   Future<T> patch<T>(String path, {Object? body}) => _call(() => dio.patch<T>(path, data: body));
 
