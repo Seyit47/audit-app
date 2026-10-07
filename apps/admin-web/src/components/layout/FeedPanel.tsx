@@ -1,5 +1,6 @@
 'use client'
 
+import { guard } from '@/lib/feedback'
 import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useState, useSyncExternalStore, useTransition } from 'react'
 import { createPortal } from 'react-dom'
@@ -57,7 +58,7 @@ export function FeedPanel ({ initialUnread, copy, locale }: { initialUnread: num
 
   const show = () => {
     setOpen(true); setOpenedAt(pathname)
-    startTransition(async () => {
+    startTransition(() => guard(async () => {
       try {
         const page = await loadFeed()
         setItems(page.items); setCursor(page.nextCursor); setFailed(false)
@@ -66,13 +67,13 @@ export function FeedPanel ({ initialUnread, copy, locale }: { initialUnread: num
       } catch {
         setFailed(true)
       }
-    })
+    }))
   }
-  const more = () => startTransition(async () => {
+  const more = () => startTransition(() => guard(async () => {
     if (cursor == null) return
     const page = await loadFeed(cursor)
     setItems((xs) => [...xs, ...page.items]); setCursor(page.nextCursor)
-  })
+  }))
 
   return (
     <>

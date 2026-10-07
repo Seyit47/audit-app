@@ -15,13 +15,17 @@ import { api, ApiError } from '@/lib/api'
 import { isoDay } from '@/lib/format'
 import { sub } from '@/lib/i18n'
 import { getLocale } from '@/lib/locale'
+import { range, uuid } from '@/lib/params'
 
 type Search = Record<string, string | undefined>
 
 /** Salesman details of 122:7981. The route, timeline and map show the last day of the period. */
 export default async function SalesmanDetailsPage ({ params, searchParams }: PageProps<'/salesmen/[id]'>) {
   const { id } = await params
-  const sp = (await searchParams) as Search
+  const raw = (await searchParams) as Search
+  if (uuid(id) == null) notFound()
+  // Only a valid day range is used (and kept in links); anything else means "today".
+  const sp: Search = { ...raw, ...range(raw.from, raw.to) }
   const locale = await getLocale()
   const copy = agentsCopy[locale]
   const d = copy.details
@@ -38,7 +42,7 @@ export default async function SalesmanDetailsPage ({ params, searchParams }: Pag
     getTimeline(id, day),
     getTrack(id, day),
     getAgentVisits(id, sp.cursor),
-    api<GalleryPage>('/v1/photos', { query: { agentId: id, from: sp.from, limit: 5 } })
+    api<GalleryPage>('/v1/photos', { query: { agentId: id, from: sp.from != null ? `${sp.from}T00:00:00.000Z` : undefined, to: sp.to != null ? `${sp.to}T23:59:59.999Z` : undefined, limit: 5 } })
   ])
 
   const keep = (extra: Search) => new URLSearchParams(Object.entries({ from: sp.from, to: sp.to, ...extra }).filter((e): e is [string, string] => e[1] != null)).toString()

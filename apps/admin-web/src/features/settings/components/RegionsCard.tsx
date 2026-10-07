@@ -1,5 +1,6 @@
 'use client'
 
+import { guard } from '@/lib/feedback'
 import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -18,10 +19,10 @@ export function RegionsCard ({ regions, copy }: { regions: Region[], copy: Setti
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
-  const act = (fn: () => Promise<ActionResult<unknown>>, done?: () => void) => startTransition(async () => {
+  const act = (fn: () => Promise<ActionResult<unknown>>, done?: () => void) => startTransition(() => guard(async () => {
     const r = await fn()
     if (r.ok) { setError(null); done?.() } else setError(copy.errors[r.code as keyof typeof copy.errors] ?? copy.errors.generic)
-  })
+  }))
 
   return (
     <Card className='flex flex-col gap-4 p-5'>

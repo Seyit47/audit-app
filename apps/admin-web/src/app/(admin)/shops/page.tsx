@@ -5,6 +5,7 @@ import { ShopsToolbar } from '@/features/shops/components/ShopsToolbar'
 import { ShopsView } from '@/features/shops/components/ShopsView'
 import { shopFormCopy, shopsCopy } from '@/features/shops/copy'
 import { getLocale } from '@/lib/locale'
+import { int, oneOf, text, uuid } from '@/lib/params'
 
 type Search = Record<string, string | undefined>
 
@@ -13,21 +14,22 @@ export default async function ShopsPage ({ searchParams }: PageProps<'/shops'>) 
   const locale = await getLocale()
   const copy = shopsCopy[locale]
   const query: ShopListQuery = {
-    page: Number(sp.page ?? 1),
-    size: Number(sp.size ?? 10),
-    q: sp.q,
-    status: sp.status as ShopListQuery['status'],
-    regionId: sp.regionId,
-    agentId: sp.agentId
+    page: int(sp.page, 1),
+    size: int(sp.size, 10, 1, 100),
+    q: text(sp.q),
+    status: oneOf(sp.status, ['ACTIVE', 'INACTIVE', 'PENDING_REVIEW'] as const),
+    regionId: uuid(sp.regionId),
+    agentId: uuid(sp.agentId)
   }
-  const dialog = sp.add != null || sp.edit != null
+  const editId = uuid(sp.edit)
+  const dialog = sp.add != null || editId != null
   const [page, regions, agents, editing, products, carried] = await Promise.all([
     listShops(query),
     listRegions(),
     listAgentOptions(),
-    sp.edit != null ? getShop(sp.edit) : Promise.resolve(null),
+    editId != null ? getShop(editId).catch(() => null) : Promise.resolve(null),
     dialog ? listProductOptions() : Promise.resolve(null),
-    sp.edit != null ? getShopProducts(sp.edit) : Promise.resolve({ productIds: [] })
+    editId != null ? getShopProducts(editId).catch(() => ({ productIds: [] })) : Promise.resolve({ productIds: [] })
   ])
   const keep = (omit: string[]) => new URLSearchParams(Object.entries(sp).filter((e): e is [string, string] => e[1] != null && !omit.includes(e[0])))
   const exportHref = `/export?${new URLSearchParams({ type: 'SHOPS_XLSX', back: '/shops', ...Object.fromEntries(keep(['page', 'size', 'add', 'edit', 'exportFailed'])) }).toString()}`

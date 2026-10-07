@@ -1,6 +1,6 @@
 'use client'
 
-import { say } from '@/lib/feedback'
+import { guard, say } from '@/lib/feedback'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
@@ -55,24 +55,24 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
       productIds: carried
     }
     setError(null)
-    startTransition(async () => {
+    startTransition(() => guard(async () => {
       const res = shop == null ? await createShop(input) : await updateShop(shop.id, shop.version, input)
       if (!res.ok) return setError(res.code === 'CONFLICT' ? copy.errors.CONFLICT : copy.errors.generic)
       say(shop == null ? 'created' : 'saved')
       close()
       router.refresh()
-    })
+    }))
   }
 
   function toggleArchive () {
     if (shop == null) return
-    startTransition(async () => {
+    startTransition(() => guard(async () => {
       const res = await setShopStatus(shop.id, shop.version, shop.status === 'INACTIVE' ? 'ACTIVE' : 'INACTIVE')
       if (!res.ok) return setError(res.code === 'CONFLICT' ? copy.errors.CONFLICT : copy.errors.generic)
       say('status')
       close()
       router.refresh()
-    })
+    }))
   }
 
   const setPhone = (i: number, patch: Partial<Phone>) => setPhones((ps) => ps.map((p, j) => (j === i ? { ...p, ...patch } : p)))

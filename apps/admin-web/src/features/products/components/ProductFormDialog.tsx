@@ -1,6 +1,6 @@
 'use client'
 
-import { say } from '@/lib/feedback'
+import { guard, say } from '@/lib/feedback'
 import { useRouter } from 'next/navigation'
 import { useRef, useState, useTransition } from 'react'
 import { Button } from '@/components/ui/Button'
@@ -58,13 +58,13 @@ export function ProductFormDialog ({ product, categories, copy, closeHref }: {
     }
     if (!input.sku || !input.name || !input.categoryId || !Number.isFinite(input.retailPrice) || s('retailPrice') === '') return setError(f.errors.required)
     setError(null)
-    startTransition(async () => {
+    startTransition(() => guard(async () => {
       const res = await saveProduct(product?.id ?? null, input)
       if (!res.ok) return setError(res.code === 'CONFLICT' ? f.errors.CONFLICT : f.errors.generic)
       say(product == null ? 'created' : 'saved')
       close()
       router.refresh()
-    })
+    }))
   }
 
   return (

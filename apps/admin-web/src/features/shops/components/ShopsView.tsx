@@ -1,6 +1,6 @@
 'use client'
 
-import { say } from '@/lib/feedback'
+import { guard, say } from '@/lib/feedback'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
@@ -118,13 +118,13 @@ export function ShopsView ({ page, copy, locale, agents, exportHref, children }:
 
   function act (fn: () => Promise<{ ok: boolean }>) {
     setError(null)
-    startTransition(async () => {
+    startTransition(() => guard(async () => {
       const res = await fn()
       if (!res.ok) return setError(copy.errors.generic)
       say(deleting != null ? 'deleted' : 'assigned')
       setAssigning(null); setDeleting(null); setSelected(new Set())
       router.refresh()
-    })
+    }))
   }
 
   return (

@@ -1,6 +1,6 @@
 'use client'
 
-import { say } from '@/lib/feedback'
+import { guard, say } from '@/lib/feedback'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/Button'
@@ -46,7 +46,7 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref }: 
     if (!input.fullName || !input.code || !input.phone || !input.regionId) return setError(f.errors.required)
     if (input.dailyAuditPlan > input.dailyVisitPlan) return setError(f.errors.plan)
     setError(null)
-    startTransition(async () => {
+    startTransition(() => guard(async () => {
       if (agent == null) {
         const res = await createAgent(input)
         if (!res.ok) return setError(res.code === 'CONFLICT' ? f.errors.CONFLICT : f.errors.generic)
@@ -58,16 +58,16 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref }: 
         say('saved')
         close()
       }
-    })
+    }))
   }
 
   function resetPassword () {
     if (agent == null) return
-    startTransition(async () => {
+    startTransition(() => guard(async () => {
       const res = await resetAgentPassword(agent.id)
       if (res.ok) setPassword(res.data.temporaryPassword)
       else setError(f.errors.generic)
-    })
+    }))
   }
 
   if (password != null) {

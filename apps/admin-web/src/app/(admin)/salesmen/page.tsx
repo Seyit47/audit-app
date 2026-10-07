@@ -8,6 +8,7 @@ import { api } from '@/lib/api'
 import { AgentsTable } from '@/features/agents/components/AgentsTable'
 import { AgentsToolbar } from '@/features/agents/components/AgentsToolbar'
 import { agentsCopy } from '@/features/agents/copy'
+import { int, oneOf, range, text, uuid } from '@/lib/params'
 import { getLocale } from '@/lib/locale'
 
 type Search = Record<string, string | undefined>
@@ -16,22 +17,23 @@ export default async function SalesmenPage ({ searchParams }: PageProps<'/salesm
   const sp = (await searchParams) as Search
   const locale = await getLocale()
   const copy = agentsCopy[locale]
+  const period = range(sp.from, sp.to)
   const query: AgentListQuery = {
-    page: Number(sp.page ?? 1),
-    size: Number(sp.size ?? 10),
-    q: sp.q,
-    status: sp.status as AgentListQuery['status'],
-    regionId: sp.regionId,
-    from: sp.from,
-    to: sp.to,
-    sort: sp.sort ?? 'code',
-    dir: (sp.dir as 'asc' | 'desc' | undefined) ?? 'asc'
+    page: int(sp.page, 1),
+    size: int(sp.size, 10, 1, 100),
+    q: text(sp.q),
+    status: oneOf(sp.status, ['ACTIVE', 'ON_LEAVE', 'INACTIVE'] as const),
+    regionId: uuid(sp.regionId),
+    ...period,
+    sort: oneOf(sp.sort, ['fullName', 'code', 'locations', 'visits', 'photos', 'lastActivityAt'] as const) ?? 'code',
+    dir: oneOf(sp.dir, ['asc', 'desc'] as const) ?? 'asc'
   }
-  const editing = sp.edit != null ? await getAgent(sp.edit) : null
+  const editId = uuid(sp.edit)
+  const editing = editId != null ? await getAgent(editId).catch(() => null) : null
   const [page, regions, summary, next] = await Promise.all([
     listAgents(query),
     listRegions(),
-    getAgentsSummary(sp.from, sp.to),
+    getAgentsSummary(period.from, period.to),
     sp.add != null ? api<{ code: string }>('/v1/agents/next-code') : Promise.resolve({ code: '' })
   ])
   const href = (key: string, dir: 'asc' | 'desc') => {

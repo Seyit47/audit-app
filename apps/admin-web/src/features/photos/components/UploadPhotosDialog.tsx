@@ -30,7 +30,7 @@ export function UploadPhotosDialog ({ shops, copy, onClose }: { shops: Array<{ i
       try { await uploadImage(f, 'ADMIN_UPLOAD', { shopId }); ok++ } catch { /* reported below */ }
     }
     setBusy(false)
-    await photosUploaded()
+    await photosUploaded().catch(() => undefined)
     router.refresh()
     if (ok === files.length) { say('uploaded'); onClose() }
     else setMessage(`${d.failed} (${d.done.replace('{n}', String(ok))})`)

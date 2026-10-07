@@ -10,6 +10,7 @@ import { shopFormCopy, shopsCopy } from '@/features/shops/copy'
 import { ApiError } from '@/lib/api'
 import { sub, type Locale } from '@/lib/i18n'
 import { getLocale } from '@/lib/locale'
+import { uuid } from '@/lib/params'
 
 const tag = (l: Locale) => (l === 'ru' ? 'ru-RU' : 'en-US')
 
@@ -47,11 +48,12 @@ export default async function ShopDetailsPage ({ params, searchParams }: PagePro
   const locale = await getLocale()
   const copy = shopsCopy[locale]
   const d = copy.details
+  if (uuid(id) == null) notFound()
   let shop
   try {
     shop = await getShop(id)
   } catch (err) {
-    if (err instanceof ApiError && err.status === 404) notFound()
+    if (err instanceof ApiError && (err.status === 404 || err.status === 400)) notFound()
     throw err
   }
   const [visits, agents, products, carried] = await Promise.all([

@@ -9,12 +9,11 @@ import type { GalleryPage } from '@/features/photos/types'
 import { shopsCopy } from '@/features/shops/copy'
 import { api, ApiError, type CursorPage } from '@/lib/api'
 import { getLocale } from '@/lib/locale'
+import { uuid, uuids } from '@/lib/params'
 
 type Search = Record<string, string | undefined>
 
 const SATELLITE = process.env.SATELLITE_TILES_URL ?? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-const list = (v?: string) => (v ?? '').split(',').filter((x) => x !== '')
-
 async function card (id: string) {
   try {
     const [shop, visits, photos] = await Promise.all([
@@ -34,13 +33,14 @@ export default async function MapPage ({ searchParams }: PageProps<'/map'>) {
   const sp = (await searchParams) as Search
   const locale = await getLocale()
   const copy = mapCopy[locale]
-  const filters = { agentIds: list(sp.agents), regionIds: list(sp.regions), ids: list(sp.ids) }
+  const filters = { agentIds: uuids(sp.agents), regionIds: uuids(sp.regions), ids: uuids(sp.ids) }
+  const shopId = uuid(sp.shop)
   const [shops, positions, regions, agents, selected] = await Promise.all([
     api<MapShop[]>('/v1/shops/map', { query: { agentIds: filters.agentIds, regionIds: filters.regionIds, ids: filters.ids } }),
     api<AgentPosition[]>('/v1/agents/positions'),
     listRegions(),
     listAgentOptions(),
-    sp.shop != null ? card(sp.shop) : Promise.resolve(null)
+    shopId != null ? card(shopId) : Promise.resolve(null)
   ])
   const d = shopsCopy[locale].details
   const closeHref = `/map?${new URLSearchParams(Object.entries(sp).filter((e): e is [string, string] => e[1] != null && e[0] !== 'shop')).toString()}`

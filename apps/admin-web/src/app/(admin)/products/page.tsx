@@ -6,6 +6,7 @@ import { ProductFormDialog } from '@/features/products/components/ProductFormDia
 import { ProductsToolbar } from '@/features/products/components/ProductsToolbar'
 import { ProductsView } from '@/features/products/components/ProductsView'
 import { productsCopy } from '@/features/products/copy'
+import { int, oneOf, text, uuid } from '@/lib/params'
 import { getLocale } from '@/lib/locale'
 
 type Search = Record<string, string | undefined>
@@ -13,12 +14,13 @@ type Search = Record<string, string | undefined>
 export default async function ProductsPage ({ searchParams }: PageProps<'/products'>) {
   const sp = (await searchParams) as Search
   const copy = productsCopy[await getLocale()]
-  const query: ProductListQuery = { page: Number(sp.page ?? 1), size: Number(sp.size ?? 10), q: sp.q, status: sp.status as ProductListQuery['status'] }
-  const dialog = sp.add != null || sp.edit != null
+  const query: ProductListQuery = { page: int(sp.page, 1), size: int(sp.size, 10, 1, 100), q: text(sp.q), status: oneOf(sp.status, ['ACTIVE', 'DRAFT', 'INACTIVE'] as const) }
+  const editId = uuid(sp.edit)
+  const dialog = sp.add != null || editId != null
   const [page, categories, editing] = await Promise.all([
     listProducts(query),
     dialog ? listCategories() : Promise.resolve([]),
-    sp.edit != null ? getProduct(sp.edit) : Promise.resolve(null)
+    editId != null ? getProduct(editId).catch(() => null) : Promise.resolve(null)
   ])
   const keep = (omit: string[]) => new URLSearchParams(Object.entries(sp).filter((e): e is [string, string] => e[1] != null && !omit.includes(e[0])))
   const exportHref = `/export?${new URLSearchParams({ type: 'PRODUCTS_XLSX', back: '/products', ...Object.fromEntries(keep(['page', 'size', 'add', 'edit', 'exportFailed'])) }).toString()}`

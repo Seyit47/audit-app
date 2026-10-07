@@ -23,12 +23,23 @@ export async function busy<T> (work: Promise<T>): Promise<T> {
 }
 
 const messages = {
-  en: { saved: 'Changes saved', created: 'Created', deleted: 'Deleted', assigned: 'Salesman assigned', uploaded: 'Photos uploaded', status: 'Status updated', exportFailed: 'The export failed. Try again.' },
-  ru: { saved: 'Изменения сохранены', created: 'Создано', deleted: 'Удалено', assigned: 'Агент назначен', uploaded: 'Фото загружены', status: 'Статус обновлён', exportFailed: 'Не удалось сформировать файл. Попробуйте ещё раз.' }
+  en: { saved: 'Changes saved', created: 'Created', deleted: 'Deleted', assigned: 'Salesman assigned', uploaded: 'Photos uploaded', status: 'Status updated', exportFailed: 'The export failed. Try again.', failed: 'Something went wrong. Try again.' },
+  ru: { saved: 'Изменения сохранены', created: 'Создано', deleted: 'Удалено', assigned: 'Агент назначен', uploaded: 'Фото загружены', status: 'Статус обновлён', exportFailed: 'Не удалось сформировать файл. Попробуйте ещё раз.', failed: 'Не удалось выполнить действие. Попробуйте ещё раз.' }
 }
 
 /** Snackbar text in the page language (`<html lang>`). */
 export function say (key: keyof typeof messages.en, tone: ToastTone = 'success') {
   const lang = document.documentElement.lang === 'en' ? 'en' : 'ru'
   toast(messages[lang][key], tone)
+}
+
+/** Runs client work (server actions, loads); a failure becomes an error snackbar instead of an error page. */
+export async function guard (work: () => Promise<unknown>, onError?: () => void) {
+  try {
+    await work()
+  } catch (err) {
+    console.error(err)
+    onError?.()
+    say('failed', 'error')
+  }
 }

@@ -1,5 +1,6 @@
 'use client'
 
+import { guard } from '@/lib/feedback'
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react'
 import { FigmaIcon } from '@/components/ui/FigmaIcon'
 import { FilterSelect } from '@/components/ui/FilterSelect'
@@ -47,11 +48,11 @@ export function PhotosView ({ first, query, summary, regions, shops, copy, local
 
   const more = useCallback(() => {
     if (cursor == null || loading) return
-    startLoading(async () => {
+    startLoading(() => guard(async () => {
       const page = await loadPhotos(query, cursor)
       setItems((xs) => [...xs, ...page.items])
       setCursor(page.nextCursor)
-    })
+    }))
   }, [cursor, loading, query])
 
   useEffect(() => {
@@ -66,7 +67,7 @@ export function PhotosView ({ first, query, summary, regions, shops, copy, local
   const [opening, setOpening] = useState<GalleryPhoto | null>(null)
   const open = (p: GalleryPhoto) => {
     setOpening(p)
-    startLoading(async () => { setDetail(await loadPhoto(p.id)); setOpening(null) })
+    startLoading(() => guard(async () => { setDetail(await loadPhoto(p.id)); setOpening(null) }, () => setOpening(null)))
   }
   const activeFilters = ['type', 'regionId', 'verified', 'date'].filter((k) => params.get(k) != null).length
 
