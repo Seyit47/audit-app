@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.CAMERA" />
     <application
+        android:enableOnBackInvokedCallback="true"
         android:label="Аудит"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">

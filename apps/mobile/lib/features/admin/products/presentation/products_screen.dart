@@ -12,6 +12,7 @@ import '../../../../core/widgets/app_top_bar.dart';
 import '../../../../core/widgets/search_field.dart';
 import '../../../../core/widgets/shop_card.dart';
 import '../../data/admin_api.dart';
+import '../../../../core/widgets/skeleton.dart';
 
 /// Mobile admin Products (approved exception A7): `GET /products` as cards styled from `246:23300`.
 class ProductsScreen extends ConsumerStatefulWidget {
@@ -40,12 +41,15 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
     super.dispose();
   }
 
+  var _seq = 0;
+
   Future<void> _load() async {
+    final seq = ++_seq; // a slower, older search must not overwrite a newer one
     try {
       final page = await ref.read(adminApiProvider).products(q: _q);
-      if (mounted) setState(() { _items = page.items; _total = page.total; _error = false; });
+      if (mounted && seq == _seq) setState(() { _items = page.items; _total = page.total; _error = false; });
     } catch (_) {
-      if (mounted) setState(() => _error = true);
+      if (mounted && seq == _seq) setState(() => _error = true);
     }
   }
 
@@ -76,8 +80,8 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
             child: RefreshIndicator(
               onRefresh: _load,
               child: ListView(padding: const EdgeInsets.fromLTRB(16, 0, 16, 48), children: [
-                if (_error) Padding(padding: const EdgeInsets.all(24), child: Center(child: Text(l10n.loadError, style: TextStyle(color: c.textSecondary)))),
-                if (_items == null && !_error) const Padding(padding: EdgeInsets.all(32), child: Center(child: CircularProgressIndicator())),
+                if (_error) LoadErrorView(onRetry: () { setState(() => _error = false); _load(); }),
+                if (_items == null && !_error) const CardListSkeleton(count: 5),
                 if (_items != null && _items!.isEmpty) Padding(padding: const EdgeInsets.all(32), child: Center(child: Text(l10n.productsEmpty, style: TextStyle(color: c.textSecondary)))),
                 for (final p in _items ?? const <Json>[]) ...[
                   Container(

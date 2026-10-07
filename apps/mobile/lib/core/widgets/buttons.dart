@@ -16,7 +16,8 @@ class PrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final enabled = onPressed != null && !loading;
-    return Opacity(
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 200),
       opacity: enabled ? 1 : 0.5,
       child: DecoratedBox(
         decoration: BoxDecoration(
@@ -35,12 +36,16 @@ class PrimaryButton extends StatelessWidget {
             child: SizedBox(
               height: 48,
               child: Center(
-                child: loading
-                    ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : Row(mainAxisSize: MainAxisSize.min, children: [
-                        if (icon != null) ...[icon!, const SizedBox(width: 8)],
-                        Text(label, style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600, height: 20 / 14, color: Colors.white)),
-                      ]),
+                // The label and the spinner cross-fade instead of swapping.
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: loading
+                      ? const SizedBox.square(key: ValueKey('loading'), dimension: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                      : Row(key: const ValueKey('label'), mainAxisSize: MainAxisSize.min, children: [
+                          if (icon != null) ...[icon!, const SizedBox(width: 8)],
+                          Text(label, style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600, height: 20 / 14, color: Colors.white)),
+                        ]),
+                ),
               ),
             ),
           ),

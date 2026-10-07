@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import 'app_icon.dart';
+import 'tap.dart';
 
 /// Theme switch of the Home header (`111:6788` / `102:3279`): sun in light, moon in dark.
 class ThemeToggle extends StatelessWidget {
@@ -50,23 +51,21 @@ class LocaleToggle extends StatelessWidget {
       return Semantics(
         selected: selected,
         button: true,
-        child: GestureDetector(
-          onTap: () => onChanged(code),
-          child: Container(
-            height: 30,
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            decoration: selected
-                ? BoxDecoration(
-                    color: c.accent,
-                    borderRadius: BorderRadius.circular(9999),
-                    boxShadow: const [BoxShadow(color: Color(0x0D000000), offset: Offset(0, 1), blurRadius: 2)],
-                  )
-                : null,
-            child: Row(mainAxisSize: MainAxisSize.min, children: [
-              if (selected) ...[const AppIcon('radio-dot', width: 12, height: 12), const SizedBox(width: 4)],
-              Text(code.toUpperCase(), style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 16 / 12, fontWeight: FontWeight.w500, color: selected ? const Color(0xFFFCFDFF) : c.toggleOff)),
-            ]),
-          ),
+        child: AnimatedChip(
+          onTap: selected ? null : () => onChanged(code),
+          height: 30,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: selected
+              ? BoxDecoration(
+                  color: c.accent,
+                  borderRadius: BorderRadius.circular(9999),
+                  boxShadow: const [BoxShadow(color: Color(0x0D000000), offset: Offset(0, 1), blurRadius: 2)],
+                )
+              : null,
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            if (selected) ...[const AppIcon('radio-dot', width: 12, height: 12), const SizedBox(width: 4)],
+            Text(code.toUpperCase(), style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 16 / 12, fontWeight: FontWeight.w500, color: selected ? const Color(0xFFFCFDFF) : c.toggleOff)),
+          ]),
         ),
       );
     }

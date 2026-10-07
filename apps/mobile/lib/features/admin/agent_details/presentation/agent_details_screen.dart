@@ -16,6 +16,8 @@ import '../../../../core/widgets/shop_card.dart';
 import '../../../../core/widgets/stat_tile.dart';
 import '../../../shop_details/presentation/shop_details_screen.dart' show call;
 import '../../data/admin_api.dart';
+import '../../../../core/widgets/tap.dart';
+import '../../../../core/widgets/skeleton.dart';
 
 class _Data {
   const _Data(this.agent, this.timeline, this.track, this.visits, this.photos);
@@ -94,7 +96,7 @@ class _AgentDetailsScreenState extends ConsumerState<AgentDetailsScreen> {
           AppTopBar(title: l10n.agentDetailsTitle, action: d == null ? null : exportButton),
           Expanded(
             child: d == null
-                ? Center(child: data.hasError ? Text(l10n.loadError, style: TextStyle(color: c.textSecondary)) : const CircularProgressIndicator())
+                ? (data.hasError ? Center(child: LoadErrorView(onRetry: () => ref.invalidate(_agentDataProvider(widget.agentId)))) : const SingleChildScrollView(padding: EdgeInsets.all(16), physics: NeverScrollableScrollPhysics(), child: CardListSkeleton(count: 4, lines: 3)))
                 : RefreshIndicator(
                     onRefresh: () => ref.refresh(_agentDataProvider(widget.agentId).future),
                     child: ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 32), children: _content(context, l10n, d)),
@@ -220,21 +222,29 @@ class _AgentDetailsScreenState extends ConsumerState<AgentDetailsScreen> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(color: c.secondaryBg.withValues(alpha: 0.6), borderRadius: BorderRadius.circular(12)),
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              GestureDetector(
+              TextLink(
                 onTap: () => setState(() => _timelineOpen = !_timelineOpen),
                 child: Row(children: [
                   Text(l10n.checkpointHistory, style: AppTextStyles.label.copyWith(color: c.textPrimary)),
                   const SizedBox(width: 8),
                   Tag(l10n.pointsCount(d.timeline.length)),
                   const Spacer(),
-                  RotatedBox(quarterTurns: _timelineOpen ? 3 : 1, child: AppIcon('chevron-down', width: 14, height: 14, color: c.textSecondary)),
+                  AnimatedRotation(turns: _timelineOpen ? 0.75 : 0.25, duration: const Duration(milliseconds: 250), curve: Curves.easeOutCubic, child: AppIcon('chevron-down', width: 14, height: 14, color: c.textSecondary)),
                 ]),
               ),
-              if (_timelineOpen) ...[
-                const SizedBox(height: 8),
-                Divider(height: 1, color: c.border),
-                for (final st in d.timeline) _checkpoint(context, l10n, st),
-              ],
+              // Expands and collapses smoothly instead of popping in.
+              AnimatedSize(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeOutCubic,
+                alignment: Alignment.topCenter,
+                child: !_timelineOpen
+                    ? const SizedBox(width: double.infinity)
+                    : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                        const SizedBox(height: 8),
+                        Divider(height: 1, color: c.border),
+                        for (final st in d.timeline) _checkpoint(context, l10n, st),
+                      ]),
+              ),
             ]),
           ),
         ]),
@@ -248,7 +258,7 @@ class _AgentDetailsScreenState extends ConsumerState<AgentDetailsScreen> {
             AppIcon('camera-small', width: 14, height: 13, color: c.accent),
             const SizedBox(width: 8),
             Expanded(child: Text(l10n.photoReports, style: title.copyWith(fontSize: 14))),
-            GestureDetector(
+            TextLink(
               onTap: () => context.push('/admin/gallery?agentId=${widget.agentId}'),
               child: Row(children: [
                 Text(l10n.openGallery, style: AppTextStyles.label.copyWith(color: c.accent)),
@@ -266,7 +276,7 @@ class _AgentDetailsScreenState extends ConsumerState<AgentDetailsScreen> {
             physics: const NeverScrollableScrollPhysics(),
             children: [
               for (final p in photos)
-                GestureDetector(
+                InkOverlay(radius: 8, 
                   onTap: () => context.push('/admin/gallery/${p['id']}'),
                   child: Stack(fit: StackFit.expand, children: [
                     AppImage((p['previewUrl400'] ?? p['url']) as String?, radius: 8),

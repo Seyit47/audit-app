@@ -16,6 +16,7 @@ import '../../../../core/widgets/shop_card.dart';
 import '../../../../core/widgets/stat_tile.dart';
 import '../../../shop_details/presentation/shop_details_screen.dart' show call, openInMaps;
 import '../../data/admin_api.dart';
+import '../../../../core/widgets/skeleton.dart';
 
 /// Admin mobile Agents (`265:27616`): KPI tiles, search, filters (B3), agent cards.
 class AgentsScreen extends ConsumerStatefulWidget {
@@ -47,8 +48,11 @@ class _AgentsScreenState extends ConsumerState<AgentsScreen> {
     super.dispose();
   }
 
+  var _seq = 0;
+
   Future<void> _load() async {
     final api = ref.read(adminApiProvider);
+    final seq = ++_seq; // a slower, older search must not overwrite a newer one
     try {
       final results = await Future.wait<Object>([
         api.agents(q: _q, status: (_filters['status'] ?? const {}).firstOrNull, regionId: (_filters['region'] ?? const {}).firstOrNull),
@@ -56,7 +60,7 @@ class _AgentsScreenState extends ConsumerState<AgentsScreen> {
         api.positions().catchError((_) => <Json>[]),
         api.regions().catchError((_) => <Json>[]),
       ]);
-      if (!mounted) return;
+      if (!mounted || seq != _seq) return;
       setState(() {
         _agents = (results[0] as PageOf).items;
         _summary = results[1] as Json;
@@ -134,8 +138,8 @@ class _AgentsScreenState extends ConsumerState<AgentsScreen> {
                   ]),
                   const SizedBox(height: 16),
                 ],
-                if (_error) Padding(padding: const EdgeInsets.all(24), child: Center(child: Text(l10n.loadError, style: TextStyle(color: c.textSecondary)))),
-                if (_agents == null && !_error) const Padding(padding: EdgeInsets.all(32), child: Center(child: CircularProgressIndicator())),
+                if (_error) LoadErrorView(onRetry: () { setState(() => _error = false); _load(); }),
+                if (_agents == null && !_error) const CardListSkeleton(),
                 if (_agents != null && _agents!.isEmpty) Padding(padding: const EdgeInsets.all(32), child: Center(child: Text(l10n.agentsEmpty, style: TextStyle(color: c.textSecondary)))),
                 for (final a in _agents ?? const <Json>[]) ...[_card(context, l10n, a), const SizedBox(height: 16)],
               ]),

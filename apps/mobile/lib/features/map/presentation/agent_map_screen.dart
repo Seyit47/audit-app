@@ -16,6 +16,7 @@ import '../../../core/widgets/map_view.dart';
 import '../../../core/widgets/search_field.dart';
 import '../../shops/data/shops_local_repository.dart';
 import '../../shops/domain/visit_state.dart';
+import '../../../core/widgets/tap.dart';
 
 enum _MapFilter { all, notVisited, visited, recent }
 
@@ -275,22 +276,20 @@ class MapChip extends StatelessWidget {
     final c = context.colors;
     return Padding(
       padding: const EdgeInsets.only(right: 12),
-      child: GestureDetector(
+      child: AnimatedChip(
         onTap: onTap,
-        child: Container(
-          height: 28,
-          padding: EdgeInsets.symmetric(horizontal: selected && dot == null ? 12 : 14),
-          decoration: BoxDecoration(
-            color: selected ? c.accent : c.card,
-            borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: selected ? Colors.transparent : c.cardBorder),
-            boxShadow: const [BoxShadow(color: Color(0x0D000000), offset: Offset(0, 1), blurRadius: 2)],
-          ),
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            if (dot != null) ...[Container(width: 8, height: 8, decoration: BoxDecoration(color: dot, shape: BoxShape.circle)), const SizedBox(width: 6)],
-            Text(label, style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 16 / 12, fontWeight: FontWeight.w500, color: selected ? Colors.white : c.textSecondary)),
-          ]),
+        height: 28,
+        padding: EdgeInsets.symmetric(horizontal: selected && dot == null ? 12 : 14),
+        decoration: BoxDecoration(
+          color: selected ? c.accent : c.card,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: selected ? Colors.transparent : c.cardBorder),
+          boxShadow: const [BoxShadow(color: Color(0x0D000000), offset: Offset(0, 1), blurRadius: 2)],
         ),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          if (dot != null) ...[Container(width: 8, height: 8, decoration: BoxDecoration(color: dot, shape: BoxShape.circle)), const SizedBox(width: 6)],
+          Text(label, style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 16 / 12, fontWeight: FontWeight.w500, color: selected ? Colors.white : c.textSecondary)),
+        ]),
       ),
     );
   }

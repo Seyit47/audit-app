@@ -10,6 +10,7 @@ import '../../../core/widgets/app_image.dart';
 import '../../../core/widgets/app_top_bar.dart';
 import '../../../core/widgets/audit_history_item.dart';
 import '../../../core/widgets/photo_grid.dart';
+import '../../../core/widgets/tap.dart';
 
 /// Photo detail of `83:18045` / `248:24402`: date and time, the shop, the audit note and the
 /// related audit photos. Tapping the highlighted photo opens it full screen.
@@ -166,7 +167,7 @@ class _PhotoDetailViewState extends State<PhotoDetailView> {
                       itemBuilder: (context, i) {
                         final p = widget.related[i];
                         final on = p.id == _selected;
-                        return GestureDetector(
+                        return InkOverlay(radius: 8, 
                           onTap: () => on ? _fullScreen(context, p) : setState(() => _selected = p.id),
                           child: Container(
                             width: 60,

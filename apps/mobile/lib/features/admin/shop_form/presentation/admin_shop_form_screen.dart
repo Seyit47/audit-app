@@ -12,6 +12,7 @@ import '../../../add_shop/presentation/shop_form_view.dart';
 import '../../../audit/domain/geofence.dart';
 import '../../../audit/presentation/audit_controller.dart';
 import '../../data/admin_api.dart';
+import '../../../../core/widgets/skeleton.dart';
 
 /// Admin mobile Add/Edit shop (`252:25423` empty, `252:25542` filled): saved online with
 /// `POST/PATCH /shops` after the storefront upload.
@@ -119,7 +120,7 @@ class _AdminShopFormScreenState extends ConsumerState<AdminShopFormScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final c = context.colors;
-    if (!_loaded) return Scaffold(backgroundColor: c.mainBg, body: const Center(child: CircularProgressIndicator()));
+    if (!_loaded) return Scaffold(backgroundColor: c.mainBg, body: const SafeArea(child: SingleChildScrollView(padding: EdgeInsets.all(16), physics: NeverScrollableScrollPhysics(), child: CardListSkeleton(count: 4, lines: 3))));
     final border = OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: c.inputBorder));
     return ShopFormView(
       title: widget.shopId == null ? l10n.addShopTitle : l10n.editShopTitle,

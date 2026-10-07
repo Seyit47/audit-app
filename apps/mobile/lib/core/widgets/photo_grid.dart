@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import 'app_image.dart';
+import 'tap.dart';
 
 class GridPhoto {
   const GridPhoto({required this.id, required this.image, required this.takenAt});
@@ -50,7 +51,7 @@ class PhotoDayGrid extends StatelessWidget {
               padding: EdgeInsets.zero,
               physics: const NeverScrollableScrollPhysics(),
               children: [
-                for (final p in items) GestureDetector(onTap: () => onTap(p), child: AppImage(p.image, radius: 0)),
+                for (final p in items) InkOverlay(onTap: () => onTap(p), child: AppImage(p.image, radius: 0)),
               ],
             ),
           ]),

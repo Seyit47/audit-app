@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
@@ -23,6 +24,13 @@ abstract final class AppTheme {
       colorScheme: scheme,
       scaffoldBackgroundColor: c.mainBg,
       fontFamily: AppTextStyles.family,
+      // Native Android touch and navigation: the platform's sparkle ripple, and Android 14's predictive-back
+      // page transition (the page follows the back swipe; needs enableOnBackInvokedCallback in the manifest).
+      splashFactory: InkSparkle.splashFactory,
+      pageTransitionsTheme: const PageTransitionsTheme(builders: {
+        TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+      }),
       extensions: [c],
     );
   }

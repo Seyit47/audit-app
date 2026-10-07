@@ -12,6 +12,7 @@ import '../../../../core/widgets/filter_sheet.dart';
 import '../../../../core/widgets/photo_grid.dart';
 import '../../../gallery/presentation/photo_detail_view.dart';
 import '../../data/admin_api.dart';
+import '../../../../core/widgets/skeleton.dart';
 
 GridPhoto _grid(Json p) => GridPhoto(id: p['id'] as String, image: (p['previewUrl400'] ?? p['url']) as String?, takenAt: DateTime.parse(p['takenAt'] as String));
 
@@ -48,28 +49,32 @@ class _AdminGalleryScreenState extends ConsumerState<AdminGalleryScreen> {
     super.dispose();
   }
 
+  var _seq = 0;
+
   Future<void> _reload() async {
-    setState(() { _items.clear(); _cursor = null; _done = false; _error = false; });
+    _seq++; // abandons any page still loading for the previous filters
+    setState(() { _items.clear(); _cursor = null; _done = false; _error = false; _loading = false; });
     await _load();
   }
 
   Future<void> _load() async {
     if (_loading || _done) return;
+    final seq = _seq;
     setState(() => _loading = true);
     final days = int.tryParse((_filters['date'] ?? const {}).firstOrNull ?? '');
     final from = days == null ? null : DateUtils.dateOnly(DateTime.now()).subtract(Duration(days: days - 1)).toUtc().toIso8601String();
     try {
       final res = await ref.read(adminApiProvider).photos(shopId: widget.shopId, agentId: widget.agentId, from: from, cursor: _cursor);
-      if (!mounted) return;
+      if (!mounted || seq != _seq) return;
       setState(() {
         _items.addAll([for (final i in res['items'] as List) (i as Map).cast<String, dynamic>()]);
         _cursor = res['nextCursor'] as String?;
         _done = _cursor == null;
       });
     } catch (_) {
-      if (mounted) setState(() => _error = true);
+      if (mounted && seq == _seq) setState(() => _error = true);
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (mounted && seq == _seq) setState(() => _loading = false);
     }
   }
 
@@ -117,11 +122,27 @@ class _AdminGalleryScreenState extends ConsumerState<AdminGalleryScreen> {
                 ]),
               ),
             ),
-            if (_items.isEmpty && !_loading)
-              SliverFillRemaining(hasScrollBody: false, child: Center(child: Text(_error ? l10n.loadError : l10n.noPhotos, style: TextStyle(color: c.textSecondary))))
+            if (_items.isEmpty && _loading)
+              // First load: a grid of placeholder tiles in the photo grid's own layout.
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+                sliver: SliverList.list(children: [
+                  const Bone(width: 120, height: 18),
+                  const SizedBox(height: 8),
+                  GridView.count(
+                    crossAxisCount: 4, mainAxisSpacing: 2, crossAxisSpacing: 2, shrinkWrap: true, padding: EdgeInsets.zero,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: [for (var i = 0; i < 12; i++) const Bone(radius: 0)],
+                  ),
+                ]),
+              )
+            else if (_items.isEmpty && _error)
+              SliverFillRemaining(hasScrollBody: false, child: Center(child: LoadErrorView(onRetry: _reload)))
+            else if (_items.isEmpty)
+              SliverFillRemaining(hasScrollBody: false, child: Center(child: Text(l10n.noPhotos, style: TextStyle(color: c.textSecondary))))
             else
               PhotoDayGrid(photos: [for (final p in _items) _grid(p)], todayLabel: l10n.todayDate, onTap: (p) => context.push('/admin/gallery/${p.id}')),
-            if (_loading) const SliverToBoxAdapter(child: Padding(padding: EdgeInsets.all(16), child: Center(child: CircularProgressIndicator()))),
+            if (_loading && _items.isNotEmpty) const SliverToBoxAdapter(child: Padding(padding: EdgeInsets.all(16), child: Center(child: CircularProgressIndicator()))),
             const SliverToBoxAdapter(child: SizedBox(height: 24)),
           ]),
         ),

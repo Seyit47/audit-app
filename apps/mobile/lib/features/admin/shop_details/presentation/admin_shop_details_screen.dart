@@ -15,6 +15,8 @@ import '../../../../core/widgets/shop_card.dart';
 import '../../../shop_details/presentation/shop_details_screen.dart' show call, openInMaps;
 import '../../data/admin_api.dart';
 import '../../shops/shop_labels.dart';
+import '../../../../core/widgets/tap.dart';
+import '../../../../core/widgets/skeleton.dart';
 
 class _Data {
   const _Data(this.shop, this.visits, this.photos, this.agentOnline);
@@ -87,7 +89,7 @@ class AdminShopDetailsScreen extends ConsumerWidget {
         backgroundColor: c.mainBg,
         body: SafeArea(child: Column(children: [
           header,
-          Expanded(child: Center(child: data.hasError ? Text(l10n.loadError, style: TextStyle(color: c.textSecondary)) : const CircularProgressIndicator())),
+          Expanded(child: data.hasError ? Center(child: LoadErrorView(onRetry: () => ref.invalidate(_shopDataProvider(shopId)))) : const SingleChildScrollView(padding: EdgeInsets.all(16), physics: NeverScrollableScrollPhysics(), child: CardListSkeleton(count: 4, lines: 3))),
         ])),
       );
     }
@@ -225,7 +227,7 @@ class AdminShopDetailsScreen extends ConsumerWidget {
                       const SizedBox(width: 8),
                       Tag('${(kpis['auditPhotos'] as int?) ?? d.photos.length}'),
                       const Spacer(),
-                      GestureDetector(
+                      TextLink(
                         onTap: () => context.push('/admin/gallery?shopId=$shopId'),
                         child: Row(children: [
                           Text(l10n.openGallery, style: AppTextStyles.label.copyWith(color: c.accent)),
@@ -243,7 +245,7 @@ class AdminShopDetailsScreen extends ConsumerWidget {
                         separatorBuilder: (_, _) => const SizedBox(width: 10),
                         itemBuilder: (context, i) {
                           final p = d.photos[i];
-                          return GestureDetector(
+                          return InkOverlay(radius: 8, 
                             onTap: () => context.push('/admin/gallery/${p['id']}'),
                             child: AppImage((p['previewUrl400'] ?? p['url']) as String?, width: 112, height: 112),
                           );

@@ -4,6 +4,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import 'app_icon.dart';
 import 'app_image.dart';
+import 'tap.dart';
 
 /// "Зафиксировано нарушение" note or a plain comment box of `83:17057` (83:17149).
 class ViolationNote extends StatelessWidget {
@@ -104,7 +105,7 @@ class AuditHistoryItem extends StatelessWidget {
             Text(photosLabel ?? '', style: small),
             const Spacer(),
             if (onSeeAll != null && hidden > 0)
-              GestureDetector(onTap: onSeeAll, child: Text(seeAllLabel ?? '', style: small.copyWith(color: c.accent, fontWeight: FontWeight.w600))),
+              TextLink(onTap: onSeeAll, child: Text(seeAllLabel ?? '', style: small.copyWith(color: c.accent, fontWeight: FontWeight.w600))),
           ]),
           const SizedBox(height: 6),
           Row(children: [

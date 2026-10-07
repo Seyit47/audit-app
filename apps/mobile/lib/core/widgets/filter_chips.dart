@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
+import 'tap.dart';
 
 enum ChipTone { normal, error }
 
@@ -28,7 +29,7 @@ class FilterChips<T> extends StatelessWidget {
         child: Row(children: [
           for (final (i, o) in options.indexed) ...[
             if (i > 0) const SizedBox(width: 8),
-            Pill(label: o.label, selected: o.value == selected, tone: o.tone, onTap: () => onSelected(o.value)),
+            Pill(label: o.label, selected: o.value == selected, tone: o.tone, onTap: () { if (o.value != selected) onSelected(o.value); }), // re-tapping the selected chip does nothing
           ],
         ]),
       );
@@ -52,22 +53,24 @@ class Pill extends StatelessWidget {
     return Semantics(
       selected: selected,
       button: true,
-      child: GestureDetector(
+      child: AnimatedChip(
         onTap: onTap,
-        child: Container(
-          height: 30,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: border),
-            boxShadow: [BoxShadow(color: selected ? const Color(0x0D000000) : const Color(0x0A191B25), offset: const Offset(0, 1), blurRadius: selected ? 2 : 3)],
-          ),
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            if (error) ...[Container(width: 6, height: 6, decoration: BoxDecoration(color: c.error, shape: BoxShape.circle)), const SizedBox(width: 4)],
-            Text(label, style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 1.5, fontWeight: FontWeight.w600, color: fg)),
-          ]),
+        height: 30,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: border),
+          boxShadow: [BoxShadow(color: selected ? const Color(0x0D000000) : const Color(0x0A191B25), offset: const Offset(0, 1), blurRadius: selected ? 2 : 3)],
         ),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          if (error) ...[Container(width: 6, height: 6, decoration: BoxDecoration(color: c.error, shape: BoxShape.circle)), const SizedBox(width: 4)],
+          AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 200),
+            style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 1.5, fontWeight: FontWeight.w600, color: fg),
+            child: Text(label),
+          ),
+        ]),
       ),
     );
   }

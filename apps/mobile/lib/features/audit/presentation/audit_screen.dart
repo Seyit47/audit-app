@@ -12,6 +12,7 @@ import '../../../core/widgets/photo_target.dart';
 import '../data/audit_local_repository.dart';
 import '../domain/geofence.dart';
 import 'audit_controller.dart';
+import '../../../core/widgets/tap.dart';
 
 /// Audit (`83:17207` → `83:17285` / `106:4374` → `106:6229`).
 class AuditScreen extends ConsumerStatefulWidget {
@@ -296,23 +297,21 @@ class _ViolationChip extends StatelessWidget {
     return Semantics(
       toggled: on,
       button: true,
-      child: GestureDetector(
+      child: AnimatedChip(
         onTap: onTap,
-        child: Container(
-          height: 30,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            color: on ? c.errorBg : c.chipBg,
-            borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: on ? c.errorStroke.withValues(alpha: 0.3) : c.chipBorder),
-            boxShadow: const [BoxShadow(color: Color(0x0A191B25), offset: Offset(0, 1), blurRadius: 3)],
-          ),
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            AppIcon('violation', width: 12.83, height: 11.08, color: on ? c.error : c.textSecondary),
-            const SizedBox(width: 6),
-            Text(label, style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 1.5, fontWeight: FontWeight.w600, color: on ? c.error : c.textSecondary)),
-          ]),
+        height: 30,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: on ? c.errorBg : c.chipBg,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: on ? c.errorStroke.withValues(alpha: 0.3) : c.chipBorder),
+          boxShadow: const [BoxShadow(color: Color(0x0A191B25), offset: Offset(0, 1), blurRadius: 3)],
         ),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          AppIcon('violation', width: 12.83, height: 11.08, color: on ? c.error : c.textSecondary),
+          const SizedBox(width: 6),
+          Text(label, style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 1.5, fontWeight: FontWeight.w600, color: on ? c.error : c.textSecondary)),
+        ]),
       ),
     );
   }
