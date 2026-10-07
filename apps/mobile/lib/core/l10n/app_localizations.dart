@@ -1159,6 +1159,414 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Не удалось сохранить. Проверьте поля и попробуйте ещё раз.'**
   String get saveFailed;
+
+  /// No description provided for @agentsTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Агенты'**
+  String get agentsTitle;
+
+  /// No description provided for @kpiStaff.
+  ///
+  /// In ru, this message translates to:
+  /// **'Всего в штате'**
+  String get kpiStaff;
+
+  /// No description provided for @kpiOnRoute.
+  ///
+  /// In ru, this message translates to:
+  /// **'На маршруте'**
+  String get kpiOnRoute;
+
+  /// No description provided for @kpiAudits.
+  ///
+  /// In ru, this message translates to:
+  /// **'Аудиты ТТ'**
+  String get kpiAudits;
+
+  /// No description provided for @kpiPhotos.
+  ///
+  /// In ru, this message translates to:
+  /// **'Фотоотчёты'**
+  String get kpiPhotos;
+
+  /// No description provided for @people.
+  ///
+  /// In ru, this message translates to:
+  /// **'чел.'**
+  String get people;
+
+  /// No description provided for @online.
+  ///
+  /// In ru, this message translates to:
+  /// **'онлайн'**
+  String get online;
+
+  /// No description provided for @sheets.
+  ///
+  /// In ru, this message translates to:
+  /// **'листа'**
+  String get sheets;
+
+  /// No description provided for @frames.
+  ///
+  /// In ru, this message translates to:
+  /// **'кадров'**
+  String get frames;
+
+  /// No description provided for @onShiftOf.
+  ///
+  /// In ru, this message translates to:
+  /// **'{pct}% в смене (из {total})'**
+  String onShiftOf(String pct, int total);
+
+  /// No description provided for @ofPool.
+  ///
+  /// In ru, this message translates to:
+  /// **'{pct}% пула на линии'**
+  String ofPool(String pct);
+
+  /// No description provided for @vsPlan.
+  ///
+  /// In ru, this message translates to:
+  /// **'{pct}% к плану дня'**
+  String vsPlan(String pct);
+
+  /// No description provided for @validPhotos.
+  ///
+  /// In ru, this message translates to:
+  /// **'{pct}% валидных'**
+  String validPhotos(String pct);
+
+  /// No description provided for @locations.
+  ///
+  /// In ru, this message translates to:
+  /// **'Локации: {count}'**
+  String locations(int count);
+
+  /// No description provided for @photosShort.
+  ///
+  /// In ru, this message translates to:
+  /// **'Фото:{count}'**
+  String photosShort(int count);
+
+  /// No description provided for @lastActivity.
+  ///
+  /// In ru, this message translates to:
+  /// **'Активность: {when}'**
+  String lastActivity(String when);
+
+  /// No description provided for @noActivity.
+  ///
+  /// In ru, this message translates to:
+  /// **'Нет активности'**
+  String get noActivity;
+
+  /// No description provided for @callAgent.
+  ///
+  /// In ru, this message translates to:
+  /// **'Позвонить агенту'**
+  String get callAgent;
+
+  /// No description provided for @agentsEmpty.
+  ///
+  /// In ru, this message translates to:
+  /// **'Агентов нет'**
+  String get agentsEmpty;
+
+  /// No description provided for @agentDetailsTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Детали агента'**
+  String get agentDetailsTitle;
+
+  /// No description provided for @exportPdfXls.
+  ///
+  /// In ru, this message translates to:
+  /// **'PDF/XLS'**
+  String get exportPdfXls;
+
+  /// No description provided for @exportPdf.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отчёт PDF'**
+  String get exportPdf;
+
+  /// No description provided for @exportXls.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отчёт Excel'**
+  String get exportXls;
+
+  /// No description provided for @exportFailed.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось сформировать отчёт'**
+  String get exportFailed;
+
+  /// No description provided for @sectorLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сектор: '**
+  String get sectorLabel;
+
+  /// No description provided for @onlineGps.
+  ///
+  /// In ru, this message translates to:
+  /// **'В сети (GPS активен, ±{meters}м)'**
+  String onlineGps(int meters);
+
+  /// No description provided for @offlineSince.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не в сети'**
+  String get offlineSince;
+
+  /// No description provided for @updatedAgo.
+  ///
+  /// In ru, this message translates to:
+  /// **'Обновлено {when}'**
+  String updatedAgo(String when);
+
+  /// No description provided for @kpiAllAudits.
+  ///
+  /// In ru, this message translates to:
+  /// **'Аудиты за всё время'**
+  String get kpiAllAudits;
+
+  /// No description provided for @checklists.
+  ///
+  /// In ru, this message translates to:
+  /// **'чек-листов'**
+  String get checklists;
+
+  /// No description provided for @kpiShopPlan.
+  ///
+  /// In ru, this message translates to:
+  /// **'План магазинов'**
+  String get kpiShopPlan;
+
+  /// No description provided for @outlets.
+  ///
+  /// In ru, this message translates to:
+  /// **'точек'**
+  String get outlets;
+
+  /// No description provided for @kpiVisited.
+  ///
+  /// In ru, this message translates to:
+  /// **'Посещено'**
+  String get kpiVisited;
+
+  /// No description provided for @ofOutlets.
+  ///
+  /// In ru, this message translates to:
+  /// **'из {total} ({pct}%)'**
+  String ofOutlets(int total, String pct);
+
+  /// No description provided for @kpiPhotosAll.
+  ///
+  /// In ru, this message translates to:
+  /// **'Фотографий'**
+  String get kpiPhotosAll;
+
+  /// No description provided for @routeTracking.
+  ///
+  /// In ru, this message translates to:
+  /// **'Маршрут и трекинг'**
+  String get routeTracking;
+
+  /// No description provided for @hereNow.
+  ///
+  /// In ru, this message translates to:
+  /// **'{name} (сейчас здесь)'**
+  String hereNow(String name);
+
+  /// No description provided for @checkpointHistory.
+  ///
+  /// In ru, this message translates to:
+  /// **'История чекпоинтов'**
+  String get checkpointHistory;
+
+  /// No description provided for @pointsCount.
+  ///
+  /// In ru, this message translates to:
+  /// **'{count} точек'**
+  String pointsCount(int count);
+
+  /// No description provided for @stopDONE.
+  ///
+  /// In ru, this message translates to:
+  /// **'Выполнен'**
+  String get stopDONE;
+
+  /// No description provided for @stopMISSED.
+  ///
+  /// In ru, this message translates to:
+  /// **'Пропущен'**
+  String get stopMISSED;
+
+  /// No description provided for @stopIN_PROGRESS.
+  ///
+  /// In ru, this message translates to:
+  /// **'В процессе'**
+  String get stopIN_PROGRESS;
+
+  /// No description provided for @stopPLANNED.
+  ///
+  /// In ru, this message translates to:
+  /// **'План'**
+  String get stopPLANNED;
+
+  /// No description provided for @syncingData.
+  ///
+  /// In ru, this message translates to:
+  /// **'Синхронизация данных...'**
+  String get syncingData;
+
+  /// No description provided for @plannedVisit.
+  ///
+  /// In ru, this message translates to:
+  /// **'Плановый визит'**
+  String get plannedVisit;
+
+  /// No description provided for @visitHistory.
+  ///
+  /// In ru, this message translates to:
+  /// **'История визитов'**
+  String get visitHistory;
+
+  /// No description provided for @updatedAt.
+  ///
+  /// In ru, this message translates to:
+  /// **'Обновлено в {time}'**
+  String updatedAt(String time);
+
+  /// No description provided for @durationMin.
+  ///
+  /// In ru, this message translates to:
+  /// **'({minutes} мин)'**
+  String durationMin(int minutes);
+
+  /// No description provided for @statusDone.
+  ///
+  /// In ru, this message translates to:
+  /// **'Завершён'**
+  String get statusDone;
+
+  /// No description provided for @morePhotosOpen.
+  ///
+  /// In ru, this message translates to:
+  /// **'+{count} фото'**
+  String morePhotosOpen(int count);
+
+  /// No description provided for @addSalesmanTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Добавить агента'**
+  String get addSalesmanTitle;
+
+  /// No description provided for @fullName.
+  ///
+  /// In ru, this message translates to:
+  /// **'ФИО'**
+  String get fullName;
+
+  /// No description provided for @fullNameHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Например, Довлет Оразов'**
+  String get fullNameHint;
+
+  /// No description provided for @employeeCode.
+  ///
+  /// In ru, this message translates to:
+  /// **'Табельный номер / Код'**
+  String get employeeCode;
+
+  /// No description provided for @generateCode.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сгенерировать'**
+  String get generateCode;
+
+  /// No description provided for @whatsapp.
+  ///
+  /// In ru, this message translates to:
+  /// **'Доп. телефон / WhatsApp'**
+  String get whatsapp;
+
+  /// No description provided for @routeNotes.
+  ///
+  /// In ru, this message translates to:
+  /// **'Заметки / график маршрута'**
+  String get routeNotes;
+
+  /// No description provided for @routeNotesHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Краткое описание сектора или дней маршрута'**
+  String get routeNotesHint;
+
+  /// No description provided for @visitPlan.
+  ///
+  /// In ru, this message translates to:
+  /// **'План визитов в день (магазинов)'**
+  String get visitPlan;
+
+  /// No description provided for @auditPlan.
+  ///
+  /// In ru, this message translates to:
+  /// **'Чек-листы / аудиты в день'**
+  String get auditPlan;
+
+  /// No description provided for @regionField.
+  ///
+  /// In ru, this message translates to:
+  /// **'Регион / территория продаж'**
+  String get regionField;
+
+  /// No description provided for @selectRegion.
+  ///
+  /// In ru, this message translates to:
+  /// **'Выберите регион'**
+  String get selectRegion;
+
+  /// No description provided for @workStatus.
+  ///
+  /// In ru, this message translates to:
+  /// **'Статус активности сотрудника'**
+  String get workStatus;
+
+  /// No description provided for @onLeave.
+  ///
+  /// In ru, this message translates to:
+  /// **'В отпуске'**
+  String get onLeave;
+
+  /// No description provided for @agentCreated.
+  ///
+  /// In ru, this message translates to:
+  /// **'Агент добавлен'**
+  String get agentCreated;
+
+  /// No description provided for @tempPassword.
+  ///
+  /// In ru, this message translates to:
+  /// **'Временный пароль (показывается один раз, передайте его агенту):'**
+  String get tempPassword;
+
+  /// No description provided for @done.
+  ///
+  /// In ru, this message translates to:
+  /// **'Готово'**
+  String get done;
+
+  /// No description provided for @planError.
+  ///
+  /// In ru, this message translates to:
+  /// **'План аудитов не может превышать план визитов'**
+  String get planError;
 }
 
 class _AppLocalizationsDelegate

@@ -603,4 +603,239 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get saveFailed => 'Could not save. Check the fields and try again.';
+
+  @override
+  String get agentsTitle => 'Salesmen';
+
+  @override
+  String get kpiStaff => 'Total staff';
+
+  @override
+  String get kpiOnRoute => 'On route';
+
+  @override
+  String get kpiAudits => 'Outlet audits';
+
+  @override
+  String get kpiPhotos => 'Photo reports';
+
+  @override
+  String get people => 'people';
+
+  @override
+  String get online => 'online';
+
+  @override
+  String get sheets => 'checklists';
+
+  @override
+  String get frames => 'photos';
+
+  @override
+  String onShiftOf(String pct, int total) {
+    return '$pct% on shift (of $total)';
+  }
+
+  @override
+  String ofPool(String pct) {
+    return '$pct% of the pool on the line';
+  }
+
+  @override
+  String vsPlan(String pct) {
+    return '$pct% vs the daily plan';
+  }
+
+  @override
+  String validPhotos(String pct) {
+    return '$pct% valid';
+  }
+
+  @override
+  String locations(int count) {
+    return 'Locations: $count';
+  }
+
+  @override
+  String photosShort(int count) {
+    return 'Photos:$count';
+  }
+
+  @override
+  String lastActivity(String when) {
+    return 'Activity: $when';
+  }
+
+  @override
+  String get noActivity => 'No activity yet';
+
+  @override
+  String get callAgent => 'Call the salesman';
+
+  @override
+  String get agentsEmpty => 'No salesmen';
+
+  @override
+  String get agentDetailsTitle => 'Salesman details';
+
+  @override
+  String get exportPdfXls => 'PDF/XLS';
+
+  @override
+  String get exportPdf => 'PDF report';
+
+  @override
+  String get exportXls => 'Excel report';
+
+  @override
+  String get exportFailed => 'Could not build the report';
+
+  @override
+  String get sectorLabel => 'Sector: ';
+
+  @override
+  String onlineGps(int meters) {
+    return 'Online (GPS on, ±$meters m)';
+  }
+
+  @override
+  String get offlineSince => 'Offline';
+
+  @override
+  String updatedAgo(String when) {
+    return 'Updated $when';
+  }
+
+  @override
+  String get kpiAllAudits => 'All-time audits';
+
+  @override
+  String get checklists => 'checklists';
+
+  @override
+  String get kpiShopPlan => 'Shop plan';
+
+  @override
+  String get outlets => 'outlets';
+
+  @override
+  String get kpiVisited => 'Visited';
+
+  @override
+  String ofOutlets(int total, String pct) {
+    return 'of $total ($pct%)';
+  }
+
+  @override
+  String get kpiPhotosAll => 'Photos';
+
+  @override
+  String get routeTracking => 'Route and tracking';
+
+  @override
+  String hereNow(String name) {
+    return '$name (here now)';
+  }
+
+  @override
+  String get checkpointHistory => 'Checkpoint history';
+
+  @override
+  String pointsCount(int count) {
+    return '$count stops';
+  }
+
+  @override
+  String get stopDONE => 'Done';
+
+  @override
+  String get stopMISSED => 'Missed';
+
+  @override
+  String get stopIN_PROGRESS => 'In progress';
+
+  @override
+  String get stopPLANNED => 'Planned';
+
+  @override
+  String get syncingData => 'Syncing data...';
+
+  @override
+  String get plannedVisit => 'Planned visit';
+
+  @override
+  String get visitHistory => 'Visit history';
+
+  @override
+  String updatedAt(String time) {
+    return 'Updated at $time';
+  }
+
+  @override
+  String durationMin(int minutes) {
+    return '($minutes min)';
+  }
+
+  @override
+  String get statusDone => 'Completed';
+
+  @override
+  String morePhotosOpen(int count) {
+    return '+$count photos';
+  }
+
+  @override
+  String get addSalesmanTitle => 'Add salesman';
+
+  @override
+  String get fullName => 'Full name';
+
+  @override
+  String get fullNameHint => 'e.g. Dovlet Orazov';
+
+  @override
+  String get employeeCode => 'Employee number / Code';
+
+  @override
+  String get generateCode => 'Generate';
+
+  @override
+  String get whatsapp => 'Additional phone / WhatsApp';
+
+  @override
+  String get routeNotes => 'Notes / Route schedule';
+
+  @override
+  String get routeNotesHint => 'Short description of the sector or route days';
+
+  @override
+  String get visitPlan => 'Daily visit plan (shops)';
+
+  @override
+  String get auditPlan => 'Checklists / audits per day';
+
+  @override
+  String get regionField => 'Region / Sales territory';
+
+  @override
+  String get selectRegion => 'Select a region';
+
+  @override
+  String get workStatus => 'Employee activity status';
+
+  @override
+  String get onLeave => 'On leave';
+
+  @override
+  String get agentCreated => 'Salesman added';
+
+  @override
+  String get tempPassword =>
+      'Temporary password (shown once, pass it to the salesman):';
+
+  @override
+  String get done => 'Done';
+
+  @override
+  String get planError => 'The audit plan cannot exceed the visit plan';
 }

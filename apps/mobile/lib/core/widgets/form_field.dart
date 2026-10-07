@@ -22,11 +22,11 @@ class AppFormField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(children: [
-          Text(label, style: AppTextStyles.label.copyWith(color: c.textPrimary)),
-          if (required) ...[
-            const SizedBox(width: 4),
-            Text('*', style: AppTextStyles.label.copyWith(color: c.error, fontWeight: FontWeight.w700)),
-          ],
+          Flexible(
+            child: Text.rich(TextSpan(text: label, children: [
+              if (required) TextSpan(text: ' *', style: TextStyle(color: c.error, fontWeight: FontWeight.w700)),
+            ]), style: AppTextStyles.label.copyWith(color: c.textPrimary)),
+          ),
           if (valid) ...[const Spacer(), AppIcon('field-valid', width: 13.33, height: 13.33, color: c.success)],
         ]),
         const SizedBox(height: 6),

@@ -2,6 +2,9 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/admin/agent_details/presentation/agent_details_screen.dart';
+import '../../features/admin/agent_form/presentation/agent_form_screen.dart';
+import '../../features/admin/agents/presentation/agents_screen.dart';
 import '../../features/admin/home/presentation/admin_home_screen.dart';
 import '../../features/admin/shop_details/presentation/admin_shop_details_screen.dart';
 import '../../features/admin/shop_form/presentation/admin_shop_form_screen.dart';
@@ -49,6 +52,10 @@ final List<RouteBase> agentRoutes = [
   ]),
 ];
 final List<RouteBase> adminRoutes = [
+  GoRoute(path: 'agents', builder: (_, _) => const AgentsScreen(), routes: [
+    GoRoute(path: 'new', builder: (_, _) => const AgentFormScreen()),
+    GoRoute(path: ':id', builder: (_, state) => AgentDetailsScreen(agentId: state.pathParameters['id']!)),
+  ]),
   GoRoute(path: 'shops', builder: (_, _) => const AdminShopsScreen(), routes: [
     GoRoute(path: 'new', builder: (_, _) => const AdminShopFormScreen()),
     GoRoute(path: ':id', builder: (_, state) => AdminShopDetailsScreen(shopId: state.pathParameters['id']!), routes: [

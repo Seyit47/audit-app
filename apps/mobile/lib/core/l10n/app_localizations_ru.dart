@@ -605,4 +605,239 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get saveFailed =>
       'Не удалось сохранить. Проверьте поля и попробуйте ещё раз.';
+
+  @override
+  String get agentsTitle => 'Агенты';
+
+  @override
+  String get kpiStaff => 'Всего в штате';
+
+  @override
+  String get kpiOnRoute => 'На маршруте';
+
+  @override
+  String get kpiAudits => 'Аудиты ТТ';
+
+  @override
+  String get kpiPhotos => 'Фотоотчёты';
+
+  @override
+  String get people => 'чел.';
+
+  @override
+  String get online => 'онлайн';
+
+  @override
+  String get sheets => 'листа';
+
+  @override
+  String get frames => 'кадров';
+
+  @override
+  String onShiftOf(String pct, int total) {
+    return '$pct% в смене (из $total)';
+  }
+
+  @override
+  String ofPool(String pct) {
+    return '$pct% пула на линии';
+  }
+
+  @override
+  String vsPlan(String pct) {
+    return '$pct% к плану дня';
+  }
+
+  @override
+  String validPhotos(String pct) {
+    return '$pct% валидных';
+  }
+
+  @override
+  String locations(int count) {
+    return 'Локации: $count';
+  }
+
+  @override
+  String photosShort(int count) {
+    return 'Фото:$count';
+  }
+
+  @override
+  String lastActivity(String when) {
+    return 'Активность: $when';
+  }
+
+  @override
+  String get noActivity => 'Нет активности';
+
+  @override
+  String get callAgent => 'Позвонить агенту';
+
+  @override
+  String get agentsEmpty => 'Агентов нет';
+
+  @override
+  String get agentDetailsTitle => 'Детали агента';
+
+  @override
+  String get exportPdfXls => 'PDF/XLS';
+
+  @override
+  String get exportPdf => 'Отчёт PDF';
+
+  @override
+  String get exportXls => 'Отчёт Excel';
+
+  @override
+  String get exportFailed => 'Не удалось сформировать отчёт';
+
+  @override
+  String get sectorLabel => 'Сектор: ';
+
+  @override
+  String onlineGps(int meters) {
+    return 'В сети (GPS активен, ±$metersм)';
+  }
+
+  @override
+  String get offlineSince => 'Не в сети';
+
+  @override
+  String updatedAgo(String when) {
+    return 'Обновлено $when';
+  }
+
+  @override
+  String get kpiAllAudits => 'Аудиты за всё время';
+
+  @override
+  String get checklists => 'чек-листов';
+
+  @override
+  String get kpiShopPlan => 'План магазинов';
+
+  @override
+  String get outlets => 'точек';
+
+  @override
+  String get kpiVisited => 'Посещено';
+
+  @override
+  String ofOutlets(int total, String pct) {
+    return 'из $total ($pct%)';
+  }
+
+  @override
+  String get kpiPhotosAll => 'Фотографий';
+
+  @override
+  String get routeTracking => 'Маршрут и трекинг';
+
+  @override
+  String hereNow(String name) {
+    return '$name (сейчас здесь)';
+  }
+
+  @override
+  String get checkpointHistory => 'История чекпоинтов';
+
+  @override
+  String pointsCount(int count) {
+    return '$count точек';
+  }
+
+  @override
+  String get stopDONE => 'Выполнен';
+
+  @override
+  String get stopMISSED => 'Пропущен';
+
+  @override
+  String get stopIN_PROGRESS => 'В процессе';
+
+  @override
+  String get stopPLANNED => 'План';
+
+  @override
+  String get syncingData => 'Синхронизация данных...';
+
+  @override
+  String get plannedVisit => 'Плановый визит';
+
+  @override
+  String get visitHistory => 'История визитов';
+
+  @override
+  String updatedAt(String time) {
+    return 'Обновлено в $time';
+  }
+
+  @override
+  String durationMin(int minutes) {
+    return '($minutes мин)';
+  }
+
+  @override
+  String get statusDone => 'Завершён';
+
+  @override
+  String morePhotosOpen(int count) {
+    return '+$count фото';
+  }
+
+  @override
+  String get addSalesmanTitle => 'Добавить агента';
+
+  @override
+  String get fullName => 'ФИО';
+
+  @override
+  String get fullNameHint => 'Например, Довлет Оразов';
+
+  @override
+  String get employeeCode => 'Табельный номер / Код';
+
+  @override
+  String get generateCode => 'Сгенерировать';
+
+  @override
+  String get whatsapp => 'Доп. телефон / WhatsApp';
+
+  @override
+  String get routeNotes => 'Заметки / график маршрута';
+
+  @override
+  String get routeNotesHint => 'Краткое описание сектора или дней маршрута';
+
+  @override
+  String get visitPlan => 'План визитов в день (магазинов)';
+
+  @override
+  String get auditPlan => 'Чек-листы / аудиты в день';
+
+  @override
+  String get regionField => 'Регион / территория продаж';
+
+  @override
+  String get selectRegion => 'Выберите регион';
+
+  @override
+  String get workStatus => 'Статус активности сотрудника';
+
+  @override
+  String get onLeave => 'В отпуске';
+
+  @override
+  String get agentCreated => 'Агент добавлен';
+
+  @override
+  String get tempPassword =>
+      'Временный пароль (показывается один раз, передайте его агенту):';
+
+  @override
+  String get done => 'Готово';
+
+  @override
+  String get planError => 'План аудитов не может превышать план визитов';
 }

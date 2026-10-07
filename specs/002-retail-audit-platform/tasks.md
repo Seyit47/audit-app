@@ -435,9 +435,9 @@ sessions.
   - date range, Экспорт отчёта (PDF/XLS)
   - KPIs; route map (track, stops, live position with the speed/battery badge, 30 s poll)
   - timeline, photo reports, visit history with misses
-- [ ] T106 [P] [US6] Build admin mobile Agents from Figma `265:27616` in `apps/mobile/lib/features/admin/agents/presentation/agents_screen.dart`: KPI tiles, search, Filters → `filter_sheet` (B3), cards with Подробнее / call / navigate, Добавить → mobile Add Salesman (A7)
-- [ ] T107 [P] [US6] Build admin mobile Agent details from Figma `273:153` in `apps/mobile/lib/features/admin/agent_details/presentation/agent_details_screen.dart`: profile + call, online status, KPIs, route and tracking map, checkpoint timeline, photo reports, visit history, PDF/XLS export
-- [ ] T108 [P] [US6] Build mobile admin Add Salesman (approved exception A7) in `apps/mobile/lib/features/admin/agent_form/presentation/agent_form_screen.dart`, with exactly the fields of Figma `495:3932`, built only from the existing mobile `form_field.dart` / `primary_button.dart` (the `252:25542` form style). Save with `POST /v1/agents` and show the temporary password once
+- [X] T106 [P] [US6] Build admin mobile Agents from Figma `265:27616` in `apps/mobile/lib/features/admin/agents/presentation/agents_screen.dart`: KPI tiles, search, Filters → `filter_sheet` (B3), cards with Подробнее / call / navigate, Добавить → mobile Add Salesman (A7)
+- [X] T107 [P] [US6] Build admin mobile Agent details from Figma `273:153` in `apps/mobile/lib/features/admin/agent_details/presentation/agent_details_screen.dart`: profile + call, online status, KPIs, route and tracking map, checkpoint timeline, photo reports, visit history, PDF/XLS export
+- [X] T108 [P] [US6] Build mobile admin Add Salesman (approved exception A7) in `apps/mobile/lib/features/admin/agent_form/presentation/agent_form_screen.dart`, with exactly the fields of Figma `495:3932`, built only from the existing mobile `form_field.dart` / `primary_button.dart` (the `252:25542` form style). Save with `POST /v1/agents` and show the temporary password once
 
 ---
 

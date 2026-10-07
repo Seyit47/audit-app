@@ -385,5 +385,184 @@
   "agent": "Агент",
   "editShopTitle": "Редактировать магазин",
   "selectAgent": "Выберите агента",
-  "saveFailed": "Не удалось сохранить. Проверьте поля и попробуйте ещё раз."
+  "saveFailed": "Не удалось сохранить. Проверьте поля и попробуйте ещё раз.",
+  "agentsTitle": "Агенты",
+  "kpiStaff": "Всего в штате",
+  "kpiOnRoute": "На маршруте",
+  "kpiAudits": "Аудиты ТТ",
+  "kpiPhotos": "Фотоотчёты",
+  "people": "чел.",
+  "online": "онлайн",
+  "sheets": "листа",
+  "frames": "кадров",
+  "onShiftOf": "{pct}% в смене (из {total})",
+  "@onShiftOf": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "ofPool": "{pct}% пула на линии",
+  "@ofPool": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "vsPlan": "{pct}% к плану дня",
+  "@vsPlan": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "validPhotos": "{pct}% валидных",
+  "@validPhotos": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "locations": "Локации: {count}",
+  "@locations": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "photosShort": "Фото:{count}",
+  "@photosShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lastActivity": "Активность: {when}",
+  "@lastActivity": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "noActivity": "Нет активности",
+  "callAgent": "Позвонить агенту",
+  "agentsEmpty": "Агентов нет",
+  "agentDetailsTitle": "Детали агента",
+  "exportPdfXls": "PDF/XLS",
+  "exportPdf": "Отчёт PDF",
+  "exportXls": "Отчёт Excel",
+  "exportFailed": "Не удалось сформировать отчёт",
+  "sectorLabel": "Сектор: ",
+  "onlineGps": "В сети (GPS активен, ±{meters}м)",
+  "@onlineGps": {
+    "placeholders": {
+      "meters": {
+        "type": "int"
+      }
+    }
+  },
+  "offlineSince": "Не в сети",
+  "updatedAgo": "Обновлено {when}",
+  "@updatedAgo": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "kpiAllAudits": "Аудиты за всё время",
+  "checklists": "чек-листов",
+  "kpiShopPlan": "План магазинов",
+  "outlets": "точек",
+  "kpiVisited": "Посещено",
+  "ofOutlets": "из {total} ({pct}%)",
+  "@ofOutlets": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "kpiPhotosAll": "Фотографий",
+  "routeTracking": "Маршрут и трекинг",
+  "hereNow": "{name} (сейчас здесь)",
+  "@hereNow": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "checkpointHistory": "История чекпоинтов",
+  "pointsCount": "{count} точек",
+  "@pointsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "stopDONE": "Выполнен",
+  "stopMISSED": "Пропущен",
+  "stopIN_PROGRESS": "В процессе",
+  "stopPLANNED": "План",
+  "syncingData": "Синхронизация данных...",
+  "plannedVisit": "Плановый визит",
+  "visitHistory": "История визитов",
+  "updatedAt": "Обновлено в {time}",
+  "@updatedAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "durationMin": "({minutes} мин)",
+  "@durationMin": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "statusDone": "Завершён",
+  "morePhotosOpen": "+{count} фото",
+  "@morePhotosOpen": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addSalesmanTitle": "Добавить агента",
+  "fullName": "ФИО",
+  "fullNameHint": "Например, Довлет Оразов",
+  "employeeCode": "Табельный номер / Код",
+  "generateCode": "Сгенерировать",
+  "whatsapp": "Доп. телефон / WhatsApp",
+  "routeNotes": "Заметки / график маршрута",
+  "routeNotesHint": "Краткое описание сектора или дней маршрута",
+  "visitPlan": "План визитов в день (магазинов)",
+  "auditPlan": "Чек-листы / аудиты в день",
+  "regionField": "Регион / территория продаж",
+  "selectRegion": "Выберите регион",
+  "workStatus": "Статус активности сотрудника",
+  "onLeave": "В отпуске",
+  "agentCreated": "Агент добавлен",
+  "tempPassword": "Временный пароль (показывается один раз, передайте его агенту):",
+  "done": "Готово",
+  "planError": "План аудитов не может превышать план визитов"
 }
