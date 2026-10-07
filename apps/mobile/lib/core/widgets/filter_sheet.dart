@@ -1,8 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import 'bottom_sheet_card.dart';
+import 'adaptive.dart';
 import 'buttons.dart';
 import 'filter_chips.dart';
 
@@ -29,12 +31,22 @@ Future<FilterValues?> showFilterSheet(
   required String applyLabel,
   required String resetLabel,
 }) =>
-    showModalBottomSheet<FilterValues>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => _FilterSheet(title: title, sections: sections, initial: values, applyLabel: applyLabel, resetLabel: resetLabel),
-    );
+    // iOS: a Cupertino modal popup (iOS motion and dimming); Android: a Material modal bottom sheet.
+    context.isCupertino
+        ? showCupertinoModalPopup<FilterValues>(
+            context: context,
+            builder: (_) => Material(
+              type: MaterialType.transparency,
+              child: _FilterSheet(title: title, sections: sections, initial: values, applyLabel: applyLabel, resetLabel: resetLabel),
+            ),
+          )
+        : showModalBottomSheet<FilterValues>(
+            context: context,
+            isScrollControlled: true,
+            showDragHandle: false,
+            backgroundColor: Colors.transparent,
+            builder: (_) => _FilterSheet(title: title, sections: sections, initial: values, applyLabel: applyLabel, resetLabel: resetLabel),
+          );
 
 class _FilterSheet extends StatefulWidget {
   const _FilterSheet({required this.title, required this.sections, required this.initial, required this.applyLabel, required this.resetLabel});

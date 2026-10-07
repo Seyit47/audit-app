@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import 'app_icon.dart';
+import 'tap.dart';
 
 /// Small rounded tag of `246:23300` ("СУПЕРМАРКЕТ", "CL-102").
 class Tag extends StatelessWidget {
@@ -113,7 +114,7 @@ class ShopCard extends StatelessWidget {
       child: Material(
         color: c.darkAccent,
         borderRadius: BorderRadius.circular(12),
-        child: InkWell(
+        child: Pressable(
           borderRadius: BorderRadius.circular(12),
           onTap: onTap,
           child: SizedBox(
@@ -177,7 +178,7 @@ class ShopCard extends StatelessWidget {
                     child: Material(
                       color: c.accent,
                       borderRadius: BorderRadius.circular(12),
-                      child: InkWell(
+                      child: Pressable(
                         borderRadius: BorderRadius.circular(12),
                         onTap: onDetails,
                         child: SizedBox(

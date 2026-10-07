@@ -9,6 +9,7 @@ import '../../../core/widgets/app_top_bar.dart';
 import '../../../core/widgets/form_field.dart';
 import '../../../core/widgets/photo_target.dart';
 import '../../audit/domain/geofence.dart';
+import '../../../core/widgets/tap.dart';
 
 /// The add/edit shop form of `252:26487` (agent) and `252:25423` (admin, with Агент and the
 /// gallery button). Values live in the caller; this lays them out.
@@ -135,7 +136,7 @@ class _ShopFormViewState extends State<ShopFormView> {
                 Material(
                   color: const Color(0x99E2DFFF),
                   borderRadius: BorderRadius.circular(6),
-                  child: InkWell(
+                  child: Pressable(
                     borderRadius: BorderRadius.circular(6),
                     onTap: w.locating ? null : w.onRecheck,
                     child: Padding(
@@ -200,7 +201,7 @@ class _ShopFormViewState extends State<ShopFormView> {
                           child: Material(
                             color: const Color(0xD92E303B),
                             borderRadius: BorderRadius.circular(8),
-                            child: InkWell(
+                            child: Pressable(
                               borderRadius: BorderRadius.circular(8),
                               onTap: w.onTakePhoto,
                               child: SizedBox(
@@ -220,7 +221,7 @@ class _ShopFormViewState extends State<ShopFormView> {
                           child: Material(
                             color: const Color(0xFFF9EDEC),
                             borderRadius: BorderRadius.circular(8),
-                            child: InkWell(
+                            child: Pressable(
                               borderRadius: BorderRadius.circular(8),
                               onTap: w.onRemovePhoto,
                               child: const SizedBox(width: 36, height: 36, child: Center(child: AppIcon('trash-red', width: 12, height: 13.5))),
@@ -242,7 +243,7 @@ class _ShopFormViewState extends State<ShopFormView> {
                 child: Material(
                   color: c.accent6,
                   borderRadius: BorderRadius.circular(12),
-                  child: InkWell(
+                  child: Pressable(
                     borderRadius: BorderRadius.circular(12),
                     onTap: () => Navigator.of(context).maybePop(),
                     child: SizedBox(height: 48, child: Center(child: Text(l10n.cancel, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600, color: c.textPrimary)))),
@@ -256,14 +257,14 @@ class _ShopFormViewState extends State<ShopFormView> {
                   child: Material(
                     color: c.accent,
                     borderRadius: BorderRadius.circular(12),
-                    child: InkWell(
+                    child: Pressable(
                       borderRadius: BorderRadius.circular(12),
                       onTap: w.canSave && !w.saving ? w.onSave : null,
                       child: SizedBox(
                         height: 48,
                         child: Center(
                           child: w.saving
-                              ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                              ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator.adaptive(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)))
                               : Text(l10n.save, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600, color: Colors.white)),
                         ),
                       ),

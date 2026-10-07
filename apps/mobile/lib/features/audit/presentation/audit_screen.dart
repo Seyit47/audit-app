@@ -13,6 +13,7 @@ import '../data/audit_local_repository.dart';
 import '../domain/geofence.dart';
 import 'audit_controller.dart';
 import '../../../core/widgets/tap.dart';
+import '../../../core/widgets/form_field.dart';
 
 /// Audit (`83:17207` → `83:17285` / `106:4374` → `106:6229`).
 class AuditScreen extends ConsumerStatefulWidget {
@@ -110,20 +111,15 @@ class _AuditScreenState extends ConsumerState<AuditScreen> {
                     padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                     constraints: const BoxConstraints(minHeight: 78.5),
                     decoration: BoxDecoration(color: c.accent6, borderRadius: BorderRadius.circular(8)),
-                    child: TextField(
+                    child: AppTextInput(
                       controller: _comment,
                       onChanged: ctrl.setComment,
                       minLines: 2,
                       maxLines: 6,
                       maxLength: 2000,
-                      style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 19.5 / 12, color: c.textPrimary),
-                      decoration: InputDecoration(
-                        isCollapsed: true,
-                        border: InputBorder.none,
-                        counterText: '',
-                        hintText: l10n.auditCommentHint,
-                        hintStyle: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 19.5 / 12, color: c.textSecondary),
-                      ),
+                      bare: true,
+                      hint: l10n.auditCommentHint,
+                      textStyle: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 19.5 / 12, color: c.textPrimary),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -207,7 +203,7 @@ class _LocationBar extends StatelessWidget {
           child: Material(
             color: showShop ? const Color(0x99E2DFFF) : c.accent6,
             borderRadius: BorderRadius.circular(6),
-            child: InkWell(
+            child: Pressable(
               borderRadius: BorderRadius.circular(6),
               onTap: state.geo == GeoStatus.locating ? null : onRecheck,
               child: const SizedBox(width: 32, height: 32, child: Center(child: AppIcon('refresh', width: 12.67, height: 12.67))),
@@ -250,7 +246,7 @@ class _PhotoGrid extends StatelessWidget {
               child: Material(
                 color: c.accent6,
                 borderRadius: BorderRadius.circular(8),
-                child: InkWell(
+                child: Pressable(
                   borderRadius: BorderRadius.circular(8),
                   onTap: canAdd ? onAdd : null,
                   child: Center(child: Opacity(opacity: canAdd ? 1 : 0.4, child: AppIcon('add-photo', width: 30, height: 30, color: c.textPrimary))),
@@ -269,7 +265,7 @@ class _PhotoGrid extends StatelessWidget {
                   child: Material(
                     color: const Color(0xFF0F172A),
                     borderRadius: BorderRadius.circular(8),
-                    child: InkWell(
+                    child: Pressable(
                       borderRadius: BorderRadius.circular(8),
                       onTap: () => onRemove(p),
                       child: const SizedBox(width: 28, height: 28, child: Center(child: AppIcon('trash', width: 12, height: 13.5))),
@@ -338,7 +334,7 @@ class _FinishButton extends StatelessWidget {
         child: Material(
           color: c.accent,
           borderRadius: BorderRadius.circular(12),
-          child: InkWell(
+          child: Pressable(
             borderRadius: BorderRadius.circular(12),
             onTap: busy ? null : onPressed,
             child: SizedBox(
@@ -346,7 +342,7 @@ class _FinishButton extends StatelessWidget {
               width: double.infinity,
               child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 if (busy)
-                  const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  const SizedBox(width: 18, height: 18, child: CircularProgressIndicator.adaptive(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)))
                 else ...[
                   Text(label, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600, color: Colors.white)),
                   const SizedBox(width: 8),

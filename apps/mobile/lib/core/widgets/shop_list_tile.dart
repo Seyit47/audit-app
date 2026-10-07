@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import 'app_image.dart';
+import 'tap.dart';
 
 /// Shop card of `83:16884` / `101:1985`: facade, name, address and the last visit line.
 class ShopListTile extends StatelessWidget {
@@ -29,7 +30,7 @@ class ShopListTile extends StatelessWidget {
       ),
       child: Material(
         type: MaterialType.transparency,
-        child: InkWell(
+        child: Pressable(
           borderRadius: BorderRadius.circular(12),
           onTap: onTap,
           child: Padding(

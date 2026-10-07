@@ -80,7 +80,7 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
             ]),
           ),
           Expanded(
-            child: RefreshIndicator(
+            child: RefreshIndicator.adaptive(
               onRefresh: () => ref.read(syncControllerProvider.notifier).syncNow(),
               child: shown.isEmpty
                   ? ListView(children: [Padding(padding: const EdgeInsets.all(48), child: Center(child: Text(l10n.shopsEmpty, style: TextStyle(color: c.textSecondary))))])

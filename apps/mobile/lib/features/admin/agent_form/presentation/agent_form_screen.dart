@@ -11,6 +11,7 @@ import '../../../../core/widgets/buttons.dart';
 import '../../../../core/widgets/filter_chips.dart';
 import '../../../../core/widgets/form_field.dart';
 import '../../data/admin_api.dart';
+import '../../../../core/widgets/adaptive.dart';
 
 /// Mobile Add Salesman (approved exception A7): the fields of Figma `495:3932`, laid out with the
 /// mobile form components of `252:25542`. Saves with `POST /agents` and shows the temporary
@@ -87,21 +88,19 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
 
   Future<void> _showPassword(String password) {
     final l10n = AppLocalizations.of(context);
-    return showDialog<void>(
+    return showAppDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.agentCreated),
-        content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(l10n.tempPassword),
-          const SizedBox(height: 12),
-          SelectableText(password, style: const TextStyle(fontFamily: AppTextStyles.mono, fontSize: 20, fontWeight: FontWeight.w600)),
-        ]),
-        actions: [
-          TextButton(onPressed: () => Clipboard.setData(ClipboardData(text: password)), child: Text(MaterialLocalizations.of(context).copyButtonLabel)),
-          FilledButton(onPressed: () => Navigator.pop(context), child: Text(l10n.done)),
-        ],
-      ),
+      title: Text(l10n.agentCreated),
+      content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(l10n.tempPassword),
+        const SizedBox(height: 12),
+        SelectableText(password, style: const TextStyle(fontFamily: AppTextStyles.mono, fontSize: 20, fontWeight: FontWeight.w600)),
+      ]),
+      actions: (dialog) => [
+        AppDialogAction(label: MaterialLocalizations.of(dialog).copyButtonLabel, onPressed: () => Clipboard.setData(ClipboardData(text: password))),
+        AppDialogAction(label: l10n.done, primary: true, onPressed: () => Navigator.pop(dialog)),
+      ],
     );
   }
 
@@ -110,7 +109,6 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
     final l10n = AppLocalizations.of(context);
     final c = context.colors;
     void touch(String _) => setState(() {});
-    final border = OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: c.inputBorder));
     const gap = SizedBox(height: 22);
 
     return Scaffold(
@@ -132,11 +130,7 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
               gap,
               AppFormField(
                 label: l10n.routeNotes,
-                child: TextField(
-                  controller: _notes, minLines: 3, maxLines: 5, maxLength: 2000,
-                  style: AppTextStyles.bodyMedium.copyWith(color: c.textPrimary),
-                  decoration: InputDecoration(hintText: l10n.routeNotesHint, counterText: '', filled: true, fillColor: c.inputBg, enabledBorder: border, focusedBorder: border.copyWith(borderSide: BorderSide(color: c.accent))),
-                ),
+                child: AppTextInput(controller: _notes, hint: l10n.routeNotesHint, minLines: 3, maxLines: 5, maxLength: 2000),
               ),
               gap,
               Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -149,16 +143,7 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
               gap,
               AppFormField(
                 label: l10n.regionField, required: true, valid: _regionId != null,
-                child: DropdownButtonFormField<String>(
-                  initialValue: _regionId,
-                  isExpanded: true,
-                  hint: Text(l10n.selectRegion, style: AppTextStyles.bodyMedium.copyWith(color: c.textSecondary)),
-                  style: AppTextStyles.bodyMedium.copyWith(color: c.textPrimary),
-                  decoration: InputDecoration(isDense: true, filled: true, fillColor: c.inputBg, contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                      enabledBorder: border, focusedBorder: border.copyWith(borderSide: BorderSide(color: c.accent))),
-                  items: [for (final r in _regions) DropdownMenuItem(value: r['id'] as String, child: Text(r['name'] as String))],
-                  onChanged: (v) => setState(() => _regionId = v),
-                ),
+                child: AppSelect<String>(value: _regionId, hint: l10n.selectRegion, items: [for (final r in _regions) (r['id'] as String, r['name'] as String)], onChanged: (v) => setState(() => _regionId = v)),
               ),
               gap,
               AppFormField(

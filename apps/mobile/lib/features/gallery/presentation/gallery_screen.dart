@@ -15,6 +15,8 @@ import '../../../core/widgets/filter_sheet.dart';
 import '../../../core/widgets/photo_grid.dart';
 import '../data/gallery_repository.dart';
 import 'photo_detail_view.dart';
+import '../../../core/widgets/form_field.dart';
+import '../../../core/widgets/tap.dart';
 
 /// Agent Gallery (`83:17954` / `106:6558`) from the local photos; [shopId] narrows it to a shop.
 class GalleryScreen extends ConsumerStatefulWidget {
@@ -52,7 +54,7 @@ class _GalleryScreenState extends ConsumerState<GalleryScreen> {
           child: Material(
             color: on ? c.accent.withValues(alpha: 0.15) : c.accent6,
             borderRadius: BorderRadius.circular(8),
-            child: InkWell(
+            child: Pressable(
               borderRadius: BorderRadius.circular(8),
               onTap: onTap,
               child: SizedBox(width: 36, height: 36, child: Center(child: AppIcon(icon, width: 15, height: 15, color: c.textSecondary))),
@@ -101,12 +103,7 @@ class _GalleryScreenState extends ConsumerState<GalleryScreen> {
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                child: TextField(
-                  autofocus: true,
-                  onChanged: (v) => setState(() => _q = v),
-                  decoration: InputDecoration(hintText: l10n.searchShop, isDense: true, filled: true, fillColor: c.card,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: c.inputBorder))),
-                ),
+                child: AppTextInput(autofocus: true, hint: l10n.searchShop, textInputAction: TextInputAction.search, onChanged: (v) => setState(() => _q = v)),
               ),
             ),
           if (shown.isEmpty)

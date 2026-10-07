@@ -17,6 +17,7 @@ import '../../data/admin_api.dart';
 import '../../shops/shop_labels.dart';
 import '../../../../core/widgets/tap.dart';
 import '../../../../core/widgets/skeleton.dart';
+import '../../../../core/widgets/adaptive.dart';
 
 class _Data {
   const _Data(this.shop, this.visits, this.photos, this.agentOnline);
@@ -71,13 +72,11 @@ class AdminShopDetailsScreen extends ConsumerWidget {
         Text(l10n.shopDetailsTitle, style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 18, height: 28 / 18, fontWeight: FontWeight.w600, color: c.textPrimary)),
         const Spacer(),
         if (s != null)
-          PopupMenuButton<void>(
+          AppMenuButton<String>(
             tooltip: l10n.actions,
-            icon: AppIcon('kebab', width: 3.67, height: 14.67, color: c.textSecondary),
-            itemBuilder: (_) => [
-              PopupMenuItem(onTap: () => _edit(context, ref), child: Text(l10n.editShop)),
-              PopupMenuItem(onTap: () => _share(s), child: Text(l10n.share)),
-            ],
+            choices: [MenuChoice('edit', l10n.editShop), MenuChoice('share', l10n.share)],
+            onSelected: (v) => v == 'edit' ? _edit(context, ref) : _share(s),
+            child: Padding(padding: const EdgeInsets.all(12), child: AppIcon('kebab', width: 3.67, height: 14.67, color: c.textSecondary)),
           ),
         Container(width: 32, height: 32, alignment: Alignment.center, decoration: BoxDecoration(color: c.accent, shape: BoxShape.circle),
             child: const AppIcon('avatar-small', width: 12, height: 12)),
@@ -132,7 +131,7 @@ class AdminShopDetailsScreen extends ConsumerWidget {
         child: Column(children: [
           header,
           Expanded(
-            child: RefreshIndicator(
+            child: RefreshIndicator.adaptive(
               onRefresh: () => ref.refresh(_shopDataProvider(shopId).future),
               child: ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 32), children: [
                 Container(
@@ -332,7 +331,7 @@ class AdminShopDetailsScreen extends ConsumerWidget {
       color: filled ? c.darkAccent : c.card,
       borderRadius: BorderRadius.circular(8),
       elevation: elevated ? 2 : 0.5,
-      child: InkWell(
+      child: Pressable(
         borderRadius: BorderRadius.circular(8),
         onTap: onTap,
         child: Padding(

@@ -1,9 +1,12 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
+import 'adaptive.dart';
 
-/// 48 px primary action ("Сохранить", `252:26602`): accent, 12 px radius, 50% opacity when disabled.
+/// 48 px primary action ("Сохранить", `252:26602`): a Material [FilledButton] on Android and a filled
+/// [CupertinoButton] on iOS, both accent with a 12 px radius (styling in AppTheme).
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton({super.key, required this.label, required this.onPressed, this.loading = false, this.icon});
 
@@ -14,48 +17,32 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.colors;
     final enabled = onPressed != null && !loading;
-    return AnimatedOpacity(
+    // The label and the platform's progress indicator cross-fade instead of swapping.
+    final content = AnimatedSwitcher(
       duration: const Duration(milliseconds: 200),
-      opacity: enabled ? 1 : 0.5,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: c.accent,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(color: c.accent.withValues(alpha: 0.25), offset: const Offset(0, 2), blurRadius: 4, spreadRadius: -2),
-            BoxShadow(color: c.accent.withValues(alpha: 0.25), offset: const Offset(0, 4), blurRadius: 6, spreadRadius: -1),
-          ],
-        ),
-        child: Material(
-          type: MaterialType.transparency,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: enabled ? onPressed : null,
-            child: SizedBox(
-              height: 48,
-              child: Center(
-                // The label and the spinner cross-fade instead of swapping.
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  child: loading
-                      ? const SizedBox.square(key: ValueKey('loading'), dimension: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                      : Row(key: const ValueKey('label'), mainAxisSize: MainAxisSize.min, children: [
-                          if (icon != null) ...[icon!, const SizedBox(width: 8)],
-                          Text(label, style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600, height: 20 / 14, color: Colors.white)),
-                        ]),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+      child: loading
+          ? const SizedBox.square(key: ValueKey('loading'), dimension: 20, child: CircularProgressIndicator.adaptive(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)))
+          : Row(key: const ValueKey('label'), mainAxisSize: MainAxisSize.min, children: [
+              if (icon != null) ...[icon!, const SizedBox(width: 8)],
+              Text(label),
+            ]),
     );
+    if (context.isCupertino) {
+      return CupertinoButton.filled(
+        onPressed: enabled ? onPressed : null,
+        minimumSize: const Size(64, 48),
+        borderRadius: BorderRadius.circular(12),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: DefaultTextStyle.merge(style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600, color: Colors.white), child: content),
+      );
+    }
+    return FilledButton(onPressed: enabled ? onPressed : null, child: content);
   }
 }
 
-/// 48 px secondary action ("Отмена", `252:26599` / `101:2584`).
+/// 48 px secondary action ("Отмена", `252:26599` / `101:2584`): Material [OutlinedButton] on Android,
+/// a bordered [CupertinoButton] on iOS.
 class SecondaryButton extends StatelessWidget {
   const SecondaryButton({super.key, required this.label, required this.onPressed});
 
@@ -64,20 +51,20 @@ class SecondaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.colors;
-    return Material(
-      color: c.secondaryButtonBg,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: c.secondaryButtonBorder)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: onPressed,
-        child: SizedBox(
-          height: 48,
-          child: Center(
-            child: Text(label, style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600, height: 20 / 14, color: c.secondaryButtonText)),
-          ),
+    if (context.isCupertino) {
+      final c = context.colors;
+      return DecoratedBox(
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: c.secondaryButtonBorder)),
+        child: CupertinoButton(
+          onPressed: onPressed,
+          color: c.secondaryButtonBg,
+          minimumSize: const Size(64, 48),
+          borderRadius: BorderRadius.circular(12),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Text(label, style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600, color: c.secondaryButtonText)),
         ),
-      ),
-    );
+      );
+    }
+    return OutlinedButton(onPressed: onPressed, child: Text(label));
   }
 }

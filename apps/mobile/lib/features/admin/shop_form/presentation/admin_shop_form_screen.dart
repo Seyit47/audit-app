@@ -7,12 +7,12 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/l10n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_styles.dart';
 import '../../../add_shop/presentation/shop_form_view.dart';
 import '../../../audit/domain/geofence.dart';
 import '../../../audit/presentation/audit_controller.dart';
 import '../../data/admin_api.dart';
 import '../../../../core/widgets/skeleton.dart';
+import '../../../../core/widgets/adaptive.dart';
 
 /// Admin mobile Add/Edit shop (`252:25423` empty, `252:25542` filled): saved online with
 /// `POST/PATCH /shops` after the storefront upload.
@@ -121,7 +121,6 @@ class _AdminShopFormScreenState extends ConsumerState<AdminShopFormScreen> {
     final l10n = AppLocalizations.of(context);
     final c = context.colors;
     if (!_loaded) return Scaffold(backgroundColor: c.mainBg, body: const SafeArea(child: SingleChildScrollView(padding: EdgeInsets.all(16), physics: NeverScrollableScrollPhysics(), child: CardListSkeleton(count: 4, lines: 3))));
-    final border = OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: c.inputBorder));
     return ShopFormView(
       title: widget.shopId == null ? l10n.addShopTitle : l10n.editShopTitle,
       name: _name, address: _address, owner: _owner, phone: _phone,
@@ -131,19 +130,7 @@ class _AdminShopFormScreenState extends ConsumerState<AdminShopFormScreen> {
         _owner = owner ?? _owner;
         _phone = phone ?? _phone;
       }),
-      agentField: DropdownButtonFormField<String>(
-        initialValue: _agentId,
-        isExpanded: true,
-        hint: Text(l10n.selectAgent, style: AppTextStyles.bodyMedium.copyWith(color: c.textSecondary)),
-        style: AppTextStyles.bodyMedium.copyWith(color: c.textPrimary),
-        decoration: InputDecoration(
-          isDense: true, filled: true, fillColor: c.inputBg,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-          enabledBorder: border, focusedBorder: border.copyWith(borderSide: BorderSide(color: c.accent)),
-        ),
-        items: [for (final a in _agents) DropdownMenuItem(value: a['id'] as String, child: Text(a['fullName'] as String))],
-        onChanged: (v) => setState(() => _agentId = v),
-      ),
+      agentField: AppSelect<String>(value: _agentId, hint: l10n.selectAgent, items: [for (final a in _agents) (a['id'] as String, a['fullName'] as String)], onChanged: (v) => setState(() => _agentId = v)),
       agentValid: _agentId != null,
       fix: _fix, locating: _locating, onRecheck: _locate,
       photo: _photoPath ?? (_removedPhoto ? null : _photoUrl),

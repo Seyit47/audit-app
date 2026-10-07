@@ -242,7 +242,7 @@ class ShopSheet extends StatelessWidget {
             child: Material(
               color: c.accent,
               borderRadius: BorderRadius.circular(12),
-              child: InkWell(
+              child: Pressable(
                 borderRadius: BorderRadius.circular(12),
                 onTap: inside ? () => context.push('/agent/audit/${s.id}') : null,
                 child: SizedBox(
@@ -311,7 +311,7 @@ class MapRoundButton extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(color: c.card, borderRadius: BorderRadius.circular(radius), border: Border.all(color: c.cardBorder), boxShadow: mapControlShadow),
-      child: Material(type: MaterialType.transparency, child: InkWell(borderRadius: BorderRadius.circular(radius), onTap: onTap, child: Center(child: child))),
+      child: Material(type: MaterialType.transparency, child: Pressable(borderRadius: BorderRadius.circular(radius), onTap: onTap, child: Center(child: child))),
     );
     return tooltip == null ? button : Tooltip(message: tooltip!, child: button);
   }
@@ -330,7 +330,7 @@ class MapZoomButton extends StatelessWidget {
     final c = context.colors;
     return Tooltip(
       message: tooltip,
-      child: InkWell(
+      child: Pressable(
         onTap: onTap,
         child: Container(
           width: 40,

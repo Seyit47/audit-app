@@ -1,8 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
-import 'tap.dart';
+import 'adaptive.dart';
 
 enum ChipTone { normal, error }
 
@@ -47,31 +48,36 @@ class Pill extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final error = tone == ChipTone.error && !selected;
-    final bg = selected ? c.accent : error ? c.errorBg : c.chipBg;
     final fg = selected ? Colors.white : error ? c.error : c.textSecondary;
-    final border = selected ? Colors.transparent : error ? c.errorStroke.withValues(alpha: Theme.of(context).brightness == Brightness.dark ? 0.3 : 0) : c.chipBorder;
-    return Semantics(
-      selected: selected,
-      button: true,
-      child: AnimatedChip(
-        onTap: onTap,
-        height: 30,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: border),
-          boxShadow: [BoxShadow(color: selected ? const Color(0x0D000000) : const Color(0x0A191B25), offset: const Offset(0, 1), blurRadius: selected ? 2 : 3)],
-        ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          if (error) ...[Container(width: 6, height: 6, decoration: BoxDecoration(color: c.error, shape: BoxShape.circle)), const SizedBox(width: 4)],
-          AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 200),
-            style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 1.5, fontWeight: FontWeight.w600, color: fg),
-            child: Text(label),
+    final label = Row(mainAxisSize: MainAxisSize.min, children: [
+      if (error) ...[Container(width: 6, height: 6, decoration: BoxDecoration(color: c.error, shape: BoxShape.circle)), const SizedBox(width: 4)],
+      Text(this.label, style: AppTextStyles.label.copyWith(height: 1.5, color: fg)),
+    ]);
+    if (context.isCupertino) {
+      // iOS has no chips: a capsule CupertinoButton with the same colors.
+      return Semantics(
+        selected: selected,
+        button: true,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          height: 30,
+          decoration: BoxDecoration(
+            color: selected ? c.accent : error ? c.errorBg : c.chipBg,
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(color: selected ? Colors.transparent : error ? c.errorStroke.withValues(alpha: 0.3) : c.chipBorder),
           ),
-        ]),
-      ),
+          child: CupertinoButton(onPressed: onTap, padding: const EdgeInsets.symmetric(horizontal: 12), minimumSize: const Size(0, 30), child: label),
+        ),
+      );
+    }
+    return ChoiceChip(
+      label: label,
+      selected: selected,
+      onSelected: (_) => onTap(),
+      backgroundColor: error ? c.errorBg : null,
+      side: selected ? BorderSide.none : error ? BorderSide(color: c.errorStroke.withValues(alpha: Theme.of(context).brightness == Brightness.dark ? 0.3 : 0)) : null,
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
 }

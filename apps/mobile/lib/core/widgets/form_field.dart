@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
+import 'adaptive.dart';
 import 'app_icon.dart';
 
 /// Label (+ red asterisk) above a control, from the add-shop form (`252:26487` / `101:2472`).
@@ -56,6 +58,12 @@ class AppTextInput extends StatelessWidget {
     this.autofillHints,
     this.enabled = true,
     this.hasError = false,
+    this.minLines,
+    this.maxLines = 1,
+    this.maxLength,
+    this.autofocus = false,
+    this.bare = false,
+    this.textStyle,
   });
 
   final TextEditingController? controller;
@@ -70,14 +78,60 @@ class AppTextInput extends StatelessWidget {
   final Iterable<String>? autofillHints;
   final bool enabled;
   final bool hasError;
+  final int? minLines;
+  final int? maxLines;
+  final int? maxLength;
+  final bool autofocus;
+  /// No fill, border or padding: for a field inside its own box (the audit comment).
+  final bool bare;
+  final TextStyle? textStyle;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    OutlineInputBorder border(Color color) => OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: color));
+    final style = textStyle ?? AppTextStyles.bodyMedium.copyWith(color: c.textPrimary, height: 17 / 14);
+    final hintStyle = style.copyWith(color: c.textSecondary);
+    final multiline = maxLines != 1;
+    if (context.isCupertino) {
+      return SizedBox(
+        height: multiline || bare ? null : 44,
+        child: CupertinoTextField(
+          minLines: minLines,
+          maxLines: maxLines,
+          maxLength: maxLength,
+          autofocus: autofocus,
+          controller: controller,
+          keyboardType: keyboardType,
+          obscureText: obscureText,
+          onChanged: onChanged,
+          onSubmitted: onSubmitted,
+          textInputAction: textInputAction,
+          autofillHints: autofillHints,
+          enabled: enabled,
+          style: style,
+          cursorColor: c.accent,
+          placeholder: hint,
+          placeholderStyle: hintStyle,
+          padding: bare ? EdgeInsets.zero : EdgeInsets.symmetric(horizontal: 12, vertical: multiline ? 10 : 0),
+          prefix: prefix == null ? null : Padding(padding: const EdgeInsets.only(left: 12), child: prefix),
+          suffix: suffix,
+          decoration: bare
+              ? null
+              : BoxDecoration(
+                  color: c.inputBg,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: hasError ? c.error : c.inputBorder),
+                ),
+        ),
+      );
+    }
     return SizedBox(
-      height: 44,
+      height: multiline || bare ? null : 44,
       child: TextField(
+        minLines: minLines,
+        maxLines: maxLines,
+        maxLength: maxLength,
+        autofocus: autofocus,
         controller: controller,
         keyboardType: keyboardType,
         obscureText: obscureText,
@@ -86,21 +140,19 @@ class AppTextInput extends StatelessWidget {
         textInputAction: textInputAction,
         autofillHints: autofillHints,
         enabled: enabled,
-        style: AppTextStyles.bodyMedium.copyWith(color: c.textPrimary, height: 17 / 14),
-        cursorColor: c.accent,
-        decoration: InputDecoration(
-          isDense: true,
-          filled: true,
-          fillColor: c.inputBg,
+        style: style,
+        // Borders, fill and padding come from the theme's InputDecorationTheme.
+        decoration: bare
+            ? InputDecoration(isCollapsed: true, filled: false, border: InputBorder.none, enabledBorder: InputBorder.none, focusedBorder: InputBorder.none, counterText: '', hintText: hint, hintStyle: hintStyle)
+            : InputDecoration(
           hintText: hint,
-          hintStyle: AppTextStyles.bodyMedium.copyWith(color: c.textSecondary),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13.5),
+          hintStyle: hintStyle,
+          counterText: '',
           prefixIcon: prefix == null ? null : Padding(padding: const EdgeInsets.only(left: 12, right: 8), child: prefix),
           prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
           suffixIcon: suffix,
-          enabledBorder: border(hasError ? c.error : c.inputBorder),
-          disabledBorder: border(c.inputBorder),
-          focusedBorder: border(hasError ? c.error : c.accent),
+          enabledBorder: hasError ? OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: c.error)) : null,
+          focusedBorder: hasError ? OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: c.error)) : null,
         ),
       ),
     );

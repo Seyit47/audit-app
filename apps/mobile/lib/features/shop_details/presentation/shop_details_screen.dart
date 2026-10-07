@@ -14,6 +14,7 @@ import '../../../core/widgets/app_top_bar.dart';
 import '../../../core/widgets/audit_history_item.dart';
 import '../../shops/data/shops_local_repository.dart';
 import '../../shops/domain/visit_state.dart';
+import '../../../core/widgets/tap.dart';
 
 /// Opens the phone's maps app at the shop (research R-12: no in-app navigation).
 Future<void> openInMaps(double lat, double lng, String label) =>
@@ -116,7 +117,7 @@ class _ShopDetailsScreenState extends ConsumerState<ShopDetailsScreen> {
                           color: c.card,
                           borderRadius: BorderRadius.circular(8),
                           elevation: 0.5,
-                          child: InkWell(
+                          child: Pressable(
                             borderRadius: BorderRadius.circular(8),
                             onTap: () => call(contact.phone),
                             child: Padding(
@@ -188,7 +189,7 @@ class _ShopDetailsScreenState extends ConsumerState<ShopDetailsScreen> {
                     child: Material(
                       color: c.accent6,
                       borderRadius: BorderRadius.circular(8),
-                      child: InkWell(
+                      child: Pressable(
                         borderRadius: BorderRadius.circular(8),
                         onTap: () => setState(() => _oldestFirst = !_oldestFirst),
                         child: SizedBox(width: 32, height: 32, child: Center(child: AppIcon('sort', width: 13.5, height: 9, color: c.textSecondary))),
@@ -265,7 +266,7 @@ class _ActionButton extends StatelessWidget {
     return Material(
       color: filled ? c.accent : c.accent6,
       borderRadius: BorderRadius.circular(12),
-      child: InkWell(
+      child: Pressable(
         borderRadius: BorderRadius.circular(12),
         onTap: onTap,
         child: SizedBox(

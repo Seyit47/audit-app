@@ -16,6 +16,7 @@ import '../../../../core/widgets/filter_chips.dart';
 import '../../../../core/widgets/form_field.dart';
 import '../../../../core/widgets/photo_target.dart';
 import '../../data/admin_api.dart';
+import '../../../../core/widgets/adaptive.dart';
 
 /// Mobile Add product (approved exception A7): the fields of Figma `495:2311` with the mobile
 /// form components. Uploads the PRODUCT image, then `POST /products`.
@@ -95,7 +96,6 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     final l10n = AppLocalizations.of(context);
     final c = context.colors;
     void touch(String _) => setState(() {});
-    final border = OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: c.inputBorder));
     const gap = SizedBox(height: 22);
 
     return Scaffold(
@@ -124,16 +124,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               gap,
               AppFormField(
                 label: l10n.category, required: true, valid: _categoryId != null,
-                child: DropdownButtonFormField<String>(
-                  initialValue: _categoryId,
-                  isExpanded: true,
-                  hint: Text(l10n.selectCategory, style: AppTextStyles.bodyMedium.copyWith(color: c.textSecondary)),
-                  style: AppTextStyles.bodyMedium.copyWith(color: c.textPrimary),
-                  decoration: InputDecoration(isDense: true, filled: true, fillColor: c.inputBg, contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                      enabledBorder: border, focusedBorder: border.copyWith(borderSide: BorderSide(color: c.accent))),
-                  items: [for (final cat in _categories) DropdownMenuItem(value: cat['id'] as String, child: Text(cat['name'] as String))],
-                  onChanged: (v) => setState(() => _categoryId = v),
-                ),
+                child: AppSelect<String>(value: _categoryId, hint: l10n.selectCategory, items: [for (final cat in _categories) (cat['id'] as String, cat['name'] as String)], onChanged: (v) => setState(() => _categoryId = v)),
               ),
               gap,
               Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -145,11 +136,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               gap,
               AppFormField(
                 label: l10n.description,
-                child: TextField(
-                  controller: _description, minLines: 3, maxLines: 5,
-                  style: AppTextStyles.bodyMedium.copyWith(color: c.textPrimary),
-                  decoration: InputDecoration(filled: true, fillColor: c.inputBg, enabledBorder: border, focusedBorder: border.copyWith(borderSide: BorderSide(color: c.accent))),
-                ),
+                child: AppTextInput(controller: _description, minLines: 3, maxLines: 5),
               ),
               gap,
               AppFormField(

@@ -18,6 +18,7 @@ import '../../../shops/data/shops_local_repository.dart';
 import '../../../shops/domain/visit_state.dart';
 import '../../data/admin_api.dart';
 import '../../shops/shop_labels.dart';
+import '../../../../core/widgets/tap.dart';
 
 enum _Filter { all, notVisited, visited, recent }
 
@@ -210,7 +211,7 @@ class _AdminMapScreenState extends ConsumerState<AdminMapScreen> {
       action: Material(
         color: c.accent,
         borderRadius: BorderRadius.circular(12),
-        child: InkWell(
+        child: Pressable(
           borderRadius: BorderRadius.circular(12),
           onTap: () => context.push('/admin/shops/${shop.id}'),
           child: SizedBox(

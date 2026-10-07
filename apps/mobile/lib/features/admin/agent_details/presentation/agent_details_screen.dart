@@ -18,6 +18,7 @@ import '../../../shop_details/presentation/shop_details_screen.dart' show call;
 import '../../data/admin_api.dart';
 import '../../../../core/widgets/tap.dart';
 import '../../../../core/widgets/skeleton.dart';
+import '../../../../core/widgets/adaptive.dart';
 
 class _Data {
   const _Data(this.agent, this.timeline, this.track, this.visits, this.photos);
@@ -68,20 +69,17 @@ class _AgentDetailsScreenState extends ConsumerState<AgentDetailsScreen> {
     final l10n = AppLocalizations.of(context);
     final c = context.colors;
     final data = ref.watch(_agentDataProvider(widget.agentId));
-    final exportButton = PopupMenuButton<String>(
+    final exportButton = AppMenuButton<String>(
       enabled: !_exporting,
       tooltip: l10n.exportPdfXls,
       onSelected: _export,
-      itemBuilder: (_) => [
-        PopupMenuItem(value: 'AGENT_REPORT_PDF', child: Text(l10n.exportPdf)),
-        PopupMenuItem(value: 'AGENT_REPORT_XLSX', child: Text(l10n.exportXls)),
-      ],
+      choices: [MenuChoice('AGENT_REPORT_PDF', l10n.exportPdf), MenuChoice('AGENT_REPORT_XLSX', l10n.exportXls)],
       child: Container(
         height: 36,
         padding: const EdgeInsets.symmetric(horizontal: 14),
         decoration: BoxDecoration(color: c.darkAccent, borderRadius: BorderRadius.circular(12)),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
-          if (_exporting) const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2)) else const AppIcon('export-share', width: 10.67, height: 14),
+          if (_exporting) const SizedBox(width: 12, height: 12, child: CircularProgressIndicator.adaptive(strokeWidth: 2)) else const AppIcon('export-share', width: 10.67, height: 14),
           const SizedBox(width: 6),
           Text(l10n.exportPdfXls, style: AppTextStyles.label.copyWith(color: c.accent)),
         ]),
@@ -97,7 +95,7 @@ class _AgentDetailsScreenState extends ConsumerState<AgentDetailsScreen> {
           Expanded(
             child: d == null
                 ? (data.hasError ? Center(child: LoadErrorView(onRetry: () => ref.invalidate(_agentDataProvider(widget.agentId)))) : const SingleChildScrollView(padding: EdgeInsets.all(16), physics: NeverScrollableScrollPhysics(), child: CardListSkeleton(count: 4, lines: 3)))
-                : RefreshIndicator(
+                : RefreshIndicator.adaptive(
                     onRefresh: () => ref.refresh(_agentDataProvider(widget.agentId).future),
                     child: ListView(padding: const EdgeInsets.fromLTRB(16, 8, 16, 32), children: _content(context, l10n, d)),
                   ),
@@ -150,7 +148,7 @@ class _AgentDetailsScreenState extends ConsumerState<AgentDetailsScreen> {
             Material(
               color: c.darkAccent,
               borderRadius: BorderRadius.circular(12),
-              child: InkWell(
+              child: Pressable(
                 borderRadius: BorderRadius.circular(12),
                 onTap: () => call(a['phone'] as String),
                 child: const SizedBox(width: 40, height: 40, child: Center(child: AppIcon('phone-square', width: 12.75, height: 12.75))),
@@ -294,7 +292,7 @@ class _AgentDetailsScreenState extends ConsumerState<AgentDetailsScreen> {
                 Material(
                   color: c.darkAccent,
                   borderRadius: BorderRadius.circular(8),
-                  child: InkWell(
+                  child: Pressable(
                     borderRadius: BorderRadius.circular(8),
                     onTap: () => context.push('/admin/gallery?agentId=${widget.agentId}'),
                     child: Center(child: Text(l10n.morePhotosOpen(totalPhotos - photos.length), style: AppTextStyles.label.copyWith(color: c.accent))),

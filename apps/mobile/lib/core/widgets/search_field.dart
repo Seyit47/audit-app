@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
+import 'adaptive.dart';
 import 'app_icon.dart';
 
 /// "Search Bar" of `83:16884` / `101:1985` with the Filters button (B3) and its active count.
@@ -31,16 +33,32 @@ class SearchField extends StatelessWidget {
         AppIcon('search', width: 15, height: 15, color: c.textSecondary),
         const SizedBox(width: 8),
         Expanded(
-          child: TextField(
-            onChanged: onChanged,
-            style: AppTextStyles.body.copyWith(height: 1.21, color: c.textPrimary),
-            decoration: InputDecoration(
-              isCollapsed: true,
-              border: InputBorder.none,
-              hintText: hint,
-              hintStyle: AppTextStyles.body.copyWith(height: 1.21, color: c.textSecondary),
-            ),
-          ),
+          // iOS: the native search field (clear button, search keyboard); Android: a Material TextField.
+          child: context.isCupertino
+              ? CupertinoSearchTextField(
+                  onChanged: onChanged,
+                  placeholder: hint,
+                  style: AppTextStyles.body.copyWith(height: 1.21, color: c.textPrimary),
+                  placeholderStyle: AppTextStyles.body.copyWith(height: 1.21, color: c.textSecondary),
+                  decoration: const BoxDecoration(),
+                  prefixIcon: const SizedBox.shrink(),
+                  prefixInsets: EdgeInsets.zero,
+                  padding: EdgeInsets.zero,
+                )
+              : TextField(
+                  onChanged: onChanged,
+                  textInputAction: TextInputAction.search,
+                  style: AppTextStyles.body.copyWith(height: 1.21, color: c.textPrimary),
+                  decoration: InputDecoration(
+                    isCollapsed: true,
+                    filled: false,
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    hintText: hint,
+                    hintStyle: AppTextStyles.body.copyWith(height: 1.21, color: c.textSecondary),
+                  ),
+                ),
         ),
         if (onFilters != null) ...[
           const SizedBox(width: 4),
@@ -48,18 +66,27 @@ class SearchField extends StatelessWidget {
             isLabelVisible: activeFilters > 0,
             label: Text('$activeFilters'),
             backgroundColor: c.accent,
-            child: Material(
-              color: c.darkAccent,
-              borderRadius: BorderRadius.circular(8),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(8),
-                onTap: onFilters,
-                child: Tooltip(
-                  message: filtersLabel ?? '',
-                  child: const Padding(padding: EdgeInsets.all(6), child: AppIcon('filters', width: 13.5, height: 13.5)),
-                ),
-              ),
-            ),
+            child: context.isCupertino
+                ? CupertinoButton(
+                    onPressed: onFilters,
+                    color: c.darkAccent,
+                    borderRadius: BorderRadius.circular(8),
+                    padding: const EdgeInsets.all(6),
+                    minimumSize: const Size.square(26),
+                    child: Semantics(label: filtersLabel, child: const AppIcon('filters', width: 13.5, height: 13.5)),
+                  )
+                : IconButton(
+                    onPressed: onFilters,
+                    tooltip: filtersLabel,
+                    icon: const AppIcon('filters', width: 13.5, height: 13.5),
+                    style: IconButton.styleFrom(
+                      backgroundColor: c.darkAccent,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.all(6),
+                      minimumSize: const Size.square(26),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  ),
           ),
         ],
       ]),

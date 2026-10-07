@@ -77,7 +77,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
             }),
           ),
           Expanded(
-            child: RefreshIndicator(
+            child: RefreshIndicator.adaptive(
               onRefresh: _load,
               child: ListView(padding: const EdgeInsets.fromLTRB(16, 0, 16, 48), children: [
                 if (_error) LoadErrorView(onRetry: () { setState(() => _error = false); _load(); }),

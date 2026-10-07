@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import 'app_icon.dart';
+import 'tap.dart';
 
 /// "Empty State Photo Target" of `83:17207` (also the storefront target of `252:26487`).
 class PhotoEmptyTarget extends StatelessWidget {
@@ -51,7 +52,7 @@ class PhotoEmptyTarget extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               elevation: 1,
               shadowColor: const Color(0x1A000000),
-              child: InkWell(
+              child: Pressable(
                 borderRadius: BorderRadius.circular(8),
                 onTap: onGallery,
                 child: Padding(
@@ -74,7 +75,7 @@ class PhotoEmptyTarget extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
             elevation: 2,
             shadowColor: const Color(0x33000000),
-            child: InkWell(
+            child: Pressable(
               borderRadius: BorderRadius.circular(8),
               onTap: onTake,
               child: Padding(

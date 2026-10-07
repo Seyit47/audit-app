@@ -13,6 +13,7 @@ import '../../../../core/widgets/photo_grid.dart';
 import '../../../gallery/presentation/photo_detail_view.dart';
 import '../../data/admin_api.dart';
 import '../../../../core/widgets/skeleton.dart';
+import '../../../../core/widgets/tap.dart';
 
 GridPhoto _grid(Json p) => GridPhoto(id: p['id'] as String, image: (p['previewUrl400'] ?? p['url']) as String?, takenAt: DateTime.parse(p['takenAt'] as String));
 
@@ -87,7 +88,7 @@ class _AdminGalleryScreenState extends ConsumerState<AdminGalleryScreen> {
     return Scaffold(
       backgroundColor: c.mainBg,
       body: SafeArea(
-        child: RefreshIndicator(
+        child: RefreshIndicator.adaptive(
           onRefresh: _reload,
           child: CustomScrollView(controller: _scroll, slivers: [
             SliverToBoxAdapter(child: AppTopBar(title: l10n.galleryTitle)),
@@ -107,7 +108,7 @@ class _AdminGalleryScreenState extends ConsumerState<AdminGalleryScreen> {
                     child: Material(
                       color: c.accent6,
                       borderRadius: BorderRadius.circular(8),
-                      child: InkWell(
+                      child: Pressable(
                         borderRadius: BorderRadius.circular(8),
                         onTap: () async {
                           final next = await showFilterSheet(context, title: l10n.filterParams, applyLabel: l10n.apply, resetLabel: l10n.reset, values: _filters, sections: [
@@ -142,7 +143,7 @@ class _AdminGalleryScreenState extends ConsumerState<AdminGalleryScreen> {
               SliverFillRemaining(hasScrollBody: false, child: Center(child: Text(l10n.noPhotos, style: TextStyle(color: c.textSecondary))))
             else
               PhotoDayGrid(photos: [for (final p in _items) _grid(p)], todayLabel: l10n.todayDate, onTap: (p) => context.push('/admin/gallery/${p.id}')),
-            if (_loading && _items.isNotEmpty) const SliverToBoxAdapter(child: Padding(padding: EdgeInsets.all(16), child: Center(child: CircularProgressIndicator()))),
+            if (_loading && _items.isNotEmpty) const SliverToBoxAdapter(child: Padding(padding: EdgeInsets.all(16), child: Center(child: CircularProgressIndicator.adaptive()))),
             const SliverToBoxAdapter(child: SizedBox(height: 24)),
           ]),
         ),

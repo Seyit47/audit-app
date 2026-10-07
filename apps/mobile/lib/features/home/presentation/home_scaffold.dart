@@ -6,6 +6,7 @@ import '../../../core/settings/app_settings.dart';
 import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/home_header.dart';
 import '../../auth/data/sign_out_service.dart';
+import '../../../core/widgets/adaptive.dart';
 
 /// Layout shared by the agent and admin Home frames (`83:16786`, `101:1880`, `246:23129`):
 /// glow background, avatar + theme + RU/EN header, tiles, sync pill at the bottom.
@@ -31,12 +32,10 @@ class HomeScaffold extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.only(left: 4),
                 child: Row(children: [
-                  PopupMenuButton<void>(
+                  AppMenuButton<String>(
                     tooltip: l10n.account,
-                    offset: const Offset(0, 44),
-                    itemBuilder: (_) => [
-                      PopupMenuItem(onTap: () => ref.read(signOutServiceProvider).signOut(), child: Text(l10n.signOut)),
-                    ],
+                    choices: [MenuChoice('signOut', l10n.signOut, destructive: true)],
+                    onSelected: (_) => ref.read(signOutServiceProvider).signOut(),
                     child: const AppIcon('avatar', width: 36, height: 36),
                   ),
                   const Spacer(),

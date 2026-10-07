@@ -1,8 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
+import 'adaptive.dart';
 import 'app_icon.dart';
 
 /// Screen header of `83:16884`: back, title, optional count badge and an action on the right.
@@ -31,11 +33,19 @@ class AppTopBar extends StatelessWidget {
               height: 44,
               child: OverflowBox(
                 maxWidth: 44,
-                child: IconButton(
-                  onPressed: onBack ?? () => context.pop(),
-                  tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-                  icon: AppIcon('back', width: 11.77, height: 20, color: c.textPrimary),
-                ),
+                // The platform's own back control: Material IconButton or CupertinoButton.
+                child: context.isCupertino
+                    ? CupertinoButton(
+                        onPressed: onBack ?? () => context.pop(),
+                        padding: EdgeInsets.zero,
+                        minimumSize: const Size.square(44),
+                        child: Semantics(label: MaterialLocalizations.of(context).backButtonTooltip, child: AppIcon('back', width: 11.77, height: 20, color: c.textPrimary)),
+                      )
+                    : IconButton(
+                        onPressed: onBack ?? () => context.pop(),
+                        tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                        icon: AppIcon('back', width: 11.77, height: 20, color: c.textPrimary),
+                      ),
               ),
             ),
             const SizedBox(width: 6),
@@ -86,35 +96,34 @@ class HeaderButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final content = Row(mainAxisSize: MainAxisSize.min, children: [
+      if (icon != null) ...[AppIcon(icon!, width: 10.5, height: 10.5), const SizedBox(width: 6)],
+      Text(label, style: const TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 1.5, fontWeight: FontWeight.w600, color: Colors.white)),
+    ]);
+    // Small filled button: CupertinoButton on iOS, FilledButton on Android, with the design's accent glow.
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         boxShadow: [BoxShadow(color: c.accent.withValues(alpha: 0.22), offset: const Offset(0, 4), blurRadius: 12)],
       ),
-      child: Material(
-        color: c.accent,
-        borderRadius: BorderRadius.circular(12),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: onPressed,
-          child: SizedBox(
-            height: 36,
-            child: Padding(
+      child: context.isCupertino
+          ? CupertinoButton.filled(
+              onPressed: onPressed,
+              minimumSize: const Size(0, 36),
               padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (icon != null) ...[AppIcon(icon!, width: 10.5, height: 10.5), const SizedBox(width: 6)],
-                  Text(
-                    label,
-                    style: const TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 1.5, fontWeight: FontWeight.w600, color: Colors.white),
-                  ),
-                ],
+              borderRadius: BorderRadius.circular(12),
+              child: content,
+            )
+          : FilledButton(
+              onPressed: onPressed,
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(0, 36),
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                elevation: 0,
               ),
+              child: content,
             ),
-          ),
-        ),
-      ),
     );
   }
 }

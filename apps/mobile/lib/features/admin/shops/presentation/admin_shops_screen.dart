@@ -127,7 +127,7 @@ class _AdminShopsScreenState extends ConsumerState<AdminShopsScreen> {
             ),
           ),
           Expanded(
-            child: RefreshIndicator(
+            child: RefreshIndicator.adaptive(
               onRefresh: _reload,
               child: ListView(controller: _scroll, padding: const EdgeInsets.fromLTRB(16, 0, 16, 48), children: [
                 Row(children: [
@@ -146,7 +146,7 @@ class _AdminShopsScreenState extends ConsumerState<AdminShopsScreen> {
                 for (final s in _items) ...[_card(context, l10n, s), const SizedBox(height: 16)],
                 // First page: card placeholders; further pages: the usual spinner under the list.
                 if (_loading && _items.isEmpty) const CardListSkeleton(lines: 3),
-                if (_loading && _items.isNotEmpty) const Padding(padding: EdgeInsets.all(16), child: Center(child: CircularProgressIndicator())),
+                if (_loading && _items.isNotEmpty) const Padding(padding: EdgeInsets.all(16), child: Center(child: CircularProgressIndicator.adaptive())),
                 if (_error) LoadErrorView(onRetry: _reload),
                 if (!_loading && !_error && _items.isEmpty) Padding(padding: const EdgeInsets.all(48), child: Center(child: Text(l10n.shopsEmpty, style: small))),
               ]),

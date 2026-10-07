@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import 'app_icon.dart';
+import 'tap.dart';
 
 // Home tiles of 83:16786 / 101:1880. Gradient alignments convert the Figma handle positions.
 
@@ -32,7 +33,7 @@ class HomeHeroTile extends StatelessWidget {
       ),
       child: Material(
         type: MaterialType.transparency,
-        child: InkWell(
+        child: Pressable(
           borderRadius: BorderRadius.circular(16),
           onTap: onTap,
           child: Padding(
@@ -123,7 +124,7 @@ class HomeActionTile extends StatelessWidget {
       ),
       child: Material(
         type: MaterialType.transparency,
-        child: InkWell(
+        child: Pressable(
           borderRadius: BorderRadius.circular(16),
           onTap: onTap,
           child: Padding(
