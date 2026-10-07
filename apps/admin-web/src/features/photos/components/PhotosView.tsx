@@ -143,12 +143,14 @@ export function PhotosView ({ first, query, summary, regions, shops, copy, local
         </div>
       </div>
 
-      {/* Collapses smoothly (rows 1fr → 0fr); its top spacing is inside, so nothing is left behind and the grid slides up. */}
+      {/* Collapses smoothly (rows 1fr → 0fr). The clip box has no padding, so it shrinks to nothing; the spacing
+          and room for the selects' focus ring sit inside it, and its negative margins keep the bar aligned. */}
       <div
         inert={!showFilters}
         className={`grid transition-[grid-template-rows,opacity] duration-300 ease-[var(--ease-standard)] ${showFilters ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
       >
-        <div className='flex min-h-0 flex-wrap items-center gap-3 overflow-hidden pt-2.5'>
+        <div className='-mx-1 -mb-1 min-h-0 overflow-hidden'>
+          <div className='flex flex-wrap items-center gap-3 px-1 pb-1 pt-2.5'>
           <FilterSelect size='lg' label={copy.type} value={params.get('type') ?? ''} onChange={(v) => set({ type: v })}
             options={[{ value: '', label: copy.allTypes }, ...(['AUDIT', 'FACADE', 'ADMIN_UPLOAD'] as const).map((t) => ({ value: t, label: copy.types[t] }))]} />
           <FilterSelect size='lg' label={copy.location} value={params.get('regionId') ?? ''} onChange={(v) => set({ regionId: v })}
@@ -157,6 +159,7 @@ export function PhotosView ({ first, query, summary, regions, shops, copy, local
             options={[{ value: '', label: copy.allStatus }, { value: 'true', label: copy.statuses.true }, { value: 'false', label: copy.statuses.false }]} />
           <FilterSelect size='lg' label={copy.date} value={params.get('date') ?? '7'} onChange={(v) => set({ date: v === '7' ? null : v })}
             options={(['today', '7', '30', 'all'] as const).map((d) => ({ value: d, label: copy.dates[d] }))} />
+          </div>
         </div>
       </div>
       </div>
