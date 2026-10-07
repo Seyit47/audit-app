@@ -1,5 +1,6 @@
 'use client'
 
+import { say } from '@/lib/feedback'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/Button'
@@ -34,7 +35,7 @@ export function SettingsForm ({ initial, logoUrl, timezones, copy }: { initial: 
     if (v.companyName.trim() === '') { setStatus(copy.errors.VALIDATION_FAILED); return }
     startTransition(async () => {
       const r = await saveSettings({ ...v, companyName: v.companyName.trim() })
-      if (r.ok) { setStatus('saved'); router.refresh() } else setStatus(copy.errors[r.code as keyof typeof copy.errors] ?? copy.errors.generic)
+      if (r.ok) { setStatus('saved'); say('saved'); router.refresh() } else setStatus(copy.errors[r.code as keyof typeof copy.errors] ?? copy.errors.generic)
     })
   }
 

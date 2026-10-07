@@ -15,11 +15,11 @@ export function FilterSelect ({ label, value, options, onChange, name, size = 's
   size?: 'sm' | 'lg'
 }) {
   return (
-    <label className='relative inline-flex items-center rounded-lg bg-secondary-bg'>
+    <label className='relative inline-flex items-center rounded-lg bg-secondary-bg hover:bg-line focus-within:ring-2 focus-within:ring-accent/30 has-[:disabled]:opacity-50'>
       <select
         name={name} value={value} aria-label={label}
         onChange={(e) => onChange?.(e.target.value)}
-        className={`cursor-pointer appearance-none bg-transparent pl-3 pr-8 text-xs font-medium leading-4 text-ink focus:outline-none ${size === 'lg' ? 'h-10 min-w-40' : 'py-2'}`}
+        className={`cursor-pointer appearance-none bg-transparent pl-3 pr-8 text-xs font-medium leading-4 text-ink focus:outline-none disabled:cursor-not-allowed ${size === 'lg' ? 'h-10 min-w-40' : 'py-2'}`}
       >
         {options.map((o) => <option key={o.value} value={o.value}>{`${label}: ${o.label}`}</option>)}
       </select>

@@ -33,14 +33,14 @@ export function MultiSelect ({ id, options, value, onChange, placeholder, search
     <div ref={ref} className='relative'>
       <button
         id={id} type='button' aria-haspopup='listbox' aria-expanded={open} onClick={() => setOpen(!open)}
-        className='flex h-[42px] w-full items-center rounded-lg border border-border bg-pure-white pl-3.5 pr-10 text-left text-sm leading-5 text-black'
+        className='flex h-[42px] w-full items-center rounded-lg border border-border bg-pure-white pl-3.5 pr-10 text-left text-sm leading-5 text-black hover:border-slate-400 focus:outline-none focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/20 aria-expanded:border-accent aria-expanded:ring-2 aria-expanded:ring-accent/20 disabled:cursor-not-allowed disabled:bg-slate-50'
       >
         <span className={`truncate ${names.length === 0 ? 'text-off-white' : ''}`}>{names.length === 0 ? placeholder : names.length <= 2 ? names.join(', ') : summary(names.length)}</span>
         <FigmaIcon name='select-chevron' width={16} height={16} className='pointer-events-none absolute right-3 top-1/2 -translate-y-1/2' />
       </button>
       {open && (
-        <div className='absolute inset-x-0 top-11 z-30 flex max-h-64 flex-col rounded-lg border border-border bg-pure-white shadow-[0px_20px_25px_-5px_rgba(0,0,0,0.1),0px_8px_10px_-6px_rgba(0,0,0,0.1)]'>
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={searchPlaceholder} aria-label={searchPlaceholder} className='m-2 h-9 rounded-md border border-border px-3 text-xs focus:border-accent focus:outline-none' />
+        <div className='anim-menu-in origin-top absolute inset-x-0 top-11 z-30 flex max-h-64 flex-col rounded-lg border border-border bg-pure-white shadow-[0px_20px_25px_-5px_rgba(0,0,0,0.1),0px_8px_10px_-6px_rgba(0,0,0,0.1)]'>
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={searchPlaceholder} aria-label={searchPlaceholder} className='m-2 h-9 rounded-md border border-border px-3 text-xs hover:border-slate-400 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20' />
           <ul role='listbox' aria-multiselectable className='overflow-y-auto pb-1'>
             {shown.map((o) => (
               <li key={o.value} role='option' aria-selected={chosen.has(o.value)}>

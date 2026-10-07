@@ -33,7 +33,7 @@ export function PhotoTile ({ src, alt, verifiedLabel, title, address, date, acti
       className={`group relative shrink-0 overflow-hidden rounded-xl bg-dark-accent text-left shadow-[0px_1px_2px_rgba(0,0,0,0.05)] focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${className}`}
     >
       {/* eslint-disable-next-line @next/next/no-img-element -- presigned preview URL */}
-      <img src={src} alt={alt} loading='lazy' className='absolute inset-0 size-full object-cover' />
+      <img src={src} alt={alt} loading='lazy' className='absolute inset-0 size-full object-cover transition-transform duration-500 ease-[var(--ease-standard)] group-hover:scale-[1.04]' />
       {verifiedLabel != null && <VerifiedTag label={verifiedLabel} />}
       {overlay && (
         <span

@@ -48,7 +48,7 @@ export function ShopCard ({ shop, visits, totals, photos, closeHref, copy, histo
   const more = shop.kpis.auditPhotos > 5 ? shop.kpis.auditPhotos - 4 : 0
 
   return (
-    <aside className={`absolute bottom-2 left-4 top-[68px] z-20 flex w-96 flex-col overflow-hidden rounded-2xl bg-pure-white ${shadowXl}`}>
+    <aside className={`anim-panel-left absolute bottom-2 left-4 top-[68px] z-20 flex w-96 flex-col overflow-hidden rounded-2xl bg-pure-white ${shadowXl}`}>
       <div className='flex items-start justify-between gap-4 p-4'>
         <div className='flex min-w-0 flex-col gap-[3px]'>
           <div className='flex items-center gap-2'>

@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useTransition } from 'react'
+import { navigationStarted } from './feedback'
 
 /**
  * Reads and updates list state (filters, sort, page) in the URL so server pages re-render with it.
@@ -21,6 +22,7 @@ export function useUrlState () {
     }
     if (!('page' in patch)) next.delete('page')
     const qs = next.toString()
+    if (qs !== params.toString()) navigationStarted()
     startTransition(() => router.replace(qs === '' ? pathname : `${pathname}?${qs}`, { scroll: false }))
   }, [params, pathname, router])
 

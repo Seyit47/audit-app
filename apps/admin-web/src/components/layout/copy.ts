@@ -4,7 +4,7 @@ import { defineCopy } from '@/lib/i18n'
 export const layoutCopy = defineCopy({
   en: {
     companyFallback: 'COMPANY NAME',
-    nav: { dashboard: 'Dashboard', map: 'Map', shops: 'Shops', products: 'Products', salesmen: 'Salesmen', pictures: 'Pictures', settings: 'Settings' },
+    nav: { map: 'Map', shops: 'Shops', products: 'Products', salesmen: 'Salesmen', pictures: 'Pictures', settings: 'Settings' },
     searchPlaceholder: 'Search clients...',
     notifications: 'Notifications',
     help: 'Help & Resources',
@@ -14,7 +14,7 @@ export const layoutCopy = defineCopy({
   },
   ru: {
     companyFallback: 'COMPANY NAME',
-    nav: { dashboard: 'Аналитика', map: 'Карта', shops: 'Клиенты', products: 'Продукции', salesmen: 'Агенты', pictures: 'Галерея', settings: 'Настройки' },
+    nav: { map: 'Карта', shops: 'Клиенты', products: 'Продукции', salesmen: 'Агенты', pictures: 'Галерея', settings: 'Настройки' },
     searchPlaceholder: 'Поиск клиентов...',
     notifications: 'Уведомления',
     help: 'Помощь',

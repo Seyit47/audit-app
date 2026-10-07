@@ -14,7 +14,7 @@ export function Topbar ({ copy, locale, bell }: { copy: LayoutCopy, locale: Loca
 
       <div className='flex items-center gap-3'>
         {bell ?? (
-          <button type='button' aria-label={copy.notifications} className='flex size-9 items-center justify-center rounded-lg text-muted'>
+          <button data-ripple type='button' aria-label={copy.notifications} className='flex size-9 items-center justify-center rounded-lg text-muted'>
             <Icon name='bell' width={13.333} height={16.667} />
           </button>
         )}

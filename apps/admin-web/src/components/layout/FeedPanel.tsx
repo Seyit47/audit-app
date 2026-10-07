@@ -60,12 +60,12 @@ export function FeedPanel ({ initialUnread, copy, locale }: { initialUnread: num
 
   return (
     <>
-      <button type='button' aria-label={copy.open} aria-expanded={open} onClick={() => (open ? setOpen(false) : show())} className='relative flex size-9 items-center justify-center rounded-lg text-muted'>
+      <button data-ripple type='button' aria-label={copy.open} aria-expanded={open} onClick={() => (open ? setOpen(false) : show())} className='relative flex size-9 items-center justify-center rounded-lg text-muted'>
         <Icon name='bell' width={13.333} height={16.667} />
         {unread > 0 && <span className='absolute left-5 top-2 size-2 rounded-full bg-[#ba1a1a]' />}
       </button>
       {open && (
-        <div className='fixed right-4 top-[72px] z-30'>
+        <div className='anim-panel-right fixed right-4 top-[72px] z-30'>
           <SidePanel
             className='max-h-[calc(100vh-88px)] w-[420px] overflow-y-auto'
             closeLabel={copy.close} onClose={() => setOpen(false)}
@@ -101,7 +101,7 @@ export function FeedPanel ({ initialUnread, copy, locale }: { initialUnread: num
                   />
                   ))}
               {cursor != null && (
-                <button type='button' onClick={more} disabled={pending} className='self-center rounded-lg bg-dark-accent px-4 py-2 text-xs font-semibold text-ink'>{copy.more}</button>
+                <button data-ripple type='button' onClick={more} disabled={pending} className='self-center rounded-lg bg-dark-accent px-4 py-2 text-xs font-semibold text-ink'>{copy.more}</button>
               )}
             </div>
           </SidePanel>

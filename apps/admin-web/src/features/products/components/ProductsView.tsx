@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
 import { Checkbox } from '@/components/ui/Checkbox'
 import { DataTable, type Column } from '@/components/ui/DataTable'
@@ -22,7 +23,7 @@ export function ProductsView ({ page, copy }: { page: Page<Product>, copy: Produ
     {
       key: 'product', header: copy.columns.product, width: 323, className: 'pl-4 pr-0',
       render: (p) => (
-        <a href={`/products?edit=${p.id}`} className='flex items-center gap-3'>
+        <Link prefetch href={`/products?edit=${p.id}`} className='flex items-center gap-3'>
           <span className='size-10 shrink-0 overflow-hidden rounded-lg bg-dark-accent shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
             {/* eslint-disable-next-line @next/next/no-img-element -- presigned URL */}
             {p.image != null && <img src={p.image.previewUrl400} alt='' className='size-full object-cover' />}
@@ -31,7 +32,7 @@ export function ProductsView ({ page, copy }: { page: Page<Product>, copy: Produ
             <span className='truncate font-semibold text-ink'>{p.name}</span>
             <span className='truncate text-[11px] text-muted'>{p.description ?? p.category.name}</span>
           </span>
-        </a>
+        </Link>
       )
     },
     { key: 'code', header: copy.columns.code, width: 106, className: 'pl-7 pr-3', render: (p) => <span className={`font-display ${selected.has(p.id) ? 'text-accent' : 'text-muted'}`}>{p.sku}</span> },

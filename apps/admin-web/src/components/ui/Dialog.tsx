@@ -1,6 +1,8 @@
 'use client'
 
-import { useEffect, type ReactNode } from 'react'
+import { useCallback, useEffect, useState, useSyncExternalStore, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
+import { lockScroll } from '@/lib/scroll-lock'
 import { FigmaIcon } from './FigmaIcon'
 
 /**
@@ -27,6 +29,8 @@ const variants = {
   }
 }
 
+const noop = () => () => {}
+
 export function Dialog ({ open, onClose, title, badge, subtitle, footer, children, width = 879, closeLabel, variant = 'edit' }: {
   open: boolean
   onClose: () => void
@@ -40,21 +44,37 @@ export function Dialog ({ open, onClose, title, badge, subtitle, footer, childre
   variant?: keyof typeof variants
 }) {
   const v = variants[variant]
+  const [leaving, setLeaving] = useState(false)
+  // false during SSR and hydration, true after: the portal needs document.body.
+  const mounted = useSyncExternalStore(noop, () => true, () => false)
+  // Plays the exit (Material emphasized accelerate) before the caller unmounts the dialog.
+  const close = useCallback(() => {
+    if (leaving) return
+    setLeaving(true)
+    window.setTimeout(onClose, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 140)
+  }, [leaving, onClose])
   useEffect(() => {
     if (!open) return
-    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') close() }
     document.addEventListener('keydown', esc)
-    const overflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => { document.removeEventListener('keydown', esc); document.body.style.overflow = overflow }
-  }, [open, onClose])
+    const unlock = lockScroll()
+    return () => { document.removeEventListener('keydown', esc); unlock() }
+  }, [open, close])
 
-  if (!open) return null
-  return (
-    <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-6' onMouseDown={(e) => { if (e.target === e.currentTarget) onClose() }}>
+  if (!open || !mounted) return null
+  // Portaled to <body> so the backdrop always covers the whole viewport, whatever the parents do.
+  return createPortal(
+    <div
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-6 ${leaving ? 'anim-fade-out' : 'anim-fade-in'}`}
+      onMouseDown={(e) => { if (e.target === e.currentTarget) close() }}
+    >
       <div
         role='dialog' aria-modal='true'
-        className={`flex max-h-full flex-col overflow-hidden ${v.card}`}
+        className={`flex max-h-full flex-col overflow-hidden ${v.card} ${leaving ? 'anim-dialog-out' : 'anim-dialog-in'}`}
+        // Footer "Cancel" buttons marked data-dialog-close also play the exit.
+        onClickCapture={(e) => {
+          if ((e.target as Element).closest('[data-dialog-close]')) { e.preventDefault(); e.stopPropagation(); close() }
+        }}
         style={{ width }}
       >
         <header className={`flex shrink-0 items-center justify-between gap-6 ${v.header}`}>
@@ -65,7 +85,7 @@ export function Dialog ({ open, onClose, title, badge, subtitle, footer, childre
             </div>
             {subtitle != null && <p className={v.subtitle}>{subtitle}</p>}
           </div>
-          <button type='button' aria-label={closeLabel} onClick={onClose} className='flex size-9 shrink-0 items-center justify-center rounded-lg hover:bg-grey-3'>
+          <button type='button' aria-label={closeLabel} onClick={close} data-ripple className='flex size-9 shrink-0 items-center justify-center rounded-lg text-ink'>
             <FigmaIcon name='dialog-close' width={20} height={20} />
           </button>
         </header>
@@ -74,6 +94,7 @@ export function Dialog ({ open, onClose, title, badge, subtitle, footer, childre
           <footer className={`flex shrink-0 items-center gap-3 ${v.footer}`}>{footer}</footer>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

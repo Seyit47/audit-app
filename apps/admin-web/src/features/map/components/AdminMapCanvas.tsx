@@ -6,8 +6,10 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { Layer, Marker, Source, type MapRef, type StyleSpecification } from 'react-map-gl/maplibre'
 import { FigmaIcon } from '@/components/ui/FigmaIcon'
+import { Bone } from '@/components/ui/Skeleton'
 import { ClusterMarker, DEFAULT_VIEW, MapView, RegionZone, ShopMarker, type InitialView } from '@/components/ui/MapView'
 import { plural, sub, type Locale } from '@/lib/i18n'
+import { navigationStarted } from '@/lib/feedback'
 import { useUrlState } from '@/lib/url-state'
 import type { MapCopy } from '../copy'
 import { hullRing } from '../hull'
@@ -60,6 +62,10 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
   const [panel, setPanel] = useState(false)
   const [satellite, setSatellite] = useState(false)
   const [clusters, setClusters] = useState<Clustered[]>([])
+  // The clicked shop's card shows at once; the server card replaces it when it arrives.
+  const [click, setClick] = useState<{ id: string, from: string | null } | null>(null)
+  const clicked = click != null && click.from === selectedId ? click.id : null
+  const pendingShop = clicked != null && clicked !== selectedId ? shops.find((s) => s.id === clicked) : undefined
 
   const visible = useMemo(() => {
     const needle = q.trim().toLowerCase()
@@ -124,7 +130,7 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
         </Source>
         {clusters.map((c) => c.kind === 'cluster'
           ? <ClusterMarker key={`c${c.id}`} longitude={c.lng} latitude={c.lat} count={c.count} unitLabel={c.count >= 100 ? copy.unit : undefined} onClick={() => { void expand(c.id, c.lng, c.lat) }} />
-          : <ShopMarker key={c.shop.id} longitude={c.shop.lng} latitude={c.shop.lat} label={c.shop.name} active={c.shop.id === selectedId} onClick={() => set({ shop: c.shop.id })} />)}
+          : <ShopMarker key={c.shop.id} longitude={c.shop.lng} latitude={c.shop.lat} label={c.shop.name} active={c.shop.id === (clicked ?? selectedId)} onClick={() => { setClick({ id: c.shop.id, from: selectedId }); set({ shop: c.shop.id }) }} />)}
         {positions.map((p) => (
           <Marker key={p.agentId} longitude={p.lng} latitude={p.lat} anchor='center'>
             <Link href={`/salesmen/${p.agentId}`} className='group relative flex flex-col items-center' title={`${p.fullName} · ${sub(copy.hereNow, new Date(p.recordedAt).toLocaleTimeString(locale === 'ru' ? 'ru-RU' : 'en-US', { hour: '2-digit', minute: '2-digit' }))}`}>
@@ -147,28 +153,38 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
           {filtered && <FilterBanner text={sub(copy.filtered, banner)} />}
         </div>
         <div className='pointer-events-auto flex items-center gap-3'>
-          <button type='button' onClick={() => setPanel((o) => !o)} aria-expanded={panel} className='flex h-10 items-center gap-2 rounded-lg bg-pure-white px-3 text-xs font-semibold leading-4 text-ink shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
+          <button data-ripple type='button' onClick={() => setPanel((o) => !o)} aria-expanded={panel} className='flex h-10 items-center gap-2 rounded-lg bg-pure-white px-3 text-xs font-semibold leading-4 text-ink shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
             <FigmaIcon name='map-filters-btn' width={13.5} height={13.5} />{copy.filters}
             {activeFilters > 0 && <span className='flex size-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold leading-4 text-white'>{activeFilters}</span>}
           </button>
           {/* Layers, Fullscreen and Refresh are approved additions (spec gap B2) in the recenter button's style. */}
-          <button type='button' onClick={() => setSatellite((v) => !v)} aria-pressed={satellite} aria-label={copy.layers} title={copy.layers} className={square}><FigmaIcon name='map-layers' width={18} height={18} /></button>
+          <button data-ripple type='button' onClick={() => setSatellite((v) => !v)} aria-pressed={satellite} aria-label={copy.layers} title={copy.layers} className={square}><FigmaIcon name='map-layers' width={18} height={18} /></button>
           <button
-            type='button' aria-label={copy.fullscreen} title={copy.fullscreen} className={square}
+            data-ripple type='button' aria-label={copy.fullscreen} title={copy.fullscreen} className={square}
             onClick={() => { if (document.fullscreenElement != null) void document.exitFullscreen(); else void frame.current?.requestFullscreen() }}
           ><FigmaIcon name='map-expand' width={18} height={18} />
           </button>
-          <button type='button' onClick={() => router.refresh()} aria-label={copy.refresh} title={copy.refresh} className={square}><FigmaIcon name='map-refresh' width={18} height={18} /></button>
-          <button type='button' onClick={recenter} aria-label={copy.recenter} title={copy.recenter} className={square}><FigmaIcon name='map-gps' width={18.25} height={18.25} /></button>
+          <button data-ripple type='button' onClick={() => { navigationStarted(); router.refresh() }} aria-label={copy.refresh} title={copy.refresh} className={square}><FigmaIcon name='map-refresh' width={18} height={18} /></button>
+          <button data-ripple type='button' onClick={recenter} aria-label={copy.recenter} title={copy.recenter} className={square}><FigmaIcon name='map-gps' width={18.25} height={18.25} /></button>
           <div className={`flex h-10 items-center overflow-hidden rounded-xl bg-pure-white ${shadowMd}`}>
-            <button type='button' onClick={() => map.current?.zoomIn()} aria-label={copy.zoomIn} className='flex size-10 items-center justify-center'><FigmaIcon name='map-plus' width={10.5} height={10.5} /></button>
+            <button data-ripple type='button' onClick={() => map.current?.zoomIn()} aria-label={copy.zoomIn} className='flex size-10 items-center justify-center'><FigmaIcon name='map-plus' width={10.5} height={10.5} /></button>
             <span className='h-5 w-px bg-line' />
-            <button type='button' onClick={() => map.current?.zoomOut()} aria-label={copy.zoomOut} className='flex size-10 items-center justify-center'><FigmaIcon name='map-minus' width={10.5} height={1.5} /></button>
+            <button data-ripple type='button' onClick={() => map.current?.zoomOut()} aria-label={copy.zoomOut} className='flex size-10 items-center justify-center'><FigmaIcon name='map-minus' width={10.5} height={1.5} /></button>
           </div>
         </div>
       </div>
 
-      {children}
+      {pendingShop != null
+        ? (
+          <aside className='anim-panel-left absolute bottom-2 left-4 top-[68px] z-20 flex w-96 flex-col gap-4 overflow-hidden rounded-2xl bg-pure-white p-4 shadow-[0px_8px_10px_-6px_rgba(0,0,0,0.1),0px_20px_25px_-5px_rgba(0,0,0,0.1)]'>
+            <Bone className='h-5 w-40' />
+            <p className='text-lg font-bold leading-[22.5px] text-ink'>{pendingShop.name}</p>
+            <p className='-mt-3 text-xs font-medium leading-4 text-muted'>{pendingShop.address}</p>
+            <Bone className='h-72 rounded-xl' />
+            <Bone className='h-24 rounded-xl' />
+          </aside>
+          )
+        : children}
       {panel && (
         <MapFilters
           agents={agents} regions={regions} value={filters} copy={copy} onClose={() => setPanel(false)}

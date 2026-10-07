@@ -1,5 +1,6 @@
 'use client'
 
+import { say } from '@/lib/feedback'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
@@ -57,6 +58,7 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
     startTransition(async () => {
       const res = shop == null ? await createShop(input) : await updateShop(shop.id, shop.version, input)
       if (!res.ok) return setError(res.code === 'CONFLICT' ? copy.errors.CONFLICT : copy.errors.generic)
+      say(shop == null ? 'created' : 'saved')
       close()
       router.refresh()
     })
@@ -67,6 +69,7 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
     startTransition(async () => {
       const res = await setShopStatus(shop.id, shop.version, shop.status === 'INACTIVE' ? 'ACTIVE' : 'INACTIVE')
       if (!res.ok) return setError(res.code === 'CONFLICT' ? copy.errors.CONFLICT : copy.errors.generic)
+      say('status')
       close()
       router.refresh()
     })
@@ -83,11 +86,11 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
       footer={
         <>
           {shop != null
-            ? <button type='button' onClick={toggleArchive} disabled={pending} className='px-2 py-1 text-xs font-medium leading-4 text-error'>{shop.status === 'INACTIVE' ? copy.restore : copy.archive}</button>
+            ? <button data-ripple type='button' onClick={toggleArchive} disabled={pending} className='px-2 py-1 text-xs font-medium leading-4 text-error'>{shop.status === 'INACTIVE' ? copy.restore : copy.archive}</button>
             : <span />}
           <div className='flex items-center gap-3'>
             {error != null && <p role='alert' className='max-w-80 text-xs text-error'>{error}</p>}
-            <Button variant='outline' size='md' onClick={close}>{copy.cancel}</Button>
+            <Button variant='outline' size='md' data-dialog-close>{copy.cancel}</Button>
             <Button size='md' disabled={pending} onClick={save}>{copy.save}</Button>
           </div>
         </>
@@ -131,7 +134,7 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
         <FormField
           label={copy.address} required htmlFor='shop-address'
           action={
-            <button type='button' onClick={() => setPicking(!picking)} className='flex items-center gap-1 text-xs font-semibold leading-4 text-accent'>
+            <button data-ripple type='button' onClick={() => setPicking(!picking)} className='-mx-1.5 -my-1 rounded-md px-1.5 py-1 flex items-center gap-1 text-xs font-semibold leading-4 text-accent'>
               <FigmaIcon name='map-pin-accent' width={14} height={14} />{copy.pickOnMap}
             </button>
           }
@@ -159,7 +162,7 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
               ? <>{copy.coords}: <b>{point.lat.toFixed(6)}° N, {point.lng.toFixed(6)}° E</b>{shop?.region != null && ` (${copy.zone}: ${shop.region.name})`}</>
               : copy.mapHint}
           </span>
-          <button type='button' onClick={() => setPicking(true)} className='shrink-0 text-[11px] font-medium leading-4 text-accent'>{copy.calibrate}</button>
+          <button data-ripple type='button' onClick={() => setPicking(true)} className='-mx-1.5 -my-1 rounded-md px-1.5 py-1 shrink-0 text-[11px] font-medium leading-4 text-accent'>{copy.calibrate}</button>
         </div>
       </div>
 
@@ -182,14 +185,14 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
                 value={p.label} onChange={(e) => setPhone(i, { label: e.target.value })} placeholder={copy.phoneLabel} aria-label={copy.phoneLabel}
                 className='h-[34px] w-[223px] rounded-lg border border-border px-3 text-xs leading-4 text-default-black placeholder:text-off-white focus:border-accent focus:outline-none'
               />
-              <button type='button' aria-label={copy.removePhone} onClick={() => setPhones((ps) => ps.filter((_, j) => j !== i))} className='rounded-lg p-2'>
+              <button data-ripple type='button' aria-label={copy.removePhone} onClick={() => setPhones((ps) => ps.filter((_, j) => j !== i))} className='rounded-lg p-2'>
                 <FigmaIcon name='phone-delete' width={16} height={16} />
               </button>
             </div>
           ))}
         </div>
         {phones.length < MAX_PHONES && (
-          <button type='button' onClick={() => setPhones((ps) => [...ps, { phone: '', label: '' }])} className='flex items-center gap-1.5 self-start pt-0.5 text-xs font-semibold leading-4 text-accent'>
+          <button data-ripple type='button' onClick={() => setPhones((ps) => [...ps, { phone: '', label: '' }])} className='-mx-1.5 -mb-1 rounded-md px-1.5 pb-1 flex items-center gap-1.5 self-start pt-0.5 text-xs font-semibold leading-4 text-accent'>
             <FigmaIcon name='plus-accent' width={14} height={14} />{copy.addPhone}
           </button>
         )}

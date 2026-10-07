@@ -1,5 +1,6 @@
 'use client'
 
+import { say } from '@/lib/feedback'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/Button'
@@ -54,6 +55,7 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref }: 
         const res = await updateAgent(agent.id, agent.version, input)
         if (!res.ok) return setError(res.code === 'CONFLICT' ? f.errors.CONFLICT : f.errors.generic)
         if (form.get('device') === 'reset') await rebindAgentDevice(agent.id)
+        say('saved')
         close()
       }
     })
@@ -88,9 +90,9 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref }: 
       subtitle={f.subtitle}
       footer={
         <>
-          {agent != null && <button type='button' onClick={resetPassword} disabled={pending} className='mr-auto px-2 py-1 text-xs font-medium text-accent'>{f.resetPassword}</button>}
+          {agent != null && <button data-ripple type='button' onClick={resetPassword} disabled={pending} className='mr-auto px-2 py-1 text-xs font-medium text-accent'>{f.resetPassword}</button>}
           {error != null && <p role='alert' className='mr-auto text-xs text-error'>{error}</p>}
-          <Button variant='outline' size='md' onClick={close} className='border-slate-300 text-slate-700'>{f.cancel}</Button>
+          <Button variant='outline' size='md' data-dialog-close className='border-slate-300 text-slate-700'>{f.cancel}</Button>
           <Button type='submit' form='agent-form' size='md' disabled={pending} icon={<FigmaIcon name='check-light' width={16} height={16} />}>{f.save}</Button>
         </>
       }
@@ -102,7 +104,7 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref }: 
           </FormField>
           <FormField
             variant='form' label={f.code} required htmlFor='code'
-            action={agent == null && <button type='button' onClick={() => setCode(nextCode)} className='text-[10px] font-medium leading-[15px] text-[#4f46e5]'>{f.generate}</button>}
+            action={agent == null && <button data-ripple type='button' onClick={() => setCode(nextCode)} className='-mx-1.5 rounded-md px-1.5 py-0.5 text-[10px] font-medium leading-[15px] text-[#4f46e5]'>{f.generate}</button>}
           >
             <TextInput variant='form' id='code' value={code} onChange={(e) => setCode(e.target.value)} className='bg-slate-50/70 font-mono font-medium' required />
           </FormField>

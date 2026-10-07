@@ -81,3 +81,91 @@ body {
   color: var(--black);
   font-family: var(--font-inter), sans-serif;
 }
+
+/* ---------- Motion (Material 3 easing and durations) ---------- */
+:root {
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --ease-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --dur-short: 150ms;
+  --dur-medium: 250ms;
+  --dur-long: 400ms;
+}
+
+
+a, button, [role='button'], [role='menuitem'], [role='switch'], [role='tab'], input, select, textarea, summary {
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform, filter;
+  transition-duration: var(--dur-short);
+  transition-timing-function: var(--ease-standard);
+}
+
+/* Interactive elements show a pointer; disabled ones say so. Utilities (e.g. cursor-default) still win. */
+@layer base {
+  button, summary, select, label[for], [role='button'], [role='menuitem'], [role='option'], [role='tab'], [role='radio'], [role='switch'],
+  input[type='checkbox'], input[type='radio'], input[type='date'], input[type='time'], input[type='file'] { cursor: pointer; }
+  :disabled, [aria-disabled='true'] { cursor: not-allowed; }
+  :where(a, button, summary, [role='button'], [role='menuitem'], [role='option'], [role='radio']):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+}
+
+/* A FormField with an error marks its control. */
+[data-invalid] :is(input, select, textarea, button[aria-haspopup]) { border-color: var(--error); }
+[data-invalid] :is(input, select, textarea, button[aria-haspopup]):focus { box-shadow: 0 0 0 2px color-mix(in srgb, var(--error) 20%, transparent); }
+
+/* State layer: a currentColor veil that brightens on hover, focus and press (Material 3). */
+[data-ripple] { position: relative; overflow: hidden; isolation: isolate; -webkit-tap-highlight-color: transparent; }
+[data-ripple]::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: currentColor; opacity: 0; transition: opacity var(--dur-short) var(--ease-standard); z-index: -1;
+}
+[data-ripple]:hover::after { opacity: 0.08; }
+[data-ripple]:focus-visible::after { opacity: 0.1; }
+[data-ripple]:active::after { opacity: 0.12; }
+/* Selected (pressed toggle, open menu) keeps a light layer that still reacts to hover and press. */
+[data-ripple]:is([aria-pressed='true'], [aria-selected='true'], [aria-expanded='true'])::after { opacity: 0.06; }
+[data-ripple]:is([aria-pressed='true'], [aria-selected='true'], [aria-expanded='true']):hover::after { opacity: 0.12; }
+[data-ripple][aria-disabled='true']::after, [data-ripple]:disabled::after { opacity: 0; }
+.ripple-wave {
+  position: absolute; border-radius: 9999px; pointer-events: none; background: currentColor; opacity: 0.16;
+  transform: scale(0); animation: ripple 550ms var(--ease-decelerate) forwards; z-index: -1;
+}
+@keyframes ripple { to { transform: scale(1); opacity: 0; } }
+
+/* Enter animations. Exits are played by the components before they unmount. */
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes fade-out { to { opacity: 0; } }
+@keyframes dialog-in { from { opacity: 0; transform: translateY(12px) scale(0.96); } }
+@keyframes dialog-out { to { opacity: 0; transform: translateY(8px) scale(0.97); } }
+@keyframes menu-in { from { opacity: 0; transform: scale(0.92) translateY(-4px); } }
+@keyframes panel-in-right { from { opacity: 0; transform: translateX(24px); } }
+@keyframes panel-in-left { from { opacity: 0; transform: translateX(-24px); } }
+@keyframes rise-in { from { opacity: 0; transform: translateY(8px); } }
+@keyframes snackbar-in { from { opacity: 0; transform: translateY(16px) scale(0.98); } }
+@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@keyframes progress { 0% { transform: translateX(-100%) scaleX(0.3); } 50% { transform: translateX(10%) scaleX(0.6); } 100% { transform: translateX(110%) scaleX(0.3); } }
+
+.anim-fade-in { animation: fade-in var(--dur-medium) var(--ease-standard) both; }
+.anim-fade-out { animation: fade-out var(--dur-short) var(--ease-accelerate) both; }
+.anim-dialog-in { animation: dialog-in var(--dur-long) var(--ease-decelerate) both; }
+.anim-dialog-out { animation: dialog-out var(--dur-short) var(--ease-accelerate) both; }
+.anim-menu-in { animation: menu-in var(--dur-medium) var(--ease-decelerate) both; }
+.anim-panel-right { animation: panel-in-right var(--dur-long) var(--ease-decelerate) both; }
+.anim-panel-left { animation: panel-in-left var(--dur-long) var(--ease-decelerate) both; }
+.anim-rise-in { animation: rise-in var(--dur-long) var(--ease-decelerate) both; }
+.anim-snackbar-in { animation: snackbar-in var(--dur-medium) var(--ease-decelerate) both; }
+/* Staggered list rows: set --i on each row. */
+.anim-stagger > * { animation: rise-in var(--dur-medium) var(--ease-decelerate) both; animation-delay: calc(min(var(--i, 0), 12) * 25ms); }
+
+.skeleton {
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--secondary-bg) 25%, #e9e7fb 37%, var(--secondary-bg) 63%);
+  background-size: 400% 100%; animation: shimmer 1.4s ease infinite;
+}
+
+/* Hover elevation for cards and tiles that open something. */
+.lift { transition: box-shadow var(--dur-medium) var(--ease-standard), transform var(--dur-medium) var(--ease-standard); }
+.lift:hover { box-shadow: 0px 4px 12px -2px rgba(25, 27, 37, 0.12); transform: translateY(-1px); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 1ms !important; animation-delay: 0ms !important; transition-duration: 1ms !important; }
+  .ripple-wave { display: none; }
+}

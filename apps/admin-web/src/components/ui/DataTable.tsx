@@ -59,12 +59,15 @@ export function DataTable<T> ({ columns, rows, rowKey, isSelected, rowClassName,
             ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody className='anim-stagger'>
           {rows.length === 0 && empty != null && (
             <tr><td colSpan={columns.length} className='px-4 py-10 text-center text-sm text-muted'>{empty}</td></tr>
           )}
-          {rows.map((row) => (
-            <tr key={rowKey(row)} className={`${d.tr} ${isSelected?.(row) === true ? d.selected : ''} ${rowClassName?.(row) ?? ''}`}>
+          {rows.map((row, i) => (
+            <tr
+              key={rowKey(row)} style={{ '--i': i } as React.CSSProperties}
+              className={`${d.tr} transition-colors duration-150 hover:bg-secondary-bg/40 ${isSelected?.(row) === true ? d.selected : ''} ${rowClassName?.(row) ?? ''}`}
+            >
               {columns.map((c) => (
                 <td key={c.key} className={`align-middle text-xs leading-4 text-ink ${c.className ?? 'px-3'}`}>{c.render(row)}</td>
               ))}

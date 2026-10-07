@@ -16,7 +16,7 @@ export function FormField ({ label, required, hint, action, error, htmlFor, chil
   variant?: 'edit' | 'form'
 }) {
   return (
-    <div className={`flex min-w-0 flex-col ${variant === 'form' ? 'gap-1.5' : 'gap-1'} ${className}`}>
+    <div data-invalid={error != null || undefined} className={`flex min-w-0 flex-col ${variant === 'form' ? 'gap-1.5' : 'gap-1'} ${className}`}>
       <div className='flex items-center justify-between gap-4'>
         <label htmlFor={htmlFor} className={`text-xs font-semibold leading-4 ${variant === 'form' ? 'text-slate-700' : 'text-default-black'}`}>
           {label}{required === true && <span className='text-error'> *</span>}
@@ -31,9 +31,9 @@ export function FormField ({ label, required, hint, action, error, htmlFor, chil
   )
 }
 
-const control = 'w-full rounded-lg border border-border bg-pure-white text-sm leading-5 text-black placeholder:text-off-white focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 aria-invalid:border-error'
+const control = 'w-full rounded-lg border border-border bg-pure-white text-sm leading-5 text-black placeholder:text-off-white hover:border-slate-400 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 disabled:cursor-not-allowed disabled:border-border disabled:bg-slate-50 disabled:text-off-white read-only:bg-slate-50 aria-invalid:border-error aria-invalid:ring-error/20 user-invalid:border-error user-invalid:ring-2 user-invalid:ring-error/20'
 
-const formControl = 'w-full rounded-xl border border-border bg-pure-white text-xs leading-4 text-slate-800 shadow-[0px_1px_2px_rgba(0,0,0,0.05)] placeholder:text-off-white focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 aria-invalid:border-error'
+const formControl = 'w-full rounded-xl border border-border bg-pure-white text-xs leading-4 text-slate-800 shadow-[0px_1px_2px_rgba(0,0,0,0.05)] placeholder:text-off-white hover:border-slate-400 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 disabled:cursor-not-allowed disabled:border-border disabled:bg-slate-50 disabled:text-off-white read-only:bg-slate-50 aria-invalid:border-error aria-invalid:ring-error/20 user-invalid:border-error user-invalid:ring-2 user-invalid:ring-error/20'
 
 /** 44 px text input (162:20743); `form` is the 38 px input of 495:3932 with optional icon and suffix. */
 export function TextInput ({ className = '', variant = 'edit', icon, suffix, ...props }: InputHTMLAttributes<HTMLInputElement> & { variant?: 'edit' | 'form', icon?: ReactNode, suffix?: ReactNode }) {
@@ -79,7 +79,7 @@ export function StatusSwitch<T extends string> ({ options, value, onChange }: { 
         const on = o.value === value
         return (
           <button
-            key={o.value} type='button' role='radio' aria-checked={on} onClick={() => onChange(o.value)}
+            key={o.value} type='button' role='radio' aria-checked={on} onClick={() => onChange(o.value)} data-ripple
             className={`flex h-[30px] flex-1 items-center justify-center gap-1.5 rounded-lg text-xs leading-4 ${on ? 'bg-pure-white font-semibold shadow-[0px_1px_2px_rgba(0,0,0,0.05)]' : 'font-medium text-default-black'} ${on && i === 0 ? 'text-success' : on ? 'text-ink' : ''}`}
           >
             {on && i === 0 && <span className='size-2 rounded-full bg-light-green' />}

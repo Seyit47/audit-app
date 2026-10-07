@@ -31,27 +31,28 @@ export function Pagination ({ page, size, total, noun, sizes = [10, 25, 50], onP
           {copy.show}
           <select
             value={size} onChange={(e) => onSize(Number(e.target.value))}
-            className='h-7 cursor-pointer appearance-none rounded bg-dark-accent pl-3 pr-6 text-xs font-medium leading-[15px] text-ink focus:outline-none'
+            className='h-7 cursor-pointer appearance-none rounded bg-dark-accent pl-3 pr-6 text-xs font-medium leading-[15px] text-ink hover:bg-line focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/30'
           >
             {sizes.map((s) => <option key={s} value={s}>{s} {copy.perPage}</option>)}
           </select>
         </label>
       </div>
       <nav className='flex items-center gap-1' aria-label='Pagination'>
-        <button type='button' aria-label={copy.previous} disabled={page <= 1} onClick={() => onPage(page - 1)} className='flex size-7 items-center justify-center rounded disabled:opacity-40'>
+        <button data-ripple type='button' aria-label={copy.previous} disabled={page <= 1} onClick={() => onPage(page - 1)} className='flex size-7 items-center justify-center rounded disabled:opacity-40'>
           <FigmaIcon name='page-prev' width={4.933} height={8} />
         </button>
         {shown.map((p, i) => p == null
           ? <span key={`gap-${i}`} className='px-1 text-xs leading-4 text-[#c7c4d8]'>…</span>
           : (
             <button
+              data-ripple
               key={p} type='button' aria-current={p === page ? 'page' : undefined} onClick={() => onPage(p)}
               className={`flex h-7 min-w-7 items-center justify-center rounded-lg px-1 text-xs leading-4 ${p === page ? 'bg-accent font-semibold text-white drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]' : 'font-medium text-muted'}`}
             >
               {p}
             </button>
             ))}
-        <button type='button' aria-label={copy.next} disabled={page >= pages} onClick={() => onPage(page + 1)} className='flex size-7 items-center justify-center rounded disabled:opacity-40'>
+        <button data-ripple type='button' aria-label={copy.next} disabled={page >= pages} onClick={() => onPage(page + 1)} className='flex size-7 items-center justify-center rounded disabled:opacity-40'>
           <FigmaIcon name='page-next' width={4.933} height={8} />
         </button>
       </nav>

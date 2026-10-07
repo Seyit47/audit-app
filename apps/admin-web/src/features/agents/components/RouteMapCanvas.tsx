@@ -49,8 +49,8 @@ export default function RouteMapCanvas ({ track, checkpointLabel, live, labels }
       <div className='flex items-center justify-between gap-4'>
         <h2 className='flex items-center gap-2 text-sm font-bold leading-5 text-ink'><FigmaIcon name='route-explore' width={16.67} height={16.67} />{labels.route}</h2>
         <div className='flex items-center gap-1'>
-          <button type='button' onClick={recenter} aria-label={labels.recenter} title={labels.recenter} className='rounded p-1 hover:bg-secondary-bg'><FigmaIcon name='map-locate' width={16.42} height={16.42} /></button>
-          <button
+          <button data-ripple type='button' onClick={recenter} aria-label={labels.recenter} title={labels.recenter} className='rounded p-1 hover:bg-secondary-bg'><FigmaIcon name='map-locate' width={16.42} height={16.42} /></button>
+          <button data-ripple
             type='button' aria-label={labels.fullscreen} title={labels.fullscreen} className='rounded p-1 hover:bg-secondary-bg'
             onClick={() => { if (document.fullscreenElement != null) void document.exitFullscreen(); else void card.current?.requestFullscreen() }}
           ><FigmaIcon name='map-fullscreen' width={13.5} height={13.5} />
@@ -92,9 +92,9 @@ export default function RouteMapCanvas ({ track, checkpointLabel, live, labels }
           )}
         </MapView>
         <div className={`absolute bottom-8 right-[9px] flex w-8 flex-col overflow-hidden rounded-lg bg-pure-white ${shadowMd}`}>
-          <button type='button' onClick={() => map.current?.zoomIn()} aria-label={labels.zoomIn} className='flex h-8 items-center justify-center text-sm font-bold leading-5 text-ink'>+</button>
+          <button data-ripple type='button' onClick={() => map.current?.zoomIn()} aria-label={labels.zoomIn} className='flex h-8 items-center justify-center text-sm font-bold leading-5 text-ink'>+</button>
           <span className='h-px bg-dark-accent' />
-          <button type='button' onClick={() => map.current?.zoomOut()} aria-label={labels.zoomOut} className='flex h-8 items-center justify-center text-sm font-bold leading-5 text-ink'>−</button>
+          <button data-ripple type='button' onClick={() => map.current?.zoomOut()} aria-label={labels.zoomOut} className='flex h-8 items-center justify-center text-sm font-bold leading-5 text-ink'>−</button>
         </div>
       </div>
     </section>

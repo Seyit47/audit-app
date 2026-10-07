@@ -1,5 +1,7 @@
 'use client'
 
+import { say } from '@/lib/feedback'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import { FigmaIcon } from '@/components/ui/FigmaIcon'
@@ -47,14 +49,14 @@ export function ShopHeader ({ shop, copy }: { shop: ShopDetails, copy: ShopsCopy
         <span className='text-sm font-semibold leading-4 text-ink'>{d.statusLabel} {statusText}</span>
         <Toggle
           label={`${d.statusLabel} ${statusText}`} checked={active} disabled={pending}
-          onChange={(on) => startTransition(async () => { await setShopStatus(shop.id, shop.version, on ? 'ACTIVE' : 'INACTIVE'); router.refresh() })}
+          onChange={(on) => startTransition(async () => { await setShopStatus(shop.id, shop.version, on ? 'ACTIVE' : 'INACTIVE'); say('status'); router.refresh() })}
         />
-        <a href={`/map?ids=${shop.id}`} className='flex h-9 items-center gap-2 rounded-lg bg-dark-accent px-4 text-xs font-semibold leading-4 text-ink'>
+        <Link data-ripple href={`/map?ids=${shop.id}`} className='flex h-9 items-center gap-2 rounded-lg bg-dark-accent px-4 text-xs font-semibold leading-4 text-ink'>
           <FigmaIcon name='detail-map' width={13.5} height={13.5} />{copy.viewOnMap}
-        </a>
-        <a href={`/shops/${shop.id}?edit=1`} className='flex h-9 items-center gap-2 rounded-lg bg-dark-accent px-4 text-xs font-semibold leading-4 text-ink'>
+        </Link>
+        <Link data-ripple prefetch href={`/shops/${shop.id}?edit=1`} className='flex h-9 items-center gap-2 rounded-lg bg-dark-accent px-4 text-xs font-semibold leading-4 text-ink'>
           <FigmaIcon name='detail-edit' width={13.5} height={13.5} />{d.edit}
-        </a>
+        </Link>
       </div>
     </div>
   )

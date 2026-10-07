@@ -61,7 +61,7 @@ export function ImageUpload ({ title, hint, kind, shopId, previewUrl, caption, a
         <p className='text-sm font-semibold leading-5 text-slate-800'>{title}</p>
         <p className={`text-xs leading-4 ${error != null ? 'text-error' : 'text-slate-500'}`}>{error ?? hint}</p>
         <div className='flex items-center gap-2.5 pt-2'>
-          <button
+          <button data-ripple
             type='button' disabled={busy} onClick={() => input.current?.click()}
             className='flex h-[30px] items-center gap-1.5 rounded-xl border border-border bg-pure-white px-3.5 text-xs font-medium leading-4 text-slate-700 shadow-[0px_1px_2px_rgba(0,0,0,0.05)] disabled:opacity-60'
           >
@@ -69,7 +69,7 @@ export function ImageUpload ({ title, hint, kind, shopId, previewUrl, caption, a
             {busy ? copy.uploading : copy.upload}
           </button>
           {shown != null && (
-            <button
+            <button data-ripple
               type='button' disabled={busy} onClick={() => { setRemoved(true); setLocalUrl(null); onChange(null) }}
               className='flex h-7 items-center gap-1.5 rounded-lg px-3 text-xs font-medium leading-4 text-error'
             >

@@ -1,5 +1,6 @@
 'use client'
 
+import { say } from '@/lib/feedback'
 import { useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
 import { Button } from '@/components/ui/Button'
@@ -31,7 +32,7 @@ export function UploadPhotosDialog ({ shops, copy, onClose }: { shops: Array<{ i
     setBusy(false)
     await photosUploaded()
     router.refresh()
-    if (ok === files.length) onClose()
+    if (ok === files.length) { say('uploaded'); onClose() }
     else setMessage(`${d.failed} (${d.done.replace('{n}', String(ok))})`)
   }
 
@@ -40,7 +41,7 @@ export function UploadPhotosDialog ({ shops, copy, onClose }: { shops: Array<{ i
       footer={
         <>
           {message != null && <p role='alert' className='mr-auto text-xs text-error'>{message}</p>}
-          <Button variant='outline' size='md' onClick={onClose}>{d.cancel}</Button>
+          <Button variant='outline' size='md' data-dialog-close>{d.cancel}</Button>
           <Button size='md' disabled={busy || shopId === '' || files.length === 0} onClick={() => { void upload() }}>{d.save}</Button>
         </>
       }>
@@ -52,7 +53,7 @@ export function UploadPhotosDialog ({ shops, copy, onClose }: { shops: Array<{ i
       </FormField>
       <FormField variant='form' label={d.files} required hint={d.hint}>
         <div className='flex flex-col gap-3 rounded-2xl border border-border/70 bg-slate-50/80 p-4'>
-          <button type='button' onClick={() => input.current?.click()} className='flex h-[30px] items-center gap-1.5 self-start rounded-xl border border-border bg-pure-white px-3.5 text-xs font-medium leading-4 text-slate-700 shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
+          <button data-ripple type='button' onClick={() => input.current?.click()} className='flex h-[30px] items-center gap-1.5 self-start rounded-xl border border-border bg-pure-white px-3.5 text-xs font-medium leading-4 text-slate-700 shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
             <FigmaIcon name='upload' width={14} height={14} />{d.choose}
           </button>
           {files.length > 0 && (

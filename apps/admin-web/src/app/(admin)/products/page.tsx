@@ -30,7 +30,7 @@ export default async function ProductsPage ({ searchParams }: PageProps<'/produc
         actions={
           <>
             <Button variant='secondary' href={exportHref} icon={<FigmaIcon name='export' width={13} height={13} />}>{copy.exportCatalog}</Button>
-            <Button href='/products?add=1' icon={<FigmaIcon name='plus' width={10.5} height={10.5} />}>{copy.addProduct}</Button>
+            <Button prefetch href='/products?add=1' icon={<FigmaIcon name='plus' width={10.5} height={10.5} />}>{copy.addProduct}</Button>
           </>
         }
       />

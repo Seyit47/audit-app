@@ -1,5 +1,6 @@
 'use client'
 
+import { say } from '@/lib/feedback'
 import { useRouter } from 'next/navigation'
 import { useRef, useState, useTransition } from 'react'
 import { Button } from '@/components/ui/Button'
@@ -60,6 +61,7 @@ export function ProductFormDialog ({ product, categories, copy, closeHref }: {
     startTransition(async () => {
       const res = await saveProduct(product?.id ?? null, input)
       if (!res.ok) return setError(res.code === 'CONFLICT' ? f.errors.CONFLICT : f.errors.generic)
+      say(product == null ? 'created' : 'saved')
       close()
       router.refresh()
     })
@@ -72,7 +74,7 @@ export function ProductFormDialog ({ product, categories, copy, closeHref }: {
       footer={
         <>
           {error != null && <p role='alert' className='mr-auto text-xs text-error'>{error}</p>}
-          <Button variant='outline' size='md' onClick={close} className='border-slate-300 text-slate-700'>{f.cancel}</Button>
+          <Button variant='outline' size='md' data-dialog-close className='border-slate-300 text-slate-700'>{f.cancel}</Button>
           <Button type='submit' form='product-form' size='md' disabled={pending || uploading} icon={<FigmaIcon name='check-light' width={16} height={16} />}>{f.save}</Button>
         </>
       }
@@ -82,7 +84,7 @@ export function ProductFormDialog ({ product, categories, copy, closeHref }: {
           <div className='flex flex-col gap-1.5'>
             <span className='text-xs font-bold leading-4 text-default-black'>{f.image}</span>
             <div className='flex items-center gap-5 rounded-2xl border border-border/70 bg-slate-50/80 p-4'>
-              <button type='button' onClick={() => file.current?.click()} className='flex size-20 shrink-0 flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-indigo-200 bg-pure-white shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
+              <button data-ripple type='button' onClick={() => file.current?.click()} className='flex size-20 shrink-0 flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-indigo-200 bg-pure-white shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
                 {image != null
                   // eslint-disable-next-line @next/next/no-img-element -- presigned or local preview
                   ? <img src={image.url} alt='' className='size-full object-cover' />
@@ -91,7 +93,7 @@ export function ProductFormDialog ({ product, categories, copy, closeHref }: {
               <div className='flex min-w-0 flex-1 flex-col gap-0.5'>
                 <p className='text-xs leading-4 text-slate-500'>{f.imageHint}</p>
                 <div className='flex items-center gap-2.5 pt-2'>
-                  <button type='button' disabled={uploading} onClick={() => file.current?.click()} className='flex h-[30px] items-center gap-1.5 rounded-xl border border-border bg-pure-white px-3.5 text-xs font-medium leading-4 text-slate-700 shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
+                  <button data-ripple type='button' disabled={uploading} onClick={() => file.current?.click()} className='flex h-[30px] items-center gap-1.5 rounded-xl border border-border bg-pure-white px-3.5 text-xs font-medium leading-4 text-slate-700 shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
                     <FigmaIcon name='upload' width={14} height={14} />{uploading ? f.uploading : f.chooseFile}
                   </button>
                   <span className='truncate text-xs leading-4 text-off-white'>{image?.name || (image == null ? f.noFile : '')}</span>

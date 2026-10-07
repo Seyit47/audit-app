@@ -6,6 +6,7 @@ import { FilterSelect } from '@/components/ui/FilterSelect'
 import { PhotoTile, VerifiedTag } from '@/components/ui/PhotoTile'
 import { SegmentedControl } from '@/components/ui/SegmentedControl'
 import { SidePanel } from '@/components/ui/SidePanel'
+import { Bone } from '@/components/ui/Skeleton'
 import { formatPhone } from '@/lib/format'
 import type { Locale } from '@/lib/i18n'
 import { useUrlState } from '@/lib/url-state'
@@ -61,7 +62,12 @@ export function PhotosView ({ first, query, summary, regions, shops, copy, local
     return () => io.disconnect()
   }, [more])
 
-  const open = (p: GalleryPhoto) => startLoading(async () => setDetail(await loadPhoto(p.id)))
+  // The panel opens at once with the tapped photo; the details fill in when they arrive.
+  const [opening, setOpening] = useState<GalleryPhoto | null>(null)
+  const open = (p: GalleryPhoto) => {
+    setOpening(p)
+    startLoading(async () => { setDetail(await loadPhoto(p.id)); setOpening(null) })
+  }
   const activeFilters = ['type', 'regionId', 'verified', 'date'].filter((k) => params.get(k) != null).length
 
   const tile = (p: GalleryPhoto, size = 'h-[170px] w-full') => (
@@ -74,7 +80,7 @@ export function PhotosView ({ first, query, summary, regions, shops, copy, local
   )
 
   const grid = (list: GalleryPhoto[]) => (
-    <div className={`grid gap-2.5 ${detail != null ? 'grid-cols-2' : 'grid-cols-4'}`}>{list.map((p) => tile(p))}</div>
+    <div className={`grid gap-2.5 ${detail != null || opening != null ? 'grid-cols-2' : 'grid-cols-4'}`}>{list.map((p) => tile(p))}</div>
   )
 
   const byDay = new Map<string, GalleryPhoto[]>()
@@ -95,11 +101,11 @@ export function PhotosView ({ first, query, summary, regions, shops, copy, local
             <span className='flex items-center gap-1 text-xs font-semibold leading-4 text-success'><span className='size-1.5 rounded-full bg-success' />{sub(copy.today, summary.today)}</span>
           </span>
           <SegmentedControl options={[{ value: 'grid', label: copy.modes.grid }, { value: 'byDate', label: copy.modes.byDate }]} value={mode} onChange={(m) => set({ mode: m === 'grid' ? null : m })} />
-          <button type='button' onClick={() => setShowFilters(!showFilters)} aria-expanded={showFilters} className='flex h-10 items-center gap-2 rounded-lg bg-pure-white px-3 text-xs font-semibold leading-4 text-ink shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
+          <button data-ripple type='button' onClick={() => setShowFilters(!showFilters)} aria-expanded={showFilters} className='flex h-10 items-center gap-2 rounded-lg bg-pure-white px-3 text-xs font-semibold leading-4 text-ink shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
             <FigmaIcon name='filters' width={13.5} height={13.5} />{copy.filters}
             {activeFilters > 0 && <span className='flex size-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-white'>{activeFilters}</span>}
           </button>
-          <button type='button' onClick={() => setUploading(true)} className='flex h-10 items-center gap-2 rounded-lg bg-accent px-4 text-sm font-medium leading-5 text-white shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
+          <button data-ripple type='button' onClick={() => setUploading(true)} className='flex h-10 items-center gap-2 rounded-lg bg-accent px-4 text-sm font-medium leading-5 text-white shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
             <FigmaIcon name='upload-photo' width={16.5} height={15} />{copy.upload}
           </button>
         </div>
@@ -134,11 +140,27 @@ export function PhotosView ({ first, query, summary, regions, shops, copy, local
             ))}
           <div ref={sentinel} className='h-8 pt-2 text-center text-xs text-muted'>{loading && cursor != null ? copy.loading : ''}</div>
         </div>
-        {detail != null && <Detail detail={detail} copy={copy} locale={locale} onClose={() => setDetail(null)} onOpen={open} />}
+        {opening != null && detail?.id !== opening.id
+          ? <PendingDetail photo={opening} copy={copy} onClose={() => setOpening(null)} />
+          : detail != null && <Detail detail={detail} copy={copy} locale={locale} onClose={() => setDetail(null)} onOpen={open} />}
       </div>
 
       {uploading && <UploadPhotosDialog shops={shops} copy={copy} onClose={() => setUploading(false)} />}
     </>
+  )
+}
+
+function PendingDetail ({ photo, copy, onClose }: { photo: GalleryPhoto, copy: PhotosCopy, onClose: () => void }) {
+  return (
+    <SidePanel
+      closeLabel={copy.close} onClose={onClose} className='sticky top-20 w-[582px]'
+      header={<div className='flex items-center gap-5'><Bone className='size-[72px] rounded-xl' /><div className='flex flex-col gap-2'><Bone className='h-7 w-56' /><Bone className='h-4 w-72' /></div></div>}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element -- presigned URL */}
+      <img src={photo.previewUrl1200} alt='' className='aspect-[550/350] w-full rounded-xl object-cover' />
+      <Bone className='h-16 rounded-xl' />
+      <div className='flex gap-2'>{Array.from({ length: 5 }, (_, i) => <Bone key={i} className='size-20 rounded-lg' />)}</div>
+    </SidePanel>
   )
 }
 

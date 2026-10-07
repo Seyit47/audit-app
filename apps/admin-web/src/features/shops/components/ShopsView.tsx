@@ -1,5 +1,6 @@
 'use client'
 
+import { say } from '@/lib/feedback'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
@@ -120,6 +121,7 @@ export function ShopsView ({ page, copy, locale, agents, exportHref, children }:
     startTransition(async () => {
       const res = await fn()
       if (!res.ok) return setError(copy.errors.generic)
+      say(deleting != null ? 'deleted' : 'assigned')
       setAssigning(null); setDeleting(null); setSelected(new Set())
       router.refresh()
     })
@@ -135,14 +137,12 @@ export function ShopsView ({ page, copy, locale, agents, exportHref, children }:
           <>
             <Button variant='secondary' href={exportHref} icon={<FigmaIcon name='export' width={13} height={13} />}>{copy.exportShops}</Button>
             {chosen.length === 0
-              ? <Button href='/shops?add=1' icon={<FigmaIcon name='plus' width={10.5} height={10.5} />}>{copy.addShop}</Button>
+              ? <Button prefetch href='/shops?add=1' icon={<FigmaIcon name='plus' width={10.5} height={10.5} />}>{copy.addShop}</Button>
               : (
                 <>
                   <Button variant='secondary' onClick={() => setAssigning(chosen)} icon={<FigmaIcon name='link' width={12} height={12} />}>{copy.assign}</Button>
                   <Button variant='secondary' href={`/map?ids=${chosen.join(',')}`} icon={<FigmaIcon name='menu-map' width={12} height={12} />}>{copy.viewOnMap}</Button>
-                  <button type='button' onClick={() => setDeleting(chosen)} className='inline-flex items-center gap-2 rounded-lg bg-[#fff0ef] px-4 py-2 text-xs font-semibold leading-4 text-danger shadow-[0px_2px_4px_-2px_rgba(0,0,0,0.1),0px_4px_6px_-1px_rgba(0,0,0,0.1)]'>
-                    <FigmaIcon name='menu-delete' width={10.667} height={12} />{copy.deleteShop}
-                  </button>
+                  <Button variant='danger' onClick={() => setDeleting(chosen)} icon={<FigmaIcon name='menu-delete' width={10.667} height={12} />}>{copy.deleteShop}</Button>
                 </>
                 )}
           </>
@@ -166,7 +166,7 @@ export function ShopsView ({ page, copy, locale, agents, exportHref, children }:
           footer={
             <>
               {error != null && <p role='alert' className='mr-auto text-xs text-error'>{error}</p>}
-              <Button variant='outline' size='md' onClick={() => setDeleting(null)}>{copy.deleteDialog.cancel}</Button>
+              <Button variant='outline' size='md' data-dialog-close>{copy.deleteDialog.cancel}</Button>
               <Button size='md' disabled={pending} onClick={() => act(() => deleteShops(deleting))} className='bg-danger shadow-none'>{copy.deleteDialog.confirm}</Button>
             </>
           }>
@@ -187,7 +187,7 @@ function AssignDialog ({ copy, count, agents, pending, error, onClose, onSave }:
       footer={
         <>
           {error != null && <p role='alert' className='mr-auto text-xs text-error'>{error}</p>}
-          <Button variant='outline' size='md' onClick={onClose}>{d.cancel}</Button>
+          <Button variant='outline' size='md' data-dialog-close>{d.cancel}</Button>
           <Button size='md' disabled={pending} onClick={() => onSave(agentId === '' ? null : agentId)}>{d.save}</Button>
         </>
       }>

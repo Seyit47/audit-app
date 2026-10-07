@@ -3,9 +3,9 @@ import { FigmaIcon } from './FigmaIcon'
 /** Applied-filter tag of 31:2307 ("Region: Region 2 ×", 31:2459). */
 export function FilterChip ({ label, onRemove, removeLabel }: { label: string, onRemove: () => void, removeLabel: string }) {
   return (
-    <span className='inline-flex items-center gap-1.5 rounded-md bg-dark-accent px-2.5 py-1 text-xs font-medium leading-4 text-ink'>
+    <span className='anim-menu-in inline-flex items-center gap-1.5 rounded-md bg-dark-accent px-2.5 py-1 text-xs font-medium leading-4 text-ink'>
       {label}
-      <button type='button' aria-label={`${removeLabel}: ${label}`} onClick={onRemove} className='flex'>
+      <button type='button' aria-label={`${removeLabel}: ${label}`} onClick={onRemove} data-ripple className='flex rounded-full p-0.5 text-ink'>
         <FigmaIcon name='chip-remove' width={8.167} height={8.167} />
       </button>
     </span>

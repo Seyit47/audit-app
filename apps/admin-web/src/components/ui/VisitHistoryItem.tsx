@@ -79,7 +79,7 @@ export function VisitHistoryItem ({ when, aside, status, statusLabel, thumbnailU
                 )}
               </>
             )
-            if (onPhoto != null) return <button key={p.id} type='button' onClick={() => onPhoto(p)} className={cls}>{inner}</button>
+            if (onPhoto != null) return <button data-ripple key={p.id} type='button' onClick={() => onPhoto(p)} className={cls}>{inner}</button>
             if (photoHref != null) return <a key={p.id} href={photoHref(p)} className={cls}>{inner}</a>
             return <span key={p.id} className={cls}>{inner}</span>
           })}

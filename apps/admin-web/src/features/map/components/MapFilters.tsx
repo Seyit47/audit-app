@@ -34,7 +34,7 @@ export function MapFilters ({ agents, regions, value, copy, onApply, onClose }: 
   const toggleRegion = (id: string) => setRegionIds((ids) => ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id])
 
   return (
-    <aside className={`absolute right-[13px] top-[68px] z-20 flex max-h-[calc(100%-84px)] w-80 flex-col overflow-hidden rounded-2xl bg-pure-white ${shadowXl}`}>
+    <aside className={`anim-menu-in origin-top-right absolute right-[13px] top-[68px] z-20 flex max-h-[calc(100%-84px)] w-80 flex-col overflow-hidden rounded-2xl bg-pure-white ${shadowXl}`}>
       <div className='flex items-center justify-between px-4 py-3.5'>
         <span className='flex items-center gap-2'>
           <FigmaIcon name='map-filters' width={13.5} height={13.5} />
@@ -43,7 +43,7 @@ export function MapFilters ({ agents, regions, value, copy, onApply, onClose }: 
             <span className='flex size-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold leading-4 text-white'>{agentIds.length + regionIds.length}</span>
           )}
         </span>
-        <button type='button' onClick={onClose} aria-label={p.close} className='flex size-7 items-center justify-center'><FigmaIcon name='map-panel-close' width={10} height={10} /></button>
+        <button data-ripple type='button' onClick={onClose} aria-label={p.close} className='flex size-7 items-center justify-center rounded-full'><FigmaIcon name='map-panel-close' width={10} height={10} /></button>
       </div>
 
       <div className='flex min-h-0 flex-col gap-4 overflow-y-auto px-4 py-3'>
@@ -62,7 +62,7 @@ export function MapFilters ({ agents, regions, value, copy, onApply, onClose }: 
               <ul className={`absolute inset-x-0 top-9 z-10 flex flex-col rounded-lg bg-pure-white p-1 ${shadowXl}`}>
                 {matches.map((a) => (
                   <li key={a.id}>
-                    <button type='button' onClick={() => { setAgentIds((ids) => [...ids, a.id]); setQ('') }} className='w-full rounded-md px-2.5 py-1.5 text-left text-xs leading-4 text-muted hover:bg-secondary-bg'>{a.fullName}</button>
+                    <button data-ripple type='button' onClick={() => { setAgentIds((ids) => [...ids, a.id]); setQ('') }} className='w-full rounded-md px-2.5 py-1.5 text-left text-xs leading-4 text-muted'>{a.fullName}</button>
                   </li>
                 ))}
               </ul>
@@ -73,7 +73,7 @@ export function MapFilters ({ agents, regions, value, copy, onApply, onClose }: 
               {agentIds.map((id) => (
                 <span key={id} className='flex items-center gap-1.5 rounded-md bg-secondary-bg px-2.5 py-1 text-[11px] font-medium leading-[16.5px] text-muted'>
                   {agents.find((a) => a.id === id)?.fullName ?? id}
-                  <button type='button' aria-label={p.remove} onClick={() => setAgentIds((ids) => ids.filter((x) => x !== id))}><FigmaIcon name='map-chip-x' width={7} height={7} /></button>
+                  <button data-ripple type='button' aria-label={p.remove} className='rounded-full p-1' onClick={() => setAgentIds((ids) => ids.filter((x) => x !== id))}><FigmaIcon name='map-chip-x' width={7} height={7} /></button>
                 </span>
               ))}
             </div>
@@ -81,20 +81,20 @@ export function MapFilters ({ agents, regions, value, copy, onApply, onClose }: 
         </div>
 
         <div className='flex flex-col gap-1.5 border-b border-secondary-bg pb-3'>
-          <button type='button' onClick={() => setRegionsOpen((o) => !o)} aria-expanded={regionsOpen} className='flex h-6 items-center justify-between'>
+          <button data-ripple type='button' onClick={() => setRegionsOpen((o) => !o)} aria-expanded={regionsOpen} className='flex h-6 items-center justify-between'>
             <span className='text-xs font-semibold leading-4 text-ink'>{p.region}</span>
             <span className={`flex size-6 items-center justify-center transition-transform ${regionsOpen ? '' : '-rotate-90'}`}><FigmaIcon name='map-chevron' width={7} height={3.5} /></span>
           </button>
           {regionsOpen && (
             <div className='flex flex-col gap-1 rounded-xl bg-secondary-bg p-1.5'>
-              <button type='button' onClick={() => setRegionIds([])} className='flex items-center justify-between rounded-lg px-2.5 py-1.5'>
+              <button data-ripple type='button' onClick={() => setRegionIds([])} className='flex items-center justify-between rounded-lg px-2.5 py-1.5'>
                 <span className={`text-xs leading-4 ${regionIds.length === 0 ? 'font-semibold text-accent' : 'text-muted'}`}>{sub(p.allRegions, regions.length)}</span>
                 <Check on={regionIds.length === 0} />
               </button>
               {regions.map((r) => {
                 const on = regionIds.includes(r.id)
                 return (
-                  <button key={r.id} type='button' onClick={() => toggleRegion(r.id)} aria-pressed={on} className='flex items-center justify-between rounded-lg px-2.5 py-1.5'>
+                  <button data-ripple key={r.id} type='button' onClick={() => toggleRegion(r.id)} aria-pressed={on} className={`flex ${on ? 'bg-accent/5' : ''} items-center justify-between rounded-lg px-2.5 py-1.5`}>
                     <span className={`text-left text-xs leading-4 ${on ? 'font-semibold text-accent' : 'text-muted'}`}>{r.name}</span>
                     <Check on={on} />
                   </button>
@@ -106,13 +106,13 @@ export function MapFilters ({ agents, regions, value, copy, onApply, onClose }: 
       </div>
 
       <div className='flex items-center gap-2 p-3'>
-        <button
+        <button data-ripple
           type='button' onClick={() => onApply({ agentIds, regionIds })}
           className='flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-accent text-xs font-semibold leading-4 text-white shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'
         >
           <FigmaIcon name='map-apply-check' width={10.87} height={8.02} />{p.apply}
         </button>
-        <button type='button' onClick={() => { setAgentIds([]); setRegionIds([]); onApply({ agentIds: [], regionIds: [] }) }} className='h-9 rounded-lg bg-secondary-bg px-3 text-xs font-semibold leading-4 text-ink'>{p.clear}</button>
+        <button data-ripple type='button' onClick={() => { setAgentIds([]); setRegionIds([]); onApply({ agentIds: [], regionIds: [] }) }} className='h-9 rounded-lg bg-secondary-bg px-3 text-xs font-semibold leading-4 text-ink'>{p.clear}</button>
       </div>
     </aside>
   )
