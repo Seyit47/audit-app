@@ -1,0 +1,22 @@
+name: iOS build
+
+# Manual only (Actions → iOS build → Run workflow): macOS runners use 10x minutes on private repos.
+# Compiles the iOS app without signing, to check it builds; distribution needs an Apple Developer account.
+on:
+  workflow_dispatch:
+
+jobs:
+  ios:
+    runs-on: macos-latest
+    defaults: { run: { working-directory: apps/mobile } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with: { channel: stable, cache: true }
+      - run: flutter pub get
+      - run: flutter build ios --release --no-codesign --dart-define-from-file=env/prod.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Runner.app (unsigned)
+          path: apps/mobile/build/ios/iphoneos/Runner.app
+          retention-days: 7

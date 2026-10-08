@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Audit Mobile</string>
+	<string>Аудит</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -65,6 +65,25 @@
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<!-- Permission texts shown by iOS (required: the app is killed without them, and review rejects it). -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Геопозиция нужна, чтобы подтвердить визит в магазин и показать точки на карте.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>В рабочее время приложение отмечает маршрут агента, в том числе в фоне, чтобы руководитель видел визиты.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Камера нужна для фотографий фасада и полок во время аудита.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Доступ к фото нужен, чтобы прикрепить снимок к аудиту или магазину.</string>
+	<!-- Route tracking in working hours and the 15-minute background sync (workmanager, task "audit-sync"). -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+		<string>fetch</string>
+	</array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>audit-sync</string>
 	</array>
 </dict>
 </plist>
