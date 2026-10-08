@@ -48,7 +48,7 @@ void main() {
         db: db,
         dark: dark,
         height: 882,
-        overrides: [auditControllerProvider.overrideWith(() => _Fixed('s0', AuditState(shop: _shop(), draft: _draft(''), geo: GeoStatus.locating)))],
+        overrides: [auditControllerProvider.overrideWith2((_) => _Fixed('s0', AuditState(shop: _shop(), draft: _draft(''), geo: GeoStatus.locating)))],
       );
       await tester.runAsync(db.close);
     });
@@ -64,8 +64,8 @@ void main() {
         dark: dark,
         height: 882,
         overrides: [
-          auditControllerProvider.overrideWith(
-            () => _Fixed(
+          auditControllerProvider.overrideWith2(
+            (_) => _Fixed(
               's0',
               AuditState(
                 shop: _shop(),

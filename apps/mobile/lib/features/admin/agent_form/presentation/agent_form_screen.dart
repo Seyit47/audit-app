@@ -92,11 +92,12 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
       await _showPassword(res['temporaryPassword'] as String);
       if (mounted) context.pop(true);
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _saving = false;
           _error = l10n.saveFailed;
         });
+      }
     }
   }
 

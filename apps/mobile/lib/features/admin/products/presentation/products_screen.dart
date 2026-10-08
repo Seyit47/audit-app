@@ -47,12 +47,13 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
     final seq = ++_seq; // a slower, older search must not overwrite a newer one
     try {
       final page = await ref.read(adminApiProvider).products(q: _q);
-      if (mounted && seq == _seq)
+      if (mounted && seq == _seq) {
         setState(() {
           _items = page.items;
           _total = page.total;
           _error = false;
         });
+      }
     } catch (_) {
       if (mounted && seq == _seq) setState(() => _error = true);
     }

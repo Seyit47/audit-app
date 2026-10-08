@@ -75,31 +75,34 @@ class _AdminShopFormScreenState extends ConsumerState<AdminShopFormScreen> {
   Future<void> _locate() async {
     setState(() => _locating = true);
     final fix = await ref.read(locatorProvider).current();
-    if (mounted)
+    if (mounted) {
       setState(() {
         _fix = fix ?? _fix;
         _locating = false;
       });
+    }
   }
 
   Future<void> _camera() async {
     final p = await ref.read(photoCaptureProvider).capture(fix: _fix);
-    if (p != null && mounted)
+    if (p != null && mounted) {
       setState(() {
         _photoPath = p.path;
         _photoSize = p.sizeBytes;
         _removedPhoto = false;
       });
+    }
   }
 
   Future<void> _gallery() async {
     final x = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 85, maxWidth: 2560);
-    if (x != null && mounted)
+    if (x != null && mounted) {
       setState(() {
         _photoPath = x.path;
         _photoSize = File(x.path).lengthSync();
         _removedPhoto = false;
       });
+    }
   }
 
   bool get _hasPhoto => _photoPath != null || (_photoUrl != null && !_removedPhoto);
@@ -145,11 +148,12 @@ class _AdminShopFormScreenState extends ConsumerState<AdminShopFormScreen> {
       }
       if (mounted) context.pop(true);
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _saving = false;
           _error = l10n.saveFailed;
         });
+      }
     }
   }
 
@@ -157,13 +161,14 @@ class _AdminShopFormScreenState extends ConsumerState<AdminShopFormScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final c = context.colors;
-    if (!_loaded)
+    if (!_loaded) {
       return Scaffold(
         backgroundColor: c.mainBg,
         body: const SafeArea(
           child: SingleChildScrollView(padding: EdgeInsets.all(16), physics: NeverScrollableScrollPhysics(), child: CardListSkeleton(count: 4, lines: 3)),
         ),
       );
+    }
     return ShopFormView(
       title: widget.shopId == null ? l10n.addShopTitle : l10n.editShopTitle,
       name: _name,

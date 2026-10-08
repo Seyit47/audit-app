@@ -232,11 +232,12 @@ class AdminPhotoDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final p = ref.watch(_photoProvider(photoId)).value;
-    if (p == null)
+    if (p == null) {
       return Scaffold(
         backgroundColor: context.colors.card,
         body: const SafeArea(child: AppTopBar()),
       );
+    }
     final shop = (p['shop'] as Map?)?.cast<String, dynamic>();
     final audit = (p['audit'] as Map?)?.cast<String, dynamic>();
     final related = [for (final r in (p['related'] as List? ?? const []).cast<Map>()) _grid(r.cast<String, dynamic>())];

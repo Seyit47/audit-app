@@ -91,17 +91,19 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       });
       if (mounted) context.pop(true);
     } on ApiException catch (e) {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _saving = false;
           _error = e.status == 409 ? l10n.skuConflict : l10n.saveFailed;
         });
+      }
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         setState(() {
           _saving = false;
           _error = l10n.saveFailed;
         });
+      }
     }
   }
 

@@ -206,11 +206,12 @@ class AgentPhotoDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final d = ref.watch(photoDetailsProvider(photoId)).value;
-    if (d == null)
+    if (d == null) {
       return Scaffold(
         backgroundColor: context.colors.card,
         body: const SafeArea(child: AppTopBar()),
       );
+    }
     final shop = d.shop;
     return PhotoDetailView(
       photoId: photoId,
