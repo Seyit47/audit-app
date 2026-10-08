@@ -22,14 +22,14 @@ const MAX_PHONES = 4
 type Phone = { phone: string, label: string }
 
 /** Edit / add shop dialog of Figma 162:20071, with exactly the frame's fields. */
-export function ShopEditDialog ({ shop, agents, products, productIds, copy, closeHref, animateIn = true }: {
+export function ShopEditDialog ({ shop, agents, products, productIds, copy, closeHref, enterStartedAt }: {
   shop: Shop | null
   agents: Array<{ id: string, fullName: string, code: string }>
   products: Array<{ id: string, name: string, sku: string }>
   productIds: string[]
   copy: ShopFormCopy
   closeHref: string
-  animateIn?: boolean
+  enterStartedAt?: number
 }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
@@ -88,7 +88,7 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
 
   return (
     <Dialog
-      open={open} animateIn={animateIn} onClose={() => close()} closeLabel={copy.close}
+      open={open} enterStartedAt={enterStartedAt} onClose={() => close()} closeLabel={copy.close}
       title={shop == null ? copy.addTitle : copy.editTitle}
       badge={shop?.code}
       subtitle={copy.subtitle}

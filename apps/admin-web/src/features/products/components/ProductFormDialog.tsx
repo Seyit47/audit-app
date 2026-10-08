@@ -18,12 +18,12 @@ const MB = 1024 * 1024
 const big = 'h-[42px] text-sm leading-5 shadow-none'
 
 /** Add / edit product dialog of Figma 495:2311 (495:2553), with exactly the frame's fields. */
-export function ProductFormDialog ({ product, categories, copy, closeHref, animateIn = true }: {
+export function ProductFormDialog ({ product, categories, copy, closeHref, enterStartedAt }: {
   product: Product | null
   categories: Array<{ id: string, name: string }>
   copy: ProductsCopy
   closeHref: string
-  animateIn?: boolean
+  enterStartedAt?: number
 }) {
   const f = copy.form
   const router = useRouter()
@@ -79,7 +79,7 @@ export function ProductFormDialog ({ product, categories, copy, closeHref, anima
 
   return (
     <Dialog
-      open={open} animateIn={animateIn} variant='form' width={981} onClose={() => close()} closeLabel={f.close}
+      open={open} enterStartedAt={enterStartedAt} variant='form' width={981} onClose={() => close()} closeLabel={f.close}
       title={product == null ? f.addTitle : f.editTitle} subtitle={f.subtitle}
       footer={
         <>

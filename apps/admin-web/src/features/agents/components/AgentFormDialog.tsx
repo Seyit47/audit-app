@@ -15,13 +15,13 @@ import type { AgentsCopy } from '../copy'
 type Status = AgentInput['status']
 
 /** Add / edit salesman dialog of Figma 495:3932, with exactly the frame's fields. */
-export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref, animateIn = true }: {
+export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref, enterStartedAt }: {
   agent: Agent | null
   regions: Region[]
   nextCode: string
   copy: AgentsCopy
   closeHref: string
-  animateIn?: boolean
+  enterStartedAt?: number
 }) {
   const f = copy.form
   const router = useRouter()
@@ -96,7 +96,7 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref, an
 
   return (
     <Dialog
-      open={open} animateIn={animateIn} variant='form' width={981} onClose={() => close()} closeLabel={f.close}
+      open={open} enterStartedAt={enterStartedAt} variant='form' width={981} onClose={() => close()} closeLabel={f.close}
       title={agent == null ? f.addTitle : f.editTitle}
       subtitle={f.subtitle}
       footer={

@@ -7,7 +7,7 @@ import { Bone } from './Skeleton'
  * A URL dialog's frame while its form data loads (only when it wasn't prefetched): the same title, width and
  * variant as the form, with placeholder fields. A failed load shows the message instead.
  */
-export function FormLoadingDialog ({ title, width, variant, closeLabel, onClose, failed, failedText }: {
+export function FormLoadingDialog ({ title, width, variant, closeLabel, onClose, failed, failedText, enterStartedAt }: {
   title: string
   width?: number
   variant?: 'edit' | 'form'
@@ -15,9 +15,10 @@ export function FormLoadingDialog ({ title, width, variant, closeLabel, onClose,
   onClose: () => void
   failed: boolean
   failedText: string
+  enterStartedAt?: number
 }) {
   return (
-    <Dialog open title={title} width={width} variant={variant} closeLabel={closeLabel} onClose={onClose}>
+    <Dialog open title={title} width={width} variant={variant} closeLabel={closeLabel} onClose={onClose} enterStartedAt={enterStartedAt}>
       {failed
         ? <p role='alert' className='py-6 text-center text-sm text-error'>{failedText}</p>
         : (

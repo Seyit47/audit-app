@@ -9,6 +9,8 @@ import { loadFormData, peekFormData, type FormKind } from './url-dialog'
  * (`?edit=<id>`, or `fixedId` on a details page), its data from /data/forms/<kind> (synchronous when
  * prefetched), and the URL to return to on close.
  */
+const clock = () => performance.now()
+
 export function useUrlForm<T> (kind: FormKind, fixedId?: string) {
   const params = useSearchParams()
   const pathname = usePathname()
@@ -17,8 +19,11 @@ export function useUrlForm<T> (kind: FormKind, fixedId?: string) {
   const k = open ? `${id ?? 'new'}` : null
   const [loaded, setLoaded] = useState<{ key: string, data: T } | null>(null)
   const [failed, setFailed] = useState<string | null>(null)
-  // The loading dialog plays the entrance; the form that replaces it then appears without animating again.
-  const [skeletonFor, setSkeletonFor] = useState<string | null>(null)
+  // When this opening began: the loading dialog and the form that replaces it share one entrance animation,
+  // and every new opening starts a new one.
+  const [opened, setOpened] = useState<{ key: string, at: number } | null>(null)
+  if (k != null && opened?.key !== k) setOpened({ key: k, at: clock() })
+  if (k == null && opened != null) setOpened(null)
 
   useEffect(() => {
     if (k == null) return
@@ -31,10 +36,9 @@ export function useUrlForm<T> (kind: FormKind, fixedId?: string) {
   }, [kind, id, k])
 
   const data = k == null ? null : loaded?.key === k ? loaded.data : (peekFormData<T>(kind, id) ?? null)
-  if (k != null && data == null && skeletonFor !== k) setSkeletonFor(k)
   const rest = new URLSearchParams(params)
   rest.delete('add')
   rest.delete('edit')
   const closeHref = rest.size > 0 ? `${pathname}?${rest.toString()}` : pathname
-  return { open, id, key: k, data, failed: failed != null && failed === k, closeHref, animateIn: skeletonFor !== k }
+  return { open, id, key: k, data, failed: failed != null && failed === k, closeHref, enterStartedAt: opened?.key === k ? opened.at : undefined }
 }

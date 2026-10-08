@@ -17,10 +17,11 @@ export function ProductFormHost ({ copy }: { copy: ProductsCopy }) {
     return (
       <FormLoadingDialog
         title={form.id == null ? f.addTitle : f.editTitle} variant='form' width={981} closeLabel={f.close}
+        enterStartedAt={form.enterStartedAt}
         onClose={() => window.history.replaceState(null, '', form.closeHref)}
         failed={form.failed} failedText={f.errors.generic}
       />
     )
   }
-  return <ProductFormDialog key={form.key} product={form.data.product} categories={form.data.categories} copy={copy} closeHref={form.closeHref} animateIn={form.animateIn} />
+  return <ProductFormDialog key={form.key} product={form.data.product} categories={form.data.categories} copy={copy} closeHref={form.closeHref} enterStartedAt={form.enterStartedAt} />
 }

@@ -17,11 +17,12 @@ export function AgentFormHost ({ copy }: { copy: AgentsCopy }) {
     return (
       <FormLoadingDialog
         title={form.id == null ? f.addTitle : f.editTitle} variant='form' width={981} closeLabel={f.close}
+        enterStartedAt={form.enterStartedAt}
         onClose={() => window.history.replaceState(null, '', form.closeHref)}
         failed={form.failed} failedText={f.errors.generic}
       />
     )
   }
   const d = form.data
-  return <AgentFormDialog key={form.key} agent={d.agent} regions={d.regions} nextCode={d.nextCode} copy={copy} closeHref={form.closeHref} animateIn={form.animateIn} />
+  return <AgentFormDialog key={form.key} agent={d.agent} regions={d.regions} nextCode={d.nextCode} copy={copy} closeHref={form.closeHref} enterStartedAt={form.enterStartedAt} />
 }

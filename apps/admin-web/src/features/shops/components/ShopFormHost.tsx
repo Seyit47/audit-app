@@ -21,11 +21,12 @@ export function ShopFormHost ({ copy, shopId }: { copy: ShopFormCopy, shopId?: s
     return (
       <FormLoadingDialog
         title={form.id == null ? copy.addTitle : copy.editTitle} closeLabel={copy.close}
+        enterStartedAt={form.enterStartedAt}
         onClose={() => window.history.replaceState(null, '', form.closeHref)}
         failed={form.failed} failedText={copy.errors.generic}
       />
     )
   }
   const d = form.data
-  return <ShopEditDialog key={form.key} shop={d.shop} agents={d.agents} products={d.products} productIds={d.productIds} copy={copy} closeHref={form.closeHref} animateIn={form.animateIn} />
+  return <ShopEditDialog key={form.key} shop={d.shop} agents={d.agents} products={d.products} productIds={d.productIds} copy={copy} closeHref={form.closeHref} enterStartedAt={form.enterStartedAt} />
 }

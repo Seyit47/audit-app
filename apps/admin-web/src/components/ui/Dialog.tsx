@@ -32,7 +32,9 @@ const variants = {
 
 const noop = () => () => {}
 
-export function Dialog ({ open, onClose, title, badge, subtitle, footer, children, width = 879, closeLabel, variant = 'edit', animateIn = true }: {
+const clock = () => performance.now()
+
+export function Dialog ({ open, onClose, title, badge, subtitle, footer, children, width = 879, closeLabel, variant = 'edit', enterStartedAt }: {
   open: boolean
   onClose: () => void
   title: ReactNode
@@ -43,9 +45,14 @@ export function Dialog ({ open, onClose, title, badge, subtitle, footer, childre
   width?: number
   closeLabel: string
   variant?: keyof typeof variants
-  /** Off when the dialog replaces its own loading state, which already played the entrance. */
-  animateIn?: boolean
+  /**
+   * When the entrance began (performance.now()), if it began before this dialog mounted: a form replacing its
+   * loading state continues the same entrance instead of restarting or skipping it.
+   */
+  enterStartedAt?: number
 }) {
+  const [enterDelay] = useState(() => enterStartedAt == null ? 0 : Math.max(0, clock() - enterStartedAt))
+  const resume = { animationDelay: `-${enterDelay}ms` }
   const body = useRef<HTMLDivElement>(null)
   const v = variants[variant]
   // shown → leaving (exit animation, clicks pass through) → gone. A dialog driven by the URL (`?add=1`)
@@ -75,17 +82,18 @@ export function Dialog ({ open, onClose, title, badge, subtitle, footer, childre
   // Portaled to <body> so the backdrop always covers the whole viewport, whatever the parents do.
   return createPortal(
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-6 ${leaving ? 'anim-fade-out pointer-events-none' : animateIn ? 'anim-fade-in' : ''}`}
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-6 ${leaving ? 'anim-fade-out pointer-events-none' : 'anim-fade-in'}`}
+      style={leaving ? undefined : resume}
       onMouseDown={(e) => { if (e.target === e.currentTarget) close() }}
     >
       <div
         role='dialog' aria-modal='true'
-        className={`flex max-h-full flex-col overflow-hidden ${v.card} ${leaving ? 'anim-dialog-out' : animateIn ? 'anim-dialog-in' : ''}`}
+        className={`flex max-h-full flex-col overflow-hidden ${v.card} ${leaving ? 'anim-dialog-out' : 'anim-dialog-in'}`}
         // Footer "Cancel" buttons marked data-dialog-close also play the exit.
         onClickCapture={(e) => {
           if ((e.target as Element).closest('[data-dialog-close]')) { e.preventDefault(); e.stopPropagation(); close() }
         }}
-        style={{ width }}
+        style={leaving ? { width } : { width, ...resume }}
       >
         <header className={`flex shrink-0 items-center justify-between gap-6 ${v.header}`}>
           <div className='flex min-w-0 flex-col gap-0.5'>
