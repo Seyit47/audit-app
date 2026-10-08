@@ -48,7 +48,8 @@ jobs:
         with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
       - run: pnpm run lint
-      - run: pnpm exec tsc --noEmit
+      # Generates Next's route types (PageProps, RouteContext) first; plain tsc fails on a clean checkout.
+      - run: pnpm run typecheck
       - run: pnpm test
       - run: pnpm run build
 
