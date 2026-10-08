@@ -13,7 +13,7 @@ declare module 'fastify' {
 
 /** Background jobs on pg-boss, stored in the same PostgreSQL database (no Redis). */
 export default fp(async (fastify) => {
-  const boss = new PgBoss({ connectionString: fastify.config.databaseUrl })
+  const boss = new PgBoss({ connectionString: fastify.config.databaseUrl, max: fastify.config.pool.jobs })
   boss.on('error', (err) => fastify.log.error({ err }, 'pg-boss error'))
   await boss.start()
 

@@ -6,7 +6,7 @@ declare module 'fastify' {
 }
 
 export default fp(async (fastify) => {
-  const prisma = createPrisma(fastify.config.databaseUrl)
+  const prisma = createPrisma(fastify.config.databaseUrl, fastify.config.pool.db)
   fastify.decorate('prisma', prisma)
   fastify.addHook('onClose', async () => { await prisma.$disconnect() })
 }, { name: 'prisma', dependencies: ['env'] })

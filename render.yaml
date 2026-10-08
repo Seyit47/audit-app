@@ -22,6 +22,12 @@ services:
       # openssl rand -base64 48
       - key: JWT_SECRET
         generateValue: true
+      # Supabase's session pooler allows 15 connections in total; app queries + job queue stay at ~7 per
+      # instance, so even the old and new instance during a deploy stay under it.
+      - key: DATABASE_POOL_MAX
+        value: "4"
+      - key: JOBS_POOL_MAX
+        value: "2"
       # Backblaze B2 bucket's S3 endpoint, e.g. https://s3.eu-central-003.backblazeb2.com
       # (Cloudflare R2: https://<account-id>.r2.cloudflarestorage.com)
       - key: S3_ENDPOINT

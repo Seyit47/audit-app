@@ -2,6 +2,8 @@ import fp from 'fastify-plugin'
 
 export interface AppConfig {
   databaseUrl: string
+  /** Connections per pool (app queries / job queue); hosted poolers cap the total (Supabase free: 15). */
+  pool: { db: number, jobs: number }
   jwtSecret: string
   s3: { endpoint: string, region: string, bucket: string, accessKey: string, secretKey: string }
   webOrigin: string
@@ -23,6 +25,7 @@ export function loadConfig (env: NodeJS.ProcessEnv = process.env): AppConfig {
   if (env.JWT_SECRET!.length < 32) throw new Error('JWT_SECRET must be at least 32 characters')
   return {
     databaseUrl: env.DATABASE_URL!,
+    pool: { db: Number(env.DATABASE_POOL_MAX ?? 10), jobs: Number(env.JOBS_POOL_MAX ?? 10) },
     jwtSecret: env.JWT_SECRET!,
     // S3_REGION: `auto` for Cloudflare R2; SeaweedFS and MinIO accept the default.
     s3: { endpoint: env.S3_ENDPOINT!, region: env.S3_REGION ?? 'us-east-1', bucket: env.S3_BUCKET!, accessKey: env.S3_ACCESS_KEY!, secretKey: env.S3_SECRET_KEY! },
