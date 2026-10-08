@@ -1,6 +1,7 @@
 import type { AuthUser } from '../../plugins/auth.js'
 import type { Storage } from '../../plugins/storage.js'
 import { AppError, conflict, notFound } from '../../lib/app-error.js'
+import { distanceM } from '../../lib/geo.js'
 import { decodeCursor, encodeCursor, pageArgs } from '../../lib/pagination.js'
 import type { PhotosRepository } from '../photos/photos.repository.js'
 import { photoView } from '../photos/photo.view.js'
@@ -9,6 +10,10 @@ import { isUniqueViolation, type ShopsRepository } from './shops.repository.js'
 import type { ContactsBody, CreateShopBody, ListShopsQuery, MapQuery, PatchShopBody } from './shops.schema.js'
 import { localDate, startOfLocalDay } from '../../lib/time.js'
 import { facadeView, shopView } from './shop.view.js'
+import { requireTmPhone } from '../../lib/phone.js'
+
+/** Shop contacts: Turkmen mobile or landline numbers, stored as +993XXXXXXXX. */
+const canonicalContacts = <C extends { phone: string }>(list: C[]) => list.map((c, i) => ({ ...c, phone: requireTmPhone(c.phone, 'any', `contacts/${i}/phone`) }))
 
 const pct = (part: number, all: number) => (all === 0 ? null : Math.round((part / all) * 100))
 
@@ -104,10 +109,17 @@ export class ShopsService {
       if (body.accuracyM == null || body.accuracyM > settings.minGpsAccuracyM) {
         throw new AppError(422, 'GPS_ACCURACY', `GPS accuracy must be at most ${settings.minGpsAccuracyM} m`)
       }
+      // A point picked on the map must stay near the agent, as the app's picker already enforces.
+      if (body.deviceLat != null && body.deviceLng != null &&
+        distanceM({ lat: body.deviceLat, lng: body.deviceLng }, body) > settings.defaultAuditRadiusM) {
+        throw new AppError(422, 'GEOFENCE', `The shop must be within ${settings.defaultAuditRadiusM} m of you`)
+      }
     }
-    const { contacts = [], ...rest } = body
-    // accuracyM is checked above; it is not stored on the shop.
-    const fields = Object.fromEntries(Object.entries(rest).filter(([k]) => k !== 'accuracyM')) as Omit<typeof rest, 'accuracyM'>
+    const { contacts: raw = [], ...rest } = body
+    const contacts = canonicalContacts(raw)
+    // accuracyM and the device position are checked above; they are not stored on the shop.
+    const checkOnly = ['accuracyM', 'deviceLat', 'deviceLng']
+    const fields = Object.fromEntries(Object.entries(rest).filter(([k]) => !checkOnly.includes(k))) as Omit<typeof rest, 'accuracyM' | 'deviceLat' | 'deviceLng'>
     try {
       const shop = await this.repo.create({
         ...fields,
@@ -137,7 +149,7 @@ export class ShopsService {
 
   async contacts (id: string, body: ContactsBody) {
     if (await this.repo.get(id) == null) throw notFound('Shop')
-    await this.repo.replaceContacts(id, body.contacts)
+    await this.repo.replaceContacts(id, canonicalContacts(body.contacts))
     return this.get({ id: 'admin', role: 'ADMIN' }, id)
   }
 

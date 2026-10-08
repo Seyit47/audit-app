@@ -10,6 +10,7 @@ import '../../../core/widgets/form_field.dart';
 import '../../../core/widgets/photo_target.dart';
 import '../../audit/domain/geofence.dart';
 import '../../../core/widgets/tap.dart';
+import '../../../core/format/phone.dart';
 
 /// The add/edit shop form of `252:26487` (agent) and `252:25423` (admin, with Агент and the
 /// gallery button). Values live in the caller; this lays them out.
@@ -25,6 +26,8 @@ class ShopFormView extends StatefulWidget {
     required this.fix,
     required this.locating,
     required this.onRecheck,
+    this.picked,
+    this.onPickOnMap,
     required this.photo,
     this.photoSizeBytes,
     required this.onTakePhoto,
@@ -47,6 +50,12 @@ class ShopFormView extends StatefulWidget {
   final Fix? fix;
   final bool locating;
   final VoidCallback onRecheck;
+
+  /// The point chosen on the map, shown instead of the GPS fix.
+  final (double, double)? picked;
+
+  /// "Указать на карте"; null while there is nothing to start from.
+  final VoidCallback? onPickOnMap;
 
   /// Local path or URL of the storefront photo.
   final String? photo;
@@ -81,8 +90,6 @@ class _ShopFormViewState extends State<ShopFormView> {
     super.dispose();
   }
 
-  static final _phoneRe = RegExp(r'^\+?[0-9 ()-]{6,20}$');
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -97,6 +104,8 @@ class _ShopFormViewState extends State<ShopFormView> {
       color: c.textPrimary,
     );
     final fix = w.fix;
+    final picked = w.picked;
+    final at = picked ?? (fix == null ? null : (fix.lat, fix.lng));
 
     return Scaffold(
       backgroundColor: c.mainBg,
@@ -161,7 +170,7 @@ class _ShopFormViewState extends State<ShopFormView> {
                   AppFormField(
                     label: l10n.phoneNumber,
                     required: true,
-                    valid: _phoneRe.hasMatch(w.phone.trim()),
+                    valid: tmPhone(w.phone) != null,
                     child: AppTextInput(
                       controller: _phone,
                       hint: l10n.phoneHint,
@@ -176,27 +185,9 @@ class _ShopFormViewState extends State<ShopFormView> {
                       const AppIcon('navigate', width: 15, height: 15),
                       const SizedBox(width: 8),
                       Expanded(child: Text(l10n.currentLocation, style: label)),
-                      Material(
-                        color: const Color(0x99E2DFFF),
-                        borderRadius: BorderRadius.circular(6),
-                        child: Pressable(
-                          borderRadius: BorderRadius.circular(6),
-                          onTap: w.locating ? null : w.onRecheck,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            child: Row(
-                              children: [
-                                const AppIcon('refresh-small', width: 9.33, height: 9.33),
-                                const SizedBox(width: 4),
-                                Text(
-                                  l10n.recheck,
-                                  style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 11, height: 1.5, fontWeight: FontWeight.w600, color: c.accent),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
+                      _Chip(icon: const AppIcon('target-small', width: 9.33, height: 9.33), label: l10n.pickOnMap, onTap: w.locating ? null : w.onPickOnMap),
+                      const SizedBox(width: 6),
+                      _Chip(icon: const AppIcon('refresh-small', width: 9.33, height: 9.33), label: l10n.recheck, onTap: w.locating ? null : w.onRecheck),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -209,6 +200,8 @@ class _ShopFormViewState extends State<ShopFormView> {
                         Text(
                           w.locating
                               ? l10n.geoLocating
+                              : picked != null
+                              ? l10n.pickedOnMap
                               : fix == null
                               ? l10n.geoUnavailable
                               : l10n.accuracyLine(fix.accuracyM.round()),
@@ -217,17 +210,17 @@ class _ShopFormViewState extends State<ShopFormView> {
                             fontSize: 12,
                             height: 16 / 12,
                             fontWeight: FontWeight.w500,
-                            color: fix == null && !w.locating ? c.error : c.textSecondary,
+                            color: at == null && !w.locating ? c.error : c.textSecondary,
                           ),
                         ),
-                        if (fix != null) ...[
+                        if (at != null) ...[
                           const SizedBox(height: 10),
                           Row(
                             children: [
                               AppIcon('target-small', width: 11.86, height: 11.86, color: c.textSecondary),
                               const SizedBox(width: 4),
                               Text(
-                                l10n.coordsLine(fix.lat.toStringAsFixed(4), fix.lng.toStringAsFixed(4)),
+                                l10n.coordsLine(at.$1.toStringAsFixed(4), at.$2.toStringAsFixed(4)),
                                 style: TextStyle(fontFamily: AppTextStyles.mono, fontSize: 12, height: 16.5 / 12, color: c.textSecondary),
                               ),
                             ],
@@ -395,6 +388,44 @@ class _ShopFormViewState extends State<ShopFormView> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The small lavender action pill of the location row ("Проверить заново").
+class _Chip extends StatelessWidget {
+  const _Chip({required this.icon, required this.label, required this.onTap});
+
+  final Widget icon;
+  final String label;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Material(
+      color: const Color(0x99E2DFFF),
+      borderRadius: BorderRadius.circular(6),
+      child: Pressable(
+        borderRadius: BorderRadius.circular(6),
+        onTap: onTap,
+        child: Opacity(
+          opacity: onTap == null ? 0.5 : 1,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            child: Row(
+              children: [
+                icon,
+                const SizedBox(width: 4),
+                Text(
+                  label,
+                  style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 11, height: 1.5, fontWeight: FontWeight.w600, color: c.accent),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

@@ -265,5 +265,11 @@
   "coverage": "Coverage: {pct}%",
   "locationsShort": "Outlets: {count}",
   "price": "{price} TMT",
-  "skuConflict": "This SKU already exists"
+  "skuConflict": "This SKU already exists",
+  "pickOnMap": "Pick on map",
+  "mapPickTitle": "Shop location",
+  "mapPickHint": "Move the map to put the pin on the shop's entrance",
+  "mapPickDone": "Use this point",
+  "pickedOnMap": "Chosen on the map",
+  "mapPickTooFar": "The point is {meters} m from you; it can be at most {limit} m away"
 }

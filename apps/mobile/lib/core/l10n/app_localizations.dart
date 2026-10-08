@@ -1687,6 +1687,42 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Такой артикул уже есть'**
   String get skuConflict;
+
+  /// No description provided for @pickOnMap.
+  ///
+  /// In ru, this message translates to:
+  /// **'Указать на карте'**
+  String get pickOnMap;
+
+  /// No description provided for @mapPickTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Расположение магазина'**
+  String get mapPickTitle;
+
+  /// No description provided for @mapPickHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Перемещайте карту, чтобы поставить метку на вход в магазин'**
+  String get mapPickHint;
+
+  /// No description provided for @mapPickDone.
+  ///
+  /// In ru, this message translates to:
+  /// **'Выбрать эту точку'**
+  String get mapPickDone;
+
+  /// No description provided for @pickedOnMap.
+  ///
+  /// In ru, this message translates to:
+  /// **'Точка выбрана на карте'**
+  String get pickedOnMap;
+
+  /// No description provided for @mapPickTooFar.
+  ///
+  /// In ru, this message translates to:
+  /// **'Точка в {meters} м от вас — можно не дальше {limit} м'**
+  String mapPickTooFar(int meters, int limit);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

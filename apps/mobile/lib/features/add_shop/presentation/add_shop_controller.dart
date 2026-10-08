@@ -11,17 +11,32 @@ import '../../../core/sync/sync_providers.dart';
 import '../../../core/widgets/photo_capture.dart';
 import '../../audit/domain/geofence.dart';
 import '../../audit/presentation/audit_controller.dart';
-
-final _phone = RegExp(r'^\+?[0-9 ()-]{6,20}$');
+import '../../../core/format/phone.dart';
 
 class AddShopState {
-  const AddShopState({this.name = '', this.address = '', this.owner = '', this.phone = '', this.fix, this.locating = true, this.photo, this.saving = false});
+  const AddShopState({
+    this.name = '',
+    this.address = '',
+    this.owner = '',
+    this.phone = '',
+    this.fix,
+    this.locating = true,
+    this.photo,
+    this.saving = false,
+    this.picked,
+  });
 
   final String name;
   final String address;
   final String owner;
   final String phone;
   final Fix? fix;
+
+  /// The exact spot chosen on the map ("Указать на карте"); the GPS fix is used otherwise.
+  final (double, double)? picked;
+
+  /// Where the shop is saved.
+  (double, double)? get location => picked ?? (fix == null ? null : (fix!.lat, fix!.lng));
   final bool locating;
   final CapturedPhoto? photo;
   final bool saving;
@@ -29,7 +44,7 @@ class AddShopState {
   bool get nameOk => name.trim().isNotEmpty;
   bool get addressOk => address.trim().isNotEmpty;
   bool get ownerOk => owner.trim().isNotEmpty;
-  bool get phoneOk => _phone.hasMatch(phone.trim());
+  bool get phoneOk => tmPhone(phone) != null;
 
   /// "Сохранить" (`252:26487` disabled, `252:26607` enabled): every field, a location and the photo.
   bool get canSave => nameOk && addressOk && ownerOk && phoneOk && fix != null && photo != null && !saving;
@@ -44,6 +59,8 @@ class AddShopState {
     CapturedPhoto? photo,
     bool clearPhoto = false,
     bool? saving,
+    (double, double)? picked,
+    bool clearPicked = false,
   }) => AddShopState(
     name: name ?? this.name,
     address: address ?? this.address,
@@ -53,6 +70,7 @@ class AddShopState {
     locating: locating ?? this.locating,
     photo: clearPhoto ? null : (photo ?? this.photo),
     saving: saving ?? this.saving,
+    picked: clearPicked ? null : (picked ?? this.picked),
   );
 }
 
@@ -66,7 +84,10 @@ class AddShopController extends Notifier<AddShopState> {
 
   void edit({String? name, String? address, String? owner, String? phone}) => state = state.copyWith(name: name, address: address, owner: owner, phone: phone);
 
-  /// "Текущее местоположение" and "Проверить заново".
+  /// The spot chosen on the map (within the audit radius of the GPS fix, checked by the picker and the API).
+  void pick(double lat, double lng) => state = state.copyWith(picked: (lat, lng));
+
+  /// "Текущее местоположение" and "Проверить заново" (which also drops a map choice).
   Future<void> locate() async {
     state = state.copyWith(locating: true);
     final fix = await ref.read(locatorProvider).current();
@@ -106,6 +127,7 @@ class AddShopController extends Notifier<AddShopState> {
     final id = const Uuid().v7();
     final photo = s.photo!;
     final fix = s.fix!;
+    final at = s.location!;
     await db.transaction(() async {
       await db
           .into(db.photos)
@@ -143,12 +165,15 @@ class AddShopController extends Notifier<AddShopState> {
           'name': s.name.trim(),
           'address': s.address.trim(),
           'ownerName': s.owner.trim(),
-          'lat': fix.lat,
-          'lng': fix.lng,
+          'lat': at.$1,
+          'lng': at.$2,
           'accuracyM': fix.accuracyM,
+          // Chosen on the map: the agent's own position, so the API can check the shop is near them.
+          if (s.picked != null) 'deviceLat': fix.lat,
+          if (s.picked != null) 'deviceLng': fix.lng,
           'facadePhotoId': photo.id,
           'contacts': [
-            {'phone': s.phone.trim()},
+            {'phone': tmPhone(s.phone)!},
           ],
         },
         dependsOn: [photoItem],
@@ -163,8 +188,8 @@ class AddShopController extends Notifier<AddShopState> {
               name: s.name.trim(),
               type: 'OTHER',
               address: s.address.trim(),
-              lat: fix.lat,
-              lng: fix.lng,
+              lat: at.$1,
+              lng: at.$2,
               auditRadiusM: config.defaultAuditRadiusM,
               ownerName: Value(s.owner.trim()),
               facadeUrl: Value(photo.path),
@@ -172,7 +197,7 @@ class AddShopController extends Notifier<AddShopState> {
               updatedAt: now,
             ),
           );
-      await db.into(db.shopContacts).insert(ShopContactsCompanion.insert(id: const Uuid().v7(), shopId: id, phone: s.phone.trim(), position: 0));
+      await db.into(db.shopContacts).insert(ShopContactsCompanion.insert(id: const Uuid().v7(), shopId: id, phone: tmPhone(s.phone)!, position: 0));
     });
     ref.read(syncTriggerProvider)();
     return true;

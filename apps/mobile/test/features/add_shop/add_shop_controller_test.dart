@@ -22,6 +22,54 @@ class _Capture implements PhotoCapture {
 }
 
 void main() {
+  ProviderContainer setUp(AppDatabase db) {
+    final c = ProviderContainer(
+      overrides: [
+        databaseProvider.overrideWithValue(db),
+        locatorProvider.overrideWithValue(_Locator()),
+        photoCaptureProvider.overrideWithValue(_Capture()),
+        syncTriggerProvider.overrideWithValue(() {}),
+      ],
+    );
+    c.listen(addShopControllerProvider, (_, _) {});
+    return c;
+  }
+
+  test('A point picked on the map is saved, with the agent position for the API to check', () async {
+    final db = AppDatabase(NativeDatabase.memory());
+    final c = setUp(db);
+    addTearDown(() async {
+      c.dispose();
+      await db.close();
+    });
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    final ctrl = c.read(addShopControllerProvider.notifier);
+    ctrl.edit(name: 'Shop', address: 'Street', owner: 'Owner', phone: '862112233');
+    await ctrl.takePhoto();
+    ctrl.pick(37.9504, 58.3803);
+
+    expect(await ctrl.save(), isTrue);
+    final shop = (await db.select(db.outbox).get()).singleWhere((o) => o.kind == OutboxKind.shopCreate);
+    final body = jsonDecode(shop.payloadJson) as Map<String, dynamic>;
+    expect([body['lat'], body['lng'], body['deviceLat'], body['deviceLng']], [37.9504, 58.3803, 37.95, 58.38]);
+    final local = await db.select(db.shops).getSingle();
+    expect([local.lat, local.lng], [37.9504, 58.3803]);
+  });
+
+  test('Проверить заново drops the map choice', () async {
+    final db = AppDatabase(NativeDatabase.memory());
+    final c = setUp(db);
+    addTearDown(() async {
+      c.dispose();
+      await db.close();
+    });
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    final ctrl = c.read(addShopControllerProvider.notifier);
+    ctrl.pick(1, 2);
+    await ctrl.locate();
+    expect(c.read(addShopControllerProvider).location, (37.95, 58.38));
+  });
+
   test('Save needs every field, a location and the photo; it queues PHOTO then SHOP_CREATE', () async {
     final db = AppDatabase(NativeDatabase.memory());
     var syncs = 0;
@@ -56,8 +104,10 @@ void main() {
     final body = jsonDecode(shop.payloadJson) as Map<String, dynamic>;
     expect(body['facadePhotoId'], 'facade-1');
     expect(body['contacts'], [
-      {'phone': '+993 62 112233'},
+      {'phone': '+99362112233'},
     ]);
+    expect(body['lat'], 37.95);
+    expect(body.containsKey('deviceLat'), isFalse, reason: 'GPS location, nothing to check');
     expect((jsonDecode(photo.payloadJson) as Map).containsKey('shopId'), isFalse);
     expect((await db.select(db.shops).getSingle()).status, 'PENDING_REVIEW');
     expect(syncs, 1);

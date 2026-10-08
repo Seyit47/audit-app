@@ -35,6 +35,12 @@ class AppMapController {
     if (_styled) await moveTo(lat, lng, zoom: 16);
   }
 
+  /// The point in the middle of the map (tracked when the view has an onCameraIdle callback).
+  (double, double)? get center {
+    final t = _map?.cameraPosition?.target;
+    return t == null ? null : (t.latitude, t.longitude);
+  }
+
   Future<void> zoomIn() async => _map?.animateCamera(CameraUpdate.zoomIn());
   Future<void> zoomOut() async => _map?.animateCamera(CameraUpdate.zoomOut());
   Future<void> moveTo(double lat, double lng, {double zoom = 15}) async => _map?.animateCamera(CameraUpdate.newLatLngZoom(LatLng(lat, lng), zoom));
@@ -57,12 +63,27 @@ class AppMapController {
 
 /// MapLibre with the Figma-matched styles (`assets/map/style-{light,dark}.json`, T084).
 class AppMapView extends StatefulWidget {
-  const AppMapView({super.key, required this.markers, required this.controller, this.onMarkerTap, this.onMapTap, this.initial});
+  const AppMapView({
+    super.key,
+    required this.markers,
+    required this.controller,
+    this.onMarkerTap,
+    this.onMapTap,
+    this.initial,
+    this.initialZoom = 13,
+    this.onCameraIdle,
+  });
 
   final List<MapMarker> markers;
   final AppMapController controller;
   final ValueChanged<String>? onMarkerTap;
   final VoidCallback? onMapTap;
+
+  /// Zoom of the [initial] position (a location picker starts at street level).
+  final double initialZoom;
+
+  /// The camera stopped moving; [AppMapController.center] is the point in the middle of the map.
+  final VoidCallback? onCameraIdle;
 
   /// Start position; the first markers are fitted otherwise.
   final (double, double)? initial;
@@ -172,7 +193,9 @@ class _AppMapViewState extends State<AppMapView> {
     // _onStyleLoaded again) instead of destroying and recreating the native map view.
     return MapLibreMap(
       styleString: style,
-      initialCameraPosition: CameraPosition(target: LatLng(start.$1, start.$2), zoom: 13),
+      initialCameraPosition: CameraPosition(target: LatLng(start.$1, start.$2), zoom: widget.initialZoom),
+      trackCameraPosition: widget.onCameraIdle != null,
+      onCameraIdle: widget.onCameraIdle,
       myLocationEnabled: true,
       myLocationRenderMode: MyLocationRenderMode.normal,
       compassEnabled: false,

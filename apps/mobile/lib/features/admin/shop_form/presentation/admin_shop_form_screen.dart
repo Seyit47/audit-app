@@ -7,12 +7,14 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/l10n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../add_shop/presentation/map_picker_screen.dart';
 import '../../../add_shop/presentation/shop_form_view.dart';
 import '../../../audit/domain/geofence.dart';
 import '../../../audit/presentation/audit_controller.dart';
 import '../../data/admin_api.dart';
 import '../../../../core/widgets/skeleton.dart';
 import '../../../../core/widgets/adaptive.dart';
+import '../../../../core/format/phone.dart';
 
 /// Admin mobile Add/Edit shop (`252:25423` empty, `252:25542` filled): saved online with
 /// `POST/PATCH /shops` after the storefront upload.
@@ -29,6 +31,9 @@ class _AdminShopFormScreenState extends ConsumerState<AdminShopFormScreen> {
   String _name = '', _address = '', _owner = '', _phone = '';
   String? _agentId;
   Fix? _fix;
+
+  /// Chosen on the map; wins over the GPS fix (admins pick anywhere).
+  (double, double)? _picked;
   bool _locating = true;
   String? _photoPath;
   String? _photoUrl;
@@ -78,6 +83,7 @@ class _AdminShopFormScreenState extends ConsumerState<AdminShopFormScreen> {
     if (mounted) {
       setState(() {
         _fix = fix ?? _fix;
+        if (fix != null) _picked = null;
         _locating = false;
       });
     }
@@ -111,8 +117,8 @@ class _AdminShopFormScreenState extends ConsumerState<AdminShopFormScreen> {
       _address.trim().isNotEmpty &&
       _owner.trim().isNotEmpty &&
       _agentId != null &&
-      RegExp(r'^\+?[0-9 ()-]{6,20}$').hasMatch(_phone.trim()) &&
-      _fix != null &&
+      tmPhone(_phone) != null &&
+      (_picked != null || _fix != null) &&
       _hasPhoto;
 
   Future<void> _save() async {
@@ -129,21 +135,21 @@ class _AdminShopFormScreenState extends ConsumerState<AdminShopFormScreen> {
         'address': _address.trim(),
         'ownerName': _owner.trim(),
         'assignedAgentId': _agentId,
-        'lat': _fix!.lat,
-        'lng': _fix!.lng,
+        'lat': _picked?.$1 ?? _fix!.lat,
+        'lng': _picked?.$2 ?? _fix!.lng,
         'facadePhotoId': ?facade,
       };
       if (widget.shopId == null) {
         await api.createShop({
           ...body,
           'contacts': [
-            {'phone': _phone.trim()},
+            {'phone': tmPhone(_phone)!},
           ],
         });
       } else {
         await api.updateShop(widget.shopId!, {...body, 'version': _version});
         await api.setContacts(widget.shopId!, [
-          {'phone': _phone.trim()},
+          {'phone': tmPhone(_phone)!},
         ]);
       }
       if (mounted) context.pop(true);
@@ -191,6 +197,11 @@ class _AdminShopFormScreenState extends ConsumerState<AdminShopFormScreen> {
       fix: _fix,
       locating: _locating,
       onRecheck: _locate,
+      picked: _picked,
+      onPickOnMap: () async {
+        final point = await MapPickerScreen.open(context, start: _picked ?? (_fix == null ? (37.95, 58.38) : (_fix!.lat, _fix!.lng)));
+        if (point != null && mounted) setState(() => _picked = point);
+      },
       photo: _photoPath ?? (_removedPhoto ? null : _photoUrl),
       photoSizeBytes: _photoSize,
       onTakePhoto: _camera,

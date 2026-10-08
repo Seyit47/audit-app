@@ -901,4 +901,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get skuConflict => 'This SKU already exists';
+
+  @override
+  String get pickOnMap => 'Pick on map';
+
+  @override
+  String get mapPickTitle => 'Shop location';
+
+  @override
+  String get mapPickHint => 'Move the map to put the pin on the shop\'s entrance';
+
+  @override
+  String get mapPickDone => 'Use this point';
+
+  @override
+  String get pickedOnMap => 'Chosen on the map';
+
+  @override
+  String mapPickTooFar(int meters, int limit) {
+    return 'The point is $meters m from you; it can be at most $limit m away';
+  }
 }

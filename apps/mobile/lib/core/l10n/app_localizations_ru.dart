@@ -901,4 +901,24 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get skuConflict => 'Такой артикул уже есть';
+
+  @override
+  String get pickOnMap => 'Указать на карте';
+
+  @override
+  String get mapPickTitle => 'Расположение магазина';
+
+  @override
+  String get mapPickHint => 'Перемещайте карту, чтобы поставить метку на вход в магазин';
+
+  @override
+  String get mapPickDone => 'Выбрать эту точку';
+
+  @override
+  String get pickedOnMap => 'Точка выбрана на карте';
+
+  @override
+  String mapPickTooFar(int meters, int limit) {
+    return 'Точка в $meters м от вас — можно не дальше $limit м';
+  }
 }
