@@ -6,25 +6,15 @@ import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_top_bar.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/map_view.dart';
-import '../../audit/domain/geofence.dart';
 
-/// Where exactly the shop is: the map moves under a fixed pin; "Выбрать эту точку" returns the point under it.
-///
-/// For an agent the point must stay within [limitMeters] of their GPS position ([limitFrom]), so a shop is
-/// still registered where the agent actually is; an admin picks freely.
+/// Admin: where exactly the shop is. The map moves under a fixed pin; "Выбрать эту точку" returns the point under it.
 class MapPickerScreen extends StatefulWidget {
-  const MapPickerScreen({super.key, required this.start, this.limitFrom, this.limitMeters});
+  const MapPickerScreen({super.key, required this.start});
 
   final (double, double) start;
-  final (double, double)? limitFrom;
-  final double? limitMeters;
 
-  static Future<(double, double)?> open(BuildContext context, {required (double, double) start, (double, double)? limitFrom, double? limitMeters}) =>
-      Navigator.of(context).push<(double, double)>(
-        MaterialPageRoute(
-          builder: (_) => MapPickerScreen(start: start, limitFrom: limitFrom, limitMeters: limitMeters),
-        ),
-      );
+  static Future<(double, double)?> open(BuildContext context, {required (double, double) start}) =>
+      Navigator.of(context).push<(double, double)>(MaterialPageRoute(builder: (_) => MapPickerScreen(start: start)));
 
   @override
   State<MapPickerScreen> createState() => _MapPickerScreenState();
@@ -34,19 +24,10 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
   final _map = AppMapController();
   late (double, double) _point = widget.start;
 
-  int? get _tooFarBy {
-    final from = widget.limitFrom;
-    final limit = widget.limitMeters;
-    if (from == null || limit == null) return null;
-    final d = distanceMeters(from.$1, from.$2, _point.$1, _point.$2);
-    return d > limit ? d.round() : null;
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final c = context.colors;
-    final tooFar = _tooFarBy;
     return Scaffold(
       backgroundColor: c.mainBg,
       body: Stack(
@@ -92,9 +73,9 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    tooFar != null ? l10n.mapPickTooFar(tooFar, widget.limitMeters!.round()) : l10n.mapPickHint,
+                    l10n.mapPickHint,
                     textAlign: TextAlign.center,
-                    style: AppTextStyles.caption.copyWith(color: tooFar != null ? c.error : c.textSecondary),
+                    style: AppTextStyles.caption.copyWith(color: c.textSecondary),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -103,7 +84,7 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
                     style: TextStyle(fontFamily: AppTextStyles.mono, fontSize: 12, height: 16.5 / 12, color: c.textSecondary),
                   ),
                   const SizedBox(height: 12),
-                  PrimaryButton(label: l10n.mapPickDone, onPressed: tooFar != null ? null : () => Navigator.of(context).pop(_point)),
+                  PrimaryButton(label: l10n.mapPickDone, onPressed: () => Navigator.of(context).pop(_point)),
                 ],
               ),
             ),

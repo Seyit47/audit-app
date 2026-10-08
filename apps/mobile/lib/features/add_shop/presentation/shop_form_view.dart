@@ -54,7 +54,7 @@ class ShopFormView extends StatefulWidget {
   /// The point chosen on the map, shown instead of the GPS fix.
   final (double, double)? picked;
 
-  /// "Указать на карте"; null while there is nothing to start from.
+  /// Admin "Указать на карте"; agents have none (their shop is where they stand).
   final VoidCallback? onPickOnMap;
 
   /// Local path or URL of the storefront photo.
@@ -186,8 +186,6 @@ class _ShopFormViewState extends State<ShopFormView> {
                       const AppIcon('navigate', width: 15, height: 15),
                       const SizedBox(width: 8),
                       Expanded(child: Text(l10n.currentLocation, style: label)),
-                      _Chip(icon: const AppIcon('target-small', width: 9.33, height: 9.33), label: l10n.pickOnMap, onTap: w.locating ? null : w.onPickOnMap),
-                      const SizedBox(width: 6),
                       _Chip(icon: const AppIcon('refresh-small', width: 9.33, height: 9.33), label: l10n.recheck, onTap: w.locating ? null : w.onRecheck),
                     ],
                   ),
@@ -198,21 +196,34 @@ class _ShopFormViewState extends State<ShopFormView> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          w.locating
-                              ? l10n.geoLocating
-                              : picked != null
-                              ? l10n.pickedOnMap
-                              : fix == null
-                              ? l10n.geoUnavailable
-                              : l10n.accuracyLine(fix.accuracyM.round()),
-                          style: TextStyle(
-                            fontFamily: AppTextStyles.family,
-                            fontSize: 12,
-                            height: 16 / 12,
-                            fontWeight: FontWeight.w500,
-                            color: at == null && !w.locating ? c.error : c.textSecondary,
-                          ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                w.locating
+                                    ? l10n.geoLocating
+                                    : picked != null
+                                    ? l10n.pickedOnMap
+                                    : fix == null
+                                    ? l10n.geoUnavailable
+                                    : l10n.accuracyLine(fix.accuracyM.round()),
+                                style: TextStyle(
+                                  fontFamily: AppTextStyles.family,
+                                  fontSize: 12,
+                                  height: 16 / 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: at == null && !w.locating ? c.error : c.textSecondary,
+                                ),
+                              ),
+                            ),
+                            // Admin only: the agent's shop is where the agent stands.
+                            if (w.onPickOnMap != null)
+                              _Chip(
+                                icon: const AppIcon('target-small', width: 9.33, height: 9.33),
+                                label: l10n.pickOnMap,
+                                onTap: w.locating ? null : w.onPickOnMap,
+                              ),
+                          ],
                         ),
                         if (at != null) ...[
                           const SizedBox(height: 10),

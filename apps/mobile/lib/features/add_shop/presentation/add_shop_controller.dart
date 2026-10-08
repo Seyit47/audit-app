@@ -14,29 +14,13 @@ import '../../audit/presentation/audit_controller.dart';
 import '../../../core/format/phone.dart';
 
 class AddShopState {
-  const AddShopState({
-    this.name = '',
-    this.address = '',
-    this.owner = '',
-    this.phone = '',
-    this.fix,
-    this.locating = true,
-    this.photo,
-    this.saving = false,
-    this.picked,
-  });
+  const AddShopState({this.name = '', this.address = '', this.owner = '', this.phone = '', this.fix, this.locating = true, this.photo, this.saving = false});
 
   final String name;
   final String address;
   final String owner;
   final String phone;
   final Fix? fix;
-
-  /// The exact spot chosen on the map ("Указать на карте"); the GPS fix is used otherwise.
-  final (double, double)? picked;
-
-  /// Where the shop is saved.
-  (double, double)? get location => picked ?? (fix == null ? null : (fix!.lat, fix!.lng));
   final bool locating;
   final CapturedPhoto? photo;
   final bool saving;
@@ -59,8 +43,6 @@ class AddShopState {
     CapturedPhoto? photo,
     bool clearPhoto = false,
     bool? saving,
-    (double, double)? picked,
-    bool clearPicked = false,
   }) => AddShopState(
     name: name ?? this.name,
     address: address ?? this.address,
@@ -70,7 +52,6 @@ class AddShopState {
     locating: locating ?? this.locating,
     photo: clearPhoto ? null : (photo ?? this.photo),
     saving: saving ?? this.saving,
-    picked: clearPicked ? null : (picked ?? this.picked),
   );
 }
 
@@ -84,10 +65,7 @@ class AddShopController extends Notifier<AddShopState> {
 
   void edit({String? name, String? address, String? owner, String? phone}) => state = state.copyWith(name: name, address: address, owner: owner, phone: phone);
 
-  /// The spot chosen on the map (within the audit radius of the GPS fix, checked by the picker and the API).
-  void pick(double lat, double lng) => state = state.copyWith(picked: (lat, lng));
-
-  /// "Текущее местоположение" and "Проверить заново" (which also drops a map choice).
+  /// "Текущее местоположение" and "Проверить заново".
   Future<void> locate() async {
     state = state.copyWith(locating: true);
     final fix = await ref.read(locatorProvider).current();
@@ -127,7 +105,6 @@ class AddShopController extends Notifier<AddShopState> {
     final id = const Uuid().v7();
     final photo = s.photo!;
     final fix = s.fix!;
-    final at = s.location!;
     await db.transaction(() async {
       await db
           .into(db.photos)
@@ -165,12 +142,9 @@ class AddShopController extends Notifier<AddShopState> {
           'name': s.name.trim(),
           'address': s.address.trim(),
           'ownerName': s.owner.trim(),
-          'lat': at.$1,
-          'lng': at.$2,
+          'lat': fix.lat,
+          'lng': fix.lng,
           'accuracyM': fix.accuracyM,
-          // Chosen on the map: the agent's own position, so the API can check the shop is near them.
-          if (s.picked != null) 'deviceLat': fix.lat,
-          if (s.picked != null) 'deviceLng': fix.lng,
           'facadePhotoId': photo.id,
           'contacts': [
             {'phone': tmPhone(s.phone)!},
@@ -188,8 +162,8 @@ class AddShopController extends Notifier<AddShopState> {
               name: s.name.trim(),
               type: 'OTHER',
               address: s.address.trim(),
-              lat: at.$1,
-              lng: at.$2,
+              lat: fix.lat,
+              lng: fix.lng,
               auditRadiusM: config.defaultAuditRadiusM,
               ownerName: Value(s.owner.trim()),
               facadeUrl: Value(photo.path),

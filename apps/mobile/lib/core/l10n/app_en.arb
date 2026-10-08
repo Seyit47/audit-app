@@ -270,6 +270,5 @@
   "mapPickTitle": "Shop location",
   "mapPickHint": "Move the map to put the pin on the shop's entrance",
   "mapPickDone": "Use this point",
-  "pickedOnMap": "Chosen on the map",
-  "mapPickTooFar": "The point is {meters} m from you; it can be at most {limit} m away"
+  "pickedOnMap": "Chosen on the map"
 }

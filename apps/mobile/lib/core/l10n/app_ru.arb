@@ -611,16 +611,5 @@
   "mapPickTitle": "Расположение магазина",
   "mapPickHint": "Перемещайте карту, чтобы поставить метку на вход в магазин",
   "mapPickDone": "Выбрать эту точку",
-  "pickedOnMap": "Точка выбрана на карте",
-  "mapPickTooFar": "Точка в {meters} м от вас — можно не дальше {limit} м",
-  "@mapPickTooFar": {
-    "placeholders": {
-      "meters": {
-        "type": "int"
-      },
-      "limit": {
-        "type": "int"
-      }
-    }
-  }
+  "pickedOnMap": "Точка выбрана на карте"
 }

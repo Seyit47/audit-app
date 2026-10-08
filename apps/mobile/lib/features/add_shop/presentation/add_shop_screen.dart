@@ -3,9 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/app_localizations.dart';
-import '../../../core/settings/remote_config.dart';
 import 'add_shop_controller.dart';
-import 'map_picker_screen.dart';
 import 'shop_form_view.dart';
 
 /// Agent Add shop (`252:26487` → `252:26607` / `101:2472` → `106:5970`).
@@ -27,16 +25,6 @@ class AddShopScreen extends ConsumerWidget {
       fix: s.fix,
       locating: s.locating,
       onRecheck: ctrl.locate,
-      picked: s.picked,
-      // Agents fine-tune the spot near where they stand: within the audit radius of their GPS position.
-      onPickOnMap: s.fix == null
-          ? null
-          : () async {
-              final fix = (s.fix!.lat, s.fix!.lng);
-              final config = ref.read(remoteConfigProvider).value ?? const RemoteConfig();
-              final point = await MapPickerScreen.open(context, start: s.picked ?? fix, limitFrom: fix, limitMeters: config.defaultAuditRadiusM.toDouble());
-              if (point != null) ctrl.pick(point.$1, point.$2);
-            },
       photo: s.photo?.path,
       photoSizeBytes: s.photo?.sizeBytes,
       onTakePhoto: ctrl.takePhoto,

@@ -1717,12 +1717,6 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Точка выбрана на карте'**
   String get pickedOnMap;
-
-  /// No description provided for @mapPickTooFar.
-  ///
-  /// In ru, this message translates to:
-  /// **'Точка в {meters} м от вас — можно не дальше {limit} м'**
-  String mapPickTooFar(int meters, int limit);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

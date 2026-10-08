@@ -916,9 +916,4 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pickedOnMap => 'Точка выбрана на карте';
-
-  @override
-  String mapPickTooFar(int meters, int limit) {
-    return 'Точка в $meters м от вас — можно не дальше $limit м';
-  }
 }

@@ -30,10 +30,7 @@ export const CreateShopBody = Type.Object({
   ...Editable,
   contacts: Type.Optional(Type.Array(Contact, { maxItems: 5 })),
   /** Agent creates: GPS accuracy of the captured location. */
-  accuracyM: Type.Optional(Type.Number({ minimum: 0 })),
-  /** Agent creates with a point picked on the map: where the agent stood (lat/lng is then the picked point). */
-  deviceLat: Type.Optional(Type.Number({ minimum: -90, maximum: 90 })),
-  deviceLng: Type.Optional(Type.Number({ minimum: -180, maximum: 180 }))
+  accuracyM: Type.Optional(Type.Number({ minimum: 0 }))
 }, { additionalProperties: false })
 export type CreateShopBody = Static<typeof CreateShopBody>
 

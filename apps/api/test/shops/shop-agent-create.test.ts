@@ -51,17 +51,3 @@ test('an admin approves a pending shop with the status toggle', async () => {
   const res = await app.inject({ method: 'PATCH', url: `/v1/shops/${created.id}`, headers: bearer(app, { id: a.id, role: 'ADMIN' }), payload: { version: created.version, status: 'ACTIVE' } })
   assert.strictEqual(res.json().status, 'ACTIVE')
 })
-
-test('agent create with a point picked on the map: within the audit radius of the device only', async () => {
-  const g = await f.agent(app)
-  const h = bearer(app, { id: g.userId, role: 'AGENT' })
-  const photo = await facade(g.userId)
-  const base = { name: 'X', address: 'Y', accuracyM: 5, facadePhotoId: photo.id, deviceLat: 37.95, deviceLng: 58.38 }
-  // ~0.002° of latitude ≈ 220 m: beyond the default 100 m radius.
-  const far = await app.inject({ method: 'POST', url: '/v1/shops', headers: h, payload: { ...base, lat: 37.952, lng: 58.38 } })
-  assert.strictEqual(far.statusCode, 422, far.body)
-  assert.strictEqual(far.json().error.code, 'GEOFENCE')
-  const near = await app.inject({ method: 'POST', url: '/v1/shops', headers: h, payload: { ...base, lat: 37.9504, lng: 58.38 } })
-  assert.strictEqual(near.statusCode, 201, near.body)
-  assert.strictEqual(near.json().lat, 37.9504)
-})

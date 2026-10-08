@@ -916,9 +916,4 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pickedOnMap => 'Chosen on the map';
-
-  @override
-  String mapPickTooFar(int meters, int limit) {
-    return 'The point is $meters m from you; it can be at most $limit m away';
-  }
 }
