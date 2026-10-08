@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,6 +12,9 @@ import 'core/sync/background_sync.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Edge-to-edge like native Android apps: the app draws behind transparent status and navigation bars
+  // (screens keep their content clear with SafeArea).
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   // A widget that fails to build shows a small neutral notice instead of the red (debug) or grey (release)
   // error box, and an uncaught async error is logged instead of ending the app.
   ErrorWidget.builder = (details) => const _BrokenPart();
