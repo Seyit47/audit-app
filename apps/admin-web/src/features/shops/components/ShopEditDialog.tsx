@@ -2,7 +2,7 @@
 
 import { guard, say } from '@/lib/feedback'
 import dynamic from 'next/dynamic'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Dialog } from '@/components/ui/Dialog'
@@ -40,7 +40,16 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
   const [carried, setCarried] = useState<string[]>(productIds)
   const [facadeId, setFacadeId] = useState<string | null>(shop?.facade?.id ?? null)
   const [phones, setPhones] = useState<Phone[]>(shop?.contacts.length ? shop.contacts.map((c) => ({ phone: c.phone, label: c.label ?? '' })) : [{ phone: '', label: '' }])
-  const close = () => router.replace(closeHref, { scroll: false })
+  // The server renders the page without the dialog; the progress bar shows while it answers.
+  // Open while the URL says so (`?add=1`, `?edit=…`). Closing only rewrites the URL in the browser: the page
+  // behind is unchanged, so there is no server round trip to wait for (a slow or failed one used to leave
+  // the page blocked). Data is refreshed only after a save.
+  const params = useSearchParams()
+  const open = params.has('add') || params.has('edit')
+  const close = (changed = false) => {
+    window.history.replaceState(null, '', closeHref)
+    if (changed) router.refresh()
+  }
 
   function save () {
     if (name.trim() === '' || address.trim() === '' || point == null) return setError(copy.errors.required)
@@ -59,8 +68,7 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
       const res = shop == null ? await createShop(input) : await updateShop(shop.id, shop.version, input)
       if (!res.ok) return setError(res.code === 'CONFLICT' ? copy.errors.CONFLICT : copy.errors.generic)
       say(shop == null ? 'created' : 'saved')
-      close()
-      router.refresh()
+      close(true)
     }))
   }
 
@@ -70,8 +78,7 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
       const res = await setShopStatus(shop.id, shop.version, shop.status === 'INACTIVE' ? 'ACTIVE' : 'INACTIVE')
       if (!res.ok) return setError(res.code === 'CONFLICT' ? copy.errors.CONFLICT : copy.errors.generic)
       say('status')
-      close()
-      router.refresh()
+      close(true)
     }))
   }
 
@@ -79,7 +86,7 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
 
   return (
     <Dialog
-      open onClose={close} closeLabel={copy.close}
+      open={open} onClose={() => close()} closeLabel={copy.close}
       title={shop == null ? copy.addTitle : copy.editTitle}
       badge={shop?.code}
       subtitle={copy.subtitle}
