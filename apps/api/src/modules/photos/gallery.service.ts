@@ -45,7 +45,8 @@ export class GalleryService {
   }
 
   private where (user: AuthUser, q: GalleryQuery): Prisma.PhotoWhereInput {
-    const and: Prisma.PhotoWhereInput[] = [{ status: 'READY', kind: q.type ?? { in: [...GALLERY_KINDS] } }]
+    // Only photos filed under a shop or an audit: an upload whose form was abandoned belongs nowhere.
+    const and: Prisma.PhotoWhereInput[] = [{ status: 'READY', kind: q.type ?? { in: [...GALLERY_KINDS] }, OR: [{ shopId: { not: null } }, { auditId: { not: null } }] }]
     if (user.role === 'AGENT') and.push({ uploadedById: user.id })
     else if (q.agentId) and.push({ uploadedById: q.agentId })
     if (q.shopId) and.push({ OR: [{ shopId: q.shopId }, { audit: { shopId: q.shopId } }] })
@@ -81,7 +82,7 @@ export class GalleryService {
   /** Per-day counts of the filtered set, counted in SQL (the same filters as [where]). */
   private async groups (user: AuthUser, q: GalleryQuery) {
     const tz = (await this.settings.get()).timezone
-    const cond: Prisma.Sql[] = [Prisma.sql`p."status" = 'READY'`, Prisma.sql`p."kind"::text = ANY(${q.type ? [q.type] : [...GALLERY_KINDS]})`]
+    const cond: Prisma.Sql[] = [Prisma.sql`p."status" = 'READY'`, Prisma.sql`(p."shopId" IS NOT NULL OR p."auditId" IS NOT NULL)`, Prisma.sql`p."kind"::text = ANY(${q.type ? [q.type] : [...GALLERY_KINDS]})`]
     const uploader = user.role === 'AGENT' ? user.id : q.agentId
     if (uploader) cond.push(Prisma.sql`p."uploadedById" = ${uploader}::uuid`)
     if (q.shopId) cond.push(Prisma.sql`(p."shopId" = ${q.shopId}::uuid OR a."shopId" = ${q.shopId}::uuid)`)
@@ -119,12 +120,14 @@ export class GalleryService {
     const p = await this.prisma.photo.findFirst({ where: { AND: [{ id }, this.where(user, {})] }, include })
     if (p == null) throw notFound('Photo')
     const shopId = p.audit?.shop.id ?? p.shop?.id
-    const related = await this.prisma.photo.findMany({
-      where: { id: { not: p.id }, status: 'READY', ...(p.auditId ? { auditId: p.auditId } : shopId ? { OR: [{ shopId }, { audit: { shopId } }] } : { uploadedById: p.uploadedById }) },
-      include,
-      orderBy: { takenAt: 'desc' },
-      take: 12
-    })
+    const related = shopId == null
+      ? []
+      : await this.prisma.photo.findMany({
+        where: { id: { not: p.id }, status: 'READY', ...(p.auditId ? { auditId: p.auditId } : { OR: [{ shopId }, { audit: { shopId } }] }) },
+        include,
+        orderBy: { takenAt: 'desc' },
+        take: 12
+      })
     const shop = shopId == null
       ? null
       : await this.prisma.shop.findUnique({ where: { id: shopId }, include: { assignedAgent: { select: { userId: true, fullName: true, phone: true } }, contacts: { orderBy: { position: 'asc' }, take: 1 } } })

@@ -83,3 +83,22 @@ test('an agent sees own photos only', async () => {
   const theirs = (await app.inject({ url: `/v1/photos?agentId=${other.userId}`, headers: admin })).json().items[0]
   assert.strictEqual((await app.inject({ url: `/v1/photos/${theirs.id}`, headers: h })).statusCode, 404)
 })
+
+test('a storefront photo is filed under its shop; an abandoned upload stays out of the gallery', async () => {
+  const upload = async () => (await app.prisma.photo.create({
+    data: { id: newId(), kind: 'FACADE', uploadedById: adminId, storageKey: `facade/${newId()}.jpg`, mime: 'image/jpeg', sizeBytes: 1, sha256: 'a'.repeat(64), takenAt: new Date(), status: 'READY' }
+  })).id
+  const abandoned = await upload() // the add-shop dialog was closed without saving
+  const facade = await upload()
+  const created = await app.inject({ method: 'POST', url: '/v1/shops', headers: admin, payload: { name: 'X', address: 'Y', lat: 37.95, lng: 58.38, facadePhotoId: facade } })
+  assert.strictEqual(created.statusCode, 201, created.body)
+  const shopId = created.json().id
+
+  const ids = async (qs: string) => (await app.inject({ url: `/v1/photos?${qs}`, headers: admin })).json().items.map((p: { id: string }) => p.id)
+  assert.deepStrictEqual(await ids(`shopId=${shopId}`), [facade])
+  assert.ok(!(await ids('limit=50')).includes(abandoned), 'unattached uploads are not in the gallery')
+
+  const detail = (await app.inject({ url: `/v1/photos/${facade}`, headers: admin })).json()
+  assert.strictEqual(detail.shop.id, shopId)
+  assert.deepStrictEqual(detail.related.map((p: { id: string }) => p.id), [], 'not every photo by the same uploader')
+})

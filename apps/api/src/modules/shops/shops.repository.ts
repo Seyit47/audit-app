@@ -10,6 +10,10 @@ export type ShopRow = Prisma.ShopGetPayload<{ include: typeof shopInclude }>
 
 export interface ShopFilter { q?: string, status?: 'PENDING_REVIEW' | 'ACTIVE' | 'INACTIVE', regionId?: string, agentId?: string }
 
+/** The storefront photo belongs to its shop, so the gallery files it there (an upload has no shop yet). */
+const linkPhoto = (tx: Prisma.TransactionClient, photoId: string, shopId: string) =>
+  tx.photo.updateMany({ where: { id: photoId, shopId: null, auditId: null }, data: { shopId } })
+
 export class ShopsRepository {
   private readonly prisma: PrismaClient
   constructor (prisma: PrismaClient) { this.prisma = prisma }
@@ -87,6 +91,7 @@ export class ShopsRepository {
         }
       })
       if (data.assignedAgentId) await tx.shopAssignment.create({ data: { id: newId(), shopId: id, agentId: data.assignedAgentId, from: new Date() } })
+      if (data.facadePhotoId) await linkPhoto(tx, data.facadePhotoId, id)
       return tx.shop.findUniqueOrThrow({ where: { id }, include: shopInclude })
     })
   }
@@ -96,6 +101,7 @@ export class ShopsRepository {
     return this.prisma.$transaction(async (tx) => {
       const { count } = await tx.shop.updateMany({ where: { id, version, deletedAt: null }, data: { ...data, version: { increment: 1 } } })
       if (count === 1 && reassignTo !== undefined) await this.reassign(tx, [id], reassignTo)
+      if (count === 1 && typeof data.facadePhotoId === 'string') await linkPhoto(tx, data.facadePhotoId, id)
       return count === 1
     })
   }
