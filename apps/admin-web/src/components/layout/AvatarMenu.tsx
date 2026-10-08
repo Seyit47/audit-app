@@ -35,8 +35,8 @@ export function AvatarMenu ({ copy, locale }: { copy: LayoutCopy, locale: Locale
               onChange={(next) => startTransition(() => setLocale(next))}
             />
           </div>
-          <form action={signOut} className='border-t border-secondary-bg pt-1'>
-            <button data-ripple type='submit' className='flex h-9 w-full items-center px-3 text-left text-xs font-medium leading-4 text-danger hover:bg-secondary-bg'>
+          <form action={signOut} className='mt-1 border-t border-secondary-bg px-1.5 pt-1'>
+            <button data-ripple type='submit' className='flex h-9 w-full items-center rounded-lg px-2.5 text-left text-xs font-medium leading-4 text-danger'>
               {copy.signOut}
             </button>
           </form>

@@ -20,7 +20,7 @@ export function ExportMenu ({ label, items }: { label: string, items: Array<{ la
       {open && (
         <div role='menu' className='anim-menu-in origin-top-right absolute right-0 top-full z-40 mt-1 flex w-full flex-col overflow-hidden rounded-lg bg-pure-white py-1 shadow-[0px_4px_6px_-4px_rgba(0,0,0,0.1),0px_10px_15px_-3px_rgba(0,0,0,0.1)]'>
           {/* Plain links: an export starts a server job and must not be prefetched. */}
-          {items.map((i) => <a key={i.href} role='menuitem' data-ripple href={i.href} onClick={() => setOpen(false)} className='px-4 py-2 text-xs font-medium leading-4 text-ink'>{i.label}</a>)}
+          {items.map((i) => <a key={i.href} role='menuitem' data-ripple href={i.href} onClick={() => setOpen(false)} className='mx-1 rounded-md px-3 py-2 text-xs font-medium leading-4 text-ink'>{i.label}</a>)}
         </div>
       )}
     </div>

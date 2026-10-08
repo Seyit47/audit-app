@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { FigmaIcon } from './FigmaIcon'
 import { usePopup } from '@/lib/use-popup'
@@ -56,11 +56,14 @@ export function RowMenu ({ items, label = 'Actions' }: { items: RowMenuItem[], l
       {at != null && createPortal(
         <div ref={menu} role='menu' style={{ top: at.top, bottom: at.bottom, right: at.right }} className={`anim-menu-in fixed z-40 flex ${at.bottom != null ? 'origin-bottom-right' : 'origin-top-right'} w-44 flex-col rounded-xl bg-pure-white py-1.5 shadow-[0px_20px_25px_-5px_rgba(0,0,0,0.1),0px_8px_10px_-6px_rgba(0,0,0,0.1)]`}>
           {items.map((item) => {
-            const cls = `relative flex w-full items-center gap-2 px-3 text-left text-xs font-medium leading-4 hover:bg-secondary-bg ${item.danger === true ? 'text-danger' : 'text-ink'} ${item.separated === true ? 'mt-1 border-t border-secondary-bg pb-2 pt-3' : 'py-2'}`
-            const body = <><FigmaIcon {...item.icon} />{item.label}</>
-            return item.href != null
-              ? <Link key={item.label} role='menuitem' data-ripple href={item.href} prefetch className={cls} onClick={() => setAt(null)}>{body}</Link>
-              : <button key={item.label} role='menuitem' data-ripple type='button' className={cls} onClick={() => { setAt(null); item.onSelect?.() }}>{body}</button>
+            const cls = `relative mx-1.5 flex items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium leading-4 ${item.danger === true ? 'text-danger' : 'text-ink'}`
+            // Icons differ in width; a fixed centered slot keeps the labels aligned.
+            const body = <><span className='flex w-4 shrink-0 justify-center'><FigmaIcon {...item.icon} /></span>{item.label}</>
+            const entry = item.href != null
+              ? <Link role='menuitem' data-ripple href={item.href} prefetch className={cls} onClick={() => setAt(null)}>{body}</Link>
+              : <button role='menuitem' data-ripple type='button' className={cls} onClick={() => { setAt(null); item.onSelect?.() }}>{body}</button>
+            // "Delete Shop" (3:1973) sits under a divider.
+            return <Fragment key={item.label}>{item.separated === true && <hr role='separator' className='my-1 border-secondary-bg' />}{entry}</Fragment>
           })}
         </div>,
         document.body

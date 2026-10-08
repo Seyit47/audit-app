@@ -39,14 +39,15 @@ export function NavigationProgress () {
     }
     const busyStart = () => { busy.current++; update() }
     const busyEnd = () => { busy.current = Math.max(0, busy.current - 1); update() }
-    document.addEventListener('click', click, true)
+    // Bubble phase, after the app's own handlers: a click they cancel (preventDefault) starts nothing.
+    document.addEventListener('click', click)
     window.addEventListener('app:navigate', start)
     window.addEventListener('app:busy-start', busyStart)
     window.addEventListener('app:busy-end', busyEnd)
     const done = () => { navigating.current = false; update() }
     window.addEventListener('app:navigated', done)
     return () => {
-      document.removeEventListener('click', click, true)
+      document.removeEventListener('click', click)
       window.removeEventListener('app:navigate', start)
       window.removeEventListener('app:busy-start', busyStart)
       window.removeEventListener('app:busy-end', busyEnd)

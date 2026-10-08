@@ -52,18 +52,20 @@ export function Sidebar ({ companyName, logoUrl, copy }: { companyName: string |
           const active = current.startsWith(item.match)
           return active
             ? (
-              <Link key={item.label} href={item.href} aria-current='page' onClick={(e) => { if (current === pathname) e.preventDefault() }} style={{ height: ROW }} className='relative w-full shrink-0 cursor-default text-accent'>
+              // On the section's own page the active item does nothing; from a sub-page (a salesman's details)
+              // it goes back to the section.
+              <Link key={item.label} href={item.href} aria-current='page' onClick={(e) => { if (pathname === item.href) e.preventDefault() }} style={{ height: ROW }} className={`relative w-full shrink-0 text-accent ${pathname === item.href ? 'cursor-default' : ''}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element -- static Figma SVG at its own size */}
                 <img src='/icons/nav-active-bg.svg' alt='' width={218} height={TAB} style={{ top: (ROW - TAB) / 2, height: TAB }} className='anim-fade-in pointer-events-none absolute inset-x-0 w-full' />
                 <span className='relative flex h-full items-center gap-3 pl-[12.5px]'>
-                  <Icon name={item.icon} width={item.w} height={item.h} />
+                  <span className='flex w-[17px] shrink-0 justify-center'><Icon name={item.icon} width={item.w} height={item.h} /></span>
                   <span className='text-sm font-medium leading-6'>{item.label}</span>
                 </span>
               </Link>
               )
             : (
-              <Link data-ripple key={item.label} href={item.href} onClick={() => setPending({ from: pathname, to: item.href })} style={{ height: ROW }} className='flex w-full shrink-0 items-center gap-3 rounded-lg pl-[12.5px] pr-3 text-white'>
-                <Icon name={item.icon} width={item.w} height={item.h} />
+              <Link data-ripple key={item.label} href={item.href} onClick={() => setPending({ from: pathname, to: item.href })} style={{ height: ROW }} className='mr-3 flex shrink-0 items-center gap-3 rounded-lg pl-[12.5px] pr-3 text-white'>
+                <span className='flex w-[17px] shrink-0 justify-center'><Icon name={item.icon} width={item.w} height={item.h} /></span>
                 <span className='text-sm font-medium leading-6'>{item.label}</span>
               </Link>
               )

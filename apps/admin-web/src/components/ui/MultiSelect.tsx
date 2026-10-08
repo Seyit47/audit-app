@@ -43,7 +43,7 @@ export function MultiSelect ({ id, options, value, onChange, placeholder, search
             <FloatingScrollbar target={list} />
             {shown.map((o) => (
               <li key={o.value} role='option' aria-selected={chosen.has(o.value)}>
-                <label className='flex cursor-pointer items-center gap-3 px-3 py-2 text-xs leading-4 text-ink hover:bg-secondary-bg'>
+                <label className='mx-1.5 flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 text-xs leading-4 text-ink hover:bg-secondary-bg'>
                   <Checkbox checked={chosen.has(o.value)} onChange={() => onChange(chosen.has(o.value) ? value.filter((v) => v !== o.value) : [...value, o.value])} />
                   <span className='min-w-0 flex-1 truncate'>{o.label}</span>
                   {o.hint != null && <span className='font-display text-muted'>{o.hint}</span>}
