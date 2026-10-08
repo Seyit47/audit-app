@@ -26,7 +26,8 @@ class AppFormField extends StatelessWidget {
       children: [
         Row(
           children: [
-            Flexible(
+            // The label takes the row, so the check always sits at the right edge, in line with the input.
+            Expanded(
               child: Text.rich(
                 TextSpan(
                   text: label,
@@ -41,7 +42,7 @@ class AppFormField extends StatelessWidget {
                 style: AppTextStyles.label.copyWith(color: c.textPrimary),
               ),
             ),
-            if (valid) ...[const Spacer(), AppIcon('field-valid', width: 13.33, height: 13.33, color: c.success)],
+            if (valid) AppIcon('field-valid', width: 13.33, height: 13.33, color: c.success),
           ],
         ),
         const SizedBox(height: 6),
