@@ -20,10 +20,10 @@ declare module 'fastify' {
 
 /** S3-compatible object storage (SeaweedFS locally, any S3 in production). Private bucket, presigned URLs. */
 export default fp(async (fastify) => {
-  const { endpoint, bucket, accessKey, secretKey } = fastify.config.s3
+  const { endpoint, region, bucket, accessKey, secretKey } = fastify.config.s3
   const s3 = new S3Client({
     endpoint,
-    region: 'us-east-1',
+    region,
     forcePathStyle: true,
     credentials: { accessKeyId: accessKey, secretAccessKey: secretKey },
     // S3-compatible servers reject the SDK's default flexible checksums on presigned URLs
@@ -31,10 +31,14 @@ export default fp(async (fastify) => {
     responseChecksumValidation: 'WHEN_REQUIRED'
   })
 
+  // The bucket is created when missing (local SeaweedFS). Hosted storage (R2) usually has it created in
+  // its dashboard and a token scoped to that bucket, which may not be allowed to check it: warn, go on.
   try {
     await s3.send(new HeadBucketCommand({ Bucket: bucket }))
-  } catch {
-    await s3.send(new CreateBucketCommand({ Bucket: bucket }))
+  } catch (err) {
+    const status = (err as { $metadata?: { httpStatusCode?: number } }).$metadata?.httpStatusCode
+    if (status === 404) await s3.send(new CreateBucketCommand({ Bucket: bucket }))
+    else fastify.log.warn({ err, bucket }, 'storage bucket check failed; continuing')
   }
 
   const storage: Storage = {

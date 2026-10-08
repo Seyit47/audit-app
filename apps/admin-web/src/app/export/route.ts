@@ -10,6 +10,9 @@ const TYPES = new Set(['SHOPS_XLSX', 'AGENTS_XLSX', 'PRODUCTS_XLSX', 'AGENT_REPO
  * `/export?type=SHOPS_XLSX&status=…` — starts an export with the page's filters, waits for the
  * worker (up to 60 s) and redirects to the file.
  */
+// Waits up to 60 s for the export worker (Vercel's default function limit is shorter).
+export const maxDuration = 60
+
 export async function GET (request: NextRequest) {
   const params = Object.fromEntries(request.nextUrl.searchParams)
   const { type, back, ...filters } = params

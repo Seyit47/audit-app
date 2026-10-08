@@ -3,7 +3,7 @@ import fp from 'fastify-plugin'
 export interface AppConfig {
   databaseUrl: string
   jwtSecret: string
-  s3: { endpoint: string, bucket: string, accessKey: string, secretKey: string }
+  s3: { endpoint: string, region: string, bucket: string, accessKey: string, secretKey: string }
   webOrigin: string
   retentionYears: number
   currency: string
@@ -24,7 +24,8 @@ export function loadConfig (env: NodeJS.ProcessEnv = process.env): AppConfig {
   return {
     databaseUrl: env.DATABASE_URL!,
     jwtSecret: env.JWT_SECRET!,
-    s3: { endpoint: env.S3_ENDPOINT!, bucket: env.S3_BUCKET!, accessKey: env.S3_ACCESS_KEY!, secretKey: env.S3_SECRET_KEY! },
+    // S3_REGION: `auto` for Cloudflare R2; SeaweedFS and MinIO accept the default.
+    s3: { endpoint: env.S3_ENDPOINT!, region: env.S3_REGION ?? 'us-east-1', bucket: env.S3_BUCKET!, accessKey: env.S3_ACCESS_KEY!, secretKey: env.S3_SECRET_KEY! },
     webOrigin: env.WEB_ORIGIN!,
     retentionYears: Number(env.RETENTION_YEARS ?? 3),
     currency: env.CURRENCY ?? 'TMT',
