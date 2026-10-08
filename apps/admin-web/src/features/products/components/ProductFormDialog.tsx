@@ -1,7 +1,7 @@
 'use client'
 
 import { guard, say } from '@/lib/feedback'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useRef, useState, useTransition } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Dialog } from '@/components/ui/Dialog'
@@ -32,7 +32,16 @@ export function ProductFormDialog ({ product, categories, copy, closeHref }: {
   const [stock, setStock] = useState(product?.stockTracked ?? false)
   const [image, setImage] = useState<{ id: string, url: string, name: string } | null>(product?.image != null ? { id: product.image.id, url: product.image.previewUrl400, name: '' } : null)
   const [uploading, setUploading] = useState(false)
-  const close = () => router.replace(closeHref, { scroll: false })
+  // The server renders the page without the dialog; the progress bar shows while it answers.
+  // Open while the URL says so (`?add=1`, `?edit=…`). Closing only rewrites the URL in the browser: the page
+  // behind is unchanged, so there is no server round trip to wait for (a slow or failed one used to leave
+  // the page blocked). Data is refreshed only after a save.
+  const params = useSearchParams()
+  const open = params.has('add') || params.has('edit')
+  const close = (changed = false) => {
+    window.history.replaceState(null, '', closeHref)
+    if (changed) router.refresh()
+  }
 
   async function pick (picked: File | undefined) {
     if (picked == null) return
@@ -62,14 +71,13 @@ export function ProductFormDialog ({ product, categories, copy, closeHref }: {
       const res = await saveProduct(product?.id ?? null, input)
       if (!res.ok) return setError(res.code === 'CONFLICT' ? f.errors.CONFLICT : f.errors.generic)
       say(product == null ? 'created' : 'saved')
-      close()
-      router.refresh()
+      close(true)
     }))
   }
 
   return (
     <Dialog
-      open variant='form' width={981} onClose={close} closeLabel={f.close}
+      open={open} variant='form' width={981} onClose={() => close()} closeLabel={f.close}
       title={product == null ? f.addTitle : f.editTitle} subtitle={f.subtitle}
       footer={
         <>

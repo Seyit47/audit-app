@@ -5,8 +5,10 @@ import { FigmaIcon } from './FigmaIcon'
 export interface Column<T> {
   key: string
   header: ReactNode
-  /** Figma column width in px. */
+  /** Figma column width in px: the column's minimum, and its share of any extra width. */
   width?: number
+  /** Keeps exactly its width (checkbox, row menu); a column without a width is a 56 px row-menu column. */
+  fixed?: boolean
   /** Cell padding/alignment classes; header and body share them. */
   className?: string
   /** Makes the header a sort link (31:2307). */
@@ -15,6 +17,8 @@ export interface Column<T> {
 }
 
 export interface TableSort { key: string, dir: 'asc' | 'desc', href: (key: string, dir: 'asc' | 'desc') => string }
+
+const MENU_WIDTH = 56
 
 // comfortable: Shops/Products (3:407, 30:574). compact: Salesmen (31:2307).
 const densities = {
@@ -46,10 +50,20 @@ export function DataTable<T> ({ columns, rows, rowKey, isSelected, rowClassName,
   sort?: TableSort
 }) {
   const d = densities[density]
+  // Content columns grow with the table in proportion to their Figma widths (which are their minimum);
+  // fixed columns keep their size. Below the Figma total the table scrolls sideways instead of squeezing.
+  const isFixed = (c: Column<T>) => c.fixed === true || c.width == null
+  const px = (c: Column<T>) => c.width ?? MENU_WIDTH
+  const fixedTotal = columns.filter(isFixed).reduce((sum, c) => sum + px(c), 0)
+  const flexTotal = columns.filter((c) => !isFixed(c)).reduce((sum, c) => sum + px(c), 0)
+  // Percentages (browsers ignore calc() on table columns): at the Figma total width each content column
+  // gets exactly its Figma size; wider tables share the extra space by the same proportions.
+  const flexShare = 1
+  const colWidth = (c: Column<T>) => isFixed(c) || flexTotal === 0 ? `${px(c)}px` : `${(px(c) / flexTotal) * flexShare * 100}%`
   return (
-    <div className='w-full overflow-clip rounded-xl bg-pure-white shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]'>
-      <table className='w-full table-fixed border-collapse'>
-        <colgroup>{columns.map((c) => <col key={c.key} style={c.width != null ? { width: c.width } : undefined} />)}</colgroup>
+    <div className='w-full overflow-x-auto rounded-xl bg-pure-white shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)]'>
+      <table className='w-full table-fixed border-collapse' style={{ minWidth: fixedTotal + flexTotal }}>
+        <colgroup>{columns.map((c) => <col key={c.key} style={{ width: colWidth(c) }} />)}</colgroup>
         <thead className='bg-secondary-bg'>
           <tr>
             {columns.map((c) => (

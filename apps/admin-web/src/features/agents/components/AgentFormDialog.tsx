@@ -1,7 +1,7 @@
 'use client'
 
 import { guard, say } from '@/lib/feedback'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Dialog } from '@/components/ui/Dialog'
@@ -28,7 +28,16 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref }: 
   const [password, setPassword] = useState<string | null>(null)
   const [code, setCode] = useState(agent?.code ?? nextCode)
   const [status, setStatus] = useState<Status>(agent == null ? 'ACTIVE' : !agent.active ? 'ARCHIVED' : agent.workStatus)
-  const close = () => router.replace(closeHref, { scroll: false })
+  // The server renders the page without the dialog; the progress bar shows while it answers.
+  // Open while the URL says so (`?add=1`, `?edit=…`). Closing only rewrites the URL in the browser: the page
+  // behind is unchanged, so there is no server round trip to wait for (a slow or failed one used to leave
+  // the page blocked). Data is refreshed only after a save.
+  const params = useSearchParams()
+  const open = params.has('add') || params.has('edit')
+  const close = (changed = false) => {
+    window.history.replaceState(null, '', closeHref)
+    if (changed) router.refresh()
+  }
 
   function submit (form: FormData) {
     const s = (k: string) => String(form.get(k) ?? '').trim()
@@ -56,7 +65,7 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref }: 
         if (!res.ok) return setError(res.code === 'CONFLICT' ? f.errors.CONFLICT : f.errors.generic)
         if (form.get('device') === 'reset') await rebindAgentDevice(agent.id)
         say('saved')
-        close()
+        close(true)
       }
     }))
   }
@@ -72,8 +81,8 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref }: 
 
   if (password != null) {
     return (
-      <Dialog open variant='form' width={560} onClose={close} closeLabel={f.close} title={agent == null ? f.created : f.resetPassword}
-        footer={<Button size='md' onClick={close}>{f.done}</Button>}>
+      <Dialog open={open} variant='form' width={560} onClose={() => close(true)} closeLabel={f.close} title={agent == null ? f.created : f.resetPassword}
+        footer={<Button size='md' onClick={() => close(true)}>{f.done}</Button>}>
         <p className='text-sm leading-5 text-slate-700'>{f.passwordNote}</p>
         <p className='select-all rounded-xl border border-border bg-slate-50 px-3.5 py-2.5 font-mono text-base text-slate-800'>{password}</p>
       </Dialog>
@@ -85,7 +94,7 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref }: 
 
   return (
     <Dialog
-      open variant='form' width={981} onClose={close} closeLabel={f.close}
+      open={open} variant='form' width={981} onClose={() => close()} closeLabel={f.close}
       title={agent == null ? f.addTitle : f.editTitle}
       subtitle={f.subtitle}
       footer={
