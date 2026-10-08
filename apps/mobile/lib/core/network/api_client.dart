@@ -15,17 +15,15 @@ abstract interface class TokenSource {
 /// Dio client for `/v1`: adds the bearer token, refreshes it once on 401 (concurrent 401s share
 /// a single refresh), and turns failures into [ApiException].
 class ApiClient {
-  ApiClient({
-    required this._tokens,
-    required this._onSessionExpired,
-    String? baseUrl,
-    HttpClientAdapter? adapter,
-  }) : dio = Dio(BaseOptions(
+  ApiClient({required this._tokens, required this._onSessionExpired, String? baseUrl, HttpClientAdapter? adapter})
+    : dio = Dio(
+        BaseOptions(
           baseUrl: '${baseUrl ?? AppConfig.apiUrl}/v1',
           connectTimeout: const Duration(seconds: 15),
           receiveTimeout: const Duration(seconds: 30),
           contentType: Headers.jsonContentType,
-        )) {
+        ),
+      ) {
     if (adapter != null) dio.httpClientAdapter = adapter;
     dio.interceptors.add(InterceptorsWrapper(onRequest: _onRequest, onError: _onError));
   }
@@ -38,12 +36,16 @@ class ApiClient {
   static const _retried = 'retried';
   static const _noAuth = 'noAuth';
 
-  Future<T> get<T>(String path, {Map<String, dynamic>? query}) =>
-      _call(() => dio.get<T>(path, queryParameters: query));
+  Future<T> get<T>(String path, {Map<String, dynamic>? query}) => _call(() => dio.get<T>(path, queryParameters: query));
 
   /// A POST without a body still sends `{}`: the JSON content type with an empty body is a 400.
-  Future<T> post<T>(String path, {Object? body, bool auth = true}) =>
-      _call(() => dio.post<T>(path, data: body ?? const <String, Object?>{}, options: Options(extra: {_noAuth: !auth})));
+  Future<T> post<T>(String path, {Object? body, bool auth = true}) => _call(
+    () => dio.post<T>(
+      path,
+      data: body ?? const <String, Object?>{},
+      options: Options(extra: {_noAuth: !auth}),
+    ),
+  );
 
   Future<T> patch<T>(String path, {Object? body}) => _call(() => dio.patch<T>(path, data: body));
 

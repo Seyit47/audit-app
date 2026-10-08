@@ -15,10 +15,10 @@ final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(ThemeMo
 class ThemeModeNotifier extends Notifier<ThemeMode> {
   @override
   ThemeMode build() => switch (ref.watch(sharedPreferencesProvider).getString(_themeKey)) {
-        'light' => ThemeMode.light,
-        'dark' => ThemeMode.dark,
-        _ => ThemeMode.system,
-      };
+    'light' => ThemeMode.light,
+    'dark' => ThemeMode.dark,
+    _ => ThemeMode.system,
+  };
 
   Future<void> set(ThemeMode mode) async {
     state = mode;

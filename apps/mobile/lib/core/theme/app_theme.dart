@@ -25,7 +25,10 @@ abstract final class AppTheme {
       error: c.error,
     );
     final radius12 = RoundedRectangleBorder(borderRadius: BorderRadius.circular(12));
-    OutlineInputBorder inputBorder(Color color) => OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: color));
+    OutlineInputBorder inputBorder(Color color) => OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: BorderSide(color: color),
+    );
     final buttonText = AppTextStyles.body.copyWith(fontWeight: FontWeight.w600, height: 20 / 14);
 
     return ThemeData(
@@ -37,10 +40,9 @@ abstract final class AppTheme {
       // Native Android touch and navigation: the platform's sparkle ripple, and Android 14's predictive-back
       // page transition (the page follows the back swipe; needs enableOnBackInvokedCallback in the manifest).
       splashFactory: InkSparkle.splashFactory,
-      pageTransitionsTheme: const PageTransitionsTheme(builders: {
-        TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
-        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-      }),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {TargetPlatform.android: PredictiveBackPageTransitionsBuilder(), TargetPlatform.iOS: CupertinoPageTransitionsBuilder()},
+      ),
       // "Сохранить" (252:26602): 48 px, accent, 12 px radius, half opacity when disabled.
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
@@ -66,7 +68,11 @@ abstract final class AppTheme {
         ),
       ),
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(foregroundColor: c.accent, textStyle: AppTextStyles.label, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+        style: TextButton.styleFrom(
+          foregroundColor: c.accent,
+          textStyle: AppTextStyles.label,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
       ),
       iconButtonTheme: IconButtonThemeData(style: IconButton.styleFrom(foregroundColor: c.textPrimary)),
       // Filter pills (101:1985): stadium, chip background and border, accent when selected, no checkmark.
@@ -111,8 +117,15 @@ abstract final class AppTheme {
       switchTheme: SwitchThemeData(trackColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected) ? c.accent : null)),
       progressIndicatorTheme: ProgressIndicatorThemeData(color: c.accent),
       bottomSheetTheme: BottomSheetThemeData(backgroundColor: c.card, showDragHandle: true, dragHandleColor: c.border),
-      dialogTheme: DialogThemeData(backgroundColor: c.card, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
-      popupMenuTheme: PopupMenuThemeData(color: c.card, shape: radius12, textStyle: AppTextStyles.bodyMedium.copyWith(color: c.textPrimary)),
+      dialogTheme: DialogThemeData(
+        backgroundColor: c.card,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+      popupMenuTheme: PopupMenuThemeData(
+        color: c.card,
+        shape: radius12,
+        textStyle: AppTextStyles.bodyMedium.copyWith(color: c.textPrimary),
+      ),
       snackBarTheme: SnackBarThemeData(behavior: SnackBarBehavior.floating, shape: radius12),
       // Cupertino widgets (iOS) take the same accent, backgrounds and type.
       cupertinoOverrideTheme: CupertinoThemeData(
@@ -120,7 +133,10 @@ abstract final class AppTheme {
         primaryColor: c.accent,
         scaffoldBackgroundColor: c.mainBg,
         barBackgroundColor: c.card,
-        textTheme: CupertinoTextThemeData(textStyle: AppTextStyles.body.copyWith(color: c.textPrimary), primaryColor: c.accent),
+        textTheme: CupertinoTextThemeData(
+          textStyle: AppTextStyles.body.copyWith(color: c.textPrimary),
+          primaryColor: c.accent,
+        ),
       ),
       extensions: [c],
     );

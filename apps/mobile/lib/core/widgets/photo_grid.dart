@@ -20,6 +20,7 @@ class PhotoDayGrid extends StatelessWidget {
 
   final List<GridPhoto> photos;
   final ValueChanged<GridPhoto> onTap;
+
   /// "Сегодня, {date}".
   final String Function(String date) todayLabel;
 
@@ -33,29 +34,32 @@ class PhotoDayGrid extends StatelessWidget {
       groups.putIfAbsent(DateTime(t.year, t.month, t.day), () => []).add(p);
     }
     final today = DateUtils.dateOnly(DateTime.now());
-    return SliverList.list(children: [
-      for (final MapEntry(key: day, value: items) in groups.entries)
-        Padding(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(
-              day == today ? todayLabel(DateFormat('d MMMM', lang).format(day)) : DateFormat('d MMMM', lang).format(day),
-              style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600, color: c.textPrimary),
-            ),
-            const SizedBox(height: 8),
-            GridView.count(
-              crossAxisCount: 4,
-              mainAxisSpacing: 2,
-              crossAxisSpacing: 2,
-              shrinkWrap: true,
-              padding: EdgeInsets.zero,
-              physics: const NeverScrollableScrollPhysics(),
+    return SliverList.list(
+      children: [
+        for (final MapEntry(key: day, value: items) in groups.entries)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                for (final p in items) InkOverlay(onTap: () => onTap(p), child: AppImage(p.image, radius: 0)),
+                Text(
+                  day == today ? todayLabel(DateFormat('d MMMM', lang).format(day)) : DateFormat('d MMMM', lang).format(day),
+                  style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600, color: c.textPrimary),
+                ),
+                const SizedBox(height: 8),
+                GridView.count(
+                  crossAxisCount: 4,
+                  mainAxisSpacing: 2,
+                  crossAxisSpacing: 2,
+                  shrinkWrap: true,
+                  padding: EdgeInsets.zero,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [for (final p in items) InkOverlay(onTap: () => onTap(p), child: AppImage(p.image, radius: 0))],
+                ),
               ],
             ),
-          ]),
-        ),
-    ]);
+          ),
+      ],
+    );
   }
 }

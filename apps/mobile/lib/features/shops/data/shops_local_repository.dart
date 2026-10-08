@@ -34,6 +34,7 @@ class ShopVisit {
   final double? lat;
   final double? lng;
   final double? accuracyM;
+
   /// Network URLs or local file paths (`/…`) for unsynced photos.
   final List<String> photoUrls;
   final int photoCount;
@@ -72,11 +73,11 @@ class ShopsLocalRepository {
   }
 
   Stream<ShopItem?> watchOne(String id) => watchAll().map((all) {
-        for (final item in all) {
-          if (item.shop.id == id) return item;
-        }
-        return null;
-      });
+    for (final item in all) {
+      if (item.shop.id == id) return item;
+    }
+    return null;
+  });
 
   /// History for Shop details: local unsynced audits first, then the server's latest visits.
   Stream<List<ShopVisit>> watchVisits(String shopId) {
@@ -84,18 +85,30 @@ class ShopsLocalRepository {
     return shop.asyncMap((s) async {
       final server = s == null ? const <ShopVisit>[] : _serverVisits(s.latestVisitsJson);
       final known = {for (final v in server) v.id};
-      final local = await (_db.select(_db.audits)
-            ..where((a) => a.shopId.equals(shopId))
-            ..orderBy([(a) => OrderingTerm.desc(a.finishedAtDevice)]))
-          .get();
+      final local =
+          await (_db.select(_db.audits)
+                ..where((a) => a.shopId.equals(shopId))
+                ..orderBy([(a) => OrderingTerm.desc(a.finishedAtDevice)]))
+              .get();
       final pending = <ShopVisit>[];
       for (final a in local.where((a) => !known.contains(a.id))) {
         final photos = await (_db.select(_db.photos)..where((p) => p.auditId.equals(a.id))).get();
-        pending.add(ShopVisit(
-          id: a.id, at: a.finishedAtDevice, missed: false, comment: a.comment, hasViolation: a.hasViolation,
-          withinRadius: a.withinRadius, lat: a.lat, lng: a.lng, accuracyM: a.gpsAccuracyM,
-          photoUrls: [for (final p in photos) p.previewUrl ?? p.localPath ?? ''], photoCount: photos.length, pending: !a.synced,
-        ));
+        pending.add(
+          ShopVisit(
+            id: a.id,
+            at: a.finishedAtDevice,
+            missed: false,
+            comment: a.comment,
+            hasViolation: a.hasViolation,
+            withinRadius: a.withinRadius,
+            lat: a.lat,
+            lng: a.lng,
+            accuracyM: a.gpsAccuracyM,
+            photoUrls: [for (final p in photos) p.previewUrl ?? p.localPath ?? ''],
+            photoCount: photos.length,
+            pending: !a.synced,
+          ),
+        );
       }
       return [...pending, ...server]..sort((x, y) => y.at.compareTo(x.at));
     });

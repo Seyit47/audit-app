@@ -24,6 +24,7 @@ class ShopsPage {
   const ShopsPage({required this.items, required this.tombstones, required this.cursor});
 
   final List<ShopRecord> items;
+
   /// Ids of shops deleted or no longer assigned to this agent.
   final List<String> tombstones;
   final String? cursor;
@@ -38,10 +39,13 @@ abstract interface class SyncApi {
   Future<void> createAudit(Map<String, Object?> body);
   Future<void> sendPings(List<Map<String, Object?>> pings);
   Future<ShopsPage> shops({String? updatedAfter});
+
   /// `{id, date, updatedAt, stops: [...]}`; `id` is null when there is no route today.
   Future<Map<String, Object?>> routeToday();
+
   /// The user, agent profile and the company settings subset (`GET /me`).
   Future<Map<String, Object?>> me();
+
   /// The agent's own photos, newest first (the server scopes `/photos` to them).
   Future<List<Map<String, Object?>>> myPhotos();
 }

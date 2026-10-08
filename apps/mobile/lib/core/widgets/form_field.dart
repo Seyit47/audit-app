@@ -14,6 +14,7 @@ class AppFormField extends StatelessWidget {
   final Widget child;
   final bool required;
   final String? error;
+
   /// The green check of the filled form (`252:26607`).
   final bool valid;
 
@@ -23,20 +24,29 @@ class AppFormField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(children: [
-          Flexible(
-            child: Text.rich(TextSpan(text: label, children: [
-              if (required) TextSpan(text: ' *', style: TextStyle(color: c.error, fontWeight: FontWeight.w700)),
-            ]), style: AppTextStyles.label.copyWith(color: c.textPrimary)),
-          ),
-          if (valid) ...[const Spacer(), AppIcon('field-valid', width: 13.33, height: 13.33, color: c.success)],
-        ]),
+        Row(
+          children: [
+            Flexible(
+              child: Text.rich(
+                TextSpan(
+                  text: label,
+                  children: [
+                    if (required)
+                      TextSpan(
+                        text: ' *',
+                        style: TextStyle(color: c.error, fontWeight: FontWeight.w700),
+                      ),
+                  ],
+                ),
+                style: AppTextStyles.label.copyWith(color: c.textPrimary),
+              ),
+            ),
+            if (valid) ...[const Spacer(), AppIcon('field-valid', width: 13.33, height: 13.33, color: c.success)],
+          ],
+        ),
         const SizedBox(height: 6),
         child,
-        if (error != null) ...[
-          const SizedBox(height: 4),
-          Text(error!, style: AppTextStyles.caption.copyWith(color: c.error)),
-        ],
+        if (error != null) ...[const SizedBox(height: 4), Text(error!, style: AppTextStyles.caption.copyWith(color: c.error))],
       ],
     );
   }
@@ -82,6 +92,7 @@ class AppTextInput extends StatelessWidget {
   final int? maxLines;
   final int? maxLength;
   final bool autofocus;
+
   /// No fill, border or padding: for a field inside its own box (the audit comment).
   final bool bare;
   final TextStyle? textStyle;
@@ -143,17 +154,37 @@ class AppTextInput extends StatelessWidget {
         style: style,
         // Borders, fill and padding come from the theme's InputDecorationTheme.
         decoration: bare
-            ? InputDecoration(isCollapsed: true, contentPadding: EdgeInsets.zero, filled: false, border: InputBorder.none, enabledBorder: InputBorder.none, focusedBorder: InputBorder.none, counterText: '', hintText: hint, hintStyle: hintStyle)
+            ? InputDecoration(
+                isCollapsed: true,
+                contentPadding: EdgeInsets.zero,
+                filled: false,
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                counterText: '',
+                hintText: hint,
+                hintStyle: hintStyle,
+              )
             : InputDecoration(
-          hintText: hint,
-          hintStyle: hintStyle,
-          counterText: '',
-          prefixIcon: prefix == null ? null : Padding(padding: const EdgeInsets.only(left: 12, right: 8), child: prefix),
-          prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-          suffixIcon: suffix,
-          enabledBorder: hasError ? OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: c.error)) : null,
-          focusedBorder: hasError ? OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: c.error)) : null,
-        ),
+                hintText: hint,
+                hintStyle: hintStyle,
+                counterText: '',
+                prefixIcon: prefix == null ? null : Padding(padding: const EdgeInsets.only(left: 12, right: 8), child: prefix),
+                prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+                suffixIcon: suffix,
+                enabledBorder: hasError
+                    ? OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: c.error),
+                      )
+                    : null,
+                focusedBorder: hasError
+                    ? OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: c.error),
+                      )
+                    : null,
+              ),
       ),
     );
   }

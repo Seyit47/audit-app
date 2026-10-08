@@ -31,37 +31,108 @@ void main() {
         addTearDown(tester.view.reset);
         final theme = (dark ? AppTheme.dark() : AppTheme.light()).copyWith(platform: platform);
         Widget row(String label, Widget child) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: Row(children: [SizedBox(width: 92, child: Text(label, style: const TextStyle(fontSize: 10))), Expanded(child: Align(alignment: Alignment.centerLeft, child: child))]),
-            );
-        await tester.pumpWidget(RepaintBoundary(
-          key: boundary,
-          child: MaterialApp(
-            debugShowCheckedModeBanner: false,
-            theme: theme,
-            locale: const Locale('ru'),
-            supportedLocales: const [Locale('ru'), Locale('en')],
-            localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
-            home: Scaffold(
-              body: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                  const AppTopBar(title: 'Клиенты', count: 12, action: HeaderButton(label: 'Добавить', onPressed: _noop)),
-                  row('header', Row(children: [const ThemeToggle(onPressed: _noop, tooltip: 'theme'), const SizedBox(width: 8), LocaleToggle(value: 'ru', onChanged: (_) {})])),
-                  row('lang en', LocaleToggle(value: 'en', onChanged: (_) {})),
-                  row('primary', const SizedBox(width: 260, child: PrimaryButton(label: 'Сохранить', onPressed: _noop))),
-                  row('loading', const SizedBox(width: 260, child: PrimaryButton(label: 'Сохранить', onPressed: _noop, loading: true))),
-                  row('disabled', const SizedBox(width: 260, child: PrimaryButton(label: 'Сохранить', onPressed: null))),
-                  row('secondary', const SizedBox(width: 260, child: SecondaryButton(label: 'Отмена', onPressed: _noop))),
-                  row('chips', FilterChips<String>(options: const [ChipOption('all', 'Все'), ChipOption('a', 'Активные'), ChipOption('v', 'Нарушения', tone: ChipTone.error)], selected: 'all', onSelected: (_) {})),
-                  row('search', SizedBox(width: 270, child: SearchField(hint: 'Поиск', onChanged: (_) {}, onFilters: _noop, activeFilters: 2))),
-                  row('input', const SizedBox(width: 270, child: AppTextInput(hint: 'Название'))),
-                  row('select', SizedBox(width: 270, child: AppSelect<String>(value: 'a', hint: 'Регион', items: const [('a', 'Region 1'), ('b', 'Region 2')], onChanged: (_) {}))),
-                ]),
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Row(
+            children: [
+              SizedBox(width: 92, child: Text(label, style: const TextStyle(fontSize: 10))),
+              Expanded(
+                child: Align(alignment: Alignment.centerLeft, child: child),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpWidget(
+          RepaintBoundary(
+            key: boundary,
+            child: MaterialApp(
+              debugShowCheckedModeBanner: false,
+              theme: theme,
+              locale: const Locale('ru'),
+              supportedLocales: const [Locale('ru'), Locale('en')],
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              home: Scaffold(
+                body: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const AppTopBar(
+                        title: 'Клиенты',
+                        count: 12,
+                        action: HeaderButton(label: 'Добавить', onPressed: _noop),
+                      ),
+                      row(
+                        'header',
+                        Row(
+                          children: [
+                            const ThemeToggle(onPressed: _noop, tooltip: 'theme'),
+                            const SizedBox(width: 8),
+                            LocaleToggle(value: 'ru', onChanged: (_) {}),
+                          ],
+                        ),
+                      ),
+                      row('lang en', LocaleToggle(value: 'en', onChanged: (_) {})),
+                      row(
+                        'primary',
+                        const SizedBox(
+                          width: 260,
+                          child: PrimaryButton(label: 'Сохранить', onPressed: _noop),
+                        ),
+                      ),
+                      row(
+                        'loading',
+                        const SizedBox(
+                          width: 260,
+                          child: PrimaryButton(label: 'Сохранить', onPressed: _noop, loading: true),
+                        ),
+                      ),
+                      row('disabled', const SizedBox(width: 260, child: PrimaryButton(label: 'Сохранить', onPressed: null))),
+                      row(
+                        'secondary',
+                        const SizedBox(
+                          width: 260,
+                          child: SecondaryButton(label: 'Отмена', onPressed: _noop),
+                        ),
+                      ),
+                      row(
+                        'chips',
+                        FilterChips<String>(
+                          options: const [
+                            ChipOption('all', 'Все'),
+                            ChipOption('a', 'Активные'),
+                            ChipOption('v', 'Нарушения', tone: ChipTone.error),
+                          ],
+                          selected: 'all',
+                          onSelected: (_) {},
+                        ),
+                      ),
+                      row(
+                        'search',
+                        SizedBox(
+                          width: 270,
+                          child: SearchField(hint: 'Поиск', onChanged: (_) {}, onFilters: _noop, activeFilters: 2),
+                        ),
+                      ),
+                      row('input', const SizedBox(width: 270, child: AppTextInput(hint: 'Название'))),
+                      row(
+                        'select',
+                        SizedBox(
+                          width: 270,
+                          child: AppSelect<String>(value: 'a', hint: 'Регион', items: const [('a', 'Region 1'), ('b', 'Region 2')], onChanged: (_) {}),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
-        ));
+        );
         await tester.pump(const Duration(milliseconds: 400));
         final out = Platform.environment['SCREENS_OUT'] ?? 'build/screens';
         await tester.runAsync(() async {

@@ -46,7 +46,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   @override
   void initState() {
     super.initState();
-    ref.read(adminApiProvider).productCategories().then((c) { if (mounted) setState(() => _categories = c); }, onError: (_) {});
+    ref.read(adminApiProvider).productCategories().then((c) {
+      if (mounted) setState(() => _categories = c);
+    }, onError: (_) {});
   }
 
   @override
@@ -57,7 +59,8 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     super.dispose();
   }
 
-  bool get _valid => _sku.text.trim().isNotEmpty && _name.text.trim().isNotEmpty && _categoryId != null && (double.tryParse(_price.text.replaceAll(',', '.')) ?? -1) >= 0;
+  bool get _valid =>
+      _sku.text.trim().isNotEmpty && _name.text.trim().isNotEmpty && _categoryId != null && (double.tryParse(_price.text.replaceAll(',', '.')) ?? -1) >= 0;
 
   Future<void> _pick(ImageSource source) async {
     final x = await ImagePicker().pickImage(source: source, imageQuality: 85, maxWidth: 2000);
@@ -66,7 +69,10 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
 
   Future<void> _save() async {
     final l10n = AppLocalizations.of(context);
-    setState(() { _saving = true; _error = null; });
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
     final api = ref.read(adminApiProvider);
     try {
       final imageId = _image == null ? null : await api.upload(File(_image!), 'PRODUCT');
@@ -85,9 +91,17 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       });
       if (mounted) context.pop(true);
     } on ApiException catch (e) {
-      if (mounted) setState(() { _saving = false; _error = e.status == 409 ? l10n.skuConflict : l10n.saveFailed; });
+      if (mounted)
+        setState(() {
+          _saving = false;
+          _error = e.status == 409 ? l10n.skuConflict : l10n.saveFailed;
+        });
     } catch (_) {
-      if (mounted) setState(() { _saving = false; _error = l10n.saveFailed; });
+      if (mounted)
+        setState(() {
+          _saving = false;
+          _error = l10n.saveFailed;
+        });
     }
   }
 
@@ -101,74 +115,143 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     return Scaffold(
       backgroundColor: c.mainBg,
       body: SafeArea(
-        child: Column(children: [
-          AppTopBar(title: l10n.addProductTitle),
-          Expanded(
-            child: ListView(padding: const EdgeInsets.fromLTRB(16, 16, 16, 24), children: [
-              Text(l10n.productImage, style: AppTextStyles.label.copyWith(color: c.textPrimary)),
-              const SizedBox(height: 6),
-              if (_image == null)
-                PhotoEmptyTarget(
-                  title: l10n.productImage, hint: l10n.productImageHint, buttonLabel: l10n.takePhoto,
-                  onTake: () => _pick(ImageSource.camera), galleryLabel: l10n.openGallery, onGallery: () => _pick(ImageSource.gallery),
-                )
-              else
-                Stack(children: [
-                  AppImage(_image, height: 176, width: double.infinity),
-                  Positioned(right: 8, top: 8, child: IconButton.filledTonal(onPressed: () => setState(() => _image = null), icon: const Icon(Icons.close), tooltip: l10n.removePhoto)),
-                ]),
-              gap,
-              AppFormField(label: l10n.sku, required: true, valid: _sku.text.trim().isNotEmpty, child: AppTextInput(controller: _sku, onChanged: touch)),
-              gap,
-              AppFormField(label: l10n.productName, required: true, valid: _name.text.trim().isNotEmpty, child: AppTextInput(controller: _name, onChanged: touch)),
-              gap,
-              AppFormField(
-                label: l10n.category, required: true, valid: _categoryId != null,
-                child: AppSelect<String>(value: _categoryId, hint: l10n.selectCategory, items: [for (final cat in _categories) (cat['id'] as String, cat['name'] as String)], onChanged: (v) => setState(() => _categoryId = v)),
+        child: Column(
+          children: [
+            AppTopBar(title: l10n.addProductTitle),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                children: [
+                  Text(l10n.productImage, style: AppTextStyles.label.copyWith(color: c.textPrimary)),
+                  const SizedBox(height: 6),
+                  if (_image == null)
+                    PhotoEmptyTarget(
+                      title: l10n.productImage,
+                      hint: l10n.productImageHint,
+                      buttonLabel: l10n.takePhoto,
+                      onTake: () => _pick(ImageSource.camera),
+                      galleryLabel: l10n.openGallery,
+                      onGallery: () => _pick(ImageSource.gallery),
+                    )
+                  else
+                    Stack(
+                      children: [
+                        AppImage(_image, height: 176, width: double.infinity),
+                        Positioned(
+                          right: 8,
+                          top: 8,
+                          child: IconButton.filledTonal(
+                            onPressed: () => setState(() => _image = null),
+                            icon: const Icon(Icons.close),
+                            tooltip: l10n.removePhoto,
+                          ),
+                        ),
+                      ],
+                    ),
+                  gap,
+                  AppFormField(
+                    label: l10n.sku,
+                    required: true,
+                    valid: _sku.text.trim().isNotEmpty,
+                    child: AppTextInput(controller: _sku, onChanged: touch),
+                  ),
+                  gap,
+                  AppFormField(
+                    label: l10n.productName,
+                    required: true,
+                    valid: _name.text.trim().isNotEmpty,
+                    child: AppTextInput(controller: _name, onChanged: touch),
+                  ),
+                  gap,
+                  AppFormField(
+                    label: l10n.category,
+                    required: true,
+                    valid: _categoryId != null,
+                    child: AppSelect<String>(
+                      value: _categoryId,
+                      hint: l10n.selectCategory,
+                      items: [for (final cat in _categories) (cat['id'] as String, cat['name'] as String)],
+                      onChanged: (v) => setState(() => _categoryId = v),
+                    ),
+                  ),
+                  gap,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: AppFormField(
+                          label: l10n.brand,
+                          child: AppTextInput(controller: _brand, onChanged: touch),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: AppFormField(
+                          label: l10n.retailPrice,
+                          required: true,
+                          child: AppTextInput(
+                            controller: _price,
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            onChanged: touch,
+                            suffix: const Padding(padding: EdgeInsets.all(12), child: Text('TMT')),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  gap,
+                  AppFormField(
+                    label: l10n.description,
+                    child: AppTextInput(controller: _description, minLines: 3, maxLines: 5),
+                  ),
+                  gap,
+                  AppFormField(
+                    label: l10n.productStatus,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: FilterChips<String>(
+                        selected: _status,
+                        onSelected: (v) => setState(() => _status = v),
+                        options: [ChipOption('ACTIVE', l10n.statusACTIVE), ChipOption('DRAFT', l10n.statusDRAFT), ChipOption('INACTIVE', l10n.statusINACTIVE)],
+                      ),
+                    ),
+                  ),
+                  gap,
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(l10n.stockTracked, style: AppTextStyles.label.copyWith(color: c.textPrimary)),
+                    value: _stockTracked,
+                    onChanged: (v) => setState(() => _stockTracked = v),
+                  ),
+                  if (_stockTracked)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: AppFormField(
+                            label: l10n.stockQty,
+                            child: AppTextInput(controller: _stock, keyboardType: TextInputType.number),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: AppFormField(
+                            label: l10n.minStockAlert,
+                            child: AppTextInput(controller: _minStock, keyboardType: TextInputType.number),
+                          ),
+                        ),
+                      ],
+                    ),
+                  if (_error != null) ...[const SizedBox(height: 16), Text(_error!, style: AppTextStyles.caption.copyWith(color: c.error))],
+                ],
               ),
-              gap,
-              Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Expanded(child: AppFormField(label: l10n.brand, child: AppTextInput(controller: _brand, onChanged: touch))),
-                const SizedBox(width: 12),
-                Expanded(child: AppFormField(label: l10n.retailPrice, required: true,
-                    child: AppTextInput(controller: _price, keyboardType: const TextInputType.numberWithOptions(decimal: true), onChanged: touch, suffix: const Padding(padding: EdgeInsets.all(12), child: Text('TMT'))))),
-              ]),
-              gap,
-              AppFormField(
-                label: l10n.description,
-                child: AppTextInput(controller: _description, minLines: 3, maxLines: 5),
-              ),
-              gap,
-              AppFormField(
-                label: l10n.productStatus,
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: FilterChips<String>(selected: _status, onSelected: (v) => setState(() => _status = v), options: [
-                    ChipOption('ACTIVE', l10n.statusACTIVE), ChipOption('DRAFT', l10n.statusDRAFT), ChipOption('INACTIVE', l10n.statusINACTIVE),
-                  ]),
-                ),
-              ),
-              gap,
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(l10n.stockTracked, style: AppTextStyles.label.copyWith(color: c.textPrimary)),
-                value: _stockTracked,
-                onChanged: (v) => setState(() => _stockTracked = v),
-              ),
-              if (_stockTracked)
-                Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Expanded(child: AppFormField(label: l10n.stockQty, child: AppTextInput(controller: _stock, keyboardType: TextInputType.number))),
-                  const SizedBox(width: 12),
-                  Expanded(child: AppFormField(label: l10n.minStockAlert, child: AppTextInput(controller: _minStock, keyboardType: TextInputType.number))),
-                ]),
-              if (_error != null) ...[const SizedBox(height: 16), Text(_error!, style: AppTextStyles.caption.copyWith(color: c.error))],
-            ]),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            child: PrimaryButton(label: l10n.save, loading: _saving, onPressed: _valid ? _save : null),
-          ),
-        ]),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: PrimaryButton(label: l10n.save, loading: _saving, onPressed: _valid ? _save : null),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -19,7 +19,14 @@ void main() {
     testWidgets('shop details ${dark ? 'dark' : 'light'}', (tester) async {
       final db = memoryDb();
       await tester.runAsync(() => seed(db));
-      await shoot(tester, 'shop-details', const ShopDetailsScreen(shopId: 's0'), db: db, dark: dark, height: 961);
+      await shoot(
+        tester,
+        'shop-details',
+        const ShopDetailsScreen(shopId: 's0'),
+        db: db,
+        dark: dark,
+        height: 961,
+      );
       await tester.runAsync(db.close);
     });
   }

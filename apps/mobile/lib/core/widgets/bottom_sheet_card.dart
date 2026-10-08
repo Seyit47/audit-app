@@ -22,11 +22,21 @@ class BottomSheetCard extends StatelessWidget {
       ),
       child: SafeArea(
         top: false,
-        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Center(child: Container(width: 40, height: 6, decoration: BoxDecoration(color: const Color(0xFFCBD5E1), borderRadius: BorderRadius.circular(999)))),
-          const SizedBox(height: 12),
-          child,
-        ]),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 6,
+                decoration: BoxDecoration(color: const Color(0xFFCBD5E1), borderRadius: BorderRadius.circular(999)),
+              ),
+            ),
+            const SizedBox(height: 12),
+            child,
+          ],
+        ),
       ),
     );
   }

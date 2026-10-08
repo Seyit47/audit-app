@@ -11,10 +11,6 @@ class AppIcon extends StatelessWidget {
   final Color? color;
 
   @override
-  Widget build(BuildContext context) => SvgPicture.asset(
-        'assets/icons/$name.svg',
-        width: width,
-        height: height,
-        colorFilter: color == null ? null : ColorFilter.mode(color!, BlendMode.srcIn),
-      );
+  Widget build(BuildContext context) =>
+      SvgPicture.asset('assets/icons/$name.svg', width: width, height: height, colorFilter: color == null ? null : ColorFilter.mode(color!, BlendMode.srcIn));
 }

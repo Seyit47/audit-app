@@ -41,8 +41,8 @@ class RemoteConfig {
   final String workStatus;
 }
 
-Stream<RemoteConfig> watchRemoteConfig(AppDatabase db) =>
-    (db.select(db.syncCursors)..where((c) => c.name.equals(PullService.meCursor))).watchSingleOrNull().map(
-        (row) => row == null ? const RemoteConfig() : RemoteConfig.fromMe(jsonDecode(row.value) as Map<String, dynamic>));
+Stream<RemoteConfig> watchRemoteConfig(AppDatabase db) => (db.select(db.syncCursors)..where((c) => c.name.equals(PullService.meCursor)))
+    .watchSingleOrNull()
+    .map((row) => row == null ? const RemoteConfig() : RemoteConfig.fromMe(jsonDecode(row.value) as Map<String, dynamic>));
 
 final remoteConfigProvider = StreamProvider<RemoteConfig>((ref) => watchRemoteConfig(ref.watch(databaseProvider)));

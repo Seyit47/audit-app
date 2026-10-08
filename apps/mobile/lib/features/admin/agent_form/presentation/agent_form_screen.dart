@@ -43,8 +43,12 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
   void initState() {
     super.initState();
     final api = ref.read(adminApiProvider);
-    api.regions().then((r) { if (mounted) setState(() => _regions = r); }, onError: (_) {});
-    api.nextAgentCode().then((code) { if (mounted && _code.text.isEmpty) _code.text = code; }, onError: (_) {});
+    api.regions().then((r) {
+      if (mounted) setState(() => _regions = r);
+    }, onError: (_) {});
+    api.nextAgentCode().then((code) {
+      if (mounted && _code.text.isEmpty) _code.text = code;
+    }, onError: (_) {});
   }
 
   @override
@@ -56,16 +60,22 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
   }
 
   bool get _valid =>
-      _name.text.trim().isNotEmpty && _phoneRe.hasMatch(_phone.text.trim()) && _regionId != null &&
+      _name.text.trim().isNotEmpty &&
+      _phoneRe.hasMatch(_phone.text.trim()) &&
+      _regionId != null &&
       (_whatsapp.text.trim().isEmpty || _phoneRe.hasMatch(_whatsapp.text.trim())) &&
-      (int.tryParse(_visits.text) ?? 0) >= 1 && (int.tryParse(_audits.text) ?? -1) >= 0;
+      (int.tryParse(_visits.text) ?? 0) >= 1 &&
+      (int.tryParse(_audits.text) ?? -1) >= 0;
 
   Future<void> _save() async {
     final l10n = AppLocalizations.of(context);
     final visits = int.parse(_visits.text);
     final audits = int.parse(_audits.text);
     if (audits > visits) return setState(() => _error = l10n.planError);
-    setState(() { _saving = true; _error = null; });
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
     try {
       final res = await ref.read(adminApiProvider).createAgent({
         'fullName': _name.text.trim(),
@@ -82,7 +92,11 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
       await _showPassword(res['temporaryPassword'] as String);
       if (mounted) context.pop(true);
     } catch (_) {
-      if (mounted) setState(() { _saving = false; _error = l10n.saveFailed; });
+      if (mounted)
+        setState(() {
+          _saving = false;
+          _error = l10n.saveFailed;
+        });
     }
   }
 
@@ -92,13 +106,23 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
       context: context,
       barrierDismissible: false,
       title: Text(l10n.agentCreated),
-      content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(l10n.tempPassword),
-        const SizedBox(height: 12),
-        SelectableText(password, style: const TextStyle(fontFamily: AppTextStyles.mono, fontSize: 20, fontWeight: FontWeight.w600)),
-      ]),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.tempPassword),
+          const SizedBox(height: 12),
+          SelectableText(
+            password,
+            style: const TextStyle(fontFamily: AppTextStyles.mono, fontSize: 20, fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
       actions: (dialog) => [
-        AppDialogAction(label: MaterialLocalizations.of(dialog).copyButtonLabel, onPressed: () => Clipboard.setData(ClipboardData(text: password))),
+        AppDialogAction(
+          label: MaterialLocalizations.of(dialog).copyButtonLabel,
+          onPressed: () => Clipboard.setData(ClipboardData(text: password)),
+        ),
         AppDialogAction(label: l10n.done, primary: true, onPressed: () => Navigator.pop(dialog)),
       ],
     );
@@ -114,57 +138,96 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
     return Scaffold(
       backgroundColor: c.mainBg,
       body: SafeArea(
-        child: Column(children: [
-          AppTopBar(title: l10n.addSalesmanTitle),
-          Expanded(
-            child: ListView(padding: const EdgeInsets.fromLTRB(16, 16, 16, 24), children: [
-              AppFormField(label: l10n.fullName, required: true, valid: _name.text.trim().isNotEmpty,
-                  child: AppTextInput(controller: _name, hint: l10n.fullNameHint, textInputAction: TextInputAction.next, onChanged: touch)),
-              gap,
-              AppFormField(label: l10n.employeeCode, child: AppTextInput(controller: _code, onChanged: touch)),
-              gap,
-              AppFormField(label: l10n.phoneNumber, required: true, valid: _phoneRe.hasMatch(_phone.text.trim()),
-                  child: AppTextInput(controller: _phone, hint: l10n.phoneHint, keyboardType: TextInputType.phone, onChanged: touch)),
-              gap,
-              AppFormField(label: l10n.whatsapp, child: AppTextInput(controller: _whatsapp, hint: l10n.phoneHint, keyboardType: TextInputType.phone, onChanged: touch)),
-              gap,
-              AppFormField(
-                label: l10n.routeNotes,
-                child: AppTextInput(controller: _notes, hint: l10n.routeNotesHint, minLines: 3, maxLines: 5, maxLength: 2000),
-              ),
-              gap,
-              Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Expanded(child: AppFormField(label: l10n.visitPlan, required: true,
-                    child: AppTextInput(controller: _visits, keyboardType: TextInputType.number, onChanged: touch))),
-                const SizedBox(width: 12),
-                Expanded(child: AppFormField(label: l10n.auditPlan, required: true,
-                    child: AppTextInput(controller: _audits, keyboardType: TextInputType.number, onChanged: touch))),
-              ]),
-              gap,
-              AppFormField(
-                label: l10n.regionField, required: true, valid: _regionId != null,
-                child: AppSelect<String>(value: _regionId, hint: l10n.selectRegion, items: [for (final r in _regions) (r['id'] as String, r['name'] as String)], onChanged: (v) => setState(() => _regionId = v)),
-              ),
-              gap,
-              AppFormField(
-                label: l10n.workStatus,
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: FilterChips<String>(
-                    selected: _status,
-                    onSelected: (v) => setState(() => _status = v),
-                    options: [ChipOption('ACTIVE', l10n.statusACTIVE), ChipOption('ON_LEAVE', l10n.onLeave)],
+        child: Column(
+          children: [
+            AppTopBar(title: l10n.addSalesmanTitle),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                children: [
+                  AppFormField(
+                    label: l10n.fullName,
+                    required: true,
+                    valid: _name.text.trim().isNotEmpty,
+                    child: AppTextInput(controller: _name, hint: l10n.fullNameHint, textInputAction: TextInputAction.next, onChanged: touch),
                   ),
-                ),
+                  gap,
+                  AppFormField(
+                    label: l10n.employeeCode,
+                    child: AppTextInput(controller: _code, onChanged: touch),
+                  ),
+                  gap,
+                  AppFormField(
+                    label: l10n.phoneNumber,
+                    required: true,
+                    valid: _phoneRe.hasMatch(_phone.text.trim()),
+                    child: AppTextInput(controller: _phone, hint: l10n.phoneHint, keyboardType: TextInputType.phone, onChanged: touch),
+                  ),
+                  gap,
+                  AppFormField(
+                    label: l10n.whatsapp,
+                    child: AppTextInput(controller: _whatsapp, hint: l10n.phoneHint, keyboardType: TextInputType.phone, onChanged: touch),
+                  ),
+                  gap,
+                  AppFormField(
+                    label: l10n.routeNotes,
+                    child: AppTextInput(controller: _notes, hint: l10n.routeNotesHint, minLines: 3, maxLines: 5, maxLength: 2000),
+                  ),
+                  gap,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: AppFormField(
+                          label: l10n.visitPlan,
+                          required: true,
+                          child: AppTextInput(controller: _visits, keyboardType: TextInputType.number, onChanged: touch),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: AppFormField(
+                          label: l10n.auditPlan,
+                          required: true,
+                          child: AppTextInput(controller: _audits, keyboardType: TextInputType.number, onChanged: touch),
+                        ),
+                      ),
+                    ],
+                  ),
+                  gap,
+                  AppFormField(
+                    label: l10n.regionField,
+                    required: true,
+                    valid: _regionId != null,
+                    child: AppSelect<String>(
+                      value: _regionId,
+                      hint: l10n.selectRegion,
+                      items: [for (final r in _regions) (r['id'] as String, r['name'] as String)],
+                      onChanged: (v) => setState(() => _regionId = v),
+                    ),
+                  ),
+                  gap,
+                  AppFormField(
+                    label: l10n.workStatus,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: FilterChips<String>(
+                        selected: _status,
+                        onSelected: (v) => setState(() => _status = v),
+                        options: [ChipOption('ACTIVE', l10n.statusACTIVE), ChipOption('ON_LEAVE', l10n.onLeave)],
+                      ),
+                    ),
+                  ),
+                  if (_error != null) ...[const SizedBox(height: 16), Text(_error!, style: AppTextStyles.caption.copyWith(color: c.error))],
+                ],
               ),
-              if (_error != null) ...[const SizedBox(height: 16), Text(_error!, style: AppTextStyles.caption.copyWith(color: c.error))],
-            ]),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            child: PrimaryButton(label: l10n.save, loading: _saving, onPressed: _valid ? _save : null),
-          ),
-        ]),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: PrimaryButton(label: l10n.save, loading: _saving, onPressed: _valid ? _save : null),
+            ),
+          ],
+        ),
       ),
     );
   }

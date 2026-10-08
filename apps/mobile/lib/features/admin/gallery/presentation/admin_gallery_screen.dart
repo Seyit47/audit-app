@@ -15,7 +15,8 @@ import '../../data/admin_api.dart';
 import '../../../../core/widgets/skeleton.dart';
 import '../../../../core/widgets/tap.dart';
 
-GridPhoto _grid(Json p) => GridPhoto(id: p['id'] as String, image: (p['previewUrl400'] ?? p['url']) as String?, takenAt: DateTime.parse(p['takenAt'] as String));
+GridPhoto _grid(Json p) =>
+    GridPhoto(id: p['id'] as String, image: (p['previewUrl400'] ?? p['url']) as String?, takenAt: DateTime.parse(p['takenAt'] as String));
 
 /// Admin mobile Gallery (`248:24311`): all photos from the API, newest first, loaded by cursor.
 class AdminGalleryScreen extends ConsumerStatefulWidget {
@@ -39,9 +40,13 @@ class _AdminGalleryScreenState extends ConsumerState<AdminGalleryScreen> {
   @override
   void initState() {
     super.initState();
-    _scroll.addListener(() { if (_scroll.position.extentAfter < 600) _load(); });
+    _scroll.addListener(() {
+      if (_scroll.position.extentAfter < 600) _load();
+    });
     _reload();
-    ref.read(adminApiProvider).photoSummary().then((s) { if (mounted) setState(() => _total = s['total'] as int?); }, onError: (_) {});
+    ref.read(adminApiProvider).photoSummary().then((s) {
+      if (mounted) setState(() => _total = s['total'] as int?);
+    }, onError: (_) {});
   }
 
   @override
@@ -54,7 +59,13 @@ class _AdminGalleryScreenState extends ConsumerState<AdminGalleryScreen> {
 
   Future<void> _reload() async {
     _seq++; // abandons any page still loading for the previous filters
-    setState(() { _items.clear(); _cursor = null; _done = false; _error = false; _loading = false; });
+    setState(() {
+      _items.clear();
+      _cursor = null;
+      _done = false;
+      _error = false;
+      _loading = false;
+    });
     await _load();
   }
 
@@ -90,62 +101,120 @@ class _AdminGalleryScreenState extends ConsumerState<AdminGalleryScreen> {
       body: SafeArea(
         child: RefreshIndicator.adaptive(
           onRefresh: _reload,
-          child: CustomScrollView(controller: _scroll, slivers: [
-            SliverToBoxAdapter(child: AppTopBar(title: l10n.galleryTitle)),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-                child: Row(children: [
-                  Expanded(
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text(l10n.galleryLibrary.toUpperCase(),
-                          style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 16 / 12, letterSpacing: 0.6, fontWeight: FontWeight.w500, color: c.textSecondary)),
-                      Text(l10n.photoCount(count), style: AppTextStyles.title.copyWith(height: 32 / 24, letterSpacing: -0.6, color: c.textPrimary)),
-                    ]),
-                  ),
-                  Tooltip(
-                    message: l10n.filterParams,
-                    child: Material(
-                      color: c.accent6,
-                      borderRadius: BorderRadius.circular(8),
-                      child: Pressable(
-                        borderRadius: BorderRadius.circular(8),
-                        onTap: () async {
-                          final next = await showFilterSheet(context, title: l10n.filterParams, applyLabel: l10n.apply, resetLabel: l10n.reset, values: _filters, sections: [
-                            FilterSection(key: 'date', label: l10n.filterDate, options: [ChipOption('1', l10n.dateToday), ChipOption('7', l10n.date7), ChipOption('30', l10n.date30)]),
-                          ]);
-                          if (next != null) { _filters = next; _reload(); }
-                        },
-                        child: SizedBox(width: 36, height: 36, child: Center(child: AppIcon('filters-dark', width: 15, height: 15, color: c.textSecondary))),
+          child: CustomScrollView(
+            controller: _scroll,
+            slivers: [
+              SliverToBoxAdapter(child: AppTopBar(title: l10n.galleryTitle)),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.galleryLibrary.toUpperCase(),
+                              style: TextStyle(
+                                fontFamily: AppTextStyles.family,
+                                fontSize: 12,
+                                height: 16 / 12,
+                                letterSpacing: 0.6,
+                                fontWeight: FontWeight.w500,
+                                color: c.textSecondary,
+                              ),
+                            ),
+                            Text(
+                              l10n.photoCount(count),
+                              style: AppTextStyles.title.copyWith(height: 32 / 24, letterSpacing: -0.6, color: c.textPrimary),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                      Tooltip(
+                        message: l10n.filterParams,
+                        child: Material(
+                          color: c.accent6,
+                          borderRadius: BorderRadius.circular(8),
+                          child: Pressable(
+                            borderRadius: BorderRadius.circular(8),
+                            onTap: () async {
+                              final next = await showFilterSheet(
+                                context,
+                                title: l10n.filterParams,
+                                applyLabel: l10n.apply,
+                                resetLabel: l10n.reset,
+                                values: _filters,
+                                sections: [
+                                  FilterSection(
+                                    key: 'date',
+                                    label: l10n.filterDate,
+                                    options: [ChipOption('1', l10n.dateToday), ChipOption('7', l10n.date7), ChipOption('30', l10n.date30)],
+                                  ),
+                                ],
+                              );
+                              if (next != null) {
+                                _filters = next;
+                                _reload();
+                              }
+                            },
+                            child: SizedBox(
+                              width: 36,
+                              height: 36,
+                              child: Center(child: AppIcon('filters-dark', width: 15, height: 15, color: c.textSecondary)),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ]),
+                ),
               ),
-            ),
-            if (_items.isEmpty && _loading)
-              // First load: a grid of placeholder tiles in the photo grid's own layout.
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-                sliver: SliverList.list(children: [
-                  const Bone(width: 120, height: 18),
-                  const SizedBox(height: 8),
-                  GridView.count(
-                    crossAxisCount: 4, mainAxisSpacing: 2, crossAxisSpacing: 2, shrinkWrap: true, padding: EdgeInsets.zero,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: [for (var i = 0; i < 12; i++) const Bone(radius: 0)],
+              if (_items.isEmpty && _loading)
+                // First load: a grid of placeholder tiles in the photo grid's own layout.
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+                  sliver: SliverList.list(
+                    children: [
+                      const Bone(width: 120, height: 18),
+                      const SizedBox(height: 8),
+                      GridView.count(
+                        crossAxisCount: 4,
+                        mainAxisSpacing: 2,
+                        crossAxisSpacing: 2,
+                        shrinkWrap: true,
+                        padding: EdgeInsets.zero,
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: [for (var i = 0; i < 12; i++) const Bone(radius: 0)],
+                      ),
+                    ],
                   ),
-                ]),
-              )
-            else if (_items.isEmpty && _error)
-              SliverFillRemaining(hasScrollBody: false, child: Center(child: LoadErrorView(onRetry: _reload)))
-            else if (_items.isEmpty)
-              SliverFillRemaining(hasScrollBody: false, child: Center(child: Text(l10n.noPhotos, style: TextStyle(color: c.textSecondary))))
-            else
-              PhotoDayGrid(photos: [for (final p in _items) _grid(p)], todayLabel: l10n.todayDate, onTap: (p) => context.push('/admin/gallery/${p.id}')),
-            if (_loading && _items.isNotEmpty) const SliverToBoxAdapter(child: Padding(padding: EdgeInsets.all(16), child: Center(child: CircularProgressIndicator.adaptive()))),
-            const SliverToBoxAdapter(child: SizedBox(height: 24)),
-          ]),
+                )
+              else if (_items.isEmpty && _error)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(child: LoadErrorView(onRetry: _reload)),
+                )
+              else if (_items.isEmpty)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Text(l10n.noPhotos, style: TextStyle(color: c.textSecondary)),
+                  ),
+                )
+              else
+                PhotoDayGrid(photos: [for (final p in _items) _grid(p)], todayLabel: l10n.todayDate, onTap: (p) => context.push('/admin/gallery/${p.id}')),
+              if (_loading && _items.isNotEmpty)
+                const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(child: CircularProgressIndicator.adaptive()),
+                  ),
+                ),
+              const SliverToBoxAdapter(child: SizedBox(height: 24)),
+            ],
+          ),
         ),
       ),
     );
@@ -163,7 +232,11 @@ class AdminPhotoDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final p = ref.watch(_photoProvider(photoId)).value;
-    if (p == null) return Scaffold(backgroundColor: context.colors.card, body: const SafeArea(child: AppTopBar()));
+    if (p == null)
+      return Scaffold(
+        backgroundColor: context.colors.card,
+        body: const SafeArea(child: AppTopBar()),
+      );
     final shop = (p['shop'] as Map?)?.cast<String, dynamic>();
     final audit = (p['audit'] as Map?)?.cast<String, dynamic>();
     final related = [for (final r in (p['related'] as List? ?? const []).cast<Map>()) _grid(r.cast<String, dynamic>())];

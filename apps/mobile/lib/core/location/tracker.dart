@@ -26,6 +26,7 @@ bool shouldCollect({required bool signedIn, required String workStatus, required
     final p = hhmm.split(':');
     return int.parse(p[0]) * 60 + int.parse(p[1]);
   }
+
   final m = now.hour * 60 + now.minute;
   return m >= minutes(workStart) && m < minutes(workEnd);
 }
@@ -72,9 +73,7 @@ class PingDecider {
       if (!inside && _inside.remove(z.id)) out.add(ping('GEOFENCE_EXIT'));
     }
     final last = _last;
-    final due = last == null ||
-        at.difference(_lastAt!) >= heartbeat ||
-        distanceMeters(last.lat, last.lng, fix.lat, fix.lng) >= minMove;
+    final due = last == null || at.difference(_lastAt!) >= heartbeat || distanceMeters(last.lat, last.lng, fix.lat, fix.lng) >= minMove;
     if (out.isEmpty && due) out.add(ping('HEARTBEAT'));
     if (out.isNotEmpty) {
       _last = fix;
@@ -93,37 +92,41 @@ class PingBuffer {
 
   static const batch = 200;
 
-  Future<void> add(Ping p) => _db.into(_db.pingsBuffer).insert(PingsBufferCompanion.insert(
-        recordedAt: p.recordedAt,
-        lat: p.fix.lat,
-        lng: p.fix.lng,
-        accuracyM: p.fix.accuracyM,
-        speedKmh: Value(p.speedKmh),
-        batteryPct: Value(p.batteryPct),
-        trigger: Value(p.trigger),
-      ));
+  Future<void> add(Ping p) => _db
+      .into(_db.pingsBuffer)
+      .insert(
+        PingsBufferCompanion.insert(
+          recordedAt: p.recordedAt,
+          lat: p.fix.lat,
+          lng: p.fix.lng,
+          accuracyM: p.fix.accuracyM,
+          speedKmh: Value(p.speedKmh),
+          batteryPct: Value(p.batteryPct),
+          trigger: Value(p.trigger),
+        ),
+      );
 
   Future<void> flush() => _db.transaction(() async {
-        final rows = await (_db.select(_db.pingsBuffer)..orderBy([(p) => OrderingTerm(expression: p.id)])).get();
-        for (var i = 0; i < rows.length; i += batch) {
-          final chunk = rows.sublist(i, i + batch > rows.length ? rows.length : i + batch);
-          await _outbox.enqueue(OutboxKind.pings, {
-            'pings': [
-              for (final r in chunk)
-                {
-                  'recordedAt': r.recordedAt.toUtc().toIso8601String(),
-                  'lat': r.lat,
-                  'lng': r.lng,
-                  'accuracyM': r.accuracyM,
-                  'speedKmh': ?r.speedKmh,
-                  'batteryPct': ?r.batteryPct,
-                  'trigger': r.trigger,
-                },
-            ],
-          });
-        }
-        if (rows.isNotEmpty) await _db.delete(_db.pingsBuffer).go();
+    final rows = await (_db.select(_db.pingsBuffer)..orderBy([(p) => OrderingTerm(expression: p.id)])).get();
+    for (var i = 0; i < rows.length; i += batch) {
+      final chunk = rows.sublist(i, i + batch > rows.length ? rows.length : i + batch);
+      await _outbox.enqueue(OutboxKind.pings, {
+        'pings': [
+          for (final r in chunk)
+            {
+              'recordedAt': r.recordedAt.toUtc().toIso8601String(),
+              'lat': r.lat,
+              'lng': r.lng,
+              'accuracyM': r.accuracyM,
+              'speedKmh': ?r.speedKmh,
+              'batteryPct': ?r.batteryPct,
+              'trigger': r.trigger,
+            },
+        ],
       });
+    }
+    if (rows.isNotEmpty) await _db.delete(_db.pingsBuffer).go();
+  });
 }
 
 /// Runs the location stream while [shouldCollect] holds; re-checked every minute and whenever the
@@ -153,8 +156,15 @@ class Tracker {
   Future<void> _evaluate() async {
     final user = _ref.read(sessionProvider).value;
     final config = _ref.read(remoteConfigProvider).value ?? const RemoteConfig();
-    final on = _ref.read(locationGrantedProvider) &&
-        shouldCollect(signedIn: user?.role == Role.agent, workStatus: config.workStatus, workStart: config.workStart, workEnd: config.workEnd, now: DateTime.now());
+    final on =
+        _ref.read(locationGrantedProvider) &&
+        shouldCollect(
+          signedIn: user?.role == Role.agent,
+          workStatus: config.workStatus,
+          workStart: config.workStart,
+          workEnd: config.workEnd,
+          now: DateTime.now(),
+        );
     if (!on) {
       _stopStream();
       await _flush();
@@ -184,8 +194,12 @@ class Tracker {
     try {
       battery = await _battery.batteryLevel;
     } catch (_) {}
-    final pings = _decider.onFix(Fix(lat: p.latitude, lng: p.longitude, accuracyM: p.accuracy), (at ?? p.timestamp).toUtc(),
-        speedKmh: p.speed >= 0 ? p.speed * 3.6 : null, batteryPct: battery);
+    final pings = _decider.onFix(
+      Fix(lat: p.latitude, lng: p.longitude, accuracyM: p.accuracy),
+      (at ?? p.timestamp).toUtc(),
+      speedKmh: p.speed >= 0 ? p.speed * 3.6 : null,
+      batteryPct: battery,
+    );
     final buffer = PingBuffer(_ref.read(databaseProvider), _ref.read(outboxProvider));
     for (final ping in pings) {
       await buffer.add(ping);
@@ -215,7 +229,12 @@ class Tracker {
         ),
       );
     }
-    return AppleSettings(accuracy: LocationAccuracy.high, distanceFilter: PingDecider.minMove.toInt(), showBackgroundLocationIndicator: true, pauseLocationUpdatesAutomatically: false);
+    return AppleSettings(
+      accuracy: LocationAccuracy.high,
+      distanceFilter: PingDecider.minMove.toInt(),
+      showBackgroundLocationIndicator: true,
+      pauseLocationUpdatesAutomatically: false,
+    );
   }
 }
 

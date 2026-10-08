@@ -11,14 +11,9 @@ import 'sync_api.dart';
 /// Drains the outbox (contracts/sync.md). After each success it starts again from the head, so
 /// items waiting on a dependency go right after it. Each item is tried at most once per run.
 class SyncEngine {
-  SyncEngine({
-    required this._db,
-    required this._api,
-    required this._outbox,
-    DateTime Function()? clock,
-    double Function()? jitter,
-  })  : _clock = clock ?? DateTime.now,
-        _jitter = jitter ?? (() => 0.8 + Random().nextDouble() * 0.4);
+  SyncEngine({required this._db, required this._api, required this._outbox, DateTime Function()? clock, double Function()? jitter})
+    : _clock = clock ?? DateTime.now,
+      _jitter = jitter ?? (() => 0.8 + Random().nextDouble() * 0.4);
 
   final AppDatabase _db;
   final SyncApi _api;
@@ -79,14 +74,14 @@ class SyncEngine {
           await _api.putFile(target, localPath, payload['mime']! as String);
           await _api.completeUpload(payload['id']! as String);
         }
-        await (_db.update(_db.photos)..where((p) => p.id.equals(payload['id']! as String)))
-            .write(PhotosCompanion(status: const Value('READY'), readyAt: Value(_clock())));
+        await (_db.update(
+          _db.photos,
+        )..where((p) => p.id.equals(payload['id']! as String))).write(PhotosCompanion(status: const Value('READY'), readyAt: Value(_clock())));
       case OutboxKind.shopCreate:
         await _api.createShop(payload);
       case OutboxKind.auditCreate:
         await _api.createAudit(payload);
-        await (_db.update(_db.audits)..where((a) => a.id.equals(payload['id']! as String)))
-            .write(const AuditsCompanion(synced: Value(true)));
+        await (_db.update(_db.audits)..where((a) => a.id.equals(payload['id']! as String))).write(const AuditsCompanion(synced: Value(true)));
       case OutboxKind.pings:
         await _api.sendPings((payload['pings']! as List).cast<Map<String, Object?>>());
     }

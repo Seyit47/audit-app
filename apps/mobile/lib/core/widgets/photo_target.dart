@@ -9,7 +9,15 @@ import 'tap.dart';
 
 /// "Empty State Photo Target" of `83:17207` (also the storefront target of `252:26487`).
 class PhotoEmptyTarget extends StatelessWidget {
-  const PhotoEmptyTarget({super.key, required this.title, required this.hint, required this.buttonLabel, required this.onTake, this.galleryLabel, this.onGallery});
+  const PhotoEmptyTarget({
+    super.key,
+    required this.title,
+    required this.hint,
+    required this.buttonLabel,
+    required this.onTake,
+    this.galleryLabel,
+    this.onGallery,
+  });
 
   /// "Открыть галерею" of the admin form (`252:25423`).
   final String? galleryLabel;
@@ -30,69 +38,93 @@ class PhotoEmptyTarget extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(color: c.accent6, borderRadius: BorderRadius.circular(12)),
-        child: Column(children: [
-          Container(
-            width: 48, height: 48, alignment: Alignment.center,
-            decoration: BoxDecoration(color: c.accent6, shape: BoxShape.circle, boxShadow: const [BoxShadow(color: Color(0x0D000000), offset: Offset(0, 1), blurRadius: 2)]),
-            child: const AppIcon('camera', width: 21.67, height: 19.5),
-          ),
-          const SizedBox(height: 8),
-          Text(title, textAlign: TextAlign.center, style: AppTextStyles.label.copyWith(color: c.textPrimary)),
-          const SizedBox(height: 4),
-          SizedBox(
-            width: 259,
-            child: Text(hint, textAlign: TextAlign.center,
-                style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 11, height: 17.88 / 11, color: c.textSecondary)),
-          ),
-          const SizedBox(height: 12),
-          Row(mainAxisSize: MainAxisSize.min, children: [
-          if (onGallery != null) ...[
-            Material(
-              color: c.card,
-              borderRadius: BorderRadius.circular(8),
-              elevation: 1,
-              shadowColor: const Color(0x1A000000),
-              child: Pressable(
-                borderRadius: BorderRadius.circular(8),
-                onTap: onGallery,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: SizedBox(
-                    height: 40,
-                    child: Row(mainAxisSize: MainAxisSize.min, children: [
-                      const AppIcon('gallery-fill', width: 18, height: 18),
-                      const SizedBox(width: 8),
-                      Text(galleryLabel ?? '', style: AppTextStyles.label.copyWith(color: c.accent)),
-                    ]),
+        child: Column(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: c.accent6,
+                shape: BoxShape.circle,
+                boxShadow: const [BoxShadow(color: Color(0x0D000000), offset: Offset(0, 1), blurRadius: 2)],
+              ),
+              child: const AppIcon('camera', width: 21.67, height: 19.5),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.label.copyWith(color: c.textPrimary),
+            ),
+            const SizedBox(height: 4),
+            SizedBox(
+              width: 259,
+              child: Text(
+                hint,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 11, height: 17.88 / 11, color: c.textSecondary),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (onGallery != null) ...[
+                  Material(
+                    color: c.card,
+                    borderRadius: BorderRadius.circular(8),
+                    elevation: 1,
+                    shadowColor: const Color(0x1A000000),
+                    child: Pressable(
+                      borderRadius: BorderRadius.circular(8),
+                      onTap: onGallery,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: SizedBox(
+                          height: 40,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const AppIcon('gallery-fill', width: 18, height: 18),
+                              const SizedBox(width: 8),
+                              Text(galleryLabel ?? '', style: AppTextStyles.label.copyWith(color: c.accent)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                ],
+                Material(
+                  color: c.accent,
+                  borderRadius: BorderRadius.circular(8),
+                  elevation: 2,
+                  shadowColor: const Color(0x33000000),
+                  child: Pressable(
+                    borderRadius: BorderRadius.circular(8),
+                    onTap: onTake,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: SizedBox(
+                        height: 40,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const AppIcon('camera-add', width: 16.5, height: 15),
+                            const SizedBox(width: 8),
+                            Text(buttonLabel, style: AppTextStyles.label.copyWith(color: Colors.white)),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-            const SizedBox(width: 12),
           ],
-          Material(
-            color: c.accent,
-            borderRadius: BorderRadius.circular(8),
-            elevation: 2,
-            shadowColor: const Color(0x33000000),
-            child: Pressable(
-              borderRadius: BorderRadius.circular(8),
-              onTap: onTake,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: SizedBox(
-                  height: 40,
-                  child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    const AppIcon('camera-add', width: 16.5, height: 15),
-                    const SizedBox(width: 8),
-                    Text(buttonLabel, style: AppTextStyles.label.copyWith(color: Colors.white)),
-                  ]),
-                ),
-              ),
-            ),
-          ),
-          ]),
-        ]),
+        ),
       ),
     );
   }

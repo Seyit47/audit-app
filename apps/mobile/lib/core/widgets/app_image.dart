@@ -25,9 +25,14 @@ class AppImage extends StatelessWidget {
     } else if (src.startsWith('/')) {
       image = Image.file(File(src), width: width, height: height, fit: fit, errorBuilder: (_, _, _) => placeholder);
     } else {
-      image = Image.network(src, width: width, height: height, fit: fit,
-          errorBuilder: (_, _, _) => placeholder,
-          loadingBuilder: (_, child, progress) => progress == null ? child : placeholder);
+      image = Image.network(
+        src,
+        width: width,
+        height: height,
+        fit: fit,
+        errorBuilder: (_, _, _) => placeholder,
+        loadingBuilder: (_, child, progress) => progress == null ? child : placeholder,
+      );
     }
     return ClipRRect(borderRadius: BorderRadius.circular(radius), child: image);
   }

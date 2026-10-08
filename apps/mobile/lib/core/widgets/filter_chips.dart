@@ -25,15 +25,24 @@ class FilterChips<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        clipBehavior: Clip.none,
-        child: Row(children: [
-          for (final (i, o) in options.indexed) ...[
-            if (i > 0) const SizedBox(width: 8),
-            Pill(label: o.label, selected: o.value == selected, tone: o.tone, onTap: () { if (o.value != selected) onSelected(o.value); }), // re-tapping the selected chip does nothing
-          ],
-        ]),
-      );
+    scrollDirection: Axis.horizontal,
+    clipBehavior: Clip.none,
+    child: Row(
+      children: [
+        for (final (i, o) in options.indexed) ...[
+          if (i > 0) const SizedBox(width: 8),
+          Pill(
+            label: o.label,
+            selected: o.value == selected,
+            tone: o.tone,
+            onTap: () {
+              if (o.value != selected) onSelected(o.value);
+            },
+          ), // re-tapping the selected chip does nothing
+        ],
+      ],
+    ),
+  );
 }
 
 class Pill extends StatelessWidget {
@@ -48,11 +57,25 @@ class Pill extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final error = tone == ChipTone.error && !selected;
-    final fg = selected ? Colors.white : error ? c.error : c.textSecondary;
-    final label = Row(mainAxisSize: MainAxisSize.min, children: [
-      if (error) ...[Container(width: 6, height: 6, decoration: BoxDecoration(color: c.error, shape: BoxShape.circle)), const SizedBox(width: 4)],
-      Text(this.label, style: AppTextStyles.label.copyWith(height: 1.5, color: fg)),
-    ]);
+    final fg = selected
+        ? Colors.white
+        : error
+        ? c.error
+        : c.textSecondary;
+    final label = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (error) ...[
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(color: c.error, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 4),
+        ],
+        Text(this.label, style: AppTextStyles.label.copyWith(height: 1.5, color: fg)),
+      ],
+    );
     if (context.isCupertino) {
       // iOS has no chips: a capsule CupertinoButton with the same colors.
       return Semantics(
@@ -62,9 +85,19 @@ class Pill extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           height: 30,
           decoration: BoxDecoration(
-            color: selected ? c.accent : error ? c.errorBg : c.chipBg,
+            color: selected
+                ? c.accent
+                : error
+                ? c.errorBg
+                : c.chipBg,
             borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: selected ? Colors.transparent : error ? c.errorStroke.withValues(alpha: 0.3) : c.chipBorder),
+            border: Border.all(
+              color: selected
+                  ? Colors.transparent
+                  : error
+                  ? c.errorStroke.withValues(alpha: 0.3)
+                  : c.chipBorder,
+            ),
           ),
           child: CupertinoButton(onPressed: onTap, padding: const EdgeInsets.symmetric(horizontal: 12), minimumSize: const Size(0, 30), child: label),
         ),
@@ -75,7 +108,11 @@ class Pill extends StatelessWidget {
       selected: selected,
       onSelected: (_) => onTap(),
       backgroundColor: error ? c.errorBg : null,
-      side: selected ? BorderSide.none : error ? BorderSide(color: c.errorStroke.withValues(alpha: Theme.of(context).brightness == Brightness.dark ? 0.3 : 0)) : null,
+      side: selected
+          ? BorderSide.none
+          : error
+          ? BorderSide(color: c.errorStroke.withValues(alpha: Theme.of(context).brightness == Brightness.dark ? 0.3 : 0))
+          : null,
       visualDensity: VisualDensity.compact,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );

@@ -18,17 +18,13 @@ final outboxProvider = Provider<OutboxRepository>((ref) => OutboxRepository(ref.
 
 final syncApiProvider = Provider<SyncApi>((ref) => HttpSyncApi(ref.watch(apiClientProvider)));
 
-final syncEngineProvider = Provider<SyncEngine>((ref) => SyncEngine(
-      db: ref.watch(databaseProvider),
-      api: ref.watch(syncApiProvider),
-      outbox: ref.watch(outboxProvider),
-    ));
+final syncEngineProvider = Provider<SyncEngine>(
+  (ref) => SyncEngine(db: ref.watch(databaseProvider), api: ref.watch(syncApiProvider), outbox: ref.watch(outboxProvider)),
+);
 
-final pullServiceProvider = Provider<PullService>((ref) => PullService(
-      db: ref.watch(databaseProvider),
-      api: ref.watch(syncApiProvider),
-      outbox: ref.watch(outboxProvider),
-    ));
+final pullServiceProvider = Provider<PullService>(
+  (ref) => PullService(db: ref.watch(databaseProvider), api: ref.watch(syncApiProvider), outbox: ref.watch(outboxProvider)),
+);
 
 class SyncState {
   const SyncState({this.running = false, this.lastPullAt});
@@ -87,10 +83,5 @@ final _openItemsProvider = StreamProvider<int>((ref) => ref.watch(outboxProvider
 /// "Данные синхронизированы" / "Синхронизация…" on Home and the audit screen.
 final syncStatusProvider = Provider<SyncStatus>((ref) {
   final sync = ref.watch(syncControllerProvider);
-  return syncStatusOf(
-    openItems: ref.watch(_openItemsProvider).value ?? 0,
-    running: sync.running,
-    lastPullAt: sync.lastPullAt,
-    now: DateTime.now(),
-  );
+  return syncStatusOf(openItems: ref.watch(_openItemsProvider).value ?? 0, running: sync.running, lastPullAt: sync.lastPullAt, now: DateTime.now());
 });

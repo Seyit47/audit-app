@@ -86,66 +86,149 @@ class _AgentsScreenState extends ConsumerState<AgentsScreen> {
     return Scaffold(
       backgroundColor: c.mainBg,
       body: SafeArea(
-        child: Column(children: [
-          AppTopBar(
-            title: l10n.agentsTitle,
-            count: _agents?.length,
-            action: HeaderButton(label: l10n.add, onPressed: () async {
-              if (await context.push<bool>('/admin/agents/new') == true) _load();
-            }),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            child: SearchField(
-              hint: l10n.search,
-              onChanged: (v) {
-                _debounce?.cancel();
-                _debounce = Timer(const Duration(milliseconds: 350), () { _q = v; _load(); });
-              },
-              filtersLabel: l10n.filters,
-              activeFilters: _filters.values.where((v) => v.isNotEmpty).length,
-              onFilters: () async {
-                final next = await showFilterSheet(context, title: l10n.filters, applyLabel: l10n.apply, resetLabel: l10n.reset, values: _filters, sections: [
-                  FilterSection(key: 'status', label: l10n.filterStatus, options: [
-                    ChipOption('ACTIVE', l10n.statusACTIVE), ChipOption('ON_LEAVE', l10n.offShift), ChipOption('INACTIVE', l10n.statusINACTIVE),
-                  ]),
-                  FilterSection(key: 'region', label: l10n.filterRegion, options: [for (final r in _regions) ChipOption(r['id'] as String, r['name'] as String)]),
-                ]);
-                if (next != null) { _filters = next; _load(); }
-              },
+        child: Column(
+          children: [
+            AppTopBar(
+              title: l10n.agentsTitle,
+              count: _agents?.length,
+              action: HeaderButton(
+                label: l10n.add,
+                onPressed: () async {
+                  if (await context.push<bool>('/admin/agents/new') == true) _load();
+                },
+              ),
             ),
-          ),
-          Expanded(
-            child: RefreshIndicator.adaptive(
-              onRefresh: _load,
-              child: ListView(padding: const EdgeInsets.fromLTRB(16, 0, 16, 48), children: [
-                if (s != null) ...[
-                  Row(children: [
-                    Expanded(child: StatTile(label: l10n.kpiStaff, value: n(s['activeStaff'] as num?), unit: l10n.people, icon: 'stat-team', iconSize: const Size(16.5, 12),
-                        footer: l10n.onShiftOf(pct(s['activePct'] as num?), (s['totalStaff'] as int?) ?? 0), footerIcon: 'stat-check', footerIconSize: const Size(10.83, 10.83))),
-                    const SizedBox(width: 12),
-                    Expanded(child: StatTile(label: l10n.kpiOnRoute, value: n(s['onRoute'] as num?), unit: l10n.online, icon: 'stat-route', iconSize: const Size(9.75, 16.12),
-                        footer: l10n.ofPool(pct(s['onRoutePct'] as num?)), footerIcon: 'stat-arrow-up', footerIconSize: const Size(8.67, 8.67), footerColor: c.accent)),
-                  ]),
-                  const SizedBox(height: 12),
-                  Row(children: [
-                    Expanded(child: StatTile(label: l10n.kpiAudits, value: n(s['audits'] as num?), unit: l10n.sheets, icon: 'stat-audits', iconSize: const Size(15, 13.5), iconBg: c.success10,
-                        footer: vs == null ? null : l10n.vsPlan('${vs > 0 ? '+' : ''}$vs'), footerIcon: 'stat-trend', footerIconSize: const Size(10.83, 6.5),
-                        footerColor: vs != null && vs < 0 ? c.error : c.success)),
-                    const SizedBox(width: 12),
-                    Expanded(child: StatTile(label: l10n.kpiPhotos, value: n(s['photos'] as num?), unit: l10n.frames, icon: 'stat-camera', iconSize: const Size(15, 13.5),
-                        footer: s['photosVerifiedPct'] == null ? null : l10n.validPhotos(pct(s['photosVerifiedPct'] as num?)))),
-                  ]),
-                  const SizedBox(height: 16),
-                ],
-                if (_error) LoadErrorView(onRetry: () { setState(() => _error = false); _load(); }),
-                if (_agents == null && !_error) const CardListSkeleton(),
-                if (_agents != null && _agents!.isEmpty) Padding(padding: const EdgeInsets.all(32), child: Center(child: Text(l10n.agentsEmpty, style: TextStyle(color: c.textSecondary)))),
-                for (final a in _agents ?? const <Json>[]) ...[_card(context, l10n, a), const SizedBox(height: 16)],
-              ]),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: SearchField(
+                hint: l10n.search,
+                onChanged: (v) {
+                  _debounce?.cancel();
+                  _debounce = Timer(const Duration(milliseconds: 350), () {
+                    _q = v;
+                    _load();
+                  });
+                },
+                filtersLabel: l10n.filters,
+                activeFilters: _filters.values.where((v) => v.isNotEmpty).length,
+                onFilters: () async {
+                  final next = await showFilterSheet(
+                    context,
+                    title: l10n.filters,
+                    applyLabel: l10n.apply,
+                    resetLabel: l10n.reset,
+                    values: _filters,
+                    sections: [
+                      FilterSection(
+                        key: 'status',
+                        label: l10n.filterStatus,
+                        options: [ChipOption('ACTIVE', l10n.statusACTIVE), ChipOption('ON_LEAVE', l10n.offShift), ChipOption('INACTIVE', l10n.statusINACTIVE)],
+                      ),
+                      FilterSection(
+                        key: 'region',
+                        label: l10n.filterRegion,
+                        options: [for (final r in _regions) ChipOption(r['id'] as String, r['name'] as String)],
+                      ),
+                    ],
+                  );
+                  if (next != null) {
+                    _filters = next;
+                    _load();
+                  }
+                },
+              ),
             ),
-          ),
-        ]),
+            Expanded(
+              child: RefreshIndicator.adaptive(
+                onRefresh: _load,
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 48),
+                  children: [
+                    if (s != null) ...[
+                      Row(
+                        children: [
+                          Expanded(
+                            child: StatTile(
+                              label: l10n.kpiStaff,
+                              value: n(s['activeStaff'] as num?),
+                              unit: l10n.people,
+                              icon: 'stat-team',
+                              iconSize: const Size(16.5, 12),
+                              footer: l10n.onShiftOf(pct(s['activePct'] as num?), (s['totalStaff'] as int?) ?? 0),
+                              footerIcon: 'stat-check',
+                              footerIconSize: const Size(10.83, 10.83),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: StatTile(
+                              label: l10n.kpiOnRoute,
+                              value: n(s['onRoute'] as num?),
+                              unit: l10n.online,
+                              icon: 'stat-route',
+                              iconSize: const Size(9.75, 16.12),
+                              footer: l10n.ofPool(pct(s['onRoutePct'] as num?)),
+                              footerIcon: 'stat-arrow-up',
+                              footerIconSize: const Size(8.67, 8.67),
+                              footerColor: c.accent,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: StatTile(
+                              label: l10n.kpiAudits,
+                              value: n(s['audits'] as num?),
+                              unit: l10n.sheets,
+                              icon: 'stat-audits',
+                              iconSize: const Size(15, 13.5),
+                              iconBg: c.success10,
+                              footer: vs == null ? null : l10n.vsPlan('${vs > 0 ? '+' : ''}$vs'),
+                              footerIcon: 'stat-trend',
+                              footerIconSize: const Size(10.83, 6.5),
+                              footerColor: vs != null && vs < 0 ? c.error : c.success,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: StatTile(
+                              label: l10n.kpiPhotos,
+                              value: n(s['photos'] as num?),
+                              unit: l10n.frames,
+                              icon: 'stat-camera',
+                              iconSize: const Size(15, 13.5),
+                              footer: s['photosVerifiedPct'] == null ? null : l10n.validPhotos(pct(s['photosVerifiedPct'] as num?)),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    if (_error)
+                      LoadErrorView(
+                        onRetry: () {
+                          setState(() => _error = false);
+                          _load();
+                        },
+                      ),
+                    if (_agents == null && !_error) const CardListSkeleton(),
+                    if (_agents != null && _agents!.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.all(32),
+                        child: Center(
+                          child: Text(l10n.agentsEmpty, style: TextStyle(color: c.textSecondary)),
+                        ),
+                      ),
+                    for (final a in _agents ?? const <Json>[]) ...[_card(context, l10n, a), const SizedBox(height: 16)],
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -158,22 +241,25 @@ class _AgentsScreenState extends ConsumerState<AgentsScreen> {
       titleTrailing: Tag(a['code'] as String),
       subtitle: Padding(
         padding: const EdgeInsets.only(top: 4),
-        child: Row(children: [
-          IconLine(icon: 'pin-small', text: l10n.locations((a['locations'] as int?) ?? 0)),
-          const SizedBox(width: 12),
-          IconLine(icon: 'camera-small', iconSize: const Size(12, 11), text: l10n.photosShort((a['photos'] as int?) ?? 0)),
-        ]),
+        child: Row(
+          children: [
+            IconLine(icon: 'pin-small', text: l10n.locations((a['locations'] as int?) ?? 0)),
+            const SizedBox(width: 12),
+            IconLine(icon: 'camera-small', iconSize: const Size(12, 11), text: l10n.photosShort((a['photos'] as int?) ?? 0)),
+          ],
+        ),
       ),
-      footer: IconLine(icon: 'clock', iconSize: const Size(13.33, 13.33),
-          text: at == null ? l10n.noActivity : l10n.lastActivity(_when(context, l10n, DateTime.parse(at)))),
+      footer: IconLine(
+        icon: 'clock',
+        iconSize: const Size(13.33, 13.33),
+        text: at == null ? l10n.noActivity : l10n.lastActivity(_when(context, l10n, DateTime.parse(at))),
+      ),
       detailsLabel: l10n.details,
       onDetails: () => context.push('/admin/agents/${a['id']}'),
       callLabel: l10n.callAgent,
       onCall: () => call(a['phone'] as String),
       navigateLabel: l10n.navigate,
-      onNavigate: position == null
-          ? null
-          : () => openInMaps((position['lat'] as num).toDouble(), (position['lng'] as num).toDouble(), a['fullName'] as String),
+      onNavigate: position == null ? null : () => openInMaps((position['lat'] as num).toDouble(), (position['lng'] as num).toDouble(), a['fullName'] as String),
     );
   }
 

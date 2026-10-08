@@ -82,12 +82,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get errorCredentials => 'Неверный логин или пароль';
 
   @override
-  String get errorDeviceNotBound =>
-      'Аккаунт привязан к другому устройству. Обратитесь к администратору.';
+  String get errorDeviceNotBound => 'Аккаунт привязан к другому устройству. Обратитесь к администратору.';
 
   @override
-  String get errorRateLimited =>
-      'Слишком много попыток. Попробуйте через минуту.';
+  String get errorRateLimited => 'Слишком много попыток. Попробуйте через минуту.';
 
   @override
   String get errorNetwork => 'Нет соединения с сервером';
@@ -109,8 +107,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get permissionSettings => 'Открыть настройки';
 
   @override
-  String get permissionDenied =>
-      'Без доступа к геолокации аудит недоступен. Разрешите доступ в настройках.';
+  String get permissionDenied => 'Без доступа к геолокации аудит недоступен. Разрешите доступ в настройках.';
 
   @override
   String get cancel => 'Отмена';
@@ -304,8 +301,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get startAudit => 'Начать Аудит';
 
   @override
-  String get auditOnlyOnSite =>
-      'Начать аудит можно только на территории магазина';
+  String get auditOnlyOnSite => 'Начать аудит можно только на территории магазина';
 
   @override
   String get locating => 'Определяем местоположение…';
@@ -339,8 +335,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get photoEmptyTitle => 'Фото POSM ещё не сделано';
 
   @override
-  String get photoEmptyHint =>
-      'Сфотографируйте постеры, воблеры, ценники и шелфтокеры в зоне видимости покупателя';
+  String get photoEmptyHint => 'Сфотографируйте постеры, воблеры, ценники и шелфтокеры в зоне видимости покупателя';
 
   @override
   String get takePhoto => 'Сделать фото';
@@ -352,8 +347,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get auditComment => 'Комментарий к аудиту';
 
   @override
-  String get auditCommentHint =>
-      'Напишите замечания или дополнительную информацию о состоянии торговой точки...';
+  String get auditCommentHint => 'Напишите замечания или дополнительную информацию о состоянии торговой точки...';
 
   @override
   String get violationChip => 'Нарушение';
@@ -603,8 +597,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get selectAgent => 'Выберите агента';
 
   @override
-  String get saveFailed =>
-      'Не удалось сохранить. Проверьте поля и попробуйте ещё раз.';
+  String get saveFailed => 'Не удалось сохранить. Проверьте поля и попробуйте ещё раз.';
 
   @override
   String get agentsTitle => 'Агенты';
@@ -832,8 +825,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get agentCreated => 'Агент добавлен';
 
   @override
-  String get tempPassword =>
-      'Временный пароль (показывается один раз, передайте его агенту):';
+  String get tempPassword => 'Временный пароль (показывается один раз, передайте его агенту):';
 
   @override
   String get done => 'Готово';

@@ -15,5 +15,4 @@ final positionProvider = StreamProvider<Position?>((ref) async* {
 });
 
 /// Meters from the device to a point, or null without a fix.
-double? distanceTo(Position? p, double lat, double lng) =>
-    p == null ? null : Geolocator.distanceBetween(p.latitude, p.longitude, lat, lng);
+double? distanceTo(Position? p, double lat, double lng) => p == null ? null : Geolocator.distanceBetween(p.latitude, p.longitude, lat, lng);

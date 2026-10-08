@@ -26,7 +26,11 @@ class ThemeToggle extends StatelessWidget {
         label: tooltip,
         button: true,
         child: DecoratedBox(
-          decoration: BoxDecoration(color: c.toggleBg, shape: BoxShape.circle, border: Border.all(color: c.toggleBorder)),
+          decoration: BoxDecoration(
+            color: c.toggleBg,
+            shape: BoxShape.circle,
+            border: Border.all(color: c.toggleBorder),
+          ),
           child: CupertinoButton(onPressed: onPressed, padding: EdgeInsets.zero, minimumSize: const Size.square(36), child: icon),
         ),
       );
@@ -62,14 +66,25 @@ class LocaleToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final track = BoxDecoration(color: c.white5, border: Border.all(color: c.toggleBorder), borderRadius: BorderRadius.circular(999));
+    final track = BoxDecoration(
+      color: c.white5,
+      border: Border.all(color: c.toggleBorder),
+      borderRadius: BorderRadius.circular(999),
+    );
     Widget label(String code) {
       final on = code == value;
-      return Row(mainAxisSize: MainAxisSize.min, children: [
-        if (on) ...[const AppIcon('radio-dot', width: 12, height: 12), const SizedBox(width: 4)],
-        Text(code.toUpperCase(), style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.w500, height: 16 / 12, color: on ? const Color(0xFFFCFDFF) : c.toggleOff)),
-      ]);
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (on) ...[const AppIcon('radio-dot', width: 12, height: 12), const SizedBox(width: 4)],
+          Text(
+            code.toUpperCase(),
+            style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.w500, height: 16 / 12, color: on ? const Color(0xFFFCFDFF) : c.toggleOff),
+          ),
+        ],
+      );
     }
+
     if (context.isCupertino) {
       return DecoratedBox(
         decoration: track,
@@ -78,8 +93,17 @@ class LocaleToggle extends StatelessWidget {
           thumbColor: c.accent,
           backgroundColor: const Color(0x00000000),
           padding: const EdgeInsets.all(2),
-          onValueChanged: (code) { if (code != null && code != value) onChanged(code); },
-          children: {for (final code in _codes) code: SizedBox(width: _segment - 4, height: 28, child: Center(child: label(code)))},
+          onValueChanged: (code) {
+            if (code != null && code != value) onChanged(code);
+          },
+          children: {
+            for (final code in _codes)
+              code: SizedBox(
+                width: _segment - 4,
+                height: 28,
+                child: Center(child: label(code)),
+              ),
+          },
         ),
       );
     }
@@ -89,37 +113,45 @@ class LocaleToggle extends StatelessWidget {
       width: _segment * _codes.length + 6, // + 2 px padding and 1 px border on each side
       padding: const EdgeInsets.all(2),
       decoration: track,
-      child: Stack(children: [
-        // The pill slides between the halves.
-        AnimatedAlign(
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeOutCubic,
-          alignment: index == 0 ? Alignment.centerLeft : Alignment.centerRight,
-          child: Container(
-            width: _segment,
-            decoration: BoxDecoration(
-              color: c.accent,
-              borderRadius: BorderRadius.circular(999),
-              boxShadow: const [BoxShadow(color: Color(0x0D000000), offset: Offset(0, 1), blurRadius: 2)],
-            ),
-          ),
-        ),
-        Row(children: [
-          for (final code in _codes)
-            SizedBox(
+      child: Stack(
+        children: [
+          // The pill slides between the halves.
+          AnimatedAlign(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutCubic,
+            alignment: index == 0 ? Alignment.centerLeft : Alignment.centerRight,
+            child: Container(
               width: _segment,
-              child: Material(
-                type: MaterialType.transparency,
-                shape: const StadiumBorder(),
-                clipBehavior: Clip.antiAlias,
-                child: InkWell(
-                  onTap: code == value ? null : () => onChanged(code),
-                  child: Semantics(selected: code == value, button: true, child: Center(child: label(code))),
-                ),
+              decoration: BoxDecoration(
+                color: c.accent,
+                borderRadius: BorderRadius.circular(999),
+                boxShadow: const [BoxShadow(color: Color(0x0D000000), offset: Offset(0, 1), blurRadius: 2)],
               ),
             ),
-        ]),
-      ]),
+          ),
+          Row(
+            children: [
+              for (final code in _codes)
+                SizedBox(
+                  width: _segment,
+                  child: Material(
+                    type: MaterialType.transparency,
+                    shape: const StadiumBorder(),
+                    clipBehavior: Clip.antiAlias,
+                    child: InkWell(
+                      onTap: code == value ? null : () => onChanged(code),
+                      child: Semantics(
+                        selected: code == value,
+                        button: true,
+                        child: Center(child: label(code)),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -137,15 +169,31 @@ class SyncStatusBadge extends StatelessWidget {
     final dark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: dark ? const EdgeInsets.symmetric(horizontal: 16, vertical: 8) : const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(color: c.syncBadgeBg, border: Border.all(color: c.syncBadgeBorder), borderRadius: BorderRadius.circular(9999)),
-      child: Row(mainAxisSize: MainAxisSize.min, children: [
-        if (syncing)
-          SizedBox.square(dimension: 10, child: CircularProgressIndicator.adaptive(strokeWidth: 1.5, valueColor: AlwaysStoppedAnimation(c.accent)))
-        else
-          AppIcon(dark ? 'sync-cloud-dark' : 'sync-cloud', width: 13.75, height: 10),
-        const SizedBox(width: 8),
-        Text(label, style: TextStyle(fontFamily: dark ? AppTextStyles.mono : AppTextStyles.family, fontSize: 12, height: 16 / 12, fontWeight: dark ? FontWeight.w400 : FontWeight.w500, color: c.textSecondary)),
-      ]),
+      decoration: BoxDecoration(
+        color: c.syncBadgeBg,
+        border: Border.all(color: c.syncBadgeBorder),
+        borderRadius: BorderRadius.circular(9999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (syncing)
+            SizedBox.square(dimension: 10, child: CircularProgressIndicator.adaptive(strokeWidth: 1.5, valueColor: AlwaysStoppedAnimation(c.accent)))
+          else
+            AppIcon(dark ? 'sync-cloud-dark' : 'sync-cloud', width: 13.75, height: 10),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: TextStyle(
+              fontFamily: dark ? AppTextStyles.mono : AppTextStyles.family,
+              fontSize: 12,
+              height: 16 / 12,
+              fontWeight: dark ? FontWeight.w400 : FontWeight.w500,
+              color: c.textSecondary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -158,19 +206,19 @@ class HomeGlow extends StatelessWidget {
   Widget build(BuildContext context) {
     final g = context.colors.glow;
     Widget blob(double left, double top, double size, Color color) => Positioned(
-          left: left,
-          top: top,
-          child: ImageFiltered(
-            imageFilter: ImageFilter.blur(sigmaX: 32, sigmaY: 32),
-            child: Container(width: size, height: size, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
-          ),
-        );
+      left: left,
+      top: top,
+      child: ImageFiltered(
+        imageFilter: ImageFilter.blur(sigmaX: 32, sigmaY: 32),
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+      ),
+    );
     return IgnorePointer(
-      child: Stack(clipBehavior: Clip.hardEdge, children: [
-        blob(3, -96, 384, g[0]),
-        blob(188, 438, 320, g[1]),
-        blob(-76, 470, 288, g[2]),
-      ]),
+      child: Stack(clipBehavior: Clip.hardEdge, children: [blob(3, -96, 384, g[0]), blob(188, 438, 320, g[1]), blob(-76, 470, 288, g[2])]),
     );
   }
 }

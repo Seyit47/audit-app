@@ -33,20 +33,20 @@ Future<FilterValues?> showFilterSheet(
 }) =>
     // iOS: a Cupertino modal popup (iOS motion and dimming); Android: a Material modal bottom sheet.
     context.isCupertino
-        ? showCupertinoModalPopup<FilterValues>(
-            context: context,
-            builder: (_) => Material(
-              type: MaterialType.transparency,
-              child: _FilterSheet(title: title, sections: sections, initial: values, applyLabel: applyLabel, resetLabel: resetLabel),
-            ),
-          )
-        : showModalBottomSheet<FilterValues>(
-            context: context,
-            isScrollControlled: true,
-            showDragHandle: false,
-            backgroundColor: Colors.transparent,
-            builder: (_) => _FilterSheet(title: title, sections: sections, initial: values, applyLabel: applyLabel, resetLabel: resetLabel),
-          );
+    ? showCupertinoModalPopup<FilterValues>(
+        context: context,
+        builder: (_) => Material(
+          type: MaterialType.transparency,
+          child: _FilterSheet(title: title, sections: sections, initial: values, applyLabel: applyLabel, resetLabel: resetLabel),
+        ),
+      )
+    : showModalBottomSheet<FilterValues>(
+        context: context,
+        isScrollControlled: true,
+        showDragHandle: false,
+        backgroundColor: Colors.transparent,
+        builder: (_) => _FilterSheet(title: title, sections: sections, initial: values, applyLabel: applyLabel, resetLabel: resetLabel),
+      );
 
 class _FilterSheet extends StatefulWidget {
   const _FilterSheet({required this.title, required this.sections, required this.initial, required this.applyLabel, required this.resetLabel});
@@ -62,39 +62,55 @@ class _FilterSheet extends StatefulWidget {
 }
 
 class _FilterSheetState extends State<_FilterSheet> {
-  late final FilterValues values = {for (final s in widget.sections) s.key: {...?widget.initial[s.key]}};
+  late final FilterValues values = {
+    for (final s in widget.sections) s.key: {...?widget.initial[s.key]},
+  };
 
   void toggle(FilterSection s, String v) => setState(() {
-        final set = values[s.key]!;
-        if (set.contains(v)) {
-          set.remove(v);
-        } else {
-          if (!s.multi) set.clear();
-          set.add(v);
-        }
-      });
+    final set = values[s.key]!;
+    if (set.contains(v)) {
+      set.remove(v);
+    } else {
+      if (!s.multi) set.clear();
+      set.add(v);
+    }
+  });
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     return BottomSheetCard(
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, mainAxisSize: MainAxisSize.min, children: [
-        Text(widget.title, style: AppTextStyles.heading.copyWith(color: c.textPrimary)),
-        const SizedBox(height: 12),
-        for (final s in widget.sections) ...[
-          Text(s.label, style: AppTextStyles.label.copyWith(color: c.textSecondary)),
-          const SizedBox(height: 8),
-          Wrap(spacing: 8, runSpacing: 8, children: [
-            for (final o in s.options) Pill(label: o.label, tone: o.tone, selected: values[s.key]!.contains(o.value), onTap: () => toggle(s, o.value)),
-          ]),
-          const SizedBox(height: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(widget.title, style: AppTextStyles.heading.copyWith(color: c.textPrimary)),
+          const SizedBox(height: 12),
+          for (final s in widget.sections) ...[
+            Text(s.label, style: AppTextStyles.label.copyWith(color: c.textSecondary)),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final o in s.options) Pill(label: o.label, tone: o.tone, selected: values[s.key]!.contains(o.value), onTap: () => toggle(s, o.value)),
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
+          Row(
+            children: [
+              Expanded(
+                child: SecondaryButton(label: widget.resetLabel, onPressed: () => Navigator.pop(context, <String, Set<String>>{})),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: PrimaryButton(label: widget.applyLabel, onPressed: () => Navigator.pop(context, values)),
+              ),
+            ],
+          ),
         ],
-        Row(children: [
-          Expanded(child: SecondaryButton(label: widget.resetLabel, onPressed: () => Navigator.pop(context, <String, Set<String>>{}))),
-          const SizedBox(width: 12),
-          Expanded(child: PrimaryButton(label: widget.applyLabel, onPressed: () => Navigator.pop(context, values))),
-        ]),
-      ]),
+      ),
     );
   }
 }

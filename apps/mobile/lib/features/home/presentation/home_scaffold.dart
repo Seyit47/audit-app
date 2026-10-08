@@ -23,47 +23,52 @@ class HomeScaffold extends ConsumerWidget {
     final dark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      body: Stack(children: [
-        const Positioned.fill(child: HomeGlow()),
-        SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
-            child: Column(children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 4),
-                child: Row(children: [
-                  AppMenuButton<String>(
-                    tooltip: l10n.account,
-                    choices: [MenuChoice('signOut', l10n.signOut, destructive: true)],
-                    onSelected: (_) => ref.read(signOutServiceProvider).signOut(),
-                    child: const AppIcon('avatar', width: 36, height: 36),
+      body: Stack(
+        children: [
+          const Positioned.fill(child: HomeGlow()),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: Row(
+                      children: [
+                        AppMenuButton<String>(
+                          tooltip: l10n.account,
+                          choices: [MenuChoice('signOut', l10n.signOut, destructive: true)],
+                          onSelected: (_) => ref.read(signOutServiceProvider).signOut(),
+                          child: const AppIcon('avatar', width: 36, height: 36),
+                        ),
+                        const Spacer(),
+                        ThemeToggle(
+                          tooltip: l10n.toggleTheme,
+                          onPressed: () => ref.read(themeModeProvider.notifier).set(dark ? ThemeMode.light : ThemeMode.dark),
+                        ),
+                        const SizedBox(width: 8),
+                        LocaleToggle(value: locale.languageCode, onChanged: (code) => ref.read(localeProvider.notifier).set(Locale(code))),
+                      ],
+                    ),
                   ),
-                  const Spacer(),
-                  ThemeToggle(
-                    tooltip: l10n.toggleTheme,
-                    onPressed: () => ref.read(themeModeProvider.notifier).set(dark ? ThemeMode.light : ThemeMode.dark),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.only(top: 50),
+                      child: Column(
+                        children: [
+                          for (final (i, tile) in tiles.indexed) ...[if (i > 0) const SizedBox(height: 16), tile],
+                        ],
+                      ),
+                    ),
                   ),
-                  const SizedBox(width: 8),
-                  LocaleToggle(
-                    value: locale.languageCode,
-                    onChanged: (code) => ref.read(localeProvider.notifier).set(Locale(code)),
-                  ),
-                ]),
+                  const SizedBox(height: 16),
+                  SyncStatusBadge(label: syncing ? l10n.syncRunning : l10n.syncDone, syncing: syncing),
+                ],
               ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.only(top: 50),
-                  child: Column(children: [
-                    for (final (i, tile) in tiles.indexed) ...[if (i > 0) const SizedBox(height: 16), tile],
-                  ]),
-                ),
-              ),
-              const SizedBox(height: 16),
-              SyncStatusBadge(label: syncing ? l10n.syncRunning : l10n.syncDone, syncing: syncing),
-            ]),
+            ),
           ),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 }

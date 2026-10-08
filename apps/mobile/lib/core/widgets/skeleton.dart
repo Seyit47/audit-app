@@ -40,11 +40,7 @@ class _BoneState extends State<Bone> with SingleTickerProviderStateMixin {
           height: widget.height,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(widget.radius),
-            gradient: LinearGradient(
-              begin: Alignment(t - 1, 0),
-              end: Alignment(t + 1, 0),
-              colors: [base, light, base],
-            ),
+            gradient: LinearGradient(begin: Alignment(t - 1, 0), end: Alignment(t + 1, 0), colors: [base, light, base]),
           ),
         );
       },
@@ -63,25 +59,36 @@ class CardListSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    return Column(children: [
-      for (var i = 0; i < count; i++) ...[
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(color: c.card, borderRadius: BorderRadius.circular(16), border: Border.all(color: c.cardBorder)),
-          child: Row(children: [
-            const Bone(width: 44, height: 44, radius: 12),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                const Bone(width: 160, height: 14),
-                for (var l = 1; l < lines + 1; l++) ...[const SizedBox(height: 8), Bone(width: l.isOdd ? 220 : 120, height: 10)],
-              ]),
+    return Column(
+      children: [
+        for (var i = 0; i < count; i++) ...[
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: c.card,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: c.cardBorder),
             ),
-          ]),
-        ),
-        const SizedBox(height: 16),
+            child: Row(
+              children: [
+                const Bone(width: 44, height: 44, radius: 12),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Bone(width: 160, height: 14),
+                      for (var l = 1; l < lines + 1; l++) ...[const SizedBox(height: 8), Bone(width: l.isOdd ? 220 : 120, height: 10)],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
       ],
-    ]);
+    );
   }
 }
 
@@ -98,17 +105,24 @@ class LoadErrorView extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Padding(
       padding: padding,
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Text(l10n.loadError, textAlign: TextAlign.center, style: TextStyle(fontFamily: AppTextStyles.family, color: c.textSecondary)),
-        const SizedBox(height: 8),
-        TextLink(
-          onTap: onRetry,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Text(l10n.retry, style: AppTextStyles.label.copyWith(color: c.accent)),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            l10n.loadError,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontFamily: AppTextStyles.family, color: c.textSecondary),
           ),
-        ),
-      ]),
+          const SizedBox(height: 8),
+          TextLink(
+            onTap: onRetry,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Text(l10n.retry, style: AppTextStyles.label.copyWith(color: c.accent)),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

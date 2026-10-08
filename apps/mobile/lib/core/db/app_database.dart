@@ -29,6 +29,7 @@ class Shops extends Table {
   TextColumn get status => text()();
   DateTimeColumn get lastVisitAt => dateTime().nullable()();
   DateTimeColumn get nextDueAt => dateTime().nullable()();
+
   /// Latest visits as served by `/shops` (shop details history), JSON array.
   TextColumn get latestVisitsJson => text().withDefault(const Constant('[]'))();
   DateTimeColumn get updatedAt => dateTime()();
@@ -96,6 +97,7 @@ class Photos extends Table {
   TextColumn get kind => text()();
   TextColumn get auditId => text().nullable()();
   TextColumn get shopId => text().nullable()();
+
   /// File in the app documents directory until the server confirms READY (+7 days).
   TextColumn get localPath => text().nullable()();
   TextColumn get url => text().nullable()();
@@ -138,6 +140,7 @@ class Outbox extends Table {
   TextColumn get id => text()();
   TextColumn get kind => textEnum<OutboxKind>()();
   TextColumn get payloadJson => text()();
+
   /// Outbox ids that must be done first, JSON array.
   TextColumn get dependsOn => text().withDefault(const Constant('[]'))();
   DateTimeColumn get createdAt => dateTime()();
@@ -179,21 +182,21 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-        onUpgrade: (m, from, to) async {
-          if (from < 2) await m.createTable(auditDrafts);
-        },
-        beforeOpen: (_) => customStatement('PRAGMA foreign_keys = ON'),
-      );
+    onUpgrade: (m, from, to) async {
+      if (from < 2) await m.createTable(auditDrafts);
+    },
+    beforeOpen: (_) => customStatement('PRAGMA foreign_keys = ON'),
+  );
 
   /// Removes everything (sign-out wipe). Theme and locale live in shared preferences.
   Future<void> wipe() => transaction(() async {
-        for (final table in allTables.toList().reversed) {
-          await delete(table).go();
-        }
-      });
+    for (final table in allTables.toList().reversed) {
+      await delete(table).go();
+    }
+  });
 
   static QueryExecutor _open() => LazyDatabase(() async {
-        final dir = await getApplicationDocumentsDirectory();
-        return NativeDatabase.createInBackground(File(p.join(dir.path, 'audit.sqlite')));
-      });
+    final dir = await getApplicationDocumentsDirectory();
+    return NativeDatabase.createInBackground(File(p.join(dir.path, 'audit.sqlite')));
+  });
 }

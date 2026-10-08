@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 /// Uses the theme's platform rather than the OS directly, so tests and debug tools can render either.
 extension AdaptivePlatform on BuildContext {
   bool get isCupertino => switch (Theme.of(this).platform) {
-        TargetPlatform.iOS || TargetPlatform.macOS => true,
-        _ => false,
-      };
+    TargetPlatform.iOS || TargetPlatform.macOS => true,
+    _ => false,
+  };
 }
 
 /// A choice in an [AppMenuButton].
@@ -68,7 +68,10 @@ class AppMenuButton<T> extends StatelessWidget {
       position: PopupMenuPosition.under,
       itemBuilder: (_) => [
         for (final ch in choices)
-          PopupMenuItem(value: ch.value, child: Text(ch.label, style: ch.destructive ? TextStyle(color: Theme.of(context).colorScheme.error) : null)),
+          PopupMenuItem(
+            value: ch.value,
+            child: Text(ch.label, style: ch.destructive ? TextStyle(color: Theme.of(context).colorScheme.error) : null),
+          ),
       ],
       child: child,
     );
@@ -97,12 +100,11 @@ Future<T?> showAppDialog<T>({
   required Widget content,
   required List<Widget> Function(BuildContext dialog) actions,
   bool barrierDismissible = true,
-}) =>
-    showAdaptiveDialog<T>(
-      context: context,
-      barrierDismissible: barrierDismissible,
-      builder: (dialog) => AlertDialog.adaptive(title: title, content: content, actions: actions(dialog)),
-    );
+}) => showAdaptiveDialog<T>(
+  context: context,
+  barrierDismissible: barrierDismissible,
+  builder: (dialog) => AlertDialog.adaptive(title: title, content: content, actions: actions(dialog)),
+);
 
 /// A single choice from a list: Material dropdown on Android, a [CupertinoPicker] wheel in a bottom popup
 /// on iOS. Shown with the same 44 px field look as the text inputs.
@@ -124,7 +126,13 @@ class AppSelect<T> extends StatelessWidget {
         initialValue: value,
         isExpanded: true,
         hint: hint == null ? null : Text(hint!, style: text?.copyWith(color: scheme.onSurfaceVariant)),
-        items: [for (final (v, label) in items) DropdownMenuItem(value: v, child: Text(label, overflow: TextOverflow.ellipsis))],
+        items: [
+          for (final (v, label) in items)
+            DropdownMenuItem(
+              value: v,
+              child: Text(label, overflow: TextOverflow.ellipsis),
+            ),
+        ],
         onChanged: onChanged,
       );
     }
@@ -142,23 +150,25 @@ class AppSelect<T> extends StatelessWidget {
             color: CupertinoColors.systemBackground.resolveFrom(popup),
             child: SafeArea(
               top: false,
-              child: Column(children: [
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: CupertinoButton(
-                    onPressed: () => Navigator.pop(popup, index),
-                    child: Text(doneLabel ?? MaterialLocalizations.of(popup).okButtonLabel),
+              child: Column(
+                children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: CupertinoButton(
+                      onPressed: () => Navigator.pop(popup, index),
+                      child: Text(doneLabel ?? MaterialLocalizations.of(popup).okButtonLabel),
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: CupertinoPicker(
-                    itemExtent: 36,
-                    scrollController: FixedExtentScrollController(initialItem: index),
-                    onSelectedItemChanged: (i) => index = i,
-                    children: [for (final (_, label) in items) Center(child: Text(label))],
+                  Expanded(
+                    child: CupertinoPicker(
+                      itemExtent: 36,
+                      scrollController: FixedExtentScrollController(initialItem: index),
+                      onSelectedItemChanged: (i) => index = i,
+                      children: [for (final (_, label) in items) Center(child: Text(label))],
+                    ),
                   ),
-                ),
-              ]),
+                ],
+              ),
             ),
           ),
         );
@@ -172,16 +182,18 @@ class AppSelect<T> extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: (input.enabledBorder as OutlineInputBorder?)?.borderSide.color ?? scheme.outline),
         ),
-        child: Row(children: [
-          Expanded(
-            child: Text(
-              current?.$2 ?? hint ?? '',
-              overflow: TextOverflow.ellipsis,
-              style: text?.copyWith(color: current == null ? scheme.onSurfaceVariant : scheme.onSurface),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                current?.$2 ?? hint ?? '',
+                overflow: TextOverflow.ellipsis,
+                style: text?.copyWith(color: current == null ? scheme.onSurfaceVariant : scheme.onSurface),
+              ),
             ),
-          ),
-          Icon(CupertinoIcons.chevron_down, size: 16, color: scheme.onSurfaceVariant),
-        ]),
+            Icon(CupertinoIcons.chevron_down, size: 16, color: scheme.onSurfaceVariant),
+          ],
+        ),
       ),
     );
   }

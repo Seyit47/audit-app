@@ -167,7 +167,8 @@ class _PhotoDetailViewState extends State<PhotoDetailView> {
                       itemBuilder: (context, i) {
                         final p = widget.related[i];
                         final on = p.id == _selected;
-                        return InkOverlay(radius: 8, 
+                        return InkOverlay(
+                          radius: 8,
                           onTap: () => on ? _fullScreen(context, p) : setState(() => _selected = p.id),
                           child: Container(
                             width: 60,

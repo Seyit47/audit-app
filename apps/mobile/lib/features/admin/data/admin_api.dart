@@ -27,15 +27,22 @@ class AdminApi {
   final SyncApi _uploads;
 
   Future<PageOf> _page(String path, Map<String, dynamic> query) async {
-    final res = await _api.get<Json>(path, query: {for (final e in query.entries) if (e.value != null && e.value != '') e.key: e.value});
+    final res = await _api.get<Json>(
+      path,
+      query: {
+        for (final e in query.entries)
+          if (e.value != null && e.value != '') e.key: e.value,
+      },
+    );
     return PageOf([for (final i in res['items'] as List) (i as Map).cast<String, dynamic>()], (res['total'] as int?) ?? (res['items'] as List).length);
   }
 
   Future<PageOf> shops({int page = 1, String? q, String? status, String? regionId, String dir = 'asc'}) =>
       _page('/shops', {'page': page, 'size': 20, 'q': q, 'status': status, 'regionId': regionId, 'sort': 'name', 'dir': dir});
   Future<Json> shop(String id) => _api.get<Json>('/shops/$id');
-  Future<List<Json>> shopVisits(String id, {int limit = 10}) async =>
-      [for (final i in (await _api.get<Json>('/shops/$id/visits', query: {'limit': limit}))['items'] as List) (i as Map).cast<String, dynamic>()];
+  Future<List<Json>> shopVisits(String id, {int limit = 10}) async => [
+    for (final i in (await _api.get<Json>('/shops/$id/visits', query: {'limit': limit}))['items'] as List) (i as Map).cast<String, dynamic>(),
+  ];
   Future<Json> createShop(Json body) => _api.post<Json>('/shops', body: body);
   Future<Json> updateShop(String id, Json body) => _api.patch<Json>('/shops/$id', body: body);
   Future<void> setContacts(String id, List<Json> contacts) => _api.put<void>('/shops/$id/contacts', body: {'contacts': contacts});
@@ -52,8 +59,9 @@ class AdminApi {
   Future<List<Json>> positions() async => [for (final i in await _api.get<List<dynamic>>('/agents/positions')) (i as Map).cast<String, dynamic>()];
 
   Future<List<Json>> regions() async => [for (final i in await _api.get<List<dynamic>>('/regions')) (i as Map).cast<String, dynamic>()];
-  Future<List<Json>> mapShops({List<String>? agentIds, List<String>? regionIds}) async =>
-      [for (final i in await _api.get<List<dynamic>>('/shops/map', query: {'agentIds': ?agentIds, 'regionIds': ?regionIds})) (i as Map).cast<String, dynamic>()];
+  Future<List<Json>> mapShops({List<String>? agentIds, List<String>? regionIds}) async => [
+    for (final i in await _api.get<List<dynamic>>('/shops/map', query: {'agentIds': ?agentIds, 'regionIds': ?regionIds})) (i as Map).cast<String, dynamic>(),
+  ];
 
   Future<Json> photos({String? shopId, String? agentId, String? from, String? cursor, int limit = 40, bool groups = false}) =>
       _api.get<Json>('/photos', query: {'shopId': ?shopId, 'agentId': ?agentId, 'from': ?from, 'cursor': ?cursor, 'limit': limit, if (groups) 'groups': true});
@@ -65,7 +73,13 @@ class AdminApi {
   Future<Json> createProduct(Json body) => _api.post<Json>('/products', body: body);
 
   Future<String> exportReport(String agentId, String type) async {
-    var job = await _api.post<Json>('/exports', body: {'type': type, 'params': {'agentId': agentId}});
+    var job = await _api.post<Json>(
+      '/exports',
+      body: {
+        'type': type,
+        'params': {'agentId': agentId},
+      },
+    );
     for (var i = 0; i < 60 && (job['status'] == 'QUEUED' || job['status'] == 'RUNNING'); i++) {
       await Future<void>.delayed(const Duration(seconds: 1));
       job = await _api.get<Json>('/exports/${job['id']}');
@@ -81,8 +95,13 @@ class AdminApi {
     final bytes = await file.readAsBytes();
     final mime = file.path.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
     final target = await _uploads.createUpload({
-      'id': id, 'kind': kind, 'mime': mime, 'sizeBytes': bytes.length, 'sha256': sha256.convert(bytes).toString(),
-      'takenAt': DateTime.now().toUtc().toIso8601String(), 'shopId': ?shopId,
+      'id': id,
+      'kind': kind,
+      'mime': mime,
+      'sizeBytes': bytes.length,
+      'sha256': sha256.convert(bytes).toString(),
+      'takenAt': DateTime.now().toUtc().toIso8601String(),
+      'shopId': ?shopId,
     });
     if (!target.ready) {
       await _uploads.putFile(target, file.path, mime);

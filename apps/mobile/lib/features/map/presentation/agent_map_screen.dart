@@ -61,9 +61,13 @@ class _AgentMapScreenState extends ConsumerState<AgentMapScreen> {
     }
     final regions = _filters['region'] ?? const <String>{};
     final needle = _q.trim().toLowerCase();
-    final base = all.where((s) =>
-        (regions.isEmpty || regions.contains(s.shop.regionName)) &&
-        (needle.isEmpty || '${s.shop.name} ${s.shop.ownerName ?? ''} ${s.shop.address}'.toLowerCase().contains(needle))).toList();
+    final base = all
+        .where(
+          (s) =>
+              (regions.isEmpty || regions.contains(s.shop.regionName)) &&
+              (needle.isEmpty || '${s.shop.name} ${s.shop.ownerName ?? ''} ${s.shop.address}'.toLowerCase().contains(needle)),
+        )
+        .toList();
     final shown = switch (_filter) {
       _MapFilter.all => base,
       _MapFilter.notVisited => base.where((s) => s.visit.state != VisitState.visited).toList(),
@@ -79,85 +83,143 @@ class _AgentMapScreenState extends ConsumerState<AgentMapScreen> {
       _markers = [
         for (final s in shown)
           MapMarker(
-            id: s.shop.id, lat: s.shop.lat, lng: s.shop.lng, imageUrl: s.shop.facadeUrl,
-            color: s.shop.id == _selected ? c.accent : switch (s.visit.state) {
-              VisitState.visited => c.lightGreen,
-              VisitState.overdue || VisitState.scheduled => c.error,
-              VisitState.notVisited => c.textSecondary,
-            },
+            id: s.shop.id,
+            lat: s.shop.lat,
+            lng: s.shop.lng,
+            imageUrl: s.shop.facadeUrl,
+            color: s.shop.id == _selected
+                ? c.accent
+                : switch (s.visit.state) {
+                    VisitState.visited => c.lightGreen,
+                    VisitState.overdue || VisitState.scheduled => c.error,
+                    VisitState.notVisited => c.textSecondary,
+                  },
           ),
       ];
     }
     final regionNames = {for (final s in all) ?s.shop.regionName}.toList()..sort();
 
     return Scaffold(
-      body: Stack(children: [
-        Positioned.fill(
-          child: AppMapView(
-            markers: _markers,
-            controller: _map,
-            onMarkerTap: (id) => setState(() => _selected = id),
-            onMapTap: () => setState(() => _selected = null),
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: AppMapView(
+              markers: _markers,
+              controller: _map,
+              onMarkerTap: (id) => setState(() => _selected = id),
+              onMapTap: () => setState(() => _selected = null),
+            ),
           ),
-        ),
-        SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: Column(children: [
-              Row(children: [
-                MapRoundButton(onTap: () => context.pop(), size: 44, radius: 8, child: AppIcon('back', width: 11.77, height: 20, color: c.textPrimary)),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: SearchField(
-                    hint: l10n.mapSearch,
-                    onChanged: (v) => setState(() => _q = v),
-                    filtersLabel: l10n.filters,
-                    activeFilters: regions.length,
-                    onFilters: () async {
-                      final next = await showFilterSheet(context,
-                          title: l10n.filters, applyLabel: l10n.apply, resetLabel: l10n.reset, values: _filters,
-                          sections: [FilterSection(key: 'region', label: l10n.filterRegion, multi: true, options: [for (final r in regionNames) ChipOption(r, r)])]);
-                      if (next != null) setState(() => _filters = next);
-                    },
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      MapRoundButton(
+                        onTap: () => context.pop(),
+                        size: 44,
+                        radius: 8,
+                        child: AppIcon('back', width: 11.77, height: 20, color: c.textPrimary),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: SearchField(
+                          hint: l10n.mapSearch,
+                          onChanged: (v) => setState(() => _q = v),
+                          filtersLabel: l10n.filters,
+                          activeFilters: regions.length,
+                          onFilters: () async {
+                            final next = await showFilterSheet(
+                              context,
+                              title: l10n.filters,
+                              applyLabel: l10n.apply,
+                              resetLabel: l10n.reset,
+                              values: _filters,
+                              sections: [
+                                FilterSection(key: 'region', label: l10n.filterRegion, multi: true, options: [for (final r in regionNames) ChipOption(r, r)]),
+                              ],
+                            );
+                            if (next != null) setState(() => _filters = next);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    clipBehavior: Clip.none,
+                    child: Row(
+                      children: [
+                        MapChip(label: l10n.mapAll, selected: _filter == _MapFilter.all, onTap: () => setState(() => _filter = _MapFilter.all)),
+                        MapChip(
+                          label: l10n.mapNotVisited(base.where((s) => s.visit.state != VisitState.visited).length),
+                          dot: c.error,
+                          selected: _filter == _MapFilter.notVisited,
+                          onTap: () => setState(() => _filter = _MapFilter.notVisited),
+                        ),
+                        MapChip(
+                          label: l10n.mapVisited(base.where((s) => s.visit.state == VisitState.visited).length),
+                          dot: c.lightGreen,
+                          selected: _filter == _MapFilter.visited,
+                          onTap: () => setState(() => _filter = _MapFilter.visited),
+                        ),
+                        MapChip(
+                          label: l10n.mapRecent,
+                          dot: c.textSecondary,
+                          selected: _filter == _MapFilter.recent,
+                          onTap: () => setState(() => _filter = _MapFilter.recent),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Positioned(
+            right: 16,
+            bottom: selected == null ? 120 : 300,
+            child: Column(
+              children: [
+                MapRoundButton(
+                  tooltip: l10n.myLocation,
+                  size: 40,
+                  radius: 999,
+                  onTap: () {
+                    if (position != null) _map.moveTo(position.latitude, position.longitude);
+                  },
+                  child: AppIcon('map-locate', width: 20, height: 20, color: c.textSecondary),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    color: c.card,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: c.cardBorder),
+                    boxShadow: mapControlShadow,
+                  ),
+                  child: Column(
+                    children: [
+                      MapZoomButton(tooltip: l10n.zoomIn, icon: 'map-zoom-in', onTap: _map.zoomIn, divider: true),
+                      MapZoomButton(tooltip: l10n.zoomOut, icon: 'map-zoom-out', onTap: _map.zoomOut),
+                    ],
                   ),
                 ),
-              ]),
-              const SizedBox(height: 10),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                clipBehavior: Clip.none,
-                child: Row(children: [
-                  MapChip(label: l10n.mapAll, selected: _filter == _MapFilter.all, onTap: () => setState(() => _filter = _MapFilter.all)),
-                  MapChip(label: l10n.mapNotVisited(base.where((s) => s.visit.state != VisitState.visited).length), dot: c.error, selected: _filter == _MapFilter.notVisited, onTap: () => setState(() => _filter = _MapFilter.notVisited)),
-                  MapChip(label: l10n.mapVisited(base.where((s) => s.visit.state == VisitState.visited).length), dot: c.lightGreen, selected: _filter == _MapFilter.visited, onTap: () => setState(() => _filter = _MapFilter.visited)),
-                  MapChip(label: l10n.mapRecent, dot: c.textSecondary, selected: _filter == _MapFilter.recent, onTap: () => setState(() => _filter = _MapFilter.recent)),
-                ]),
-              ),
-            ]),
+              ],
+            ),
           ),
-        ),
-        Positioned(
-          right: 16,
-          bottom: selected == null ? 120 : 300,
-          child: Column(children: [
-            MapRoundButton(
-              tooltip: l10n.myLocation, size: 40, radius: 999,
-              onTap: () { if (position != null) _map.moveTo(position.latitude, position.longitude); },
-              child: AppIcon('map-locate', width: 20, height: 20, color: c.textSecondary),
+          if (selected != null)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: ShopSheet(item: selected, meters: distanceTo(position, selected.shop.lat, selected.shop.lng)),
             ),
-            const SizedBox(height: 8),
-            Container(
-              decoration: BoxDecoration(color: c.card, borderRadius: BorderRadius.circular(16), border: Border.all(color: c.cardBorder), boxShadow: mapControlShadow),
-              child: Column(children: [
-                MapZoomButton(tooltip: l10n.zoomIn, icon: 'map-zoom-in', onTap: _map.zoomIn, divider: true),
-                MapZoomButton(tooltip: l10n.zoomOut, icon: 'map-zoom-out', onTap: _map.zoomOut),
-              ]),
-            ),
-          ]),
-        ),
-        if (selected != null)
-          Positioned(left: 0, right: 0, bottom: 0, child: ShopSheet(item: selected, meters: distanceTo(position, selected.shop.lat, selected.shop.lng))),
-      ]),
+        ],
+      ),
     );
   }
 
@@ -181,8 +243,10 @@ class ShopSheet extends StatelessWidget {
 
   final ShopItem item;
   final double? meters;
+
   /// Replaces "Начать Аудит" (the admin map shows "Подробнее").
   final Widget? action;
+
   /// Admin map (`248:24102`): type/code tags and the agent line under the header.
   final Widget? extra;
 
@@ -195,81 +259,133 @@ class ShopSheet extends StatelessWidget {
     final text = TextStyle(fontFamily: AppTextStyles.family, fontSize: 14, height: 1.5, color: c.textPrimary);
     final small = TextStyle(fontFamily: AppTextStyles.family, fontSize: 11, height: 16 / 11, fontWeight: FontWeight.w500, color: c.accent);
     return BottomSheetCard(
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: Row(children: [
-            AppImage(s.facadeUrl, width: 70, height: 70, radius: 12),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(s.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: text.copyWith(fontWeight: FontWeight.w600)),
-                const SizedBox(height: 2),
-                Text(s.address, maxLines: 1, overflow: TextOverflow.ellipsis, style: text.copyWith(fontWeight: FontWeight.w500)),
-                const SizedBox(height: 4),
-                Row(children: [
-                  AppIcon('geo-target', width: 13.69, height: 13.69, color: c.success),
-                  const SizedBox(width: 4),
-                  Text(coords(s.lat, s.lng), style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 1.5, fontWeight: FontWeight.w500, color: c.success)),
-                  if (meters != null) ...[
-                    const SizedBox(width: 8),
-                    const Text('•', style: TextStyle(fontSize: 12, color: Color(0xFFC7C4D8))),
-                    const SizedBox(width: 8),
-                    Flexible(child: Text(l10n.fromYou(distance(context, meters!)), overflow: TextOverflow.ellipsis, style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 1.5, color: c.textSecondary))),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Row(
+              children: [
+                AppImage(s.facadeUrl, width: 70, height: 70, radius: 12),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        s.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        s.address,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.copyWith(fontWeight: FontWeight.w500),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          AppIcon('geo-target', width: 13.69, height: 13.69, color: c.success),
+                          const SizedBox(width: 4),
+                          Text(
+                            coords(s.lat, s.lng),
+                            style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 1.5, fontWeight: FontWeight.w500, color: c.success),
+                          ),
+                          if (meters != null) ...[
+                            const SizedBox(width: 8),
+                            const Text('•', style: TextStyle(fontSize: 12, color: Color(0xFFC7C4D8))),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                l10n.fromYou(distance(context, meters!)),
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 1.5, color: c.textSecondary),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (extra != null) ...[extra!, const SizedBox(height: 10)],
+          Container(
+            height: 30,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: c.infoBg,
+              border: Border.all(color: c.infoBorder),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              children: [
+                Text(l10n.lastVisit, style: small),
+                const Spacer(),
+                Text(s.lastVisitAt == null ? l10n.never : shortDateTime(context, s.lastVisitAt!), style: small),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          if (action != null)
+            action!
+          else ...[
+            if (!inside) ...[
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: c.alertBg,
+                  border: Border.all(color: c.alertBorder),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Row(
+                  children: [
+                    AppIcon('alert-triangle', width: 12.75, height: 11.98, color: c.error),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        meters == null ? l10n.locating : l10n.auditOnlyOnSite,
+                        style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 11, height: 1.5, fontWeight: FontWeight.w500, color: c.error),
+                      ),
+                    ),
                   ],
-                ]),
-              ]),
-            ),
-          ]),
-        ),
-        if (extra != null) ...[extra!, const SizedBox(height: 10)],
-        Container(
-          height: 30,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(color: c.infoBg, border: Border.all(color: c.infoBorder), borderRadius: BorderRadius.circular(8)),
-          child: Row(children: [
-            Text(l10n.lastVisit, style: small),
-            const Spacer(),
-            Text(s.lastVisitAt == null ? l10n.never : shortDateTime(context, s.lastVisitAt!), style: small),
-          ]),
-        ),
-        const SizedBox(height: 10),
-        if (action != null)
-          action!
-        else ...[
-          if (!inside) ...[
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(color: c.alertBg, border: Border.all(color: c.alertBorder), borderRadius: BorderRadius.circular(6)),
-              child: Row(children: [
-                AppIcon('alert-triangle', width: 12.75, height: 11.98, color: c.error),
-                const SizedBox(width: 6),
-                Expanded(child: Text(meters == null ? l10n.locating : l10n.auditOnlyOnSite, style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 11, height: 1.5, fontWeight: FontWeight.w500, color: c.error))),
-              ]),
-            ),
-            const SizedBox(height: 10),
-          ],
-          Opacity(
-            opacity: inside ? 1 : 0.5,
-            child: Material(
-              color: c.accent,
-              borderRadius: BorderRadius.circular(12),
-              child: Pressable(
+                ),
+              ),
+              const SizedBox(height: 10),
+            ],
+            Opacity(
+              opacity: inside ? 1 : 0.5,
+              child: Material(
+                color: c.accent,
                 borderRadius: BorderRadius.circular(12),
-                onTap: inside ? () => context.push('/agent/audit/${s.id}') : null,
-                child: SizedBox(
-                  height: 40,
-                  child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    const AppIcon('play-small', width: 9.17, height: 11.67),
-                    const SizedBox(width: 8),
-                    Text(l10n.startAudit, style: const TextStyle(fontFamily: AppTextStyles.family, fontSize: 15, height: 1.5, fontWeight: FontWeight.w600, color: Colors.white)),
-                  ]),
+                child: Pressable(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: inside ? () => context.push('/agent/audit/${s.id}') : null,
+                  child: SizedBox(
+                    height: 40,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const AppIcon('play-small', width: 9.17, height: 11.67),
+                        const SizedBox(width: 8),
+                        Text(
+                          l10n.startAudit,
+                          style: const TextStyle(fontFamily: AppTextStyles.family, fontSize: 15, height: 1.5, fontWeight: FontWeight.w600, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ],
-      ]),
+      ),
     );
   }
 }
@@ -298,10 +414,29 @@ class MapChip extends StatelessWidget {
           border: Border.all(color: selected ? Colors.transparent : c.cardBorder),
           boxShadow: const [BoxShadow(color: Color(0x0D000000), offset: Offset(0, 1), blurRadius: 2)],
         ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          if (dot != null) ...[Container(width: 8, height: 8, decoration: BoxDecoration(color: dot, shape: BoxShape.circle)), const SizedBox(width: 6)],
-          Text(label, style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 16 / 12, fontWeight: FontWeight.w500, color: selected ? Colors.white : c.textSecondary)),
-        ]),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (dot != null) ...[
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(color: dot, shape: BoxShape.circle),
+              ),
+              const SizedBox(width: 6),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                fontFamily: AppTextStyles.family,
+                fontSize: 12,
+                height: 16 / 12,
+                fontWeight: FontWeight.w500,
+                color: selected ? Colors.white : c.textSecondary,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -322,8 +457,20 @@ class MapRoundButton extends StatelessWidget {
     final button = Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(color: c.card, borderRadius: BorderRadius.circular(radius), border: Border.all(color: c.cardBorder), boxShadow: mapControlShadow),
-      child: Material(type: MaterialType.transparency, child: Pressable(borderRadius: BorderRadius.circular(radius), onTap: onTap, child: Center(child: child))),
+      decoration: BoxDecoration(
+        color: c.card,
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(color: c.cardBorder),
+        boxShadow: mapControlShadow,
+      ),
+      child: Material(
+        type: MaterialType.transparency,
+        child: Pressable(
+          borderRadius: BorderRadius.circular(radius),
+          onTap: onTap,
+          child: Center(child: child),
+        ),
+      ),
     );
     return tooltip == null ? button : Tooltip(message: tooltip!, child: button);
   }
@@ -348,7 +495,9 @@ class MapZoomButton extends StatelessWidget {
           width: 40,
           height: 40,
           alignment: Alignment.center,
-          decoration: BoxDecoration(border: divider ? Border(bottom: BorderSide(color: c.grey3)) : null),
+          decoration: BoxDecoration(
+            border: divider ? Border(bottom: BorderSide(color: c.grey3)) : null,
+          ),
           child: AppIcon(icon, width: 20, height: 20, color: c.textSecondary),
         ),
       ),

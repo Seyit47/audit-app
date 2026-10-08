@@ -39,7 +39,10 @@ class AppTopBar extends StatelessWidget {
                         onPressed: onBack ?? () => context.pop(),
                         padding: EdgeInsets.zero,
                         minimumSize: const Size.square(44),
-                        child: Semantics(label: MaterialLocalizations.of(context).backButtonTooltip, child: AppIcon('back', width: 11.77, height: 20, color: c.textPrimary)),
+                        child: Semantics(
+                          label: MaterialLocalizations.of(context).backButtonTooltip,
+                          child: AppIcon('back', width: 11.77, height: 20, color: c.textPrimary),
+                        ),
                       )
                     : IconButton(
                         onPressed: onBack ?? () => context.pop(),
@@ -96,10 +99,16 @@ class HeaderButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final content = Row(mainAxisSize: MainAxisSize.min, children: [
-      if (icon != null) ...[AppIcon(icon!, width: 10.5, height: 10.5), const SizedBox(width: 6)],
-      Text(label, style: const TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 1.5, fontWeight: FontWeight.w600, color: Colors.white)),
-    ]);
+    final content = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (icon != null) ...[AppIcon(icon!, width: 10.5, height: 10.5), const SizedBox(width: 6)],
+        Text(
+          label,
+          style: const TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 1.5, fontWeight: FontWeight.w600, color: Colors.white),
+        ),
+      ],
+    );
     // Small filled button: CupertinoButton on iOS, FilledButton on Android, with the design's accent glow.
     return DecoratedBox(
       decoration: BoxDecoration(

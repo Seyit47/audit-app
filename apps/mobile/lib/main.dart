@@ -25,13 +25,15 @@ Future<void> main() async {
   final prefs = await SharedPreferences.getInstance();
   final permission = await Geolocator.checkPermission();
   await registerBackgroundSync();
-  runApp(ProviderScope(
-    overrides: [
-      sharedPreferencesProvider.overrideWithValue(prefs),
-      initialLocationGrantedProvider.overrideWithValue(permission == LocationPermission.always || permission == LocationPermission.whileInUse),
-    ],
-    child: const AuditApp(),
-  ));
+  runApp(
+    ProviderScope(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(prefs),
+        initialLocationGrantedProvider.overrideWithValue(permission == LocationPermission.always || permission == LocationPermission.whileInUse),
+      ],
+      child: const AuditApp(),
+    ),
+  );
 }
 
 class _BrokenPart extends StatelessWidget {
@@ -42,17 +44,20 @@ class _BrokenPart extends StatelessWidget {
     final ru = PlatformDispatcher.instance.locale.languageCode != 'en';
     return Padding(
       padding: const EdgeInsets.all(12),
-      child: Row(mainAxisSize: MainAxisSize.min, children: [
-        const Icon(Icons.error_outline, size: 18, color: Color(0xFF9E9EAB)),
-        const SizedBox(width: 6),
-        Flexible(
-          child: Text(
-            ru ? 'Не удалось показать этот блок' : 'This part could not be shown',
-            textDirection: TextDirection.ltr,
-            style: const TextStyle(fontSize: 12, color: Color(0xFF9E9EAB)),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.error_outline, size: 18, color: Color(0xFF9E9EAB)),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              ru ? 'Не удалось показать этот блок' : 'This part could not be shown',
+              textDirection: TextDirection.ltr,
+              style: const TextStyle(fontSize: 12, color: Color(0xFF9E9EAB)),
+            ),
           ),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 }

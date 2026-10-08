@@ -6,6 +6,7 @@ class VisitInfo {
   const VisitInfo(this.state, {this.overdueDays = 0});
 
   final VisitState state;
+
   /// Whole days since the due date ("просрочен на 2 дня"); 0 unless overdue.
   final int overdueDays;
 }

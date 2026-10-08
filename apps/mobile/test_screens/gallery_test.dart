@@ -16,7 +16,13 @@ void main() {
     testWidgets('photo detail ${dark ? 'dark' : 'light'}', (tester) async {
       final db = memoryDb();
       await tester.runAsync(() => seed(db));
-      await shoot(tester, 'photo-detail', const AgentPhotoDetailScreen(photoId: 'ph0'), db: db, dark: dark);
+      await shoot(
+        tester,
+        'photo-detail',
+        const AgentPhotoDetailScreen(photoId: 'ph0'),
+        db: db,
+        dark: dark,
+      );
       await tester.runAsync(db.close);
     });
   }

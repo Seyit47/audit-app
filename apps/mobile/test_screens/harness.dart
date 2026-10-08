@@ -49,6 +49,7 @@ Future<void> shoot(
   bool dark = false,
   String locale = 'ru',
   double height = 844,
+
   /// Runs in real async against the providers before the first frame (start controllers, fill
   /// forms): drift work inside the widget test's fake async never completes.
   Future<void> Function(ProviderContainer container)? before,
@@ -56,36 +57,41 @@ Future<void> shoot(
   tester.view.physicalSize = Size(390 * 2, height * 2);
   tester.view.devicePixelRatio = 2;
   addTearDown(tester.view.reset);
-  final container = ProviderContainer(overrides: [databaseProvider.overrideWithValue(db), syncStatusProvider.overrideWithValue(SyncStatus.synced), ...overrides]);
+  final container = ProviderContainer(
+    overrides: [databaseProvider.overrideWithValue(db), syncStatusProvider.overrideWithValue(SyncStatus.synced), ...overrides],
+  );
   addTearDown(container.dispose);
   if (before != null) await tester.runAsync(() => before(container));
-  await tester.pumpWidget(UncontrolledProviderScope(
-    container: container,
-    child: RepaintBoundary(
-      key: _boundary,
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light(),
-        darkTheme: AppTheme.dark(),
-        themeMode: dark ? ThemeMode.dark : ThemeMode.light,
-        locale: Locale(locale),
-        supportedLocales: const [Locale('ru'), Locale('en')],
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        home: screen,
+  await tester.pumpWidget(
+    UncontrolledProviderScope(
+      container: container,
+      child: RepaintBoundary(
+        key: _boundary,
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          themeMode: dark ? ThemeMode.dark : ThemeMode.light,
+          locale: Locale(locale),
+          supportedLocales: const [Locale('ru'), Locale('en')],
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          home: screen,
+        ),
       ),
     ),
-  ));
+  );
   Future<void> settle() async {
     for (var i = 0; i < 5; i++) {
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
       await tester.pump(const Duration(milliseconds: 100));
     }
   }
+
   await settle();
   final out = Platform.environment['SCREENS_OUT'] ?? 'build/screens';
   await tester.runAsync(() async {

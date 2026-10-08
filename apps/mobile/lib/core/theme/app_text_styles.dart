@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 /// these are the shared base styles.
 abstract final class AppTextStyles {
   static const family = 'Inter';
+
   /// Space Grotesk: codes, coordinates, times and phone numbers in the Figma frames.
   static const mono = 'SpaceGrotesk';
 

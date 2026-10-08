@@ -34,16 +34,26 @@ class AddShopState {
   /// "Сохранить" (`252:26487` disabled, `252:26607` enabled): every field, a location and the photo.
   bool get canSave => nameOk && addressOk && ownerOk && phoneOk && fix != null && photo != null && !saving;
 
-  AddShopState copyWith({String? name, String? address, String? owner, String? phone, Fix? fix, bool? locating, CapturedPhoto? photo, bool clearPhoto = false, bool? saving}) => AddShopState(
-        name: name ?? this.name,
-        address: address ?? this.address,
-        owner: owner ?? this.owner,
-        phone: phone ?? this.phone,
-        fix: fix ?? this.fix,
-        locating: locating ?? this.locating,
-        photo: clearPhoto ? null : (photo ?? this.photo),
-        saving: saving ?? this.saving,
-      );
+  AddShopState copyWith({
+    String? name,
+    String? address,
+    String? owner,
+    String? phone,
+    Fix? fix,
+    bool? locating,
+    CapturedPhoto? photo,
+    bool clearPhoto = false,
+    bool? saving,
+  }) => AddShopState(
+    name: name ?? this.name,
+    address: address ?? this.address,
+    owner: owner ?? this.owner,
+    phone: phone ?? this.phone,
+    fix: fix ?? this.fix,
+    locating: locating ?? this.locating,
+    photo: clearPhoto ? null : (photo ?? this.photo),
+    saving: saving ?? this.saving,
+  );
 }
 
 /// Agent "Добавить Магазин" (T095): saved locally as PENDING_REVIEW and queued as PHOTO + SHOP_CREATE.
@@ -54,15 +64,23 @@ class AddShopController extends Notifier<AddShopState> {
     return const AddShopState();
   }
 
-  void edit({String? name, String? address, String? owner, String? phone}) =>
-      state = state.copyWith(name: name, address: address, owner: owner, phone: phone);
+  void edit({String? name, String? address, String? owner, String? phone}) => state = state.copyWith(name: name, address: address, owner: owner, phone: phone);
 
   /// "Текущее местоположение" and "Проверить заново".
   Future<void> locate() async {
     state = state.copyWith(locating: true);
     final fix = await ref.read(locatorProvider).current();
     if (!ref.mounted) return;
-    state = AddShopState(name: state.name, address: state.address, owner: state.owner, phone: state.phone, fix: fix, locating: false, photo: state.photo, saving: state.saving);
+    state = AddShopState(
+      name: state.name,
+      address: state.address,
+      owner: state.owner,
+      phone: state.phone,
+      fix: fix,
+      locating: false,
+      photo: state.photo,
+      saving: state.saving,
+    );
   }
 
   Future<void> takePhoto() async {
@@ -89,25 +107,71 @@ class AddShopController extends Notifier<AddShopState> {
     final photo = s.photo!;
     final fix = s.fix!;
     await db.transaction(() async {
-      await db.into(db.photos).insert(PhotosCompanion.insert(
-            id: photo.id, kind: 'FACADE', shopId: Value(id), localPath: Value(photo.path), mime: 'image/jpeg',
-            sizeBytes: photo.sizeBytes, sha256: photo.sha256, takenAt: photo.takenAt,
-            lat: Value(photo.fix?.lat), lng: Value(photo.fix?.lng), accuracyM: Value(photo.fix?.accuracyM)));
+      await db
+          .into(db.photos)
+          .insert(
+            PhotosCompanion.insert(
+              id: photo.id,
+              kind: 'FACADE',
+              shopId: Value(id),
+              localPath: Value(photo.path),
+              mime: 'image/jpeg',
+              sizeBytes: photo.sizeBytes,
+              sha256: photo.sha256,
+              takenAt: photo.takenAt,
+              lat: Value(photo.fix?.lat),
+              lng: Value(photo.fix?.lng),
+              accuracyM: Value(photo.fix?.accuracyM),
+            ),
+          );
       final photoItem = await outbox.enqueue(OutboxKind.photo, {
-        'id': photo.id, 'kind': 'FACADE', 'mime': 'image/jpeg', 'sizeBytes': photo.sizeBytes, 'sha256': photo.sha256,
-        'takenAt': photo.takenAt.toIso8601String(), 'lat': ?photo.fix?.lat, 'lng': ?photo.fix?.lng, 'accuracyM': ?photo.fix?.accuracyM,
+        'id': photo.id,
+        'kind': 'FACADE',
+        'mime': 'image/jpeg',
+        'sizeBytes': photo.sizeBytes,
+        'sha256': photo.sha256,
+        'takenAt': photo.takenAt.toIso8601String(),
+        'lat': ?photo.fix?.lat,
+        'lng': ?photo.fix?.lng,
+        'accuracyM': ?photo.fix?.accuracyM,
         'localPath': photo.path,
       });
-      await outbox.enqueue(OutboxKind.shopCreate, {
-        'id': id, 'name': s.name.trim(), 'address': s.address.trim(), 'ownerName': s.owner.trim(),
-        'lat': fix.lat, 'lng': fix.lng, 'accuracyM': fix.accuracyM, 'facadePhotoId': photo.id,
-        'contacts': [{'phone': s.phone.trim()}],
-      }, dependsOn: [photoItem]);
+      await outbox.enqueue(
+        OutboxKind.shopCreate,
+        {
+          'id': id,
+          'name': s.name.trim(),
+          'address': s.address.trim(),
+          'ownerName': s.owner.trim(),
+          'lat': fix.lat,
+          'lng': fix.lng,
+          'accuracyM': fix.accuracyM,
+          'facadePhotoId': photo.id,
+          'contacts': [
+            {'phone': s.phone.trim()},
+          ],
+        },
+        dependsOn: [photoItem],
+      );
       final now = DateTime.now().toUtc();
-      await db.into(db.shops).insert(ShopsCompanion.insert(
-            id: id, code: '—', name: s.name.trim(), type: 'OTHER', address: s.address.trim(), lat: fix.lat, lng: fix.lng,
-            auditRadiusM: config.defaultAuditRadiusM, ownerName: Value(s.owner.trim()), facadeUrl: Value(photo.path),
-            status: 'PENDING_REVIEW', updatedAt: now));
+      await db
+          .into(db.shops)
+          .insert(
+            ShopsCompanion.insert(
+              id: id,
+              code: '—',
+              name: s.name.trim(),
+              type: 'OTHER',
+              address: s.address.trim(),
+              lat: fix.lat,
+              lng: fix.lng,
+              auditRadiusM: config.defaultAuditRadiusM,
+              ownerName: Value(s.owner.trim()),
+              facadeUrl: Value(photo.path),
+              status: 'PENDING_REVIEW',
+              updatedAt: now,
+            ),
+          );
       await db.into(db.shopContacts).insert(ShopContactsCompanion.insert(id: const Uuid().v7(), shopId: id, phone: s.phone.trim(), position: 0));
     });
     ref.read(syncTriggerProvider)();

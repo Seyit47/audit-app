@@ -4,11 +4,8 @@ enum Role { admin, agent }
 class SessionUser {
   const SessionUser({required this.id, required this.role, this.agentId});
 
-  factory SessionUser.fromJson(Map<String, dynamic> json) => SessionUser(
-        id: json['id'] as String,
-        role: json['role'] == 'ADMIN' ? Role.admin : Role.agent,
-        agentId: json['agentId'] as String?,
-      );
+  factory SessionUser.fromJson(Map<String, dynamic> json) =>
+      SessionUser(id: json['id'] as String, role: json['role'] == 'ADMIN' ? Role.admin : Role.agent, agentId: json['agentId'] as String?);
 
   final String id;
   final Role role;

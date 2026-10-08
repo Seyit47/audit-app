@@ -15,21 +15,18 @@ class OutboxRepository {
 
   Future<String> enqueue(OutboxKind kind, Map<String, Object?> payload, {String? id, List<String> dependsOn = const []}) async {
     final itemId = id ?? const Uuid().v7();
-    await _db.into(_db.outbox).insert(OutboxCompanion.insert(
-          id: itemId,
-          kind: kind,
-          payloadJson: jsonEncode(payload),
-          dependsOn: Value(jsonEncode(dependsOn)),
-          createdAt: _clock(),
-        ));
+    await _db
+        .into(_db.outbox)
+        .insert(OutboxCompanion.insert(id: itemId, kind: kind, payloadJson: jsonEncode(payload), dependsOn: Value(jsonEncode(dependsOn)), createdAt: _clock()));
     return itemId;
   }
 
   /// Open items (pending or failed) in FIFO order.
-  Future<List<OutboxData>> open() => (_db.select(_db.outbox)
-        ..where((o) => o.state.isNotValue(OutboxState.done.name))
-        ..orderBy([(o) => OrderingTerm(expression: o.createdAt), (o) => OrderingTerm(expression: const CustomExpression<int>('rowid'))]))
-      .get();
+  Future<List<OutboxData>> open() =>
+      (_db.select(_db.outbox)
+            ..where((o) => o.state.isNotValue(OutboxState.done.name))
+            ..orderBy([(o) => OrderingTerm(expression: o.createdAt), (o) => OrderingTerm(expression: const CustomExpression<int>('rowid'))]))
+          .get();
 
   Future<OutboxData?> byId(String id) => (_db.select(_db.outbox)..where((o) => o.id.equals(id))).getSingleOrNull();
 
@@ -52,22 +49,14 @@ class OutboxRepository {
   Future<void> markDone(String id) => (_db.delete(_db.outbox)..where((o) => o.id.equals(id))).go();
 
   /// A retryable failure: try again at [next].
-  Future<void> markRetry(OutboxData item, String error, DateTime next) =>
-      (_db.update(_db.outbox)..where((o) => o.id.equals(item.id))).write(OutboxCompanion(
-        attempts: Value(item.attempts + 1),
-        lastError: Value(error),
-        nextAttemptAt: Value(next),
-        state: const Value(OutboxState.pending),
-      ));
+  Future<void> markRetry(OutboxData item, String error, DateTime next) => (_db.update(_db.outbox)..where((o) => o.id.equals(item.id))).write(
+    OutboxCompanion(attempts: Value(item.attempts + 1), lastError: Value(error), nextAttemptAt: Value(next), state: const Value(OutboxState.pending)),
+  );
 
   /// A rejected item: kept and retried on every sync, never dropped.
-  Future<void> markFailed(OutboxData item, String error) =>
-      (_db.update(_db.outbox)..where((o) => o.id.equals(item.id))).write(OutboxCompanion(
-        attempts: Value(item.attempts + 1),
-        lastError: Value(error),
-        nextAttemptAt: const Value(null),
-        state: const Value(OutboxState.failed),
-      ));
+  Future<void> markFailed(OutboxData item, String error) => (_db.update(_db.outbox)..where((o) => o.id.equals(item.id))).write(
+    OutboxCompanion(attempts: Value(item.attempts + 1), lastError: Value(error), nextAttemptAt: const Value(null), state: const Value(OutboxState.failed)),
+  );
 
   /// Shops referenced by open items; the pull must not delete them.
   Future<Set<String>> pendingShopIds() async {

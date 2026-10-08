@@ -31,15 +31,18 @@ class InkOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (context.isCupertino) return _CupertinoPress(onTap: onTap, child: child);
-    return Stack(fit: StackFit.passthrough, children: [
-      child,
-      Positioned.fill(
-        child: Material(
-          type: MaterialType.transparency,
-          child: InkWell(onTap: onTap, borderRadius: BorderRadius.circular(radius)),
+    return Stack(
+      fit: StackFit.passthrough,
+      children: [
+        child,
+        Positioned.fill(
+          child: Material(
+            type: MaterialType.transparency,
+            child: InkWell(onTap: onTap, borderRadius: BorderRadius.circular(radius)),
+          ),
         ),
-      ),
-    ]);
+      ],
+    );
   }
 }
 
@@ -62,15 +65,7 @@ class TextLink extends StatelessWidget {
 
 /// A pill or chip whose colors animate between states, with the platform's press feedback.
 class AnimatedChip extends StatelessWidget {
-  const AnimatedChip({
-    super.key,
-    this.decoration,
-    required this.child,
-    required this.onTap,
-    this.height,
-    this.padding,
-    this.radius = 999,
-  });
+  const AnimatedChip({super.key, this.decoration, required this.child, required this.onTap, this.height, this.padding, this.radius = 999});
 
   final BoxDecoration? decoration;
   final Widget child;

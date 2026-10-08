@@ -38,43 +38,91 @@ class LocationGranted extends Notifier<bool> {
 
 /// Routes per contracts/screens.md. Each story adds its screens here.
 List<RouteBase> appRoutes() => [
-      GoRoute(path: Paths.login, builder: (_, _) => const LoginScreen()),
-      GoRoute(path: Paths.agentPermission, builder: (_, _) => const PermissionScreen()),
-      GoRoute(path: Paths.agentHome, builder: (_, _) => const AgentHomeScreen(), routes: agentRoutes),
-      GoRoute(path: Paths.adminHome, builder: (_, _) => const AdminHomeScreen(), routes: adminRoutes),
-    ];
+  GoRoute(path: Paths.login, builder: (_, _) => const LoginScreen()),
+  GoRoute(path: Paths.agentPermission, builder: (_, _) => const PermissionScreen()),
+  GoRoute(path: Paths.agentHome, builder: (_, _) => const AgentHomeScreen(), routes: agentRoutes),
+  GoRoute(path: Paths.adminHome, builder: (_, _) => const AdminHomeScreen(), routes: adminRoutes),
+];
 
 final List<RouteBase> agentRoutes = [
-  GoRoute(path: 'map', builder: (_, state) => AgentMapScreen(focusShopId: state.uri.queryParameters['shop'])),
-  GoRoute(path: 'gallery', builder: (_, state) => GalleryScreen(shopId: state.uri.queryParameters['shopId']), routes: [
-    GoRoute(path: ':id', builder: (_, state) => AgentPhotoDetailScreen(photoId: state.pathParameters['id']!)),
-  ]),
-  GoRoute(path: 'audit/:shopId', builder: (_, state) => AuditScreen(shopId: state.pathParameters['shopId']!)),
-  GoRoute(path: 'shops', builder: (_, _) => const ShopsScreen(), routes: [
-    GoRoute(path: 'new', builder: (_, _) => const AddShopScreen()),
-    GoRoute(path: ':id', builder: (_, state) => ShopDetailsScreen(shopId: state.pathParameters['id']!)),
-  ]),
+  GoRoute(
+    path: 'map',
+    builder: (_, state) => AgentMapScreen(focusShopId: state.uri.queryParameters['shop']),
+  ),
+  GoRoute(
+    path: 'gallery',
+    builder: (_, state) => GalleryScreen(shopId: state.uri.queryParameters['shopId']),
+    routes: [
+      GoRoute(
+        path: ':id',
+        builder: (_, state) => AgentPhotoDetailScreen(photoId: state.pathParameters['id']!),
+      ),
+    ],
+  ),
+  GoRoute(
+    path: 'audit/:shopId',
+    builder: (_, state) => AuditScreen(shopId: state.pathParameters['shopId']!),
+  ),
+  GoRoute(
+    path: 'shops',
+    builder: (_, _) => const ShopsScreen(),
+    routes: [
+      GoRoute(path: 'new', builder: (_, _) => const AddShopScreen()),
+      GoRoute(
+        path: ':id',
+        builder: (_, state) => ShopDetailsScreen(shopId: state.pathParameters['id']!),
+      ),
+    ],
+  ),
 ];
 final List<RouteBase> adminRoutes = [
-  GoRoute(path: 'map', builder: (_, state) => AdminMapScreen(focusShopId: state.uri.queryParameters['shop'], focusAgentId: state.uri.queryParameters['agent'])),
-  GoRoute(path: 'products', builder: (_, _) => const ProductsScreen(), routes: [
-    GoRoute(path: 'new', builder: (_, _) => const ProductFormScreen()),
-  ]),
+  GoRoute(
+    path: 'map',
+    builder: (_, state) => AdminMapScreen(focusShopId: state.uri.queryParameters['shop'], focusAgentId: state.uri.queryParameters['agent']),
+  ),
+  GoRoute(
+    path: 'products',
+    builder: (_, _) => const ProductsScreen(),
+    routes: [GoRoute(path: 'new', builder: (_, _) => const ProductFormScreen())],
+  ),
   GoRoute(
     path: 'gallery',
     builder: (_, state) => AdminGalleryScreen(shopId: state.uri.queryParameters['shopId'], agentId: state.uri.queryParameters['agentId']),
-    routes: [GoRoute(path: ':id', builder: (_, state) => AdminPhotoDetailScreen(photoId: state.pathParameters['id']!))],
+    routes: [
+      GoRoute(
+        path: ':id',
+        builder: (_, state) => AdminPhotoDetailScreen(photoId: state.pathParameters['id']!),
+      ),
+    ],
   ),
-  GoRoute(path: 'agents', builder: (_, _) => const AgentsScreen(), routes: [
-    GoRoute(path: 'new', builder: (_, _) => const AgentFormScreen()),
-    GoRoute(path: ':id', builder: (_, state) => AgentDetailsScreen(agentId: state.pathParameters['id']!)),
-  ]),
-  GoRoute(path: 'shops', builder: (_, _) => const AdminShopsScreen(), routes: [
-    GoRoute(path: 'new', builder: (_, _) => const AdminShopFormScreen()),
-    GoRoute(path: ':id', builder: (_, state) => AdminShopDetailsScreen(shopId: state.pathParameters['id']!), routes: [
-      GoRoute(path: 'edit', builder: (_, state) => AdminShopFormScreen(shopId: state.pathParameters['id'])),
-    ]),
-  ]),
+  GoRoute(
+    path: 'agents',
+    builder: (_, _) => const AgentsScreen(),
+    routes: [
+      GoRoute(path: 'new', builder: (_, _) => const AgentFormScreen()),
+      GoRoute(
+        path: ':id',
+        builder: (_, state) => AgentDetailsScreen(agentId: state.pathParameters['id']!),
+      ),
+    ],
+  ),
+  GoRoute(
+    path: 'shops',
+    builder: (_, _) => const AdminShopsScreen(),
+    routes: [
+      GoRoute(path: 'new', builder: (_, _) => const AdminShopFormScreen()),
+      GoRoute(
+        path: ':id',
+        builder: (_, state) => AdminShopDetailsScreen(shopId: state.pathParameters['id']!),
+        routes: [
+          GoRoute(
+            path: 'edit',
+            builder: (_, state) => AdminShopFormScreen(shopId: state.pathParameters['id']),
+          ),
+        ],
+      ),
+    ],
+  ),
 ];
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -90,11 +138,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final session = ref.read(sessionProvider);
       if (session.isLoading) return null;
-      return redirectFor(
-        location: state.matchedLocation,
-        user: session.value,
-        locationGranted: ref.read(locationGrantedProvider),
-      );
+      return redirectFor(location: state.matchedLocation, user: session.value, locationGranted: ref.read(locationGrantedProvider));
     },
   );
   ref.onDispose(router.dispose);

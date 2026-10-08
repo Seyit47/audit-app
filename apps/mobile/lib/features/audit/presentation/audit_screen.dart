@@ -50,102 +50,132 @@ class _AuditScreenState extends ConsumerState<AuditScreen> {
     return Scaffold(
       backgroundColor: c.mainBg,
       body: SafeArea(
-        child: Column(children: [
-          ColoredBox(
-            color: c.card,
-            child: SizedBox(
-              height: 64,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(children: [
-                  SizedBox(
-                    width: 36,
-                    height: 44,
-                    child: OverflowBox(
-                      maxWidth: 44,
-                      child: IconButton(
-                        onPressed: () => context.pop(),
-                        tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-                        icon: AppIcon('back', width: 11.77, height: 20, color: c.textPrimary),
+        child: Column(
+          children: [
+            ColoredBox(
+              color: c.card,
+              child: SizedBox(
+                height: 64,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 36,
+                        height: 44,
+                        child: OverflowBox(
+                          maxWidth: 44,
+                          child: IconButton(
+                            onPressed: () => context.pop(),
+                            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+                            icon: AppIcon('back', width: 11.77, height: 20, color: c.textPrimary),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text(l10n.auditTitle, style: AppTextStyles.title.copyWith(fontSize: 20, height: 1.3, letterSpacing: -0.5, color: c.textPrimary)),
-                    const SizedBox(height: 2),
-                    Row(children: [
-                      Container(width: 6, height: 6, decoration: BoxDecoration(color: c.success, shape: BoxShape.circle)),
                       const SizedBox(width: 6),
-                      Text(l10n.offlineSaved, style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 11, height: 1.5, fontWeight: FontWeight.w500, color: c.success)),
-                    ]),
-                  ]),
-                ]),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(l10n.auditTitle, style: AppTextStyles.title.copyWith(fontSize: 20, height: 1.3, letterSpacing: -0.5, color: c.textPrimary)),
+                          const SizedBox(height: 2),
+                          Row(
+                            children: [
+                              Container(
+                                width: 6,
+                                height: 6,
+                                decoration: BoxDecoration(color: c.success, shape: BoxShape.circle),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                l10n.offlineSaved,
+                                style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 11, height: 1.5, fontWeight: FontWeight.w500, color: c.success),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
-          _LocationBar(state: s, onRecheck: ctrl.locate),
-          Expanded(
-            child: ListView(padding: const EdgeInsets.fromLTRB(16, 16, 16, 16), children: [
-              if (s.photos.isEmpty)
-                PhotoEmptyTarget(title: l10n.photoEmptyTitle, hint: l10n.photoEmptyHint, buttonLabel: l10n.takePhoto, onTake: s.canAddPhoto ? ctrl.takePhoto : null)
-              else
-                _PhotoGrid(photos: s.photos, canAdd: s.canAddPhoto, onAdd: ctrl.takePhoto, onRemove: ctrl.removePhoto),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: c.card,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: c.cardBorder),
-                  boxShadow: const [BoxShadow(color: Color(0x0D000000), offset: Offset(0, 1), blurRadius: 2)],
-                ),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Row(children: [
-                    AppIcon('comment', width: 13.33, height: 13.33, color: c.textSecondary),
-                    const SizedBox(width: 6),
-                    Text(l10n.auditComment, style: AppTextStyles.label.copyWith(color: c.textPrimary)),
-                  ]),
-                  const SizedBox(height: 10),
+            _LocationBar(state: s, onRecheck: ctrl.locate),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                children: [
+                  if (s.photos.isEmpty)
+                    PhotoEmptyTarget(
+                      title: l10n.photoEmptyTitle,
+                      hint: l10n.photoEmptyHint,
+                      buttonLabel: l10n.takePhoto,
+                      onTake: s.canAddPhoto ? ctrl.takePhoto : null,
+                    )
+                  else
+                    _PhotoGrid(photos: s.photos, canAdd: s.canAddPhoto, onAdd: ctrl.takePhoto, onRemove: ctrl.removePhoto),
+                  const SizedBox(height: 16),
                   Container(
-                    padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-                    constraints: const BoxConstraints(minHeight: 78.5),
-                    decoration: BoxDecoration(color: c.accent6, borderRadius: BorderRadius.circular(8)),
-                    child: AppTextInput(
-                      controller: _comment,
-                      onChanged: ctrl.setComment,
-                      minLines: 2,
-                      maxLines: 6,
-                      maxLength: 2000,
-                      bare: true,
-                      hint: l10n.auditCommentHint,
-                      textStyle: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 19.5 / 12, color: c.textPrimary),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: c.card,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: c.cardBorder),
+                      boxShadow: const [BoxShadow(color: Color(0x0D000000), offset: Offset(0, 1), blurRadius: 2)],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            AppIcon('comment', width: 13.33, height: 13.33, color: c.textSecondary),
+                            const SizedBox(width: 6),
+                            Text(l10n.auditComment, style: AppTextStyles.label.copyWith(color: c.textPrimary)),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Container(
+                          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+                          constraints: const BoxConstraints(minHeight: 78.5),
+                          decoration: BoxDecoration(color: c.accent6, borderRadius: BorderRadius.circular(8)),
+                          child: AppTextInput(
+                            controller: _comment,
+                            onChanged: ctrl.setComment,
+                            minLines: 2,
+                            maxLines: 6,
+                            maxLength: 2000,
+                            bare: true,
+                            hint: l10n.auditCommentHint,
+                            textStyle: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 19.5 / 12, color: c.textPrimary),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        // Approved exception 2: the violation chip, from the 83:16884 chip and the
+                        // "Зафиксировано нарушение" error colors and icon.
+                        _ViolationChip(on: s.hasViolation, label: l10n.violationChip, onTap: ctrl.toggleViolation),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  // Approved exception 2: the violation chip, from the 83:16884 chip and the
-                  // "Зафиксировано нарушение" error colors and icon.
-                  _ViolationChip(on: s.hasViolation, label: l10n.violationChip, onTap: ctrl.toggleViolation),
-                ]),
+                ],
               ),
-            ]),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-            child: _FinishButton(
-              label: l10n.finishAudit,
-              busy: s.finishing,
-              onPressed: s.canFinish
-                  ? () async {
-                      if (await ctrl.finish() && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.auditSaved)));
-                        context.pop();
-                      }
-                    }
-                  : null,
             ),
-          ),
-        ]),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+              child: _FinishButton(
+                label: l10n.finishAudit,
+                busy: s.finishing,
+                onPressed: s.canFinish
+                    ? () async {
+                        if (await ctrl.finish() && context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.auditSaved)));
+                          context.pop();
+                        }
+                      }
+                    : null,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -181,36 +211,61 @@ class _LocationBar extends StatelessWidget {
     return Container(
       color: c.accent6,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(children: [
-        Expanded(
-          child: Row(children: [
-            AppIcon('store', width: showShop ? 18 : 15.07, height: showShop ? 16 : 13.5, color: c.accent),
-            const SizedBox(width: 6),
-            Expanded(
-              child: showShop
-                  ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Text(shop.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTextStyles.label.copyWith(color: c.textPrimary)),
-                      Text(shop.address, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 21 / 12, color: c.textSecondary)),
-                    ])
-                  : Text(problem ?? '', style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 16 / 12, fontWeight: FontWeight.w500,
-                      color: state.geo == GeoStatus.locating ? c.textSecondary : c.error)),
-            ),
-          ]),
-        ),
-        const SizedBox(width: 12),
-        Tooltip(
-          message: l10n.recheck,
-          child: Material(
-            color: showShop ? const Color(0x99E2DFFF) : c.accent6,
-            borderRadius: BorderRadius.circular(6),
-            child: Pressable(
-              borderRadius: BorderRadius.circular(6),
-              onTap: state.geo == GeoStatus.locating ? null : onRecheck,
-              child: const SizedBox(width: 32, height: 32, child: Center(child: AppIcon('refresh', width: 12.67, height: 12.67))),
+      child: Row(
+        children: [
+          Expanded(
+            child: Row(
+              children: [
+                AppIcon('store', width: showShop ? 18 : 15.07, height: showShop ? 16 : 13.5, color: c.accent),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: showShop
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              shop.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.label.copyWith(color: c.textPrimary),
+                            ),
+                            Text(
+                              shop.address,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 21 / 12, color: c.textSecondary),
+                            ),
+                          ],
+                        )
+                      : Text(
+                          problem ?? '',
+                          style: TextStyle(
+                            fontFamily: AppTextStyles.family,
+                            fontSize: 12,
+                            height: 16 / 12,
+                            fontWeight: FontWeight.w500,
+                            color: state.geo == GeoStatus.locating ? c.textSecondary : c.error,
+                          ),
+                        ),
+                ),
+              ],
             ),
           ),
-        ),
-      ]),
+          const SizedBox(width: 12),
+          Tooltip(
+            message: l10n.recheck,
+            child: Material(
+              color: showShop ? const Color(0x99E2DFFF) : c.accent6,
+              borderRadius: BorderRadius.circular(6),
+              child: Pressable(
+                borderRadius: BorderRadius.circular(6),
+                onTap: state.geo == GeoStatus.locating ? null : onRecheck,
+                child: const SizedBox(width: 32, height: 32, child: Center(child: AppIcon('refresh', width: 12.67, height: 12.67))),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -228,55 +283,69 @@ class _PhotoGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final c = context.colors;
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(l10n.photoMaterials(photos.length), style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 11, height: 1.5, fontWeight: FontWeight.w500, color: c.textSecondary)),
-      const SizedBox(height: 6),
-      GridView.count(
-        crossAxisCount: 3,
-        mainAxisSpacing: 6,
-        crossAxisSpacing: 6,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        children: [
-          Tooltip(
-            message: canAdd ? l10n.takePhoto : l10n.photoLimit(AuditLocalRepository.maxPhotos),
-            child: DashedBorder(
-              color: const Color(0xFFD6D5E8),
-              radius: 8,
-              child: Material(
-                color: c.accent6,
-                borderRadius: BorderRadius.circular(8),
-                child: Pressable(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.photoMaterials(photos.length),
+          style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 11, height: 1.5, fontWeight: FontWeight.w500, color: c.textSecondary),
+        ),
+        const SizedBox(height: 6),
+        GridView.count(
+          crossAxisCount: 3,
+          mainAxisSpacing: 6,
+          crossAxisSpacing: 6,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          children: [
+            Tooltip(
+              message: canAdd ? l10n.takePhoto : l10n.photoLimit(AuditLocalRepository.maxPhotos),
+              child: DashedBorder(
+                color: const Color(0xFFD6D5E8),
+                radius: 8,
+                child: Material(
+                  color: c.accent6,
                   borderRadius: BorderRadius.circular(8),
-                  onTap: canAdd ? onAdd : null,
-                  child: Center(child: Opacity(opacity: canAdd ? 1 : 0.4, child: AppIcon('add-photo', width: 30, height: 30, color: c.textPrimary))),
-                ),
-              ),
-            ),
-          ),
-          for (final p in photos)
-            Stack(fit: StackFit.expand, children: [
-              AppImage(p.localPath ?? p.previewUrl),
-              Positioned(
-                top: 4,
-                right: 4,
-                child: Tooltip(
-                  message: l10n.removePhoto,
-                  child: Material(
-                    color: const Color(0xFF0F172A),
+                  child: Pressable(
                     borderRadius: BorderRadius.circular(8),
-                    child: Pressable(
-                      borderRadius: BorderRadius.circular(8),
-                      onTap: () => onRemove(p),
-                      child: const SizedBox(width: 28, height: 28, child: Center(child: AppIcon('trash', width: 12, height: 13.5))),
+                    onTap: canAdd ? onAdd : null,
+                    child: Center(
+                      child: Opacity(
+                        opacity: canAdd ? 1 : 0.4,
+                        child: AppIcon('add-photo', width: 30, height: 30, color: c.textPrimary),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ]),
-        ],
-      ),
-    ]);
+            ),
+            for (final p in photos)
+              Stack(
+                fit: StackFit.expand,
+                children: [
+                  AppImage(p.localPath ?? p.previewUrl),
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: Tooltip(
+                      message: l10n.removePhoto,
+                      child: Material(
+                        color: const Color(0xFF0F172A),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Pressable(
+                          borderRadius: BorderRadius.circular(8),
+                          onTap: () => onRemove(p),
+                          child: const SizedBox(width: 28, height: 28, child: Center(child: AppIcon('trash', width: 12, height: 13.5))),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+          ],
+        ),
+      ],
+    );
   }
 }
 
@@ -303,11 +372,17 @@ class _ViolationChip extends StatelessWidget {
           border: Border.all(color: on ? c.errorStroke.withValues(alpha: 0.3) : c.chipBorder),
           boxShadow: const [BoxShadow(color: Color(0x0A191B25), offset: Offset(0, 1), blurRadius: 3)],
         ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          AppIcon('violation', width: 12.83, height: 11.08, color: on ? c.error : c.textSecondary),
-          const SizedBox(width: 6),
-          Text(label, style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 1.5, fontWeight: FontWeight.w600, color: on ? c.error : c.textSecondary)),
-        ]),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AppIcon('violation', width: 12.83, height: 11.08, color: on ? c.error : c.textSecondary),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 1.5, fontWeight: FontWeight.w600, color: on ? c.error : c.textSecondary),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -327,10 +402,13 @@ class _FinishButton extends StatelessWidget {
     return Opacity(
       opacity: onPressed == null ? 0.5 : 1,
       child: DecoratedBox(
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), boxShadow: const [
-          BoxShadow(color: Color(0x1A000000), offset: Offset(0, 2), blurRadius: 4, spreadRadius: -2),
-          BoxShadow(color: Color(0x1A000000), offset: Offset(0, 4), blurRadius: 6, spreadRadius: -1),
-        ]),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: const [
+            BoxShadow(color: Color(0x1A000000), offset: Offset(0, 2), blurRadius: 4, spreadRadius: -2),
+            BoxShadow(color: Color(0x1A000000), offset: Offset(0, 4), blurRadius: 6, spreadRadius: -1),
+          ],
+        ),
         child: Material(
           color: c.accent,
           borderRadius: BorderRadius.circular(12),
@@ -340,15 +418,25 @@ class _FinishButton extends StatelessWidget {
             child: SizedBox(
               height: 48,
               width: double.infinity,
-              child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                if (busy)
-                  const SizedBox(width: 18, height: 18, child: CircularProgressIndicator.adaptive(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)))
-                else ...[
-                  Text(label, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600, color: Colors.white)),
-                  const SizedBox(width: 8),
-                  const AppIcon('check-white', width: 12.23, height: 9.02),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (busy)
+                    const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator.adaptive(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)),
+                    )
+                  else ...[
+                    Text(
+                      label,
+                      style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600, color: Colors.white),
+                    ),
+                    const SizedBox(width: 8),
+                    const AppIcon('check-white', width: 12.23, height: 9.02),
+                  ],
                 ],
-              ]),
+              ),
             ),
           ),
         ),
@@ -356,4 +444,3 @@ class _FinishButton extends StatelessWidget {
     );
   }
 }
-

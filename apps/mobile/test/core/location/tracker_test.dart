@@ -55,7 +55,14 @@ void main() {
     final buffer = PingBuffer(db, outbox);
     final t0 = DateTime.utc(2026, 10, 7, 6);
     for (var i = 0; i < 450; i++) {
-      await buffer.add(Ping(recordedAt: t0.add(Duration(minutes: i)), fix: const Fix(lat: 37.95, lng: 58.38, accuracyM: 5), trigger: 'HEARTBEAT', batteryPct: 80));
+      await buffer.add(
+        Ping(
+          recordedAt: t0.add(Duration(minutes: i)),
+          fix: const Fix(lat: 37.95, lng: 58.38, accuracyM: 5),
+          trigger: 'HEARTBEAT',
+          batteryPct: 80,
+        ),
+      );
     }
     await buffer.flush();
     final items = await db.select(db.outbox).get();

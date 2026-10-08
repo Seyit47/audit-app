@@ -4,8 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   final now = DateTime(2026, 10, 7, 11);
 
-  VisitInfo of({DateTime? last, DateTime? due, bool planned = false}) =>
-      visitStateOf(lastVisitAt: last, nextDueAt: due, plannedToday: planned, now: now);
+  VisitInfo of({DateTime? last, DateTime? due, bool planned = false}) => visitStateOf(lastVisitAt: last, nextDueAt: due, plannedToday: planned, now: now);
 
   test('visited today wins over everything else', () {
     final info = of(last: DateTime(2026, 10, 7, 9), due: DateTime(2026, 10, 1), planned: true);

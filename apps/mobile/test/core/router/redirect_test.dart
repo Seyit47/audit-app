@@ -6,8 +6,7 @@ void main() {
   const agent = SessionUser(id: 'u1', role: Role.agent, agentId: 'u1');
   const admin = SessionUser(id: 'u2', role: Role.admin);
 
-  String? go(String location, SessionUser? user, {bool granted = true}) =>
-      redirectFor(location: location, user: user, locationGranted: granted);
+  String? go(String location, SessionUser? user, {bool granted = true}) => redirectFor(location: location, user: user, locationGranted: granted);
 
   test('no session goes to sign-in', () {
     expect(go('/agent/shops', null), '/login');

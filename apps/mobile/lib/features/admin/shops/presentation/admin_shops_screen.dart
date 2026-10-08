@@ -49,7 +49,9 @@ class _AdminShopsScreenState extends ConsumerState<AdminShopsScreen> {
       if (_scroll.position.extentAfter < 400) _load();
     });
     _reload();
-    ref.read(adminApiProvider).regions().then((r) { if (mounted) setState(() => _regions = r); }, onError: (_) {});
+    ref.read(adminApiProvider).regions().then((r) {
+      if (mounted) setState(() => _regions = r);
+    }, onError: (_) {});
   }
 
   @override
@@ -63,7 +65,13 @@ class _AdminShopsScreenState extends ConsumerState<AdminShopsScreen> {
 
   Future<void> _reload() async {
     _seq++; // abandons any page still loading for the previous query
-    setState(() { _items.clear(); _page = 0; _done = false; _error = false; _loading = false; });
+    setState(() {
+      _items.clear();
+      _page = 0;
+      _done = false;
+      _error = false;
+      _loading = false;
+    });
     await _load();
   }
 
@@ -72,9 +80,15 @@ class _AdminShopsScreenState extends ConsumerState<AdminShopsScreen> {
     final seq = _seq;
     setState(() => _loading = true);
     try {
-      final res = await ref.read(adminApiProvider).shops(
-            page: _page + 1, q: _q, dir: _desc ? 'desc' : 'asc',
-            status: (_filters['status'] ?? const {}).firstOrNull, regionId: (_filters['region'] ?? const {}).firstOrNull);
+      final res = await ref
+          .read(adminApiProvider)
+          .shops(
+            page: _page + 1,
+            q: _q,
+            dir: _desc ? 'desc' : 'asc',
+            status: (_filters['status'] ?? const {}).firstOrNull,
+            regionId: (_filters['region'] ?? const {}).firstOrNull,
+          );
       if (!mounted || seq != _seq) return;
       setState(() {
         _page++;
@@ -97,62 +111,115 @@ class _AdminShopsScreenState extends ConsumerState<AdminShopsScreen> {
     return Scaffold(
       backgroundColor: c.mainBg,
       body: SafeArea(
-        child: Column(children: [
-          AppTopBar(
-            title: l10n.shopsTitle,
-            count: _total,
-            action: HeaderButton(label: l10n.add, onPressed: () async {
-              if (await context.push<bool>('/admin/shops/new') == true) _reload();
-            }),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            child: SearchField(
-              hint: l10n.search,
-              onChanged: (v) {
-                _debounce?.cancel();
-                _debounce = Timer(const Duration(milliseconds: 350), () { _q = v; _reload(); });
-              },
-              filtersLabel: l10n.filters,
-              activeFilters: _filters.values.where((v) => v.isNotEmpty).length,
-              onFilters: () async {
-                final next = await showFilterSheet(context, title: l10n.filters, applyLabel: l10n.apply, resetLabel: l10n.reset, values: _filters, sections: [
-                  FilterSection(key: 'status', label: l10n.filterStatus, options: [
-                    for (final s in const ['ACTIVE', 'PENDING_REVIEW', 'INACTIVE']) ChipOption(s, shopStatusLabel(l10n, s)),
-                  ]),
-                  FilterSection(key: 'region', label: l10n.filterRegion, options: [for (final r in _regions) ChipOption(r['id'] as String, r['name'] as String)]),
-                ]);
-                if (next != null) { _filters = next; _reload(); }
-              },
+        child: Column(
+          children: [
+            AppTopBar(
+              title: l10n.shopsTitle,
+              count: _total,
+              action: HeaderButton(
+                label: l10n.add,
+                onPressed: () async {
+                  if (await context.push<bool>('/admin/shops/new') == true) _reload();
+                },
+              ),
             ),
-          ),
-          Expanded(
-            child: RefreshIndicator.adaptive(
-              onRefresh: _reload,
-              child: ListView(controller: _scroll, padding: const EdgeInsets.fromLTRB(16, 0, 16, 48), children: [
-                Row(children: [
-                  Text(l10n.totalShops(_total), style: small),
-                  const Spacer(),
-                  TextLink(
-                    onTap: () { _desc = !_desc; _reload(); },
-                    child: Row(children: [
-                      Text(_desc ? l10n.sortZA : l10n.sortAZ, style: small.copyWith(fontWeight: FontWeight.w600, color: c.accent)),
-                      const SizedBox(width: 4),
-                      AnimatedRotation(turns: _desc ? 0.75 : 0.25, duration: const Duration(milliseconds: 250), curve: Curves.easeOutCubic, child: const AppIcon('chevron-down', width: 14, height: 14)),
-                    ]),
-                  ),
-                ]),
-                const SizedBox(height: 16),
-                for (final s in _items) ...[_card(context, l10n, s), const SizedBox(height: 16)],
-                // First page: card placeholders; further pages: the usual spinner under the list.
-                if (_loading && _items.isEmpty) const CardListSkeleton(lines: 3),
-                if (_loading && _items.isNotEmpty) const Padding(padding: EdgeInsets.all(16), child: Center(child: CircularProgressIndicator.adaptive())),
-                if (_error) LoadErrorView(onRetry: _reload),
-                if (!_loading && !_error && _items.isEmpty) Padding(padding: const EdgeInsets.all(48), child: Center(child: Text(l10n.shopsEmpty, style: small))),
-              ]),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: SearchField(
+                hint: l10n.search,
+                onChanged: (v) {
+                  _debounce?.cancel();
+                  _debounce = Timer(const Duration(milliseconds: 350), () {
+                    _q = v;
+                    _reload();
+                  });
+                },
+                filtersLabel: l10n.filters,
+                activeFilters: _filters.values.where((v) => v.isNotEmpty).length,
+                onFilters: () async {
+                  final next = await showFilterSheet(
+                    context,
+                    title: l10n.filters,
+                    applyLabel: l10n.apply,
+                    resetLabel: l10n.reset,
+                    values: _filters,
+                    sections: [
+                      FilterSection(
+                        key: 'status',
+                        label: l10n.filterStatus,
+                        options: [
+                          for (final s in const ['ACTIVE', 'PENDING_REVIEW', 'INACTIVE']) ChipOption(s, shopStatusLabel(l10n, s)),
+                        ],
+                      ),
+                      FilterSection(
+                        key: 'region',
+                        label: l10n.filterRegion,
+                        options: [for (final r in _regions) ChipOption(r['id'] as String, r['name'] as String)],
+                      ),
+                    ],
+                  );
+                  if (next != null) {
+                    _filters = next;
+                    _reload();
+                  }
+                },
+              ),
             ),
-          ),
-        ]),
+            Expanded(
+              child: RefreshIndicator.adaptive(
+                onRefresh: _reload,
+                child: ListView(
+                  controller: _scroll,
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 48),
+                  children: [
+                    Row(
+                      children: [
+                        Text(l10n.totalShops(_total), style: small),
+                        const Spacer(),
+                        TextLink(
+                          onTap: () {
+                            _desc = !_desc;
+                            _reload();
+                          },
+                          child: Row(
+                            children: [
+                              Text(
+                                _desc ? l10n.sortZA : l10n.sortAZ,
+                                style: small.copyWith(fontWeight: FontWeight.w600, color: c.accent),
+                              ),
+                              const SizedBox(width: 4),
+                              AnimatedRotation(
+                                turns: _desc ? 0.75 : 0.25,
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.easeOutCubic,
+                                child: const AppIcon('chevron-down', width: 14, height: 14),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    for (final s in _items) ...[_card(context, l10n, s), const SizedBox(height: 16)],
+                    // First page: card placeholders; further pages: the usual spinner under the list.
+                    if (_loading && _items.isEmpty) const CardListSkeleton(lines: 3),
+                    if (_loading && _items.isNotEmpty)
+                      const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Center(child: CircularProgressIndicator.adaptive()),
+                      ),
+                    if (_error) LoadErrorView(onRetry: _reload),
+                    if (!_loading && !_error && _items.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.all(48),
+                        child: Center(child: Text(l10n.shopsEmpty, style: small)),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -164,27 +231,56 @@ class _AdminShopsScreenState extends ConsumerState<AdminShopsScreen> {
     final agent = (s['agent'] as Map?)?['fullName'] as String?;
     final phone = ((s['contacts'] as List?) ?? const []).cast<Map>().firstOrNull?['phone'] as String?;
     final right = status != 'ACTIVE' || last == null
-        ? Row(mainAxisSize: MainAxisSize.min, children: [
-            Container(width: 6, height: 6, decoration: BoxDecoration(shape: BoxShape.circle, color: status == 'ACTIVE' ? c.success : status == 'PENDING_REVIEW' ? c.accent : c.textSecondary)),
-            const SizedBox(width: 4),
-            Text(shopStatusLabel(l10n, status), style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 11, height: 1.5, fontWeight: FontWeight.w500,
-                color: status == 'ACTIVE' ? c.success : status == 'PENDING_REVIEW' ? c.accent : c.textSecondary)),
-          ])
-        : Text(_lastVisit(context, l10n, DateTime.parse(last)), style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 11, height: 1.5, fontWeight: FontWeight.w500, color: c.textSecondary));
+        ? Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: status == 'ACTIVE'
+                      ? c.success
+                      : status == 'PENDING_REVIEW'
+                      ? c.accent
+                      : c.textSecondary,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                shopStatusLabel(l10n, status),
+                style: TextStyle(
+                  fontFamily: AppTextStyles.family,
+                  fontSize: 11,
+                  height: 1.5,
+                  fontWeight: FontWeight.w500,
+                  color: status == 'ACTIVE'
+                      ? c.success
+                      : status == 'PENDING_REVIEW'
+                      ? c.accent
+                      : c.textSecondary,
+                ),
+              ),
+            ],
+          )
+        : Text(
+            _lastVisit(context, l10n, DateTime.parse(last)),
+            style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 11, height: 1.5, fontWeight: FontWeight.w500, color: c.textSecondary),
+          );
     return ShopCard(
-      header: Row(children: [
-        Tag(shopTypeLabel(l10n, s['type'] as String?), strong: true),
-        const SizedBox(width: 6),
-        Tag(s['code'] as String),
-        const Spacer(),
-        right,
-      ]),
+      header: Row(
+        children: [Tag(shopTypeLabel(l10n, s['type'] as String?), strong: true), const SizedBox(width: 6), Tag(s['code'] as String), const Spacer(), right],
+      ),
       title: s['name'] as String,
       subtitle: IconLine(icon: 'pin-small', text: s['address'] as String),
-      footer: Row(children: [
-        Expanded(child: IconLine(icon: 'person-small', iconSize: const Size(10, 10), text: l10n.agentLabel, bold: agent ?? l10n.unassigned)),
-        IconLine(icon: 'history', iconSize: const Size(11.25, 11.25), text: l10n.auditsTotal((s['auditCount'] as int?) ?? 0)),
-      ]),
+      footer: Row(
+        children: [
+          Expanded(
+            child: IconLine(icon: 'person-small', iconSize: const Size(10, 10), text: l10n.agentLabel, bold: agent ?? l10n.unassigned),
+          ),
+          IconLine(icon: 'history', iconSize: const Size(11.25, 11.25), text: l10n.auditsTotal((s['auditCount'] as int?) ?? 0)),
+        ],
+      ),
       detailsLabel: l10n.details,
       onDetails: () async {
         if (await context.push<bool>('/admin/shops/${s['id']}') == true) _reload();

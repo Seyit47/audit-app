@@ -15,7 +15,9 @@ class GeolocatorLocator implements Locator {
   @override
   Future<Fix?> current() async {
     try {
-      final p = await Geolocator.getCurrentPosition(locationSettings: const LocationSettings(accuracy: LocationAccuracy.best, timeLimit: Duration(seconds: 20)));
+      final p = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.best, timeLimit: Duration(seconds: 20)),
+      );
       return Fix(lat: p.latitude, lng: p.longitude, accuracyM: p.accuracy);
     } catch (_) {
       return null;
@@ -27,7 +29,10 @@ final photoCaptureProvider = Provider<PhotoCapture>((ref) => CameraPhotoCapture(
 final locatorProvider = Provider<Locator>((ref) => GeolocatorLocator());
 
 /// Runs a sync right after "Завершить аудит" (T092); tests replace it.
-final syncTriggerProvider = Provider<void Function()>((ref) => () => unawaited(ref.read(syncControllerProvider.notifier).syncNow()));
+final syncTriggerProvider = Provider<void Function()>(
+  (ref) =>
+      () => unawaited(ref.read(syncControllerProvider.notifier).syncNow()),
+);
 
 class AuditState {
   const AuditState({this.shop, this.draft, this.photos = const [], this.fix, this.geo = GeoStatus.locating, this.finishing = false, this.finished = false});
@@ -49,14 +54,14 @@ class AuditState {
   bool get canFinish => geo == GeoStatus.inside && photos.isNotEmpty && comment.trim().isNotEmpty && !finishing && !finished;
 
   AuditState copyWith({Shop? shop, AuditDraft? draft, List<Photo>? photos, Fix? fix, GeoStatus? geo, bool? finishing, bool? finished}) => AuditState(
-        shop: shop ?? this.shop,
-        draft: draft ?? this.draft,
-        photos: photos ?? this.photos,
-        fix: fix ?? this.fix,
-        geo: geo ?? this.geo,
-        finishing: finishing ?? this.finishing,
-        finished: finished ?? this.finished,
-      );
+    shop: shop ?? this.shop,
+    draft: draft ?? this.draft,
+    photos: photos ?? this.photos,
+    fix: fix ?? this.fix,
+    geo: geo ?? this.geo,
+    finishing: finishing ?? this.finishing,
+    finished: finished ?? this.finished,
+  );
 }
 
 /// The audit screen's state for one shop (T090): locate and check the geofence, keep the draft,
@@ -129,12 +134,10 @@ class AuditController extends Notifier<AuditState> {
     if (!state.canFinish || draft == null || fix == null || shop == null) return false;
     state = state.copyWith(finishing: true);
     final distance = distanceMeters(fix.lat, fix.lng, shop.lat, shop.lng);
-    await _repo.finish(draft, FinishedAudit(
-      finishedAt: DateTime.now().toUtc(),
-      fix: fix,
-      distanceM: distance.round(),
-      withinRadius: distance <= shop.auditRadiusM,
-    ));
+    await _repo.finish(
+      draft,
+      FinishedAudit(finishedAt: DateTime.now().toUtc(), fix: fix, distanceM: distance.round(), withinRadius: distance <= shop.auditRadiusM),
+    );
     ref.read(syncTriggerProvider)();
     if (ref.mounted) state = state.copyWith(finishing: false, finished: true);
     return true;

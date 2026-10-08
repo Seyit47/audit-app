@@ -37,17 +37,21 @@ class AppMapController {
 
   Future<void> zoomIn() async => _map?.animateCamera(CameraUpdate.zoomIn());
   Future<void> zoomOut() async => _map?.animateCamera(CameraUpdate.zoomOut());
-  Future<void> moveTo(double lat, double lng, {double zoom = 15}) async =>
-      _map?.animateCamera(CameraUpdate.newLatLngZoom(LatLng(lat, lng), zoom));
+  Future<void> moveTo(double lat, double lng, {double zoom = 15}) async => _map?.animateCamera(CameraUpdate.newLatLngZoom(LatLng(lat, lng), zoom));
   Future<void> fit(List<(double, double)> points) async {
     if (points.isEmpty) return;
     if (points.length == 1) return moveTo(points.first.$1, points.first.$2);
     final lats = points.map((p) => p.$1);
     final lngs = points.map((p) => p.$2);
-    await _map?.animateCamera(CameraUpdate.newLatLngBounds(
-      LatLngBounds(southwest: LatLng(lats.reduce(math.min), lngs.reduce(math.min)), northeast: LatLng(lats.reduce(math.max), lngs.reduce(math.max))),
-      left: 48, right: 48, top: 160, bottom: 120,
-    ));
+    await _map?.animateCamera(
+      CameraUpdate.newLatLngBounds(
+        LatLngBounds(southwest: LatLng(lats.reduce(math.min), lngs.reduce(math.min)), northeast: LatLng(lats.reduce(math.max), lngs.reduce(math.max))),
+        left: 48,
+        right: 48,
+        top: 160,
+        bottom: 120,
+      ),
+    );
   }
 }
 
@@ -59,6 +63,7 @@ class AppMapView extends StatefulWidget {
   final AppMapController controller;
   final ValueChanged<String>? onMarkerTap;
   final VoidCallback? onMapTap;
+
   /// Start position; the first markers are fitted otherwise.
   final (double, double)? initial;
 

@@ -22,11 +22,19 @@ class PrimaryButton extends StatelessWidget {
     final content = AnimatedSwitcher(
       duration: const Duration(milliseconds: 200),
       child: loading
-          ? const SizedBox.square(key: ValueKey('loading'), dimension: 20, child: CircularProgressIndicator.adaptive(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)))
-          : Row(key: const ValueKey('label'), mainAxisSize: MainAxisSize.min, children: [
-              if (icon != null) ...[icon!, const SizedBox(width: 8)],
-              Text(label),
-            ]),
+          ? const SizedBox.square(
+              key: ValueKey('loading'),
+              dimension: 20,
+              child: CircularProgressIndicator.adaptive(strokeWidth: 2, valueColor: AlwaysStoppedAnimation(Colors.white)),
+            )
+          : Row(
+              key: const ValueKey('label'),
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (icon != null) ...[icon!, const SizedBox(width: 8)],
+                Text(label),
+              ],
+            ),
     );
     final c = context.colors;
     final button = context.isCupertino
@@ -37,7 +45,10 @@ class PrimaryButton extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             // Figma: the accent at half opacity when disabled (iOS would turn it grey).
             disabledColor: c.accent.withValues(alpha: 0.5),
-            child: DefaultTextStyle.merge(style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600, color: Colors.white), child: content),
+            child: DefaultTextStyle.merge(
+              style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600, color: Colors.white),
+              child: content,
+            ),
           )
         : FilledButton(onPressed: enabled ? onPressed : null, child: content);
     // The design's soft accent shadow under the button (252:26602), fading out when disabled.
@@ -70,14 +81,20 @@ class SecondaryButton extends StatelessWidget {
     if (context.isCupertino) {
       final c = context.colors;
       return DecoratedBox(
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: c.secondaryButtonBorder)),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: c.secondaryButtonBorder),
+        ),
         child: CupertinoButton(
           onPressed: onPressed,
           color: c.secondaryButtonBg,
           minimumSize: const Size(64, 48),
           borderRadius: BorderRadius.circular(12),
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Text(label, style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600, color: c.secondaryButtonText)),
+          child: Text(
+            label,
+            style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600, color: c.secondaryButtonText),
+          ),
         ),
       );
     }

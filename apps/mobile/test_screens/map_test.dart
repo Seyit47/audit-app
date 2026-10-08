@@ -14,9 +14,20 @@ void main() {
       final db = memoryDb();
       await tester.runAsync(() => seed(db));
       final shops = await tester.runAsync(() => ShopsLocalRepository(db).watchAll().first);
-      await shoot(tester, 'map-sheet', Scaffold(backgroundColor: const Color(0xFFEAF1EC), body: Align(alignment: Alignment.bottomCenter, child: ShopSheet(item: shops!.first, meters: 1200))), db: db, dark: dark);
+      await shoot(
+        tester,
+        'map-sheet',
+        Scaffold(
+          backgroundColor: const Color(0xFFEAF1EC),
+          body: Align(
+            alignment: Alignment.bottomCenter,
+            child: ShopSheet(item: shops!.first, meters: 1200),
+          ),
+        ),
+        db: db,
+        dark: dark,
+      );
       await tester.runAsync(db.close);
     });
   }
-
 }

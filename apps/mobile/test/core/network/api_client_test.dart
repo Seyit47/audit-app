@@ -26,8 +26,13 @@ class _Adapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
-ResponseBody _json(int status, Object body) => ResponseBody.fromString(jsonEncode(body), status,
-    headers: {Headers.contentTypeHeader: [Headers.jsonContentType]});
+ResponseBody _json(int status, Object body) => ResponseBody.fromString(
+  jsonEncode(body),
+  status,
+  headers: {
+    Headers.contentTypeHeader: [Headers.jsonContentType],
+  },
+);
 
 void main() {
   test('concurrent 401s trigger a single refresh, then retry with the new token', () async {
@@ -44,7 +49,9 @@ void main() {
         }
         return o.headers['Authorization'] == 'Bearer new'
             ? _json(200, {'ok': true})
-            : _json(401, {'error': {'code': 'UNAUTHENTICATED', 'message': ''}});
+            : _json(401, {
+                'error': {'code': 'UNAUTHENTICATED', 'message': ''},
+              });
       }),
     );
 
@@ -60,7 +67,12 @@ void main() {
       tokens: _Tokens(const Tokens(access: 'old', refresh: 'stale')),
       onSessionExpired: () => expired = true,
       baseUrl: 'http://api',
-      adapter: _Adapter((o) => _json(401, {'error': {'code': 'UNAUTHENTICATED', 'message': 'idle'}, 'requestId': 'x'})),
+      adapter: _Adapter(
+        (o) => _json(401, {
+          'error': {'code': 'UNAUTHENTICATED', 'message': 'idle'},
+          'requestId': 'x',
+        }),
+      ),
     );
 
     await expectLater(client.get<void>('/a'), throwsA(isA<ApiException>().having((e) => e.code, 'code', 'UNAUTHENTICATED')));

@@ -82,8 +82,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorCredentials => 'Wrong login or password';
 
   @override
-  String get errorDeviceNotBound =>
-      'This account is bound to another device. Contact your administrator.';
+  String get errorDeviceNotBound => 'This account is bound to another device. Contact your administrator.';
 
   @override
   String get errorRateLimited => 'Too many attempts. Try again in a minute.';
@@ -108,8 +107,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get permissionSettings => 'Open settings';
 
   @override
-  String get permissionDenied =>
-      'Audits need location access. Allow it in the settings.';
+  String get permissionDenied => 'Audits need location access. Allow it in the settings.';
 
   @override
   String get cancel => 'Cancel';
@@ -303,8 +301,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startAudit => 'Start audit';
 
   @override
-  String get auditOnlyOnSite =>
-      'You can start the audit only on the shop\'s premises';
+  String get auditOnlyOnSite => 'You can start the audit only on the shop\'s premises';
 
   @override
   String get locating => 'Locating…';
@@ -338,8 +335,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get photoEmptyTitle => 'No POSM photo yet';
 
   @override
-  String get photoEmptyHint =>
-      'Photograph posters, wobblers, price tags and shelf talkers in the shopper\'s view';
+  String get photoEmptyHint => 'Photograph posters, wobblers, price tags and shelf talkers in the shopper\'s view';
 
   @override
   String get takePhoto => 'Take photo';
@@ -351,8 +347,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auditComment => 'Audit comment';
 
   @override
-  String get auditCommentHint =>
-      'Write remarks or more details about the outlet...';
+  String get auditCommentHint => 'Write remarks or more details about the outlet...';
 
   @override
   String get violationChip => 'Violation';
@@ -830,8 +825,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get agentCreated => 'Salesman added';
 
   @override
-  String get tempPassword =>
-      'Temporary password (shown once, pass it to the salesman):';
+  String get tempPassword => 'Temporary password (shown once, pass it to the salesman):';
 
   @override
   String get done => 'Done';

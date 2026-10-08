@@ -40,12 +40,14 @@ void main() {
 
   Future<ProviderContainer> open({Fix? fix = inside}) async {
     locator.next = fix;
-    final c = ProviderContainer(overrides: [
-      databaseProvider.overrideWithValue(db),
-      locatorProvider.overrideWithValue(locator),
-      photoCaptureProvider.overrideWithValue(FakeCapture()),
-      syncTriggerProvider.overrideWithValue(() => syncs++),
-    ]);
+    final c = ProviderContainer(
+      overrides: [
+        databaseProvider.overrideWithValue(db),
+        locatorProvider.overrideWithValue(locator),
+        photoCaptureProvider.overrideWithValue(FakeCapture()),
+        syncTriggerProvider.overrideWithValue(() => syncs++),
+      ],
+    );
     c.listen(auditControllerProvider('s1'), (_, _) {});
     // Let the draft open, the photo stream start and the location check run.
     for (var i = 0; i < 10; i++) {
@@ -62,14 +64,47 @@ void main() {
     db = AppDatabase(NativeDatabase.memory());
     locator = FakeLocator();
     syncs = 0;
-    await db.into(db.shops).insert(ShopsCompanion.insert(
-          id: 's1', code: 'CL-1', name: 'Shop', type: 'MARKET', address: 'Street', lat: shopLat, lng: shopLng,
-          auditRadiusM: 100, status: 'ACTIVE', updatedAt: DateTime.utc(2026, 10, 7)));
-    await db.into(db.syncCursors).insert(SyncCursorsCompanion.insert(
-          name: PullService.meCursor, value: jsonEncode({'config': {'minGpsAccuracyM': 50}}), updatedAt: DateTime.utc(2026, 10, 7)));
+    await db
+        .into(db.shops)
+        .insert(
+          ShopsCompanion.insert(
+            id: 's1',
+            code: 'CL-1',
+            name: 'Shop',
+            type: 'MARKET',
+            address: 'Street',
+            lat: shopLat,
+            lng: shopLng,
+            auditRadiusM: 100,
+            status: 'ACTIVE',
+            updatedAt: DateTime.utc(2026, 10, 7),
+          ),
+        );
+    await db
+        .into(db.syncCursors)
+        .insert(
+          SyncCursorsCompanion.insert(
+            name: PullService.meCursor,
+            value: jsonEncode({
+              'config': {'minGpsAccuracyM': 50},
+            }),
+            updatedAt: DateTime.utc(2026, 10, 7),
+          ),
+        );
     await db.into(db.routes).insert(RoutesCompanion.insert(id: 'r1', date: DateTime.utc(2026, 10, 7), updatedAt: DateTime.utc(2026, 10, 7)));
-    await db.into(db.routeStops).insert(RouteStopsCompanion.insert(
-          id: 'st1', routeId: 'r1', shopId: 's1', position: 0, plannedAt: DateTime.utc(2026, 10, 7, 4), isAuditTask: true, status: 'PLANNED'));
+    await db
+        .into(db.routeStops)
+        .insert(
+          RouteStopsCompanion.insert(
+            id: 'st1',
+            routeId: 'r1',
+            shopId: 's1',
+            position: 0,
+            plannedAt: DateTime.utc(2026, 10, 7, 4),
+            isAuditTask: true,
+            status: 'PLANNED',
+          ),
+        );
   });
 
   tearDown(() async {

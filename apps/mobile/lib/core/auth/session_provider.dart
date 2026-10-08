@@ -6,10 +6,9 @@ import 'session_store.dart';
 
 final sessionStoreProvider = Provider<SessionStore>((ref) => SessionStore());
 
-final apiClientProvider = Provider<ApiClient>((ref) => ApiClient(
-      tokens: ref.watch(sessionStoreProvider),
-      onSessionExpired: () => ref.read(sessionProvider.notifier).expire(),
-    ));
+final apiClientProvider = Provider<ApiClient>(
+  (ref) => ApiClient(tokens: ref.watch(sessionStoreProvider), onSessionExpired: () => ref.read(sessionProvider.notifier).expire()),
+);
 
 /// The signed-in user, or null. Loaded from secure storage at startup.
 final sessionProvider = AsyncNotifierProvider<SessionNotifier, SessionUser?>(SessionNotifier.new);
@@ -24,11 +23,7 @@ class SessionNotifier extends AsyncNotifier<SessionUser?> {
   /// Signs in. Agents must send their device (`installId`, `model`) for device binding.
   Future<void> signIn(String login, String password, {Map<String, String>? device}) async {
     final api = ref.read(apiClientProvider);
-    final body = await api.post<Map<String, dynamic>>(
-      '/auth/login',
-      body: {'login': login, 'password': password, 'device': ?device},
-      auth: false,
-    );
+    final body = await api.post<Map<String, dynamic>>('/auth/login', body: {'login': login, 'password': password, 'device': ?device}, auth: false);
     final store = ref.read(sessionStoreProvider);
     final user = SessionUser.fromJson(body['user'] as Map<String, dynamic>);
     await store.writeTokens(Tokens(access: body['accessToken'] as String, refresh: body['refreshToken'] as String));

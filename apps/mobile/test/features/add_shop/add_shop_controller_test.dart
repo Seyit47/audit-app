@@ -25,13 +25,18 @@ void main() {
   test('Save needs every field, a location and the photo; it queues PHOTO then SHOP_CREATE', () async {
     final db = AppDatabase(NativeDatabase.memory());
     var syncs = 0;
-    final c = ProviderContainer(overrides: [
-      databaseProvider.overrideWithValue(db),
-      locatorProvider.overrideWithValue(_Locator()),
-      photoCaptureProvider.overrideWithValue(_Capture()),
-      syncTriggerProvider.overrideWithValue(() => syncs++),
-    ]);
-    addTearDown(() async { c.dispose(); await db.close(); });
+    final c = ProviderContainer(
+      overrides: [
+        databaseProvider.overrideWithValue(db),
+        locatorProvider.overrideWithValue(_Locator()),
+        photoCaptureProvider.overrideWithValue(_Capture()),
+        syncTriggerProvider.overrideWithValue(() => syncs++),
+      ],
+    );
+    addTearDown(() async {
+      c.dispose();
+      await db.close();
+    });
     c.listen(addShopControllerProvider, (_, _) {});
     await Future<void>.delayed(const Duration(milliseconds: 20));
     final ctrl = c.read(addShopControllerProvider.notifier);
@@ -50,7 +55,9 @@ void main() {
     expect(jsonDecode(shop.dependsOn), [photo.id]);
     final body = jsonDecode(shop.payloadJson) as Map<String, dynamic>;
     expect(body['facadePhotoId'], 'facade-1');
-    expect(body['contacts'], [{'phone': '+993 62 112233'}]);
+    expect(body['contacts'], [
+      {'phone': '+993 62 112233'},
+    ]);
     expect((jsonDecode(photo.payloadJson) as Map).containsKey('shopId'), isFalse);
     expect((await db.select(db.shops).getSingle()).status, 'PENDING_REVIEW');
     expect(syncs, 1);

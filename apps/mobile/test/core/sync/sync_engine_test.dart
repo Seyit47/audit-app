@@ -30,12 +30,25 @@ void main() {
   tearDown(() => db.close());
 
   Future<void> photo(String id) => outbox.enqueue(OutboxKind.photo, {
-        'id': id, 'kind': 'AUDIT', 'mime': 'image/jpeg', 'sizeBytes': 10, 'sha256': 'a' * 64,
-        'takenAt': now.toIso8601String(), 'localPath': '/p/$id.jpg',
-      }, id: 'ph-$id');
+    'id': id,
+    'kind': 'AUDIT',
+    'mime': 'image/jpeg',
+    'sizeBytes': 10,
+    'sha256': 'a' * 64,
+    'takenAt': now.toIso8601String(),
+    'localPath': '/p/$id.jpg',
+  }, id: 'ph-$id');
 
   test('runs FIFO and waits for dependencies (photos before the audit and shop)', () async {
-    await outbox.enqueue(OutboxKind.auditCreate, {'id': 'a1', 'photoIds': ['p1', 'p2']}, id: 'au-a1', dependsOn: ['ph-p1', 'ph-p2']);
+    await outbox.enqueue(
+      OutboxKind.auditCreate,
+      {
+        'id': 'a1',
+        'photoIds': ['p1', 'p2'],
+      },
+      id: 'au-a1',
+      dependsOn: ['ph-p1', 'ph-p2'],
+    );
     await photo('p1');
     await photo('p2');
     await outbox.enqueue(OutboxKind.shopCreate, {'id': 's1', 'facadePhotoId': 'p3'}, id: 'sh-s1', dependsOn: ['ph-p3']);
@@ -44,10 +57,16 @@ void main() {
     await engine.run();
 
     expect(api.calls, [
-      'createUpload:p1', 'put:/p/p1.jpg', 'complete:p1',
-      'createUpload:p2', 'put:/p/p2.jpg', 'complete:p2',
+      'createUpload:p1',
+      'put:/p/p1.jpg',
+      'complete:p1',
+      'createUpload:p2',
+      'put:/p/p2.jpg',
+      'complete:p2',
       'createAudit:a1',
-      'createUpload:p3', 'put:/p/p3.jpg', 'complete:p3',
+      'createUpload:p3',
+      'put:/p/p3.jpg',
+      'complete:p3',
       'createShop:s1',
     ]);
     expect(await outbox.openCount(), 0);
@@ -55,7 +74,15 @@ void main() {
 
   test('network errors and 5xx back off; dependents wait', () async {
     await photo('p1');
-    await outbox.enqueue(OutboxKind.auditCreate, {'id': 'a1', 'photoIds': ['p1']}, id: 'au-a1', dependsOn: ['ph-p1']);
+    await outbox.enqueue(
+      OutboxKind.auditCreate,
+      {
+        'id': 'a1',
+        'photoIds': ['p1'],
+      },
+      id: 'au-a1',
+      dependsOn: ['ph-p1'],
+    );
     api.fail['createUpload:p1'] = [network(), server()];
 
     await engine.run();
@@ -119,10 +146,22 @@ void main() {
   });
 
   test('the pull applies tombstones but keeps shops with pending outbox items', () async {
-    Future<void> shop(String id) => db.into(db.shops).insert(ShopsCompanion.insert(
-          id: id, code: 'CL-$id', name: id, type: 'OTHER', address: 'a', lat: 0, lng: 0,
-          auditRadiusM: 100, status: 'ACTIVE', updatedAt: now,
-        ));
+    Future<void> shop(String id) => db
+        .into(db.shops)
+        .insert(
+          ShopsCompanion.insert(
+            id: id,
+            code: 'CL-$id',
+            name: id,
+            type: 'OTHER',
+            address: 'a',
+            lat: 0,
+            lng: 0,
+            auditRadiusM: 100,
+            status: 'ACTIVE',
+            updatedAt: now,
+          ),
+        );
     await shop('gone');
     await shop('busy');
     await outbox.enqueue(OutboxKind.auditCreate, {'id': 'a1', 'shopId': 'busy', 'photoIds': <String>[]}, id: 'au-a1');
@@ -130,10 +169,23 @@ void main() {
     await engine.run(); // leaves the audit pending
 
     api.shopsPage = ShopsPage(
-      items: [ShopRecord(json: {
-        'id': 'new', 'code': 'CL-1', 'name': 'New', 'type': 'OTHER', 'address': 'x', 'lat': 1.0, 'lng': 2.0,
-        'auditRadiusM': 100, 'status': 'ACTIVE', 'updatedAt': now.toIso8601String(), 'contacts': <Object>[],
-      })],
+      items: [
+        ShopRecord(
+          json: {
+            'id': 'new',
+            'code': 'CL-1',
+            'name': 'New',
+            'type': 'OTHER',
+            'address': 'x',
+            'lat': 1.0,
+            'lng': 2.0,
+            'auditRadiusM': 100,
+            'status': 'ACTIVE',
+            'updatedAt': now.toIso8601String(),
+            'contacts': <Object>[],
+          },
+        ),
+      ],
       tombstones: const ['gone', 'busy'],
       cursor: 'c2',
     );
