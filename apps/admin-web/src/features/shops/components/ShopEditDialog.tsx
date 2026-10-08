@@ -14,6 +14,7 @@ import { MultiSelect } from '@/components/ui/MultiSelect'
 import { createShop, setShopStatus, updateShop, type ShopInput } from '../actions'
 import type { Shop } from '../api'
 import type { ShopFormCopy } from '../copy'
+import { tmPhone } from '@/lib/phone'
 
 const MapView = dynamic(() => import('@/components/ui/MapView').then((m) => m.MapView), { ssr: false })
 const ShopMarker = dynamic(() => import('@/components/ui/MapView').then((m) => m.ShopMarker), { ssr: false })
@@ -55,6 +56,10 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
 
   function save () {
     if (name.trim() === '' || address.trim() === '' || point == null) return setError(copy.errors.required)
+    // Contacts: Turkmen mobile or landline numbers, sent in the stored form +993XXXXXXXX.
+    const filled = phones.filter((p) => p.phone.trim() !== '')
+    const canonical = filled.map((p) => tmPhone(p.phone, 'any'))
+    if (canonical.some((p) => p == null)) return setError(copy.errors.phone)
     const input: ShopInput = {
       name: name.trim(),
       address: address.trim(),
@@ -62,7 +67,7 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
       lng: point.lng,
       facadePhotoId: facadeId,
       assignedAgentId: agentId === '' ? null : agentId,
-      contacts: phones.filter((p) => p.phone.trim() !== '').map((p) => ({ phone: p.phone.trim(), label: p.label.trim() || null })),
+      contacts: filled.map((p, i) => ({ phone: canonical[i]!, label: p.label.trim() || null })),
       productIds: carried
     }
     setError(null)

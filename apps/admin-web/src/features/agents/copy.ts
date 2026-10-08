@@ -71,7 +71,7 @@ export const agentsCopy = defineCopy({
       status: 'Employee activity status', statuses: { ACTIVE: 'Active', ON_LEAVE: 'On leave', ARCHIVED: 'Archive' },
       cancel: 'Cancel', save: 'Save changes', resetPassword: 'Reset password',
       created: 'Salesman added', passwordNote: 'Temporary password (shown once, pass it to the salesman):', done: 'Done',
-      errors: { required: 'Fill in the required fields', plan: 'The audit plan cannot exceed the visit plan', CONFLICT: 'This phone or code is already used, or the record was changed. Reload and try again.', generic: 'Could not save. Try again.' }
+      errors: { required: 'Fill in the required fields', phone: 'Enter a Turkmen mobile number: +993 6X XXXXXX (or 71, 72)', plan: 'The audit plan cannot exceed the visit plan', CONFLICT: 'This phone or code is already used, or the record was changed. Reload and try again.', generic: 'Could not save. Try again.' }
     }
   },
   ru: {
@@ -143,7 +143,7 @@ export const agentsCopy = defineCopy({
       status: 'Статус активности сотрудника', statuses: { ACTIVE: 'Активен', ON_LEAVE: 'Отпуск', ARCHIVED: 'Архив' },
       cancel: 'Отменить', save: 'Сохранить изменения', resetPassword: 'Сбросить пароль',
       created: 'Агент добавлен', passwordNote: 'Временный пароль (показывается один раз, передайте его агенту):', done: 'Готово',
-      errors: { required: 'Заполните обязательные поля', plan: 'План аудитов не может превышать план визитов', CONFLICT: 'Этот телефон или код уже занят, либо запись изменена. Обновите страницу и повторите.', generic: 'Не удалось сохранить. Попробуйте ещё раз.' }
+      errors: { required: 'Заполните обязательные поля', phone: 'Введите мобильный номер Туркменистана: +993 6X XXXXXX (или 71, 72)', plan: 'План аудитов не может превышать план визитов', CONFLICT: 'Этот телефон или код уже занят, либо запись изменена. Обновите страницу и повторите.', generic: 'Не удалось сохранить. Попробуйте ещё раз.' }
     }
   }
 })

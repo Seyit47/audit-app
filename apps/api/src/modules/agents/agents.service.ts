@@ -10,11 +10,13 @@ import { photoView, type PhotoView } from '../photos/photo.view.js'
 import { isUniqueViolation, type AgentDetail, type AgentsRepository } from './agents.repository.js'
 import type { CreateAgentBody, ListAgentsQuery, PatchAgentBody } from './agents.schema.js'
 import type { AgentInsights } from './agent-insights.js'
+import { requireTmPhone } from '../../lib/phone.js'
 
 const invalid = (message: string) => new AppError(400, 'VALIDATION_FAILED', message)
 const temporaryPassword = () => randomBytes(9).toString('base64url')
 const hashPassword = (p: string) => argon2.hash(p, { type: argon2.argon2id })
-const normalizePhone = (p: string) => p.replace(/[\s()-]/g, '')
+// A salesman's phone is their sign-in and contact: a Turkmen mobile number, stored as +993XXXXXXXX.
+const normalizePhone = (p: string, field = 'phone') => requireTmPhone(p, 'mobile', field)
 
 /** Salesmen (Figma 31:2307, 495:3932): accounts, plans, status, device binding. */
 export class AgentsService {
@@ -73,7 +75,7 @@ export class AgentsService {
         passwordHash: await hashPassword(password),
         fullName: body.fullName.trim(),
         phone: normalizePhone(body.phone),
-        whatsappPhone: body.whatsappPhone != null ? normalizePhone(body.whatsappPhone) : null,
+        whatsappPhone: body.whatsappPhone != null ? normalizePhone(body.whatsappPhone, 'whatsappPhone') : null,
         regionId: body.regionId,
         photoId: body.photoId ?? null,
         routeNotes: body.routeNotes ?? null,
@@ -105,7 +107,7 @@ export class AgentsService {
       ...fields,
       ...(code !== undefined ? { code: code.toUpperCase() } : {}),
       ...(phone !== undefined ? { phone: normalizePhone(phone) } : {}),
-      ...(whatsappPhone !== undefined ? { whatsappPhone: whatsappPhone != null ? normalizePhone(whatsappPhone) : null } : {})
+      ...(whatsappPhone !== undefined ? { whatsappPhone: whatsappPhone != null ? normalizePhone(whatsappPhone, 'whatsappPhone') : null } : {})
     }
     try {
       if (!await this.repo.update(id, version, data, data.phone)) throw conflict('The salesman was changed by someone else; reload and try again')

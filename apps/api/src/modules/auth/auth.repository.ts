@@ -1,12 +1,13 @@
 import type { PrismaClient } from '../../generated/prisma/client.js'
 import { newId } from '../../lib/ids.js'
+import { tmPhone } from '../../lib/phone.js'
 
 export class AuthRepository {
   private readonly prisma: PrismaClient
   constructor (prisma: PrismaClient) { this.prisma = prisma }
 
   findByLogin (login: string) {
-    const where = login.includes('@') ? { email: login.toLowerCase() } : { phone: login.replace(/[\s()-]/g, '') }
+    const where = login.includes('@') ? { email: login.toLowerCase() } : { phone: tmPhone(login, 'any') ?? login.replace(/[\s()-]/g, '') }
     return this.prisma.user.findUnique({ where, include: { agent: { include: { device: true } } } })
   }
 

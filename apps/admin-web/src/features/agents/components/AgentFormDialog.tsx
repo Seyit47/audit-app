@@ -11,6 +11,7 @@ import { FormField, SelectInput, StatusSwitch, TextArea, TextInput } from '@/com
 import { createAgent, rebindAgentDevice, resetAgentPassword, updateAgent, type AgentInput } from '../actions'
 import type { Agent, Region } from '../api'
 import type { AgentsCopy } from '../copy'
+import { tmPhone } from '@/lib/phone'
 
 type Status = AgentInput['status']
 
@@ -55,6 +56,12 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref, en
       status
     }
     if (!input.fullName || !input.code || !input.phone || !input.regionId) return setError(f.errors.required)
+    // Sign-in and contact: a Turkmen mobile number, sent in the stored form +993XXXXXXXX.
+    const phone = tmPhone(input.phone, 'mobile')
+    const whatsapp = input.whatsappPhone == null ? null : tmPhone(input.whatsappPhone, 'mobile')
+    if (phone == null || (input.whatsappPhone != null && whatsapp == null)) return setError(f.errors.phone)
+    input.phone = phone
+    input.whatsappPhone = whatsapp
     if (input.dailyAuditPlan > input.dailyVisitPlan) return setError(f.errors.plan)
     setError(null)
     startTransition(() => guard(async () => {

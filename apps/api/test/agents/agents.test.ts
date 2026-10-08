@@ -153,3 +153,20 @@ test('agents get 403 on every agents endpoint', async () => {
   assert.strictEqual((await app.inject({ method: 'POST', url: '/v1/agents', headers: h, payload: await valid() })).statusCode, 403)
   assert.strictEqual((await app.inject({ url: `/v1/agents/${g.userId}`, headers: h })).statusCode, 403)
 })
+
+test('phones: Turkmen mobile only, stored as +993XXXXXXXX; sign-in accepts any common form', async () => {
+  const created = await create(await valid({ phone: '8 65 00 00 77', whatsappPhone: '993 71 123456' }))
+  assert.strictEqual(created.statusCode, 201, created.body)
+  const agent = await app.prisma.agent.findUniqueOrThrow({ where: { userId: created.json().id } })
+  assert.strictEqual(agent.phone, '+99365000077')
+  assert.strictEqual(agent.whatsappPhone, '+99371123456')
+
+  for (const phone of ['+993 12 345678', '+7 912 345 67 89', '+993 65 12345']) {
+    const bad = await create(await valid({ phone }))
+    assert.strictEqual(bad.statusCode, 400, phone)
+    assert.strictEqual(bad.json().error.code, 'VALIDATION_FAILED')
+  }
+
+  const signIn = await app.inject({ method: 'POST', url: '/v1/auth/login', payload: { login: '65 000077', password: created.json().temporaryPassword, device: { installId: 'i-1', model: 'm' } } })
+  assert.strictEqual(signIn.statusCode, 200, signIn.body)
+})

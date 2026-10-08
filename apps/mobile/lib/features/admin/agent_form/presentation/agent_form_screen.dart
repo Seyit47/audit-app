@@ -12,6 +12,7 @@ import '../../../../core/widgets/filter_chips.dart';
 import '../../../../core/widgets/form_field.dart';
 import '../../data/admin_api.dart';
 import '../../../../core/widgets/adaptive.dart';
+import '../../../../core/format/phone.dart';
 
 /// Mobile Add Salesman (approved exception A7): the fields of Figma `495:3932`, laid out with the
 /// mobile form components of `252:25542`. Saves with `POST /agents` and shows the temporary
@@ -37,8 +38,6 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
   bool _saving = false;
   String? _error;
 
-  static final _phoneRe = RegExp(r'^\+?[0-9 ()-]{6,20}$');
-
   @override
   void initState() {
     super.initState();
@@ -61,9 +60,9 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
 
   bool get _valid =>
       _name.text.trim().isNotEmpty &&
-      _phoneRe.hasMatch(_phone.text.trim()) &&
+      tmPhone(_phone.text, mobile: true) != null &&
       _regionId != null &&
-      (_whatsapp.text.trim().isEmpty || _phoneRe.hasMatch(_whatsapp.text.trim())) &&
+      (_whatsapp.text.trim().isEmpty || tmPhone(_whatsapp.text, mobile: true) != null) &&
       (int.tryParse(_visits.text) ?? 0) >= 1 &&
       (int.tryParse(_audits.text) ?? -1) >= 0;
 
@@ -80,8 +79,8 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
       final res = await ref.read(adminApiProvider).createAgent({
         'fullName': _name.text.trim(),
         if (_code.text.trim().isNotEmpty) 'code': _code.text.trim(),
-        'phone': _phone.text.trim(),
-        if (_whatsapp.text.trim().isNotEmpty) 'whatsappPhone': _whatsapp.text.trim(),
+        'phone': tmPhone(_phone.text, mobile: true)!,
+        if (_whatsapp.text.trim().isNotEmpty) 'whatsappPhone': tmPhone(_whatsapp.text, mobile: true)!,
         'regionId': _regionId,
         if (_notes.text.trim().isNotEmpty) 'routeNotes': _notes.text.trim(),
         'dailyVisitPlan': visits,
@@ -161,7 +160,7 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
                   AppFormField(
                     label: l10n.phoneNumber,
                     required: true,
-                    valid: _phoneRe.hasMatch(_phone.text.trim()),
+                    valid: tmPhone(_phone.text, mobile: true) != null,
                     child: AppTextInput(controller: _phone, hint: l10n.phoneHint, keyboardType: TextInputType.phone, onChanged: touch),
                   ),
                   gap,
