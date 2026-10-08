@@ -1,4 +1,4 @@
-import { test, before, beforeEach } from 'node:test'
+import { test, before, after, beforeEach } from 'node:test'
 import * as assert from 'node:assert'
 import ExcelJS from 'exceljs'
 import type { FastifyInstance } from 'fastify'
@@ -9,10 +9,15 @@ import { bearer } from '../helpers/auth.js'
 import { newId } from '../../src/lib/ids.js'
 import { localDate } from '../../src/lib/time.js'
 import { runExport } from '../../src/jobs/exports.js'
+import { clockAt } from '../helpers/clock.js'
 
 let app: FastifyInstance
 let adminId: string
 let admin: { authorization: string }
+// Midday in the company's timezone: events placed minutes in the past stay on today's date and inside
+// working hours, whatever time the suite runs.
+const restoreClock = clockAt(12, 'Asia/Ashgabat')
+after(restoreClock)
 before(async (t) => { app = await build(t as never) })
 beforeEach(async () => {
   await resetDb(app)
