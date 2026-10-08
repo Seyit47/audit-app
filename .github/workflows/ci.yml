@@ -32,6 +32,8 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 24, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+      # The Prisma client (src/generated/prisma) is git-ignored: generate it before type-checking and tests.
+      - run: pnpm exec prisma generate
       - run: pnpm exec prisma migrate deploy
       - run: pnpm exec prisma migrate status
       - run: pnpm run lint
