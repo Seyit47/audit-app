@@ -51,10 +51,8 @@ abstract final class AppTheme {
           minimumSize: const Size(64, 48),
           shape: radius12,
           textStyle: buttonText,
-          // The design's soft accent glow, as Material elevation (none when disabled).
-          elevation: 2,
-          shadowColor: c.accent.withValues(alpha: 0.45),
-        ).copyWith(elevation: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.disabled) ? 0 : s.contains(WidgetState.pressed) ? 1 : 2)),
+          elevation: 0,
+        ),
       ),
       // "Отмена" (252:26599): outlined secondary of the same size.
       outlinedButtonTheme: OutlinedButtonThemeData(

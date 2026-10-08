@@ -51,6 +51,8 @@ class SearchField extends StatelessWidget {
                   style: AppTextStyles.body.copyWith(height: 1.21, color: c.textPrimary),
                   decoration: InputDecoration(
                     isCollapsed: true,
+                    // The theme's 12 px field padding would push the text away from the search icon.
+                    contentPadding: EdgeInsets.zero,
                     filled: false,
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,

@@ -28,16 +28,32 @@ class PrimaryButton extends StatelessWidget {
               Text(label),
             ]),
     );
-    if (context.isCupertino) {
-      return CupertinoButton.filled(
-        onPressed: enabled ? onPressed : null,
-        minimumSize: const Size(64, 48),
+    final c = context.colors;
+    final button = context.isCupertino
+        ? CupertinoButton.filled(
+            onPressed: enabled ? onPressed : null,
+            minimumSize: const Size(64, 48),
+            borderRadius: BorderRadius.circular(12),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            // Figma: the accent at half opacity when disabled (iOS would turn it grey).
+            disabledColor: c.accent.withValues(alpha: 0.5),
+            child: DefaultTextStyle.merge(style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600, color: Colors.white), child: content),
+          )
+        : FilledButton(onPressed: enabled ? onPressed : null, child: content);
+    // The design's soft accent shadow under the button (252:26602), fading out when disabled.
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: DefaultTextStyle.merge(style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600, color: Colors.white), child: content),
-      );
-    }
-    return FilledButton(onPressed: enabled ? onPressed : null, child: content);
+        boxShadow: enabled
+            ? [
+                BoxShadow(color: c.accent.withValues(alpha: 0.25), offset: const Offset(0, 2), blurRadius: 4, spreadRadius: -2),
+                BoxShadow(color: c.accent.withValues(alpha: 0.25), offset: const Offset(0, 4), blurRadius: 6, spreadRadius: -1),
+              ]
+            : const [],
+      ),
+      child: button,
+    );
   }
 }
 

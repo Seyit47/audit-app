@@ -47,41 +47,79 @@ class ThemeToggle extends StatelessWidget {
   }
 }
 
-/// RU / EN switch of the Home header: a Material [SegmentedButton] on Android, a
-/// [CupertinoSlidingSegmentedControl] on iOS. Selecting the current language does nothing.
+/// RU / EN switch of the Home header (`111:6788`): a rounded track with a fully rounded accent pill that
+/// slides to the chosen language. Android: Material ink on each half; iOS: the native
+/// [CupertinoSlidingSegmentedControl] in the same track. Choosing the current language does nothing.
 class LocaleToggle extends StatelessWidget {
   const LocaleToggle({super.key, required this.value, required this.onChanged});
 
   final String value;
   final ValueChanged<String> onChanged;
 
+  static const _codes = ['ru', 'en'];
+  static const _segment = 52.0;
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    const codes = ['ru', 'en'];
+    final track = BoxDecoration(color: c.white5, border: Border.all(color: c.toggleBorder), borderRadius: BorderRadius.circular(999));
+    Widget label(String code) {
+      final on = code == value;
+      return Row(mainAxisSize: MainAxisSize.min, children: [
+        if (on) ...[const AppIcon('radio-dot', width: 12, height: 12), const SizedBox(width: 4)],
+        Text(code.toUpperCase(), style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.w500, height: 16 / 12, color: on ? const Color(0xFFFCFDFF) : c.toggleOff)),
+      ]);
+    }
     if (context.isCupertino) {
-      return CupertinoSlidingSegmentedControl<String>(
-        groupValue: value,
-        thumbColor: c.accent,
-        backgroundColor: c.white5,
-        onValueChanged: (code) { if (code != null && code != value) onChanged(code); },
-        children: {
-          for (final code in codes)
-            code: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
-              child: Text(code.toUpperCase(), style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.w500, color: code == value ? const Color(0xFFFCFDFF) : c.toggleOff)),
-            ),
-        },
+      return DecoratedBox(
+        decoration: track,
+        child: CupertinoSlidingSegmentedControl<String>(
+          groupValue: value,
+          thumbColor: c.accent,
+          backgroundColor: const Color(0x00000000),
+          padding: const EdgeInsets.all(2),
+          onValueChanged: (code) { if (code != null && code != value) onChanged(code); },
+          children: {for (final code in _codes) code: SizedBox(width: _segment - 4, height: 28, child: Center(child: label(code)))},
+        ),
       );
     }
-    return SizedBox(
+    final index = _codes.indexOf(value);
+    return Container(
       height: 36,
-      child: SegmentedButton<String>(
-        segments: [for (final code in codes) ButtonSegment(value: code, label: Text(code.toUpperCase()))],
-        selected: {value},
-        showSelectedIcon: false,
-        onSelectionChanged: (s) { if (s.first != value) onChanged(s.first); },
-      ),
+      width: _segment * _codes.length + 6, // + 2 px padding and 1 px border on each side
+      padding: const EdgeInsets.all(2),
+      decoration: track,
+      child: Stack(children: [
+        // The pill slides between the halves.
+        AnimatedAlign(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          alignment: index == 0 ? Alignment.centerLeft : Alignment.centerRight,
+          child: Container(
+            width: _segment,
+            decoration: BoxDecoration(
+              color: c.accent,
+              borderRadius: BorderRadius.circular(999),
+              boxShadow: const [BoxShadow(color: Color(0x0D000000), offset: Offset(0, 1), blurRadius: 2)],
+            ),
+          ),
+        ),
+        Row(children: [
+          for (final code in _codes)
+            SizedBox(
+              width: _segment,
+              child: Material(
+                type: MaterialType.transparency,
+                shape: const StadiumBorder(),
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
+                  onTap: code == value ? null : () => onChanged(code),
+                  child: Semantics(selected: code == value, button: true, child: Center(child: label(code))),
+                ),
+              ),
+            ),
+        ]),
+      ]),
     );
   }
 }

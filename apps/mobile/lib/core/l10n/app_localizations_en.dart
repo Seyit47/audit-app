@@ -19,7 +19,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeStartAudit => 'Start audit';
 
   @override
-  String get homeStartAuditHint => 'Inspect a\nshop';
+  String get homeStartAuditHint => 'Inspect a shop';
 
   @override
   String get homeMyShops => 'My shops';

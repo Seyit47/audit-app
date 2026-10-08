@@ -143,7 +143,7 @@ class AppTextInput extends StatelessWidget {
         style: style,
         // Borders, fill and padding come from the theme's InputDecorationTheme.
         decoration: bare
-            ? InputDecoration(isCollapsed: true, filled: false, border: InputBorder.none, enabledBorder: InputBorder.none, focusedBorder: InputBorder.none, counterText: '', hintText: hint, hintStyle: hintStyle)
+            ? InputDecoration(isCollapsed: true, contentPadding: EdgeInsets.zero, filled: false, border: InputBorder.none, enabledBorder: InputBorder.none, focusedBorder: InputBorder.none, counterText: '', hintText: hint, hintStyle: hintStyle)
             : InputDecoration(
           hintText: hint,
           hintStyle: hintStyle,
