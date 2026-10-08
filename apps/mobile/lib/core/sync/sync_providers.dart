@@ -63,6 +63,17 @@ class SyncController extends Notifier<SyncState> {
   /// Starts a sync, or joins the one already running.
   Future<void> syncNow() => _current ??= _run().whenComplete(() => _current = null);
 
+  /// Sends the outbox only (the tracker's pings, so the admin map is current); joins a running sync.
+  Future<void> pushNow() => _current ??= _push().whenComplete(() => _current = null);
+
+  Future<void> _push() async {
+    try {
+      await ref.read(syncEngineProvider).run();
+    } on ApiException catch (e) {
+      if (!e.isRetryable) rethrow;
+    }
+  }
+
   Future<void> _run() async {
     final pull = ref.read(pullServiceProvider);
     state = SyncState(running: true, lastPullAt: state.lastPullAt);

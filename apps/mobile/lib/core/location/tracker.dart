@@ -106,7 +106,8 @@ class PingBuffer {
         ),
       );
 
-  Future<void> flush() => _db.transaction(() async {
+  /// Whether anything was queued.
+  Future<bool> flush() => _db.transaction(() async {
     final rows = await (_db.select(_db.pingsBuffer)..orderBy([(p) => OrderingTerm(expression: p.id)])).get();
     for (var i = 0; i < rows.length; i += batch) {
       final chunk = rows.sublist(i, i + batch > rows.length ? rows.length : i + batch);
@@ -126,6 +127,7 @@ class PingBuffer {
       });
     }
     if (rows.isNotEmpty) await _db.delete(_db.pingsBuffer).go();
+    return rows.isNotEmpty;
   });
 }
 
@@ -141,6 +143,12 @@ class Tracker {
   final _battery = Battery();
   Position? _lastPosition;
   DateTime _lastFlush = DateTime.now();
+
+  /// The first position after tracking starts goes out at once, so the agent shows up on the admin map.
+  bool _sentFirst = false;
+
+  /// How often pings are sent: the heartbeat, so the admin map is at most a couple of minutes behind.
+  static const sendEvery = PingDecider.heartbeat;
 
   void start() {
     _tick ??= Timer.periodic(const Duration(minutes: 1), (_) => _evaluate());
@@ -175,7 +183,7 @@ class Tracker {
     // Heartbeat while standing still: the stream only fires on movement.
     final last = _lastPosition;
     if (last != null) await _onPosition(last, at: DateTime.now());
-    if (DateTime.now().difference(_lastFlush) >= const Duration(minutes: 5)) await _flush();
+    if (DateTime.now().difference(_lastFlush) >= sendEvery) await _flush();
   }
 
   Future<void> _updateZones() async {
@@ -204,16 +212,25 @@ class Tracker {
     for (final ping in pings) {
       await buffer.add(ping);
     }
+    if (pings.isNotEmpty && !_sentFirst) {
+      _sentFirst = true;
+      await _flush();
+    }
   }
 
+  /// Queues the buffered pings and sends them (offline they wait in the outbox for the next sync).
   Future<void> _flush() async {
     _lastFlush = DateTime.now();
-    await PingBuffer(_ref.read(databaseProvider), _ref.read(outboxProvider)).flush();
+    if (!await PingBuffer(_ref.read(databaseProvider), _ref.read(outboxProvider)).flush()) return;
+    try {
+      await _ref.read(syncControllerProvider.notifier).pushNow();
+    } catch (_) {}
   }
 
   void _stopStream() {
     _positions?.cancel();
     _positions = null;
+    _sentFirst = false;
   }
 
   LocationSettings _settings() {
