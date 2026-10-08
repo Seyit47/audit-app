@@ -19,7 +19,7 @@ export function ProductsView ({ page, copy }: { page: Page<Product>, copy: Produ
   const toggle = (id: string) => setSelected((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n })
 
   const columns: Column<Product>[] = [
-    { key: 'check', width: 46, fixed: true, className: 'pl-4 pr-0', header: <Checkbox aria-label={copy.selectAll} checked={all} onChange={() => setSelected(all ? new Set() : new Set(ids))} />, render: (p) => <Checkbox aria-label={copy.selectRow} checked={selected.has(p.id)} onChange={() => toggle(p.id)} /> },
+    { key: 'check', width: 46, className: 'pl-4 pr-0', header: <Checkbox aria-label={copy.selectAll} checked={all} onChange={() => setSelected(all ? new Set() : new Set(ids))} />, render: (p) => <Checkbox aria-label={copy.selectRow} checked={selected.has(p.id)} onChange={() => toggle(p.id)} /> },
     {
       key: 'product', header: copy.columns.product, width: 323, className: 'pl-4 pr-0',
       render: (p) => (

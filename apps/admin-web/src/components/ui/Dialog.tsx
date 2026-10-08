@@ -46,34 +46,28 @@ export function Dialog ({ open, onClose, title, badge, subtitle, footer, childre
 }) {
   const body = useRef<HTMLDivElement>(null)
   const v = variants[variant]
-  // shown → leaving (exit animation, clicks pass through) → gone. A dialog driven by the URL (`?add=1`)
-  // stays mounted until the server answers the closing navigation, which can take seconds or fail; it
-  // must not keep covering the page meanwhile.
-  const [phase, setPhase] = useState<'shown' | 'leaving' | 'gone'>('shown')
-  const leaving = phase === 'leaving'
-  if (!open && phase !== 'shown') setPhase('shown') // closed: the next open starts fresh
+  const [leaving, setLeaving] = useState(false)
   // false during SSR and hydration, true after: the portal needs document.body.
   const mounted = useSyncExternalStore(noop, () => true, () => false)
   // Plays the exit (Material emphasized accelerate) before the caller unmounts the dialog.
   const close = useCallback(() => {
-    if (phase !== 'shown') return
-    setPhase('leaving')
-    window.setTimeout(() => { setPhase('gone'); onClose() }, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 140)
-  }, [phase, onClose])
-  const active = open && phase !== 'gone'
+    if (leaving) return
+    setLeaving(true)
+    window.setTimeout(onClose, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 140)
+  }, [leaving, onClose])
   useEffect(() => {
-    if (!active) return
+    if (!open) return
     const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') close() }
     document.addEventListener('keydown', esc)
     const unlock = lockScroll()
     return () => { document.removeEventListener('keydown', esc); unlock() }
-  }, [active, close])
+  }, [open, close])
 
-  if (!active || !mounted) return null
+  if (!open || !mounted) return null
   // Portaled to <body> so the backdrop always covers the whole viewport, whatever the parents do.
   return createPortal(
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-6 ${leaving ? 'anim-fade-out pointer-events-none' : 'anim-fade-in'}`}
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-6 ${leaving ? 'anim-fade-out' : 'anim-fade-in'}`}
       onMouseDown={(e) => { if (e.target === e.currentTarget) close() }}
     >
       <div
