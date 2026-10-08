@@ -1,5 +1,5 @@
 import fp from 'fastify-plugin'
-import { CreateBucketCommand, GetObjectCommand, DeleteObjectCommand, HeadBucketCommand, HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { CreateBucketCommand, GetObjectCommand, DeleteObjectCommand, HeadBucketCommand, HeadObjectCommand, PutBucketCorsCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
 const URL_TTL_S = 600
@@ -39,6 +39,21 @@ export default fp(async (fastify) => {
     const status = (err as { $metadata?: { httpStatusCode?: number } }).$metadata?.httpStatusCode
     if (status === 404) await s3.send(new CreateBucketCommand({ Bucket: bucket }))
     else fastify.log.warn({ err, bucket }, 'storage bucket check failed; continuing')
+  }
+
+  // The admin web uploads straight from the browser (presigned PUT), so the bucket must allow its origin;
+  // hosted buckets (Backblaze B2, R2) allow no cross-origin requests until told to.
+  const origins = fastify.config.webOrigin.split(',').map((o) => o.trim()).filter(Boolean)
+  try {
+    await s3.send(new PutBucketCorsCommand({
+      Bucket: bucket,
+      CORSConfiguration: {
+        CORSRules: [{ AllowedOrigins: origins, AllowedMethods: ['PUT', 'GET', 'HEAD'], AllowedHeaders: ['*'], ExposeHeaders: ['ETag'], MaxAgeSeconds: 3600 }]
+      }
+    }))
+  } catch (err) {
+    fastify.log.warn({ err, bucket, origins },
+      'could not set the bucket CORS rules: admin web uploads will fail until the bucket allows PUT from these origins (give the storage key the writeBuckets capability)')
   }
 
   const storage: Storage = {
