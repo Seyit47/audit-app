@@ -4,6 +4,14 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
 const URL_TTL_S = 600
 
+/**
+ * Read URLs are signed as of the start of the hour and stay valid for two, so the same object gets the same
+ * URL all hour: pages that refresh every 30 s and the app's image cache reuse the image instead of
+ * downloading it again (each download is a billed storage read).
+ */
+const READ_WINDOW_MS = 3_600_000
+const READ_TTL_S = 7200
+
 export interface Storage {
   presignPut: (key: string, contentType: string, sizeBytes: number) => Promise<{ url: string, headers: Record<string, string>, expiresAt: string }>
   /** `downloadName` makes the browser save the object under that file name. */
@@ -65,7 +73,7 @@ export default fp(async (fastify) => {
       Bucket: bucket,
       Key: key,
       ResponseContentDisposition: downloadName == null ? undefined : `attachment; filename*=UTF-8''${encodeURIComponent(downloadName)}`
-    }), { expiresIn: URL_TTL_S }),
+    }), { expiresIn: READ_TTL_S, signingDate: new Date(Math.floor(Date.now() / READ_WINDOW_MS) * READ_WINDOW_MS) }),
     async head (key) {
       try {
         const res = await s3.send(new HeadObjectCommand({ Bucket: bucket, Key: key }))

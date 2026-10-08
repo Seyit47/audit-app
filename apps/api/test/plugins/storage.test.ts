@@ -37,3 +37,9 @@ test('head of a missing object returns null', async (t) => {
   t.after(() => app.close())
   assert.strictEqual(await app.storage.head('missing/none.bin'), null)
 })
+
+test('read URLs stay the same within the hour, so clients reuse cached images', async (t) => {
+  const app = await buildStorageApp()
+  t.after(() => app.close())
+  assert.strictEqual(await app.storage.presignGet('a/b.jpg'), await app.storage.presignGet('a/b.jpg'))
+})
