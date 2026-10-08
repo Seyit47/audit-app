@@ -11,7 +11,7 @@ import { FormField, SelectInput, StatusSwitch, TextArea, TextInput } from '@/com
 import { createAgent, rebindAgentDevice, resetAgentPassword, updateAgent, type AgentInput } from '../actions'
 import type { Agent, Region } from '../api'
 import type { AgentsCopy } from '../copy'
-import { tmPhone } from '@/lib/phone'
+import { displayPhone, phoneInputProps, tmPhone } from '@/lib/phone'
 
 type Status = AgentInput['status']
 
@@ -127,10 +127,10 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref, en
             <TextInput variant='form' id='code' value={code} onChange={(e) => setCode(e.target.value)} className='bg-slate-50/70 font-mono font-medium' required />
           </FormField>
           <FormField variant='form' label={f.phone} required htmlFor='phone'>
-            <TextInput variant='form' id='phone' name='phone' type='tel' defaultValue={agent?.phone} placeholder='+993 65 124582' icon={<FigmaIcon name='phone-field' width={14} height={14} />} required />
+            <TextInput variant='form' id='phone' name='phone' {...phoneInputProps()} defaultValue={displayPhone(agent?.phone)} placeholder='+993 65 124582' icon={<FigmaIcon name='phone-field' width={14} height={14} />} required />
           </FormField>
           <FormField variant='form' label={f.whatsapp} htmlFor='whatsappPhone'>
-            <TextInput variant='form' id='whatsappPhone' name='whatsappPhone' type='tel' defaultValue={agent?.whatsappPhone ?? ''} placeholder='+993 61 987654' icon={<FigmaIcon name='whatsapp-field' width={14} height={14} />} />
+            <TextInput variant='form' id='whatsappPhone' name='whatsappPhone' {...phoneInputProps()} defaultValue={displayPhone(agent?.whatsappPhone)} placeholder='+993 61 987654' icon={<FigmaIcon name='whatsapp-field' width={14} height={14} />} />
           </FormField>
         </div>
         <FormField variant='form' label={f.notes} htmlFor='routeNotes'>

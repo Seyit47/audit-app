@@ -80,7 +80,7 @@ class _ShopFormViewState extends State<ShopFormView> {
   late final _name = TextEditingController(text: widget.name);
   late final _address = TextEditingController(text: widget.address);
   late final _owner = TextEditingController(text: widget.owner);
-  late final _phone = TextEditingController(text: widget.phone);
+  late final _phone = TextEditingController(text: displayPhone(widget.phone));
 
   @override
   void dispose() {
@@ -175,6 +175,7 @@ class _ShopFormViewState extends State<ShopFormView> {
                       controller: _phone,
                       hint: l10n.phoneHint,
                       keyboardType: TextInputType.phone,
+                      inputFormatters: const [TmPhoneFormatter()],
                       onChanged: (v) => w.onChanged(phone: v),
                       prefix: AppIcon('phone', width: 12, height: 12, color: c.textSecondary),
                     ),

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
@@ -75,6 +76,7 @@ class AppTextInput extends StatelessWidget {
     this.autofocus = false,
     this.bare = false,
     this.textStyle,
+    this.inputFormatters,
   });
 
   final TextEditingController? controller;
@@ -97,6 +99,7 @@ class AppTextInput extends StatelessWidget {
   /// No fill, border or padding: for a field inside its own box (the audit comment).
   final bool bare;
   final TextStyle? textStyle;
+  final List<TextInputFormatter>? inputFormatters;
 
   @override
   Widget build(BuildContext context) {
@@ -111,6 +114,7 @@ class AppTextInput extends StatelessWidget {
           minLines: minLines,
           maxLines: maxLines,
           maxLength: maxLength,
+          inputFormatters: inputFormatters,
           autofocus: autofocus,
           controller: controller,
           keyboardType: keyboardType,
@@ -143,6 +147,7 @@ class AppTextInput extends StatelessWidget {
         minLines: minLines,
         maxLines: maxLines,
         maxLength: maxLength,
+        inputFormatters: inputFormatters,
         autofocus: autofocus,
         controller: controller,
         keyboardType: keyboardType,

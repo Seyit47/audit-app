@@ -14,7 +14,7 @@ import { MultiSelect } from '@/components/ui/MultiSelect'
 import { createShop, setShopStatus, updateShop, type ShopInput } from '../actions'
 import type { Shop } from '../api'
 import type { ShopFormCopy } from '../copy'
-import { tmPhone } from '@/lib/phone'
+import { displayPhone, phoneInputProps, tmPhone } from '@/lib/phone'
 
 const MapView = dynamic(() => import('@/components/ui/MapView').then((m) => m.MapView), { ssr: false })
 const ShopMarker = dynamic(() => import('@/components/ui/MapView').then((m) => m.ShopMarker), { ssr: false })
@@ -42,7 +42,7 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
   const [picking, setPicking] = useState(shop == null)
   const [carried, setCarried] = useState<string[]>(productIds)
   const [facadeId, setFacadeId] = useState<string | null>(shop?.facade?.id ?? null)
-  const [phones, setPhones] = useState<Phone[]>(shop?.contacts.length ? shop.contacts.map((c) => ({ phone: c.phone, label: c.label ?? '' })) : [{ phone: '', label: '' }])
+  const [phones, setPhones] = useState<Phone[]>(shop?.contacts.length ? shop.contacts.map((c) => ({ phone: displayPhone(c.phone), label: c.label ?? '' })) : [{ phone: '', label: '' }])
   // The server renders the page without the dialog; the progress bar shows while it answers.
   // Open while the URL says so (`?add=1`, `?edit=…`). Closing only rewrites the URL in the browser: the page
   // behind is unchanged, so there is no server round trip to wait for (a slow or failed one used to leave
@@ -191,7 +191,7 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
               <div className='relative w-[405px]'>
                 <span className='pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-display text-xs leading-4 text-off-white'>№{i + 1}</span>
                 <input
-                  value={p.phone} onChange={(e) => setPhone(i, { phone: e.target.value })} type='tel' aria-label={`${copy.phones} ${i + 1}`}
+                  value={p.phone} {...phoneInputProps((phone) => setPhone(i, { phone }))} aria-label={`${copy.phones} ${i + 1}`}
                   className='h-[38px] w-full rounded-lg border border-border pl-9 pr-3 font-display text-sm leading-5 text-black focus:border-accent focus:outline-none'
                 />
               </div>

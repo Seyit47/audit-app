@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { tmPhone } from './phone'
+import { displayPhone, formatPhoneEdit, tmPhone } from './phone'
 
 describe('tmPhone', () => {
   it('accepts the common ways of writing a Turkmen number', () => {
@@ -19,5 +19,33 @@ describe('tmPhone', () => {
     for (const input of ['+7 912 345 67 89', '+993 65 12345', '+993 65 1234567', 'abc', '']) {
       expect(tmPhone(input, 'any'), input).toBeNull()
     }
+  })
+})
+
+describe('formatPhoneEdit', () => {
+  const typeAll = (keys: string) => {
+    let v = { text: '', cursor: 0 }
+    for (const k of keys) v = formatPhoneEdit(v.text, v.text.slice(0, v.cursor) + k + v.text.slice(v.cursor), v.cursor + 1)
+    return v.text
+  }
+
+  it('shows +993 XX XXXXXX while typing and stops after 8 digits', () => {
+    expect(typeAll('6')).toBe('+993 6')
+    expect(typeAll('651')).toBe('+993 65 1')
+    expect(typeAll('651234567')).toBe('+993 65 123456')
+    expect(typeAll('865123456')).toBe('+993 65 123456')
+    expect(formatPhoneEdit('', '+993 65 12 34 56', 16).text).toBe('+993 65 123456')
+    expect(tmPhone(typeAll('65123456'), 'mobile')).toBe('+99365123456')
+  })
+
+  it('backspace steps over spaces and the prefix', () => {
+    expect(formatPhoneEdit('+993 65 1', '+993 651', 7).text).toBe('+993 61')
+    expect(formatPhoneEdit('+993 6', '+993 ', 5).text).toBe('')
+    expect(formatPhoneEdit('+993 65 1', '+93 65 1', 2).text).toBe('+993 65 1')
+  })
+
+  it('shows stored numbers formatted', () => {
+    expect(displayPhone('+99362112233')).toBe('+993 62 112233')
+    expect(displayPhone(null)).toBe('')
   })
 })

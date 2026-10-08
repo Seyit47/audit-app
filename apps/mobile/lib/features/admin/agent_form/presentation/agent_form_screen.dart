@@ -161,12 +161,24 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
                     label: l10n.phoneNumber,
                     required: true,
                     valid: tmPhone(_phone.text, mobile: true) != null,
-                    child: AppTextInput(controller: _phone, hint: l10n.phoneHint, keyboardType: TextInputType.phone, onChanged: touch),
+                    child: AppTextInput(
+                      controller: _phone,
+                      hint: l10n.phoneHint,
+                      keyboardType: TextInputType.phone,
+                      inputFormatters: const [TmPhoneFormatter()],
+                      onChanged: touch,
+                    ),
                   ),
                   gap,
                   AppFormField(
                     label: l10n.whatsapp,
-                    child: AppTextInput(controller: _whatsapp, hint: l10n.phoneHint, keyboardType: TextInputType.phone, onChanged: touch),
+                    child: AppTextInput(
+                      controller: _whatsapp,
+                      hint: l10n.phoneHint,
+                      keyboardType: TextInputType.phone,
+                      inputFormatters: const [TmPhoneFormatter()],
+                      onChanged: touch,
+                    ),
                   ),
                   gap,
                   AppFormField(
