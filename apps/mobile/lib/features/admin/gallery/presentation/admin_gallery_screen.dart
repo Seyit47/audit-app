@@ -15,8 +15,12 @@ import '../../data/admin_api.dart';
 import '../../../../core/widgets/skeleton.dart';
 import '../../../../core/widgets/tap.dart';
 
-GridPhoto _grid(Json p) =>
-    GridPhoto(id: p['id'] as String, image: (p['previewUrl400'] ?? p['url']) as String?, takenAt: DateTime.parse(p['takenAt'] as String));
+GridPhoto _grid(Json p) => GridPhoto(
+  id: p['id'] as String,
+  image: (p['previewUrl400'] ?? p['url']) as String?,
+  full: p['url'] as String?,
+  takenAt: DateTime.parse(p['takenAt'] as String),
+);
 
 /// Admin mobile Gallery (`248:24311`): all photos from the API, newest first, loaded by cursor.
 class AdminGalleryScreen extends ConsumerStatefulWidget {

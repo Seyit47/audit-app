@@ -7,10 +7,15 @@ import 'app_image.dart';
 import 'tap.dart';
 
 class GridPhoto {
-  const GridPhoto({required this.id, required this.image, required this.takenAt});
+  const GridPhoto({required this.id, required this.image, String? full, required this.takenAt}) : full = full ?? image;
 
   final String id;
+
+  /// The 400 px preview, for tiles.
   final String? image;
+
+  /// Full resolution, for viewing the photo on its own (full screen).
+  final String? full;
   final DateTime takenAt;
 }
 

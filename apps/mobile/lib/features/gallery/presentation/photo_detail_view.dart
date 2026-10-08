@@ -199,7 +199,7 @@ class _PhotoDetailViewState extends State<PhotoDetailView> {
     builder: (context) => GestureDetector(
       onTap: () => Navigator.pop(context),
       child: InteractiveViewer(
-        child: Center(child: AppImage(p.image, radius: 0, fit: BoxFit.contain)),
+        child: Center(child: AppImage(p.full, radius: 0, fit: BoxFit.contain)),
       ),
     ),
   );

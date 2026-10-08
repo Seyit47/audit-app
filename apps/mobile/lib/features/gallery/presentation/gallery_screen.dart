@@ -185,7 +185,7 @@ class _GalleryScreenState extends ConsumerState<GalleryScreen> {
               )
             else
               PhotoDayGrid(
-                photos: [for (final p in shown) GridPhoto(id: p.photo.id, image: p.image, takenAt: p.photo.takenAt)],
+                photos: [for (final p in shown) GridPhoto(id: p.photo.id, image: p.image, full: p.full, takenAt: p.photo.takenAt)],
                 todayLabel: l10n.todayDate,
                 onTap: (p) => context.push('/agent/gallery/${p.id}'),
               ),
@@ -215,7 +215,7 @@ class AgentPhotoDetailScreen extends ConsumerWidget {
     final shop = d.shop;
     return PhotoDetailView(
       photoId: photoId,
-      related: [for (final p in d.related) GridPhoto(id: p.photo.id, image: p.image, takenAt: p.photo.takenAt)],
+      related: [for (final p in d.related) GridPhoto(id: p.photo.id, image: p.image, full: p.full, takenAt: p.photo.takenAt)],
       shopName: shop?.name,
       shopAddress: shop?.address,
       shopImage: shop?.facadeUrl,

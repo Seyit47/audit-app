@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,6 +15,13 @@ class GalleryPhoto {
 
   /// The preview URL, or the local file while it is not uploaded.
   String? get image => photo.previewUrl ?? photo.localPath ?? photo.url;
+
+  /// Full resolution: the file taken on this device, or the uploaded original.
+  String? get full {
+    final local = photo.localPath;
+    if (local != null && File(local).existsSync()) return local;
+    return photo.url ?? image;
+  }
 }
 
 class PhotoDetails {
