@@ -272,6 +272,9 @@ class AdminShopDetailsScreen extends ConsumerWidget {
                             child: AppMapView(
                               controller: AppMapController(),
                               initial: (lat, lng),
+                              // Tapping the preview opens the full map on this shop.
+                              onMapTap: () => context.push('/admin/map?shop=$shopId'),
+                              onMarkerTap: (_) => context.push('/admin/map?shop=$shopId'),
                               markers: [MapMarker(id: shopId, lat: lat, lng: lng, color: c.accent, imageUrl: (s['facade'] as Map?)?['previewUrl400'] as String?)],
                             ),
                           ),

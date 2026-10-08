@@ -45,7 +45,7 @@ List<RouteBase> appRoutes() => [
     ];
 
 final List<RouteBase> agentRoutes = [
-  GoRoute(path: 'map', builder: (_, _) => const AgentMapScreen()),
+  GoRoute(path: 'map', builder: (_, state) => AgentMapScreen(focusShopId: state.uri.queryParameters['shop'])),
   GoRoute(path: 'gallery', builder: (_, state) => GalleryScreen(shopId: state.uri.queryParameters['shopId']), routes: [
     GoRoute(path: ':id', builder: (_, state) => AgentPhotoDetailScreen(photoId: state.pathParameters['id']!)),
   ]),
@@ -56,7 +56,7 @@ final List<RouteBase> agentRoutes = [
   ]),
 ];
 final List<RouteBase> adminRoutes = [
-  GoRoute(path: 'map', builder: (_, _) => const AdminMapScreen()),
+  GoRoute(path: 'map', builder: (_, state) => AdminMapScreen(focusShopId: state.uri.queryParameters['shop'], focusAgentId: state.uri.queryParameters['agent'])),
   GoRoute(path: 'products', builder: (_, _) => const ProductsScreen(), routes: [
     GoRoute(path: 'new', builder: (_, _) => const ProductFormScreen()),
   ]),

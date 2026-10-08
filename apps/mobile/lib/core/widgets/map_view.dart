@@ -25,6 +25,15 @@ class MapMarker {
 /// Camera commands for the floating controls (zoom, recenter).
 class AppMapController {
   MapLibreMapController? _map;
+  (double, double)? _focus;
+  bool _styled = false;
+
+  /// Centres the map on one point at street level: now if the map is ready, otherwise as soon as its
+  /// style has loaded (instead of fitting all markers).
+  Future<void> focus(double lat, double lng) async {
+    _focus = (lat, lng);
+    if (_styled) await moveTo(lat, lng, zoom: 16);
+  }
 
   Future<void> zoomIn() async => _map?.animateCamera(CameraUpdate.zoomIn());
   Future<void> zoomOut() async => _map?.animateCamera(CameraUpdate.zoomOut());
@@ -103,7 +112,14 @@ class _AppMapViewState extends State<AppMapView> {
     _added.clear();
     _ready = true;
     await _syncMarkers();
-    if (widget.initial == null) await widget.controller.fit([for (final m in widget.markers) (m.lat, m.lng)]);
+    final ctrl = widget.controller;
+    final focus = ctrl._focus;
+    if (focus != null) {
+      await ctrl.moveTo(focus.$1, focus.$2, zoom: 16);
+    } else if (widget.initial == null && !ctrl._styled) {
+      await ctrl.fit([for (final m in widget.markers) (m.lat, m.lng)]);
+    }
+    ctrl._styled = true;
   }
 
   Future<void> _syncMarkers() async {

@@ -25,7 +25,13 @@ enum _Filter { all, notVisited, visited, recent }
 /// Admin mobile Map (`248:23963`, `248:24102`): all shops and agent positions from the API,
 /// chips, filters (B3) and the shop sheet with "Подробнее".
 class AdminMapScreen extends ConsumerStatefulWidget {
-  const AdminMapScreen({super.key});
+  const AdminMapScreen({super.key, this.focusShopId, this.focusAgentId});
+
+  /// Opened from a shop: that shop is selected (its card open) and the map centred on it.
+  final String? focusShopId;
+
+  /// Opened from a salesman: the map is centred on their last position.
+  final String? focusAgentId;
 
   @override
   ConsumerState<AdminMapScreen> createState() => _AdminMapScreenState();
@@ -48,7 +54,17 @@ class _AdminMapScreenState extends ConsumerState<AdminMapScreen> {
   @override
   void initState() {
     super.initState();
-    _load();
+    _load().then((_) => _focusTarget());
+    if (widget.focusShopId != null) _select(widget.focusShopId!);
+  }
+
+  void _focusTarget() {
+    if (!mounted) return;
+    (double, double)? at(Json? j) => j == null ? null : ((j['lat'] as num).toDouble(), (j['lng'] as num).toDouble());
+    final point = widget.focusShopId != null
+        ? at(_shops.where((s) => s['id'] == widget.focusShopId).firstOrNull)
+        : widget.focusAgentId != null ? at(_positions.where((p) => p['agentId'] == widget.focusAgentId).firstOrNull) : null;
+    if (point != null) _map.focus(point.$1, point.$2);
   }
 
   Future<void> _load() async {

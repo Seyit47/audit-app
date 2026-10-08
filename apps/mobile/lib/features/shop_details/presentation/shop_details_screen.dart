@@ -161,7 +161,8 @@ class _ShopDetailsScreenState extends ConsumerState<ShopDetailsScreen> {
                     Expanded(
                       child: _ActionButton(
                         label: l10n.mapButton, icon: const AppIcon('pin', width: 10, height: 14), filled: false,
-                        onTap: () => openInMaps(shop.lat, shop.lng, shop.name),
+                        // The app's own map, centred on this shop with it selected.
+                        onTap: () => context.push('/agent/map?shop=${shop.id}'),
                       ),
                     ),
                     const SizedBox(width: 10),

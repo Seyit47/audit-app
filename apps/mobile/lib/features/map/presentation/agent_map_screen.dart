@@ -23,7 +23,10 @@ enum _MapFilter { all, notVisited, visited, recent }
 /// Agent Map (`83:17636`, `83:17775` / `106:5485`, `106:5609`): the day's shops from the local
 /// mirror, pins by state, and the shop sheet with the geofence check before "Начать Аудит".
 class AgentMapScreen extends ConsumerStatefulWidget {
-  const AgentMapScreen({super.key});
+  const AgentMapScreen({super.key, this.focusShopId});
+
+  /// Opened from a shop ("На карте"): that shop is selected and the map centred on it.
+  final String? focusShopId;
 
   @override
   ConsumerState<AgentMapScreen> createState() => _AgentMapScreenState();
@@ -34,7 +37,8 @@ class _AgentMapScreenState extends ConsumerState<AgentMapScreen> {
   _MapFilter _filter = _MapFilter.all;
   String _q = '';
   FilterValues _filters = const {};
-  String? _selected;
+  late String? _selected = widget.focusShopId;
+  bool _focused = false;
   List<MapMarker> _markers = const [];
   List<Object?> _markersKey = const [];
 
@@ -47,6 +51,14 @@ class _AgentMapScreenState extends ConsumerState<AgentMapScreen> {
     final c = context.colors;
     final all = ref.watch(shopsProvider).value ?? const <ShopItem>[];
     final position = ref.watch(positionProvider).value;
+    // Centre on the shop it was opened for, once the shops have loaded.
+    if (!_focused && widget.focusShopId != null) {
+      final target = all.where((s) => s.shop.id == widget.focusShopId).firstOrNull;
+      if (target != null) {
+        _focused = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) => _map.focus(target.shop.lat, target.shop.lng));
+      }
+    }
     final regions = _filters['region'] ?? const <String>{};
     final needle = _q.trim().toLowerCase();
     final base = all.where((s) =>
