@@ -14,7 +14,12 @@ export function DateField ({ label, value, onChange, min, max }: {
   const input = useRef<HTMLInputElement>(null)
   const shown = value === '' ? '' : value.split('-').reverse().join('.')
   return (
-    <label className='relative flex h-8 cursor-pointer items-center gap-2 rounded-lg bg-secondary-bg px-3 py-1.5 hover:bg-line focus-within:ring-2 focus-within:ring-accent/30 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50 has-[:invalid]:ring-2 has-[:invalid]:ring-error/30' onClick={() => input.current?.showPicker?.()}>
+    <label className='relative flex h-8 cursor-pointer items-center gap-2 rounded-lg bg-secondary-bg px-3 py-1.5 hover:bg-line focus-within:ring-2 focus-within:ring-accent/30 has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50 has-[:invalid]:ring-2 has-[:invalid]:ring-error/30' onClick={(e) => {
+      // One click opens the picker once: without preventDefault the label also forwards the click to the
+      // input, which bubbles back here and calls showPicker() a second time (Chrome throws NotAllowedError).
+      e.preventDefault()
+      try { input.current?.showPicker() } catch { input.current?.focus() }
+    }}>
       <span className='text-xs leading-4 text-muted'>{label}</span>
       <span className='flex items-center gap-1.5'>
         <FigmaIcon name='calendar' width={12} height={13.333} />
