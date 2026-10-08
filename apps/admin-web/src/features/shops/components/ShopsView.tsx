@@ -137,7 +137,7 @@ export function ShopsView ({ page, copy, locale, agents, exportHref, children }:
           <>
             <Button variant='secondary' href={exportHref} icon={<FigmaIcon name='export' width={13} height={13} />}>{copy.exportShops}</Button>
             {chosen.length === 0
-              ? <Button prefetch href='/shops?add=1' icon={<FigmaIcon name='plus' width={10.5} height={10.5} />}>{copy.addShop}</Button>
+              ? <Button dialog={{ kind: 'shop' }} href='/shops?add=1' icon={<FigmaIcon name='plus' width={10.5} height={10.5} />}>{copy.addShop}</Button>
               : (
                 <>
                   <Button variant='secondary' onClick={() => setAssigning(chosen)} icon={<FigmaIcon name='link' width={12} height={12} />}>{copy.assign}</Button>

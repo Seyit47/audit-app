@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import type { FormKind } from '@/lib/url-dialog'
+import { DialogLink } from './DialogLink'
 
 // Page-header buttons of 30:574 ("Add Product" primary, "Export Catalog" secondary) and the
 // dialog footer buttons of 162:20071 ("Сохранить изменения" primary md, "Отменить" outline md).
@@ -20,16 +22,19 @@ type Props = {
   size?: keyof typeof sizes
   icon?: ReactNode
   href?: string
-  /** Full prefetch so a dialog opened by URL (`?add=1`, `?edit=…`) appears at once. */
+  /** Full prefetch of the target page. */
   prefetch?: boolean
+  /** The href opens this form's URL dialog in the browser (no server render), data prefetched on hover. */
+  dialog?: { kind: FormKind, id?: string | null }
   children: ReactNode
 } & ButtonHTMLAttributes<HTMLButtonElement>
 
-export function Button ({ variant = 'primary', size = 'sm', icon, href, prefetch, children, className = '', type = 'button', ...rest }: Props) {
+export function Button ({ variant = 'primary', size = 'sm', icon, href, prefetch, dialog, children, className = '', type = 'button', ...rest }: Props) {
   const weight = size === 'md' && variant === 'outline' ? 'font-medium' : ''
   const pad = variant === 'primary' ? primaryPadding[size] : ''
   const cls = `inline-flex shrink-0 items-center justify-center gap-2 rounded-lg py-2 text-center whitespace-nowrap hover:shadow-md active:shadow-none disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none aria-disabled:pointer-events-none aria-disabled:opacity-50 ${sizes[size]} ${variants[variant]} ${pad} ${weight} ${className}`
   // Export links start a server job: a plain link, never prefetched.
+  if (href != null && dialog != null) return <DialogLink href={href} form={dialog} className={cls}>{icon}{children}</DialogLink>
   if (href?.startsWith('/export')) return <a href={href} data-ripple className={cls}>{icon}{children}</a>
   if (href != null) return <Link href={href} prefetch={prefetch} data-ripple className={cls}>{icon}{children}</Link>
   return <button type={type} data-ripple className={cls} {...rest}>{icon}{children}</button>

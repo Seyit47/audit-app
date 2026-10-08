@@ -2,6 +2,7 @@
 
 import { guard, say } from '@/lib/feedback'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { forgetFormData } from '@/lib/url-dialog'
 import { useRef, useState, useTransition } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Dialog } from '@/components/ui/Dialog'
@@ -17,11 +18,12 @@ const MB = 1024 * 1024
 const big = 'h-[42px] text-sm leading-5 shadow-none'
 
 /** Add / edit product dialog of Figma 495:2311 (495:2553), with exactly the frame's fields. */
-export function ProductFormDialog ({ product, categories, copy, closeHref }: {
+export function ProductFormDialog ({ product, categories, copy, closeHref, animateIn = true }: {
   product: Product | null
   categories: Array<{ id: string, name: string }>
   copy: ProductsCopy
   closeHref: string
+  animateIn?: boolean
 }) {
   const f = copy.form
   const router = useRouter()
@@ -40,7 +42,7 @@ export function ProductFormDialog ({ product, categories, copy, closeHref }: {
   const open = params.has('add') || params.has('edit')
   const close = (changed = false) => {
     window.history.replaceState(null, '', closeHref)
-    if (changed) router.refresh()
+    if (changed) { forgetFormData(); router.refresh() }
   }
 
   async function pick (picked: File | undefined) {
@@ -77,7 +79,7 @@ export function ProductFormDialog ({ product, categories, copy, closeHref }: {
 
   return (
     <Dialog
-      open={open} variant='form' width={981} onClose={() => close()} closeLabel={f.close}
+      open={open} animateIn={animateIn} variant='form' width={981} onClose={() => close()} closeLabel={f.close}
       title={product == null ? f.addTitle : f.editTitle} subtitle={f.subtitle}
       footer={
         <>

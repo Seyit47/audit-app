@@ -5,11 +5,15 @@ import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { FigmaIcon } from './FigmaIcon'
 import { usePopup } from '@/lib/use-popup'
+import type { FormKind } from '@/lib/url-dialog'
+import { DialogLink } from './DialogLink'
 
 export interface RowMenuItem {
   label: string
   icon: { name: string, width: number, height: number }
   href?: string
+  /** With href: opens that form's URL dialog in the browser (no server render). */
+  dialog?: { kind: FormKind, id?: string | null }
   onSelect?: () => void
   danger?: boolean
   /** Draws the divider above the item ("Delete Shop", 3:1973). */
@@ -59,7 +63,9 @@ export function RowMenu ({ items, label = 'Actions' }: { items: RowMenuItem[], l
             const cls = `relative mx-1.5 flex items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium leading-4 ${item.danger === true ? 'text-danger' : 'text-ink'}`
             // Icons differ in width; a fixed centered slot keeps the labels aligned.
             const body = <><span className='flex w-4 shrink-0 justify-center'><FigmaIcon {...item.icon} /></span>{item.label}</>
-            const entry = item.href != null
+            const entry = item.href != null && item.dialog != null
+              ? <DialogLink role='menuitem' href={item.href} form={item.dialog} className={cls} onOpen={() => setAt(null)}>{body}</DialogLink>
+              : item.href != null
               ? <Link role='menuitem' data-ripple href={item.href} prefetch className={cls} onClick={() => setAt(null)}>{body}</Link>
               : <button role='menuitem' data-ripple type='button' className={cls} onClick={() => { setAt(null); item.onSelect?.() }}>{body}</button>
             // "Delete Shop" (3:1973) sits under a divider.

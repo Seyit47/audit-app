@@ -10,6 +10,7 @@ import { formatPhone } from '@/lib/format'
 import { setShopStatus } from '../actions'
 import type { ShopDetails } from '../api'
 import type { ShopsCopy } from '../copy'
+import { DialogLink } from '@/components/ui/DialogLink'
 
 /** "Client Header Entity Card" of 47:7387. The toggle also approves Pending Review shops (gap A1). */
 export function ShopHeader ({ shop, copy }: { shop: ShopDetails, copy: ShopsCopy }) {
@@ -54,9 +55,9 @@ export function ShopHeader ({ shop, copy }: { shop: ShopDetails, copy: ShopsCopy
         <Link data-ripple href={`/map?ids=${shop.id}`} className='flex h-9 items-center gap-2 rounded-lg bg-dark-accent px-4 text-xs font-semibold leading-4 text-ink'>
           <FigmaIcon name='detail-map' width={13.5} height={13.5} />{copy.viewOnMap}
         </Link>
-        <Link data-ripple prefetch href={`/shops/${shop.id}?edit=1`} className='flex h-9 items-center gap-2 rounded-lg bg-dark-accent px-4 text-xs font-semibold leading-4 text-ink'>
+        <DialogLink href={`/shops/${shop.id}?edit=1`} form={{ kind: 'shop', id: shop.id }} className='flex h-9 items-center gap-2 rounded-lg bg-dark-accent px-4 text-xs font-semibold leading-4 text-ink'>
           <FigmaIcon name='detail-edit' width={13.5} height={13.5} />{d.edit}
-        </Link>
+        </DialogLink>
       </div>
     </div>
   )

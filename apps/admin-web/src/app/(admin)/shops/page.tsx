@@ -1,6 +1,6 @@
 import { listRegions } from '@/features/agents/api'
-import { getShopProducts, listProductOptions, listAgentOptions, listShops, getShop, type ShopListQuery } from '@/features/shops/api'
-import { ShopEditDialog } from '@/features/shops/components/ShopEditDialog'
+import { listAgentOptions, listShops, type ShopListQuery } from '@/features/shops/api'
+import { ShopFormHost } from '@/features/shops/components/ShopFormHost'
 import { ShopsToolbar } from '@/features/shops/components/ShopsToolbar'
 import { ShopsView } from '@/features/shops/components/ShopsView'
 import { shopFormCopy, shopsCopy } from '@/features/shops/copy'
@@ -21,16 +21,7 @@ export default async function ShopsPage ({ searchParams }: PageProps<'/shops'>) 
     regionId: uuid(sp.regionId),
     agentId: uuid(sp.agentId)
   }
-  const editId = uuid(sp.edit)
-  const dialog = sp.add != null || editId != null
-  const [page, regions, agents, editing, products, carried] = await Promise.all([
-    listShops(query),
-    listRegions(),
-    listAgentOptions(),
-    editId != null ? getShop(editId).catch(() => null) : Promise.resolve(null),
-    dialog ? listProductOptions() : Promise.resolve(null),
-    editId != null ? getShopProducts(editId).catch(() => ({ productIds: [] })) : Promise.resolve({ productIds: [] })
-  ])
+  const [page, regions, agents] = await Promise.all([listShops(query), listRegions(), listAgentOptions()])
   const keep = (omit: string[]) => new URLSearchParams(Object.entries(sp).filter((e): e is [string, string] => e[1] != null && !omit.includes(e[0])))
   const exportHref = `/export?${new URLSearchParams({ type: 'SHOPS_XLSX', back: '/shops', ...Object.fromEntries(keep(['page', 'size', 'add', 'edit', 'exportFailed'])) }).toString()}`
   const activeAgents = agents.items.filter((a) => a.active)
@@ -41,9 +32,8 @@ export default async function ShopsPage ({ searchParams }: PageProps<'/shops'>) 
         {sp.exportFailed != null && <p role='alert' className='text-sm text-error'>{copy.exportFailed}</p>}
         <ShopsToolbar copy={copy} regions={regions} />
       </ShopsView>
-      {(sp.add != null || editing != null) && (
-        <ShopEditDialog key={editing?.id ?? 'new'} shop={editing} agents={activeAgents} products={products?.items ?? []} productIds={carried.productIds} copy={shopFormCopy[locale]} closeHref={`/shops?${keep(['add', 'edit']).toString()}`} />
-      )}
+      {/* Opens from ?add=1 in the browser, its data fetched on demand (no server render). */}
+      <ShopFormHost copy={shopFormCopy[locale]} />
     </div>
   )
 }

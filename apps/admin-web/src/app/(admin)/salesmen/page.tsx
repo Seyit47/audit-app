@@ -1,10 +1,9 @@
 import { Button } from '@/components/ui/Button'
 import { FigmaIcon } from '@/components/ui/FigmaIcon'
 import { PageHeader } from '@/components/ui/PageHeader'
-import { getAgent, getAgentsSummary, listAgents, listRegions, type AgentListQuery } from '@/features/agents/api'
+import { getAgentsSummary, listAgents, listRegions, type AgentListQuery } from '@/features/agents/api'
 import { AgentsSummary } from '@/features/agents/components/AgentsSummary'
-import { AgentFormDialog } from '@/features/agents/components/AgentFormDialog'
-import { api } from '@/lib/api'
+import { AgentFormHost } from '@/features/agents/components/AgentFormHost'
 import { AgentsTable } from '@/features/agents/components/AgentsTable'
 import { AgentsToolbar } from '@/features/agents/components/AgentsToolbar'
 import { agentsCopy } from '@/features/agents/copy'
@@ -28,13 +27,10 @@ export default async function SalesmenPage ({ searchParams }: PageProps<'/salesm
     sort: oneOf(sp.sort, ['fullName', 'code', 'locations', 'visits', 'photos', 'lastActivityAt'] as const) ?? 'code',
     dir: oneOf(sp.dir, ['asc', 'desc'] as const) ?? 'asc'
   }
-  const editId = uuid(sp.edit)
-  const editing = editId != null ? await getAgent(editId).catch(() => null) : null
-  const [page, regions, summary, next] = await Promise.all([
+  const [page, regions, summary] = await Promise.all([
     listAgents(query),
     listRegions(),
     getAgentsSummary(period.from, period.to),
-    sp.add != null ? api<{ code: string }>('/v1/agents/next-code') : Promise.resolve({ code: '' })
   ])
   const href = (key: string, dir: 'asc' | 'desc') => {
     const next = new URLSearchParams(Object.entries(sp).filter((e): e is [string, string] => e[1] != null))
@@ -51,23 +47,15 @@ export default async function SalesmenPage ({ searchParams }: PageProps<'/salesm
         actions={
           <>
             <Button variant='secondary' href={`/export?${new URLSearchParams({ type: 'AGENTS_XLSX', back: '/salesmen', ...Object.fromEntries(Object.entries(sp).filter((e): e is [string, string] => e[1] != null && ['status', 'regionId', 'from', 'to', 'q'].includes(e[0]))) }).toString()}`} icon={<FigmaIcon name='export' width={13} height={13} />}>{copy.exportRoster}</Button>
-            <Button prefetch href='/salesmen?add=1' icon={<FigmaIcon name='plus' width={10.5} height={10.5} />}>{copy.addSalesman}</Button>
+            <Button dialog={{ kind: 'agent' }} href='/salesmen?add=1' icon={<FigmaIcon name='plus' width={10.5} height={10.5} />}>{copy.addSalesman}</Button>
           </>
         }
       />
       <AgentsSummary summary={summary} copy={copy} locale={locale} />
       <AgentsToolbar copy={copy} regions={regions} />
       <AgentsTable page={page} copy={copy} locale={locale} sort={{ key: query.sort!, dir: query.dir!, href }} />
-      {(sp.add != null || editing != null) && (
-        <AgentFormDialog
-          key={editing?.id ?? 'new'}
-          agent={editing}
-          regions={regions}
-          nextCode={next.code}
-          copy={copy}
-          closeHref={`/salesmen?${new URLSearchParams(Object.entries(sp).filter((e): e is [string, string] => e[1] != null && e[0] !== 'add' && e[0] !== 'edit')).toString()}`}
-        />
-      )}
+      {/* Opens from ?add=1 / ?edit=<id> in the browser, its data fetched on demand (no server render). */}
+      <AgentFormHost copy={copy} />
     </div>
   )
 }

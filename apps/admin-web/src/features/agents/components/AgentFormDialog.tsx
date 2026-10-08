@@ -2,6 +2,7 @@
 
 import { guard, say } from '@/lib/feedback'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { forgetFormData } from '@/lib/url-dialog'
 import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Dialog } from '@/components/ui/Dialog'
@@ -14,12 +15,13 @@ import type { AgentsCopy } from '../copy'
 type Status = AgentInput['status']
 
 /** Add / edit salesman dialog of Figma 495:3932, with exactly the frame's fields. */
-export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref }: {
+export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref, animateIn = true }: {
   agent: Agent | null
   regions: Region[]
   nextCode: string
   copy: AgentsCopy
   closeHref: string
+  animateIn?: boolean
 }) {
   const f = copy.form
   const router = useRouter()
@@ -36,7 +38,7 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref }: 
   const open = params.has('add') || params.has('edit')
   const close = (changed = false) => {
     window.history.replaceState(null, '', closeHref)
-    if (changed) router.refresh()
+    if (changed) { forgetFormData(); router.refresh() }
   }
 
   function submit (form: FormData) {
@@ -94,7 +96,7 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref }: 
 
   return (
     <Dialog
-      open={open} variant='form' width={981} onClose={() => close()} closeLabel={f.close}
+      open={open} animateIn={animateIn} variant='form' width={981} onClose={() => close()} closeLabel={f.close}
       title={agent == null ? f.addTitle : f.editTitle}
       subtitle={f.subtitle}
       footer={
