@@ -55,7 +55,7 @@ export function ShopsView ({ page, copy, locale, agents, exportHref, children }:
 
   const columns: Column<ShopRow>[] = [
     {
-      key: 'check', width: 48, fixed: true, className: 'pl-4 pr-0',
+      key: 'check', width: 48, className: 'pl-4 pr-0',
       header: <Checkbox aria-label={copy.selectAll} checked={allChecked} onChange={() => setSelected(allChecked ? new Set() : new Set(ids))} />,
       render: (s) => <Checkbox aria-label={copy.selectRow} checked={selected.has(s.id)} onChange={() => toggle(s.id)} />
     },
@@ -68,7 +68,7 @@ export function ShopsView ({ page, copy, locale, agents, exportHref, children }:
             <span className='truncate text-sm font-semibold leading-5 text-ink'>{s.name}</span>
             <span className='flex items-center gap-1.5 text-xs leading-4 text-ink'>
               <FigmaIcon name='pin-small' width={9.333} height={11.667} />
-              <span className='min-w-0 truncate'>{s.address}</span>
+              <span className='max-w-40 truncate'>{s.address}</span>
             </span>
           </span>
         </Link>
