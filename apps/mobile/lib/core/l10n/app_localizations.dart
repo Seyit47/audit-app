@@ -1723,6 +1723,12 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Длительность: {minutes} мин'**
   String visitDuration(int minutes);
+
+  /// No description provided for @notInShopRadius.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вы не в радиусе магазина. Ближайший: {name}, {distance}'**
+  String notInShopRadius(String name, String distance);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

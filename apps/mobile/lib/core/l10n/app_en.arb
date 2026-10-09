@@ -271,5 +271,6 @@
   "mapPickHint": "Move the map to put the pin on the shop's entrance",
   "mapPickDone": "Use this point",
   "pickedOnMap": "Chosen on the map",
-  "visitDuration": "Duration: {minutes} min"
+  "visitDuration": "Duration: {minutes} min",
+  "notInShopRadius": "You're not within a shop's radius. Nearest: {name}, {distance}"
 }

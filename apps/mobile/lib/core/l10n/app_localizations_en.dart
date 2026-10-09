@@ -921,4 +921,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String visitDuration(int minutes) {
     return 'Duration: $minutes min';
   }
+
+  @override
+  String notInShopRadius(String name, String distance) {
+    return 'You\'re not within a shop\'s radius. Nearest: $name, $distance';
+  }
 }

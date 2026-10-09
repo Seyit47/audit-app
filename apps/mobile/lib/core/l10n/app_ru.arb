@@ -619,5 +619,16 @@
         "type": "int"
       }
     }
+  },
+  "notInShopRadius": "Вы не в радиусе магазина. Ближайший: {name}, {distance}",
+  "@notInShopRadius": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "distance": {
+        "type": "String"
+      }
+    }
   }
 }

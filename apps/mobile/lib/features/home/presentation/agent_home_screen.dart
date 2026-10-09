@@ -6,7 +6,11 @@ import '../../../core/l10n/app_localizations.dart';
 import '../../../core/sync/sync_providers.dart';
 import '../../../core/sync/sync_status.dart';
 import '../../../core/widgets/home_tiles.dart';
-import '../../route/data/route_local_repository.dart';
+import '../../../core/db/database_provider.dart';
+import '../../../core/format/formatters.dart';
+import '../../../core/settings/remote_config.dart';
+import '../../audit/domain/geofence.dart';
+import '../../audit/presentation/audit_controller.dart';
 import 'home_scaffold.dart';
 
 /// Agent Home (`83:16786` / `101:1880`).
@@ -19,17 +23,7 @@ class AgentHomeScreen extends ConsumerWidget {
     return HomeScaffold(
       syncing: ref.watch(syncStatusProvider) == SyncStatus.syncing,
       tiles: [
-        HomeHeroTile(
-          badge: l10n.homePrimaryBadge,
-          title: l10n.homeStartAudit,
-          subtitle: l10n.homeStartAuditHint,
-          onTap: () async {
-            // The next stop of today's route; without one, the agent picks a shop.
-            final stop = await ref.read(routeLocalRepositoryProvider).nextStop();
-            if (!context.mounted) return;
-            context.push(stop == null ? '/agent/shops' : '/agent/audit/${stop.shopId}');
-          },
-        ),
+        HomeHeroTile(badge: l10n.homePrimaryBadge, title: l10n.homeStartAudit, subtitle: l10n.homeStartAuditHint, onTap: () => _startAudit(context, ref)),
         HomeActionTile(
           icon: 'home-shops',
           iconSize: const Size(21.77, 19.5),
@@ -56,5 +50,27 @@ class AgentHomeScreen extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  /// "Начать аудит": audits happen only inside a shop's radius, so the shop is the one the agent stands in.
+  static Future<void> _startAudit(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context)..hideCurrentSnackBar();
+    void say(String text) => messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(text)));
+    messenger.showSnackBar(SnackBar(content: Text(l10n.locating), duration: const Duration(seconds: 30)));
+
+    final db = ref.read(databaseProvider);
+    final config = ref.read(remoteConfigProvider).value ?? const RemoteConfig();
+    final (fix, shops) = await (ref.read(locatorProvider).current(), (db.select(db.shops)..where((s) => s.status.isNotValue('INACTIVE'))).get()).wait;
+    if (!context.mounted) return;
+    if (fix == null) return say(l10n.geoUnavailable);
+    if (fix.accuracyM > config.minGpsAccuracyM) return say(l10n.geoInaccurate(fix.accuracyM.round()));
+    final hit = nearestShop(shops, fix, lat: (s) => s.lat, lng: (s) => s.lng, radiusM: (s) => s.auditRadiusM);
+    if (hit == null) return say(l10n.shopsEmpty);
+    if (!hit.inside) return say(l10n.notInShopRadius(hit.shop.name, distance(context, hit.meters)));
+    messenger.hideCurrentSnackBar();
+    context.push('/agent/audit/${hit.shop.id}');
   }
 }

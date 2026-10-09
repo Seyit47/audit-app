@@ -27,3 +27,32 @@ GeoStatus geofence({required Fix? fix, required double shopLat, required double 
   if (fix.accuracyM > minAccuracyM) return GeoStatus.inaccurate;
   return distanceMeters(fix.lat, fix.lng, shopLat, shopLng) <= radiusM ? GeoStatus.inside : GeoStatus.outside;
 }
+
+/// The shop nearest to a fix, and whether the fix is inside its audit radius.
+class NearestShop<T> {
+  const NearestShop(this.shop, this.meters, {required this.inside});
+
+  final T shop;
+  final double meters;
+  final bool inside;
+}
+
+/// "Начать аудит": the shop whose audit radius the agent stands in (the closest when radii overlap); otherwise
+/// the nearest shop, outside. Null when there are no shops.
+NearestShop<T>? nearestShop<T>(
+  Iterable<T> shops,
+  Fix fix, {
+  required double Function(T) lat,
+  required double Function(T) lng,
+  required int Function(T) radiusM,
+}) {
+  NearestShop<T>? best;
+  for (final s in shops) {
+    final d = distanceMeters(fix.lat, fix.lng, lat(s), lng(s));
+    final inside = d <= radiusM(s);
+    // Inside any radius beats outside; then the closer shop.
+    final better = best == null || (inside && !best.inside) || (inside == best.inside && d < best.meters);
+    if (better) best = NearestShop(s, d, inside: inside);
+  }
+  return best;
+}
