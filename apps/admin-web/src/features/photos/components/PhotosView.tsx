@@ -97,7 +97,7 @@ export function PhotosView ({ first, query, summary, regions, copy, locale, init
   }
   const activeFilters = ['regionId', 'verified', 'date'].filter((k) => params.get(k) != null).length
 
-  const tile = (p: GalleryPhoto, size = 'h-[170px] w-full') => (
+  const tile = (p: GalleryPhoto, size = 'h-[240px] w-full') => (
     <PhotoTile
       key={p.id} flipId={p.id} src={p.previewUrl400} alt={p.shop?.name ?? ''} className={size}
       verifiedLabel={p.verified ? copy.verified : null}
