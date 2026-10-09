@@ -108,3 +108,26 @@ test('summary, detail KPIs, timeline, track and reports', async () => {
     }
   }
 })
+
+test('an audit outside the planned route still shows in the timeline and as a checkpoint', async () => {
+  const g = await f.agent(app)
+  const day = localDate(new Date(), 'Asia/Ashgabat')
+  // No route today: the agent audited the shop they stood in (Начать аудит picks it by location).
+  const shop = await f.shop(app, { createdById: adminId, agentId: g.userId })
+  const at = new Date()
+  const auditId = newId()
+  await app.prisma.audit.create({ data: { id: auditId, shopId: shop.id, agentId: g.userId, startedAtDevice: new Date(at.getTime() - 600_000), finishedAtDevice: at, durationMin: 10, lat: shop.lat, lng: shop.lng, gpsAccuracyM: 5, distanceM: 3, withinRadius: true, comment: 'ok' } })
+  await app.prisma.photo.create({ data: { id: newId(), kind: 'AUDIT', auditId, uploadedById: g.userId, storageKey: 'a/2.jpg', mime: 'image/jpeg', sizeBytes: 1, sha256: 'a'.repeat(64), takenAt: at, status: 'READY' } })
+  // Yesterday's audit stays on yesterday.
+  await app.prisma.audit.create({ data: { id: newId(), shopId: shop.id, agentId: g.userId, startedAtDevice: new Date(at.getTime() - 86_400_000), finishedAtDevice: new Date(at.getTime() - 86_000_000), durationMin: 5, lat: shop.lat, lng: shop.lng, gpsAccuracyM: 5, distanceM: 3, withinRadius: true, comment: 'old' } })
+
+  const timeline = (await app.inject({ url: `/v1/agents/${g.userId}/timeline?date=${day}`, headers: admin })).json()
+  assert.strictEqual(timeline.length, 1)
+  assert.strictEqual(timeline[0].status, 'DONE')
+  assert.strictEqual(timeline[0].shop.id, shop.id)
+  assert.strictEqual(timeline[0].audit.id, auditId)
+  assert.strictEqual(timeline[0].photoCount, 1)
+
+  const track = (await app.inject({ url: `/v1/agents/${g.userId}/track?date=${day}`, headers: admin })).json()
+  assert.deepStrictEqual(track.checkpoints.map((c: { name: string, status: string }) => [c.name, c.status]), [[shop.name, 'DONE']])
+})

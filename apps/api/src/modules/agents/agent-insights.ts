@@ -79,22 +79,50 @@ export class AgentInsights {
     return { audits, assignedShops: assigned, visitedShops: visited.length, photos }
   }
 
+  /**
+   * The day's checkpoints: the planned route's stops, plus audits at shops that were not on it (an audit is
+   * started at whatever shop the agent stands in, and some days have no route), in time order.
+   */
   async timeline (agentId: string, date?: string) {
     const tz = (await this.settings.get()).timezone
     const day = date ?? localDate(new Date(), tz)
-    const route = await this.prisma.route.findUnique({
-      where: { agentId_date: { agentId, date: new Date(`${day}T00:00:00Z`) } },
-      include: { stops: { orderBy: { position: 'asc' }, include: { shop: { select: { id: true, name: true, code: true, lat: true, lng: true } }, audit: { include: { _count: { select: { photos: true } } } } } } }
-    })
-    return (route?.stops ?? []).map((st) => ({
+    const start = startOfLocalDay(day, tz)
+    const shop = { select: { id: true, name: true, code: true, lat: true, lng: true } } as const
+    const withPhotos = { _count: { select: { photos: true } } } as const
+    const [route, audits] = await Promise.all([
+      this.prisma.route.findUnique({
+        where: { agentId_date: { agentId, date: new Date(`${day}T00:00:00Z`) } },
+        include: { stops: { orderBy: { position: 'asc' }, include: { shop, audit: { include: withPhotos } } } }
+      }),
+      this.prisma.audit.findMany({
+        where: { agentId, startedAtDevice: { gte: start, lt: new Date(start.getTime() + 86_400_000) }, stop: { is: null } },
+        orderBy: { startedAtDevice: 'asc' },
+        include: { shop, ...withPhotos }
+      })
+    ])
+    const auditView = (a: { id: string, startedAtDevice: Date, finishedAtDevice: Date, durationMin: number }) =>
+      ({ id: a.id, startedAt: a.startedAtDevice.toISOString(), finishedAt: a.finishedAtDevice.toISOString(), durationMin: a.durationMin })
+    const planned = (route?.stops ?? []).map((st) => ({
       id: st.id,
       status: st.status,
       plannedAt: st.plannedAt.toISOString(),
       isAuditTask: st.isAuditTask,
       shop: st.shop,
       photoCount: st.audit?._count.photos ?? 0,
-      audit: st.audit == null ? null : { id: st.audit.id, startedAt: st.audit.startedAtDevice.toISOString(), finishedAt: st.audit.finishedAtDevice.toISOString(), durationMin: st.audit.durationMin }
+      audit: st.audit == null ? null : auditView(st.audit)
     }))
+    const unplanned = audits.map((a) => ({
+      id: a.id,
+      status: 'DONE' as const,
+      plannedAt: a.startedAtDevice.toISOString(),
+      isAuditTask: true,
+      shop: a.shop,
+      photoCount: a._count.photos,
+      audit: auditView(a)
+    }))
+    // Each checkpoint at its real time: the audit's start when done, otherwise the planned time.
+    const at = (x: { plannedAt: string, audit: { startedAt: string } | null }) => x.audit?.startedAt ?? x.plannedAt
+    return [...planned, ...unplanned].sort((x, y) => at(x).localeCompare(at(y)))
   }
 
   async track (agentId: string, date?: string) {
