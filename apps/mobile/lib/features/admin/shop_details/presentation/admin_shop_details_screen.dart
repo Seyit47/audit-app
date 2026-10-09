@@ -55,12 +55,6 @@ class AdminShopDetailsScreen extends ConsumerWidget {
     final data = ref.watch(_shopDataProvider(shopId));
     final s = data.value?.shop;
 
-    Widget iconButton(String icon, Size size, String tip, VoidCallback onTap) => IconButton(
-      tooltip: tip,
-      onPressed: onTap,
-      icon: AppIcon(icon, width: size.width, height: size.height, color: c.textSecondary),
-    );
-
     final header = Container(
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -91,13 +85,6 @@ class AdminShopDetailsScreen extends ConsumerWidget {
                 child: AppIcon('kebab', width: 3.67, height: 14.67, color: c.textSecondary),
               ),
             ),
-          Container(
-            width: 32,
-            height: 32,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(color: c.accent, shape: BoxShape.circle),
-            child: const AppIcon('avatar-small', width: 12, height: 12),
-          ),
         ],
       ),
     );
@@ -224,8 +211,6 @@ class AdminShopDetailsScreen extends ConsumerWidget {
                                   ],
                                 ),
                               ),
-                              iconButton('share', const Size(15, 16.67), l10n.share, () => _share(s)),
-                              iconButton('edit', const Size(15, 15), l10n.editShop, () => _edit(context, ref)),
                             ],
                           ),
                           const SizedBox(height: 16),
@@ -474,28 +459,20 @@ class AdminShopDetailsScreen extends ConsumerWidget {
     final c = context.colors;
     final at = DateTime.parse(v['at'] as String);
     if (v['type'] == 'MISSED') return AuditHistoryItem(date: longDateTime(context, at), status: l10n.visitMissed, statusColor: c.error);
-    final lat = (v['lat'] as num?)?.toDouble();
-    final lng = (v['lng'] as num?)?.toDouble();
-    final meters = (v['gpsAccuracyM'] as num?)?.round();
-    final within = (v['withinRadius'] as bool?) ?? true;
+    // 248:24538: date and duration, the comment, photos (no coordinates, violation line or GPS footer).
+    final minutes = v['durationMin'] as int?;
     final comment = (v['comment'] as String?) ?? '';
     final photos = [for (final p in (v['photos'] as List? ?? const []).cast<Map>()) (p['previewUrl400'] ?? p['url']) as String];
     return AuditHistoryItem(
       date: longDateTime(context, at),
-      coords: lat == null || lng == null ? null : coords(lat, lng),
-      note: comment.isEmpty ? null : ViolationNote(text: comment, violationLabel: v['hasViolation'] == true ? l10n.violationRecorded : null),
+      duration: minutes == null ? null : l10n.visitDuration(minutes),
+      note: comment.isEmpty ? null : ViolationNote(text: comment),
       photos: photos,
       photoTotal: (v['photoCount'] as int?) ?? photos.length,
       photosLabel: l10n.photoMaterials((v['photoCount'] as int?) ?? photos.length),
       moreLabel: l10n.morePhotos,
       seeAllLabel: l10n.seeAll,
       onSeeAll: () => context.push('/admin/gallery?shopId=$shopId'),
-      accuracy: meters == null
-          ? null
-          : within
-          ? l10n.accuracyInside(meters)
-          : l10n.accuracyOutside(meters),
-      accuracyOk: within,
     );
   }
 

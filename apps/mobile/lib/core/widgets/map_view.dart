@@ -81,6 +81,10 @@ class AppMapView extends StatefulWidget {
     this.fitPadding = fullScreenPadding,
   });
 
+  /// Screen renders in widget tests have no native map view: they turn this off and get a plain box.
+  @visibleForTesting
+  static bool nativeMap = true;
+
   /// Clear of the full-screen maps' top bar and bottom controls.
   static const fullScreenPadding = EdgeInsets.fromLTRB(48, 160, 48, 120);
 
@@ -209,7 +213,7 @@ class _AppMapViewState extends State<AppMapView> {
   @override
   Widget build(BuildContext context) {
     final style = _style;
-    if (style == null) return ColoredBox(color: Theme.of(context).scaffoldBackgroundColor);
+    if (style == null || !AppMapView.nativeMap) return ColoredBox(color: Theme.of(context).colorScheme.surfaceContainerHighest);
     final start = widget.initial ?? (widget.markers.isEmpty ? (37.95, 58.38) : (widget.markers.first.lat, widget.markers.first.lng));
     // A theme change swaps the style on the existing map (MapLibre reloads it in place and calls
     // _onStyleLoaded again) instead of destroying and recreating the native map view.

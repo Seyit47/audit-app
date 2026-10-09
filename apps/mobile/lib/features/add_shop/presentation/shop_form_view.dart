@@ -162,10 +162,6 @@ class _ShopFormViewState extends State<ShopFormView> {
                       onChanged: (v) => w.onChanged(owner: v),
                     ),
                   ),
-                  if (w.agentField != null) ...[
-                    const SizedBox(height: 22),
-                    AppFormField(label: l10n.agent, required: true, valid: w.agentValid, child: w.agentField!),
-                  ],
                   const SizedBox(height: 22),
                   AppFormField(
                     label: l10n.phoneNumber,
@@ -180,6 +176,11 @@ class _ShopFormViewState extends State<ShopFormView> {
                       prefix: AppIcon('phone', width: 12, height: 12, color: c.textSecondary),
                     ),
                   ),
+                  // 252:25423: the admin's "Агент" comes after the phone number.
+                  if (w.agentField != null) ...[
+                    const SizedBox(height: 22),
+                    AppFormField(label: l10n.agent, required: true, valid: w.agentValid, child: w.agentField!),
+                  ],
                   const SizedBox(height: 28),
                   Row(
                     children: [

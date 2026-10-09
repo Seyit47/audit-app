@@ -65,6 +65,7 @@ class AuditHistoryItem extends StatelessWidget {
     this.accuracyOk = true,
     this.status,
     this.statusColor,
+    this.duration,
   });
 
   final String date;
@@ -86,6 +87,9 @@ class AuditHistoryItem extends StatelessWidget {
   /// Right-aligned state instead of coordinates ("Пропущен", "Ожидает синхронизации").
   final String? status;
   final Color? statusColor;
+
+  /// "Длительность: 12 мин" on the right of the date (admin shop details, 248:24538).
+  final String? duration;
 
   @override
   Widget build(BuildContext context) {
@@ -116,6 +120,8 @@ class AuditHistoryItem extends StatelessWidget {
                   status!,
                   style: small.copyWith(color: statusColor ?? c.textSecondary, fontWeight: FontWeight.w600),
                 )
+              else if (duration != null)
+                Text(duration!, style: small.copyWith(fontWeight: FontWeight.w400))
               else if (coords != null) ...[
                 AppIcon('geo-target-muted', width: 13.69, height: 13.69, color: c.textSecondary),
                 const SizedBox(width: 4),

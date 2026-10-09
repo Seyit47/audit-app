@@ -270,5 +270,6 @@
   "mapPickTitle": "Shop location",
   "mapPickHint": "Move the map to put the pin on the shop's entrance",
   "mapPickDone": "Use this point",
-  "pickedOnMap": "Chosen on the map"
+  "pickedOnMap": "Chosen on the map",
+  "visitDuration": "Duration: {minutes} min"
 }

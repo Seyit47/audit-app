@@ -79,5 +79,26 @@ class FakeAdminApi implements AdminApi {
   };
 
   @override
+  Future<Json> photos({String? shopId, String? agentId, String? from, String? cursor, int limit = 40, bool groups = false}) async => {'items': const []};
+
+  @override
+  Future<List<Json>> positions() async => const [];
+
+  @override
+  Future<List<Json>> shopVisits(String id, {int limit = 10}) async => [
+    {
+      'id': 'v1',
+      'type': 'AUDIT',
+      'at': DateTime(2026, 9, 14, 15, 40).toIso8601String(),
+      'durationMin': 12,
+      'comment': 'Стойка напитков перекрыта коробками конкурентов. Сделано предписание исправить выкладку.',
+      'hasViolation': true,
+      'photoCount': 5,
+      'photos': const [],
+    },
+    {'id': 'v2', 'type': 'MISSED', 'at': DateTime(2026, 9, 12, 11, 0).toIso8601String()},
+  ];
+
+  @override
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError(invocation.memberName.toString());
 }

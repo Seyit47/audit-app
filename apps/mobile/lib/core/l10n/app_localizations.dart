@@ -1717,6 +1717,12 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Точка выбрана на карте'**
   String get pickedOnMap;
+
+  /// No description provided for @visitDuration.
+  ///
+  /// In ru, this message translates to:
+  /// **'Длительность: {minutes} мин'**
+  String visitDuration(int minutes);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

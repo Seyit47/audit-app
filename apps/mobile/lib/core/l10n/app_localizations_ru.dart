@@ -916,4 +916,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pickedOnMap => 'Точка выбрана на карте';
+
+  @override
+  String visitDuration(int minutes) {
+    return 'Длительность: $minutes мин';
+  }
 }
