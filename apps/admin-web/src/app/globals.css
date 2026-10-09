@@ -134,6 +134,7 @@ html::-webkit-scrollbar { display: none; }
 [data-ripple]:is([aria-pressed='true'], [aria-selected='true'], [aria-expanded='true'])::after { opacity: 0.06; }
 [data-ripple]:is([aria-pressed='true'], [aria-selected='true'], [aria-expanded='true']):hover::after { opacity: 0.12; }
 [data-ripple][aria-disabled='true']::after, [data-ripple]:disabled::after { opacity: 0; }
+.ripple-clip { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; pointer-events: none; z-index: -1; }
 .ripple-wave {
   position: absolute; border-radius: 9999px; pointer-events: none; background: currentColor; opacity: 0.16;
   transform: scale(0); animation: ripple 550ms var(--ease-decelerate) forwards; z-index: -1;
@@ -182,5 +183,5 @@ html::-webkit-scrollbar { display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 1ms !important; animation-delay: 0ms !important; transition-duration: 1ms !important; }
-  .ripple-wave { display: none; }
+  .ripple-wave, .ripple-clip { display: none; }
 }

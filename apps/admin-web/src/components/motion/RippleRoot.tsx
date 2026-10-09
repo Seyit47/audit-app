@@ -17,8 +17,13 @@ export function RippleRoot () {
       wave.style.width = wave.style.height = `${size}px`
       wave.style.left = `${x - r.left - size / 2}px`
       wave.style.top = `${y - r.top - size / 2}px`
-      host.appendChild(wave)
-      wave.addEventListener('animationend', () => wave.remove(), { once: true })
+      // The wave sits in its own clipping layer: if the element restyles mid-wave (a sidebar item turning
+      // active drops data-ripple and its overflow clip), the wave still stays inside the element.
+      const clip = document.createElement('span')
+      clip.className = 'ripple-clip'
+      clip.appendChild(wave)
+      host.appendChild(clip)
+      wave.addEventListener('animationend', () => clip.remove(), { once: true })
     }
     const down = (e: PointerEvent) => {
       if (e.button !== 0) return
