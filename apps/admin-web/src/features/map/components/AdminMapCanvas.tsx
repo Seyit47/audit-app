@@ -144,7 +144,7 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
   }
   const search = () => { if (visible.length > 0) recenter() }
 
-  const activeFilters = filters.agentIds.length + filters.regionIds.length
+  const activeFilters = filters.agentIds.length + filters.regionIds.length + (filters.show !== 'both' ? 1 : 0) + (filters.status !== 'all' ? 1 : 0)
   const filtered = activeFilters > 0 || filters.ids.length > 0 || q.trim() !== ''
   const banner = [
     `${visible.length} ${plural(locale, visible.length, copy.locations)}`,
@@ -238,7 +238,7 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
       {panel && (
         <MapFilters
           agents={agents} regions={regions} value={filters} copy={copy} onClose={() => setPanel(false)}
-          onApply={(next) => { setPanel(false); set({ agents: next.agentIds.join(','), regions: next.regionIds.join(','), ids: null, shop: null }) }}
+          onApply={(next) => { setPanel(false); set({ agents: next.agentIds.join(','), regions: next.regionIds.join(','), show: next.show === 'both' ? null : next.show, status: next.status === 'all' ? null : next.status, ids: null, shop: null }) }}
         />
       )}
     </div>

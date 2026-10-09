@@ -130,9 +130,10 @@ html::-webkit-scrollbar { display: none; }
 [data-ripple]:hover::after { opacity: 0.08; }
 [data-ripple]:focus-visible::after { opacity: 0.1; }
 [data-ripple]:active::after { opacity: 0.12; }
-/* Selected (pressed toggle, open menu) keeps a light layer that still reacts to hover and press. */
-[data-ripple]:is([aria-pressed='true'], [aria-selected='true'], [aria-expanded='true'])::after { opacity: 0.06; }
-[data-ripple]:is([aria-pressed='true'], [aria-selected='true'], [aria-expanded='true']):hover::after { opacity: 0.12; }
+/* Selected (pressed toggle, open menu) keeps a light layer that still reacts to hover and press. A section header
+   that only expands its list (data-disclosure) is not "selected" when open. */
+[data-ripple]:not([data-disclosure]):is([aria-pressed='true'], [aria-selected='true'], [aria-expanded='true'])::after { opacity: 0.06; }
+[data-ripple]:not([data-disclosure]):is([aria-pressed='true'], [aria-selected='true'], [aria-expanded='true']):hover::after { opacity: 0.12; }
 [data-ripple][aria-disabled='true']::after, [data-ripple]:disabled::after { opacity: 0; }
 .ripple-clip { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; pointer-events: none; z-index: -1; }
 .ripple-wave {

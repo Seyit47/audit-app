@@ -8,7 +8,7 @@ export const mapCopy = defineCopy({
     locations: ['location', 'locations'], salesmen: ['salesman', 'salesmen'], regions: ['region', 'regions'],
     filters: 'Filters', recenter: 'Re-center', zoomIn: 'Zoom in', zoomOut: 'Zoom out',
     layers: 'Switch map / satellite', fullscreen: 'Full screen', refresh: 'Refresh',
-    panel: { salesman: 'Salesman', searchable: 'Searchable', searchAgents: 'Search agents...', region: 'Region Zone', allRegions: 'All Regions ({n})', apply: 'Apply Filters', clear: 'Clear All', close: 'Close', remove: 'Remove' },
+    panel: { show: 'Users/Shops', showBoth: 'Both', showAgents: 'Agents', showShops: 'Shops', status: 'Status', statusAll: 'All', visited: 'Visited', notVisited: 'Not visited', recent: 'Recent', salesman: 'Salesman', searchable: 'Searchable', searchAgents: 'Search agents...', region: 'Region Zone', allRegions: 'All Regions ({n})', apply: 'Apply Filters', clear: 'Clear All', close: 'Close', remove: 'Remove' },
     unit: 'units', hereNow: 'Last signal {n}',
     card: {
       close: 'Close', verified: 'Verified', pending: 'Pending review', inactive: 'Inactive',
@@ -24,7 +24,7 @@ export const mapCopy = defineCopy({
     locations: ['точка', 'точки', 'точек'], salesmen: ['агент', 'агента', 'агентов'], regions: ['регион', 'региона', 'регионов'],
     filters: 'Фильтры', recenter: 'Центрировать', zoomIn: 'Приблизить', zoomOut: 'Отдалить',
     layers: 'Карта / спутник', fullscreen: 'Во весь экран', refresh: 'Обновить',
-    panel: { salesman: 'Агент', searchable: 'С поиском', searchAgents: 'Поиск агентов...', region: 'Регион', allRegions: 'Все регионы ({n})', apply: 'Применить', clear: 'Сбросить', close: 'Закрыть', remove: 'Убрать' },
+    panel: { show: 'Агенты/Магазины', showBoth: 'Все', showAgents: 'Агенты', showShops: 'Магазины', status: 'Статус', statusAll: 'Все', visited: 'Посещённые', notVisited: 'Не посещённые', recent: 'Недавние', salesman: 'Агент', searchable: 'С поиском', searchAgents: 'Поиск агентов...', region: 'Регион', allRegions: 'Все регионы ({n})', apply: 'Применить', clear: 'Сбросить', close: 'Закрыть', remove: 'Убрать' },
     unit: 'точек', hereNow: 'Сигнал: {n}',
     card: {
       close: 'Закрыть', verified: 'Проверено', pending: 'На проверке', inactive: 'Неактивен',

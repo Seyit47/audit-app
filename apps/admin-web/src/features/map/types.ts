@@ -29,7 +29,11 @@ export interface AgentPosition {
   recordedAt: string
 }
 
-export interface MapFilterState { agentIds: string[], regionIds: string[] }
+/** Users/Shops (788:2352): what the map shows. */
+export type MapShow = 'both' | 'agents' | 'shops'
+/** Status (791:2406), day-based: visited today, not visited yet today, visited in the last 7 days. */
+export type MapVisitStatus = 'all' | 'visited' | 'not_visited' | 'recent'
+export interface MapFilterState { agentIds: string[], regionIds: string[], show: MapShow, status: MapVisitStatus }
 
 export interface ShopCardData {
   shop: ShopDetails
