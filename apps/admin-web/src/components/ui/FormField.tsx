@@ -100,8 +100,16 @@ export function StatusSwitch<T extends string> ({ options, value, onChange, comp
             key={o.value} type='button' role='radio' aria-checked={on} onClick={() => { if (!on) onChange(o.value) }} data-ripple={!on || undefined}
             className={`flex items-center justify-center gap-1.5 rounded-lg text-xs leading-4 ${compact ? 'h-8 min-w-[103px] px-5' : 'h-[30px] flex-1'} ${on ? 'cursor-default bg-pure-white font-semibold shadow-[0px_1px_2px_rgba(0,0,0,0.05)]' : 'font-medium text-default-black'} ${on ? (tone?.text ?? 'text-ink') : ''}`}
           >
-            {tone != null && <span className={`size-2 shrink-0 rounded-full ${tone.dot}`} />}
-            {o.label}
+            {/* Both looks share one grid cell: the option is always as wide as when selected, so picking one never moves the others. */}
+            <span className='grid'>
+              <span aria-hidden className='invisible col-start-1 row-start-1 flex items-center justify-center gap-1.5 font-semibold'>
+                {o.tone != null && <span className='size-2 shrink-0' />}{o.label}
+              </span>
+              <span className='col-start-1 row-start-1 flex items-center justify-center gap-1.5'>
+                {tone != null && <span className={`size-2 shrink-0 rounded-full ${tone.dot}`} />}
+                {o.label}
+              </span>
+            </span>
           </button>
         )
       })}
