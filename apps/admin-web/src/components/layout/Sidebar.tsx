@@ -32,9 +32,9 @@ export function Sidebar ({ companyName, logoUrl, copy }: { companyName: string |
   const current = pending != null && pending.from === pathname ? pending.to : pathname
 
   return (
-    <aside className='sticky top-0 flex h-screen w-[230px] shrink-0 flex-col bg-accent'>
+    <aside className='sticky top-0 flex h-screen w-[230px] shrink-0 flex-col bg-sidebar'>
       <div className='flex h-16 items-center justify-center gap-2 px-2'>
-        <div className='flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-accent drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]'>
+        <div className='flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-sidebar drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]'>
           {logoUrl != null
             // eslint-disable-next-line @next/next/no-img-element -- presigned URL from the API
             ? <img src={logoUrl} alt='' className='size-full object-cover' />
@@ -54,7 +54,7 @@ export function Sidebar ({ companyName, logoUrl, copy }: { companyName: string |
             ? (
               // On the section's own page the active item does nothing; from a sub-page (a salesman's details)
               // it goes back to the section.
-              <Link key={item.label} href={item.href} aria-current='page' onClick={(e) => { if (pathname === item.href) e.preventDefault() }} style={{ height: ROW }} className={`relative w-full shrink-0 text-accent ${pathname === item.href ? 'cursor-default' : ''}`}>
+              <Link key={item.label} href={item.href} aria-current='page' onClick={(e) => { if (pathname === item.href) e.preventDefault() }} style={{ height: ROW }} className={`relative w-full shrink-0 text-sidebar ${pathname === item.href ? 'cursor-default' : ''}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element -- static Figma SVG at its own size */}
                 <img src='/icons/nav-active-bg.svg' alt='' width={218} height={TAB} style={{ top: (ROW - TAB) / 2, height: TAB }} className='anim-fade-in pointer-events-none absolute inset-x-0 w-full' />
                 <span className='relative flex h-full items-center gap-3 pl-[12.5px]'>

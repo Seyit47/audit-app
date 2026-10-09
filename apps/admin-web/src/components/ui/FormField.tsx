@@ -72,17 +72,35 @@ export function SelectInput ({ className = '', children, variant = 'edit', icon,
 }
 
 /** "Статус активности сотрудника" switch of 495:3932 (495:4881). */
-export function StatusSwitch<T extends string> ({ options, value, onChange }: { options: Array<{ value: T, label: string }>, value: T, onChange: (v: T) => void }) {
+/** Dot and text of the selected option (761:2324): Активен green, Черновик red, Архив grey. */
+const tones = {
+  success: { dot: 'bg-light-green', text: 'text-success' },
+  error: { dot: 'bg-error', text: 'text-error' },
+  muted: { dot: 'bg-slate-400', text: 'text-default-black' }
+} as const
+export type StatusTone = keyof typeof tones
+
+/**
+ * Segmented status control. Salesman (495:4881): equal options across the row. `compact` is the product
+ * one (495:2632, 761:2324): content-sized options from the left, 40 px tall.
+ */
+export function StatusSwitch<T extends string> ({ options, value, onChange, compact = false }: {
+  options: Array<{ value: T, label: string, tone?: StatusTone }>
+  value: T
+  onChange: (v: T) => void
+  compact?: boolean
+}) {
   return (
-    <div role='radiogroup' className='flex h-[38px] items-center gap-1 rounded-xl bg-grey-3 p-1'>
-      {options.map((o, i) => {
+    <div role='radiogroup' className={`flex items-center gap-1 rounded-xl bg-grey-3 p-1 ${compact ? 'h-10' : 'h-[38px]'}`}>
+      {options.map((o) => {
         const on = o.value === value
+        const tone = on && o.tone != null ? tones[o.tone] : null
         return (
           <button
             key={o.value} type='button' role='radio' aria-checked={on} onClick={() => { if (!on) onChange(o.value) }} data-ripple={!on || undefined}
-            className={`flex h-[30px] flex-1 items-center justify-center gap-1.5 rounded-lg text-xs leading-4 ${on ? 'cursor-default bg-pure-white font-semibold shadow-[0px_1px_2px_rgba(0,0,0,0.05)]' : 'font-medium text-default-black'} ${on && i === 0 ? 'text-success' : on ? 'text-ink' : ''}`}
+            className={`flex items-center justify-center gap-1.5 rounded-lg text-xs leading-4 ${compact ? 'h-8 min-w-[103px] px-5' : 'h-[30px] flex-1'} ${on ? 'cursor-default bg-pure-white font-semibold shadow-[0px_1px_2px_rgba(0,0,0,0.05)]' : 'font-medium text-default-black'} ${on ? (tone?.text ?? 'text-ink') : ''}`}
           >
-            {on && i === 0 && <span className='size-2 rounded-full bg-light-green' />}
+            {tone != null && <span className={`size-2 shrink-0 rounded-full ${tone.dot}`} />}
             {o.label}
           </button>
         )

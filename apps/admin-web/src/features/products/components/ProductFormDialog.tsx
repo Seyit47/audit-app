@@ -140,7 +140,7 @@ export function ProductFormDialog ({ product, categories, copy, closeHref, enter
             <TextInput variant='form' id='retailPrice' name='retailPrice' inputMode='decimal' defaultValue={product != null ? product.retailPrice.toFixed(2) : ''} placeholder='185.00' suffix={f.currency} className={big} />
           </FormField>
           <FormField variant='form' label={f.statusLabel}>
-            <StatusSwitch<ProductInput['status']> value={status} onChange={setStatus} options={(['ACTIVE', 'DRAFT', 'INACTIVE'] as const).map((v) => ({ value: v, label: f.statuses[v] }))} />
+            <StatusSwitch<ProductInput['status']> compact value={status} onChange={setStatus} options={([['ACTIVE', 'success'], ['DRAFT', 'error'], ['INACTIVE', 'muted']] as const).map(([v, tone]) => ({ value: v, label: f.statuses[v], tone }))} />
           </FormField>
         </div>
         <section className='flex flex-col gap-4 rounded-2xl border border-border bg-slate-50 p-6'>

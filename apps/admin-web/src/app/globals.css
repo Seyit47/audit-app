@@ -5,6 +5,8 @@
   --accent: #493ee5;
   --accent-6: rgb(73 62 229 / 0.06);
   --dark-accent: #ededfb;
+  /* Aside (29:460): the sidebar, its logo tile and the active item's text and icon. */
+  --sidebar: #1e2549;
   --main-bg: #fbf8ff;
   --secondary-bg: #f3f2ff;
   --pure-white: #ffffff;
@@ -40,6 +42,7 @@
   --color-accent: var(--accent);
   --color-accent-6: var(--accent-6);
   --color-dark-accent: var(--dark-accent);
+  --color-sidebar: var(--sidebar);
   --color-main-bg: var(--main-bg);
   --color-secondary-bg: var(--secondary-bg);
   --color-pure-white: var(--pure-white);

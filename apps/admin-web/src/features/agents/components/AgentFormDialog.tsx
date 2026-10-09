@@ -161,7 +161,7 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref, en
             <StatusSwitch<Status>
               value={status}
               onChange={setStatus}
-              options={(['ACTIVE', 'ON_LEAVE', 'ARCHIVED'] as const).map((v) => ({ value: v, label: f.statuses[v] }))}
+              options={(['ACTIVE', 'ON_LEAVE', 'ARCHIVED'] as const).map((v) => ({ value: v, label: f.statuses[v], tone: v === 'ACTIVE' ? 'success' as const : undefined }))}
             />
           </FormField>
         </div>
