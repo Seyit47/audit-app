@@ -34,7 +34,8 @@ class PhotoDetails {
   final List<GalleryPhoto> related;
 }
 
-/// The agent's own photos (pulled and taken on the device), newest first.
+/// The agent's own audit photos (pulled and taken on the device), newest first. Storefront photos of shops they
+/// added stay out of the gallery, as on the web.
 class GalleryRepository {
   GalleryRepository(this._db);
 
@@ -42,7 +43,7 @@ class GalleryRepository {
 
   Stream<List<GalleryPhoto>> watchAll() {
     final q = _db.select(_db.photos)
-      ..where((p) => p.kind.isIn(const ['AUDIT', 'FACADE']) & p.status.isNotValue('DRAFT'))
+      ..where((p) => p.kind.equals('AUDIT') & p.status.isNotValue('DRAFT'))
       ..orderBy([(p) => OrderingTerm.desc(p.takenAt)]);
     return q.watch().asyncMap((photos) async {
       final shops = {for (final s in await _db.select(_db.shops).get()) s.id: s};

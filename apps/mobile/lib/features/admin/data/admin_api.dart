@@ -63,10 +63,13 @@ class AdminApi {
     for (final i in await _api.get<List<dynamic>>('/shops/map', query: {'agentIds': ?agentIds, 'regionIds': ?regionIds})) (i as Map).cast<String, dynamic>(),
   ];
 
-  Future<Json> photos({String? shopId, String? agentId, String? from, String? cursor, int limit = 40, bool groups = false}) =>
-      _api.get<Json>('/photos', query: {'shopId': ?shopId, 'agentId': ?agentId, 'from': ?from, 'cursor': ?cursor, 'limit': limit, if (groups) 'groups': true});
+  /// Galleries and photo reports show audit photos only (no storefront or admin uploads), as on the web.
+  Future<Json> photos({String? shopId, String? agentId, String? from, String? cursor, int limit = 40, bool groups = false}) => _api.get<Json>(
+    '/photos',
+    query: {'type': 'AUDIT', 'shopId': ?shopId, 'agentId': ?agentId, 'from': ?from, 'cursor': ?cursor, 'limit': limit, if (groups) 'groups': true},
+  );
   Future<Json> photo(String id) => _api.get<Json>('/photos/$id');
-  Future<Json> photoSummary() => _api.get<Json>('/photos/summary');
+  Future<Json> photoSummary() => _api.get<Json>('/photos/summary', query: {'type': 'AUDIT'});
 
   Future<PageOf> products({int page = 1, String? q}) => _page('/products', {'page': page, 'size': 50, 'q': q});
   Future<List<Json>> productCategories() async => [for (final i in await _api.get<List<dynamic>>('/product-categories')) (i as Map).cast<String, dynamic>()];
