@@ -89,7 +89,8 @@ export function ProductFormDialog ({ product, categories, copy, closeHref, enter
         </>
       }
     >
-      <form id='product-form' action={submit} className='flex flex-col gap-5'>
+      {/* onSubmit, not action: React resets a form after an action, which wiped the fields on a validation error. */}
+      <form id='product-form' onSubmit={(e) => { e.preventDefault(); submit(new FormData(e.currentTarget)) }} className='flex flex-col gap-5'>
         <div className='grid grid-cols-2 gap-5'>
           <div className='flex flex-col gap-1.5'>
             <span className='text-xs font-bold leading-4 text-default-black'>{f.image}</span>
