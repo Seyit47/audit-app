@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { AutoRefresh } from '@/components/ui/AutoRefresh'
 import { Card } from '@/components/ui/Card'
 import { getAgentDetails, getAgentVisits, getTimeline, getTrack } from '@/features/agents/api'
+import { AgentFormHost } from '@/features/agents/components/AgentFormHost'
 import { AgentHeader } from '@/features/agents/components/AgentHeader'
 import { AgentKpis } from '@/features/agents/components/AgentKpis'
 import { AgentVisitHistory } from '@/features/agents/components/AgentVisitHistory'
@@ -59,13 +60,14 @@ export default async function SalesmanDetailsPage ({ params, searchParams }: Pag
         agent={agent} copy={copy} locale={locale}
         exportHref={(type) => `/export?${new URLSearchParams({ type, agentId: id, back: `/salesmen/${id}`, ...(sp.from != null ? { from: sp.from } : {}), ...(sp.to != null ? { to: sp.to } : {}) }).toString()}`}
       />
-      <Card className='flex flex-wrap items-center gap-3 p-4'>
-        <PeriodFilter copy={copy} />
-      </Card>
+      {/* 122:8042: the KPI cards come before the period toolbar. */}
       <AgentKpis
         allTimeAudits={visits.totals.completed} assignedShops={agent.kpis.assignedShops}
         visitedShops={agent.kpis.visitedShops} photos={agent.kpis.photos} copy={copy} locale={locale}
       />
+      <Card className='flex flex-wrap items-center gap-3 p-4'>
+        <PeriodFilter copy={copy} />
+      </Card>
       <div className='flex items-start gap-6 px-8 pb-12 pt-5'>
         <div className='flex min-w-0 flex-1 flex-col gap-6'>
           <RouteMap
@@ -82,6 +84,8 @@ export default async function SalesmanDetailsPage ({ params, searchParams }: Pag
           />
         </div>
       </div>
+      {/* ?edit=1 opens in the browser, its data fetched on demand (no server render). */}
+      <AgentFormHost copy={copy} agentId={id} />
     </div>
   )
 }

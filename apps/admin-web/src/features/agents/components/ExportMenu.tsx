@@ -13,7 +13,7 @@ export function ExportMenu ({ label, items }: { label: string, items: Array<{ la
     <div ref={ref} className='relative shrink-0'>
       <button
         data-ripple type='button' aria-haspopup='menu' aria-expanded={open} onClick={() => setOpen(!open)}
-        className='flex items-center gap-2 rounded-lg bg-secondary-bg px-4 py-2 text-xs font-semibold leading-4 text-ink shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'
+        className='flex h-9 items-center gap-2 rounded-lg bg-secondary-bg px-4 text-xs font-semibold leading-4 text-ink shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'
       >
         <FigmaIcon name='export-download' width={12} height={12} />{label}
       </button>

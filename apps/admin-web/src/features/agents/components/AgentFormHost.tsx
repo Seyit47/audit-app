@@ -8,9 +8,12 @@ import { AgentFormDialog } from './AgentFormDialog'
 
 interface AgentFormData { agent: Agent | null, regions: Region[], nextCode: string }
 
-/** Add / edit salesman dialog of 495:3932, opened from `?add=1` or `?edit=<id>` without a server render. */
-export function AgentFormHost ({ copy }: { copy: AgentsCopy }) {
-  const form = useUrlForm<AgentFormData>('agent')
+/**
+ * Add / edit salesman dialog of 495:3932, opened from `?add=1` or `?edit=<id>` (or `?edit=1` on a salesman's page,
+ * with `agentId`) without a server render.
+ */
+export function AgentFormHost ({ copy, agentId }: { copy: AgentsCopy, agentId?: string }) {
+  const form = useUrlForm<AgentFormData>('agent', agentId)
   if (!form.open) return null
   const f = copy.form
   if (form.data == null) {
