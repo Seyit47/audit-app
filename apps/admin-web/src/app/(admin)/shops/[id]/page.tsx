@@ -78,16 +78,10 @@ export default async function ShopDetailsPage ({ params, searchParams }: PagePro
             <Kpi icon={['kpi-photos', 15, 13.5]} iconBg='bg-[#d7e3ff]' label={d.auditPhotos} value={k.auditPhotos}
               foot={k.geotaggedPct != null ? sub(d.geotagged, k.geotaggedPct) : '—'} footIcon={['kpi-verified', 13.75, 13.125]} />
           </div>
-          <section className='flex h-[352px] flex-col gap-[18px] rounded-xl bg-pure-white p-6 shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
-            <h2 className='flex items-center gap-2 text-base font-bold leading-6 text-ink'><FigmaIcon name='geo-target' width={16.62} height={16.58} />{d.geo}</h2>
-            <div className='relative min-h-0 flex-1 overflow-hidden rounded-lg bg-dark-accent'>
-              <ShopMiniMap lat={shop.lat} lng={shop.lng} name={shop.name} />
-              <div className='absolute inset-x-2 bottom-2 flex items-center justify-between rounded bg-white/90 p-2 text-xs leading-4 backdrop-blur-[12px]'>
-                <span className='font-medium text-ink'>{shop.region?.name ?? d.noRegion}</span>
-                <span className='font-semibold text-success'>{d.gpsValid}</span>
-              </div>
-            </div>
-          </section>
+          <ShopMiniMap
+            lat={shop.lat} lng={shop.lng} name={shop.name}
+            labels={{ title: d.geo, region: shop.region?.name ?? d.noRegion, gps: d.gpsValid, recenter: d.recenter, fullscreen: d.fullscreen, zoomIn: d.zoomIn, zoomOut: d.zoomOut }}
+          />
         </div>
 
         <section className='flex min-w-0 flex-1 flex-col gap-3.5'>

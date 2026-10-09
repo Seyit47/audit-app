@@ -2,14 +2,8 @@
 
 import dynamic from 'next/dynamic'
 
-const MapView = dynamic(() => import('@/components/ui/MapView').then((m) => m.MapView), { ssr: false })
-const ShopMarker = dynamic(() => import('@/components/ui/MapView').then((m) => m.ShopMarker), { ssr: false })
-
-/** Map in "Quick Location Snapshot Preview" of 47:7387. */
-export function ShopMiniMap ({ lat, lng, name }: { lat: number, lng: number, name: string }) {
-  return (
-    <MapView initialView={{ latitude: lat, longitude: lng, zoom: 13 }} className='size-full'>
-      <ShopMarker latitude={lat} longitude={lng} label={name} />
-    </MapView>
-  )
-}
+/** Loads the MapLibre shop map on the client only (the map needs the browser). */
+export const ShopMiniMap = dynamic(() => import('./ShopMapCanvas'), {
+  ssr: false,
+  loading: () => <section className='h-[352px] rounded-xl bg-pure-white shadow-[0px_1px_2px_rgba(0,0,0,0.05)]' />
+})

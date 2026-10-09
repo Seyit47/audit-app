@@ -22,6 +22,7 @@ export const shopsCopy = defineCopy({
       totalAudits: 'Total audits', productsCarried: 'Products carried', skus: 'SKUs', compliance: '{n}% shelf compliance',
       auditPhotos: 'Audit photos', geotagged: '{n}% geotagged', noAudits: 'No audits yet',
       geo: 'Geographic Distribution', gpsValid: 'All GPS Nodes Valid', noRegion: 'No region',
+      recenter: 'Show the shop', fullscreen: 'Full screen', zoomIn: 'Zoom in', zoomOut: 'Zoom out',
       history: 'Visit history', updatedAt: 'Updated at', total: 'Total: {n}', completed: 'Completed ({n})', missed: 'Missed ({n})',
       done: 'Completed', missedStatus: 'Missed', declined: 'Missed', duration: 'Duration: {n} min', code: 'Code', comment: 'Agent comment:', violation: 'Violation recorded:',
       morePhotos: '+{n} photos', more: 'Show more', noVisits: 'No visits yet'
@@ -47,6 +48,7 @@ export const shopsCopy = defineCopy({
       totalAudits: 'Всего аудитов', productsCarried: 'Ассортимент', skus: 'SKU', compliance: '{n}% соответствие полки',
       auditPhotos: 'Фото аудитов', geotagged: '{n}% с геометкой', noAudits: 'Аудитов ещё нет',
       geo: 'География', gpsValid: 'Все GPS-точки валидны', noRegion: 'Без региона',
+      recenter: 'Показать магазин', fullscreen: 'Во весь экран', zoomIn: 'Приблизить', zoomOut: 'Отдалить',
       history: 'История визитов', updatedAt: 'Обновлено в', total: 'В общем: {n}', completed: 'Завершён ({n})', missed: 'Пропущен ({n})',
       done: 'Завершён', missedStatus: 'Пропущен', declined: 'Отклонён', duration: 'Длительность: {n} мин', code: 'Код точки', comment: 'Комментарий агента:', violation: 'Зафиксировано нарушение:',
       morePhotos: '+{n} фото', more: 'Показать ещё', noVisits: 'Визитов ещё нет'

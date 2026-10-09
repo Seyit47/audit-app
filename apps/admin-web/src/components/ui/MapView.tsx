@@ -30,7 +30,16 @@ export const MapView = forwardRef<MapRef, {
 }>(function MapView ({ initialView = DEFAULT_VIEW, mapStyle = '/map/style.json', children, onClick, onIdle, className = 'size-full' }, ref) {
   return (
     <div className={className}>
-      <MapGL ref={ref} initialViewState={initialView} mapStyle={mapStyle} attributionControl={{ compact: true }} onClick={(e) => onClick?.({ lng: e.lngLat.lng, lat: e.lngLat.lat })} onIdle={onIdle} style={{ width: '100%', height: '100%' }}>
+      <MapGL ref={ref} initialViewState={initialView} mapStyle={mapStyle} attributionControl={{ compact: true }}
+        // MapLibre ignores the first size change of its box, so a box sized after mount kept the 400×300
+        // fallback (a blank strip). Follow every size change of the box ourselves.
+        onLoad={(e) => {
+          const map = e.target
+          const watch = new ResizeObserver(() => map.resize())
+          watch.observe(map.getContainer())
+          map.once('remove', () => watch.disconnect())
+        }}
+        onClick={(e) => onClick?.({ lng: e.lngLat.lng, lat: e.lngLat.lat })} onIdle={onIdle} style={{ width: '100%', height: '100%' }}>
         {children}
       </MapGL>
     </div>
