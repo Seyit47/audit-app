@@ -14,12 +14,20 @@ const Fields = {
   imeiLabel: Type.Optional(Type.Union([Type.String({ maxLength: 64 }), Type.Null()]))
 }
 
+/** A password the admin chooses for the salesman (otherwise one is generated and shown once). */
+const Password = Type.String({ minLength: 8, maxLength: 128 })
+
 export const CreateAgentBody = Type.Object({
   ...Fields,
   /** "Табельный номер / Код": generated from the SL- sequence when omitted. */
-  code: Type.Optional(Type.String({ pattern: '^[A-Za-z0-9-]{2,20}$' }))
+  code: Type.Optional(Type.String({ pattern: '^[A-Za-z0-9-]{2,20}$' })),
+  password: Type.Optional(Password)
 }, { additionalProperties: false })
 export type CreateAgentBody = Static<typeof CreateAgentBody>
+
+/** "Изменить пароль": the new password the admin typed. */
+export const PasswordBody = Type.Object({ password: Password }, { additionalProperties: false })
+export type PasswordBody = Static<typeof PasswordBody>
 
 export const PatchAgentBody = Type.Object({
   ...Type.Partial(Type.Object(Fields)).properties,

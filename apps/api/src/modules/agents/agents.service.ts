@@ -68,7 +68,7 @@ export class AgentsService {
     const dailyVisitPlan = body.dailyVisitPlan ?? 25
     const dailyAuditPlan = body.dailyAuditPlan ?? Math.min(20, dailyVisitPlan)
     if (dailyAuditPlan > dailyVisitPlan) throw invalid('dailyAuditPlan must not exceed dailyVisitPlan')
-    const password = temporaryPassword()
+    const password = body.password ?? temporaryPassword()
     try {
       const agent = await this.repo.create({
         code: body.code?.toUpperCase() ?? await this.repo.nextCode(),
@@ -84,7 +84,8 @@ export class AgentsService {
         workStatus: body.workStatus ?? 'ACTIVE',
         imeiLabel: body.imeiLabel ?? null
       })
-      return { ...await this.view(agent), temporaryPassword: password }
+      // A generated password is shown to the admin once; a chosen one they already know.
+      return { ...await this.view(agent), ...(body.password == null ? { temporaryPassword: password } : {}) }
     } catch (e) {
       if (isUniqueViolation(e)) throw conflict('An account with this phone or code already exists')
       throw e
@@ -122,11 +123,10 @@ export class AgentsService {
     return this.get(id)
   }
 
-  async resetPassword (id: string) {
+  /** "Изменить пароль": the password the admin typed. Signs the salesman out everywhere. */
+  async setPassword (id: string, password: string) {
     if (await this.repo.get(id) == null) throw notFound('Agent')
-    const password = temporaryPassword()
     await this.repo.setPassword(id, await hashPassword(password))
-    return { temporaryPassword: password }
   }
 
   async rebindDevice (id: string, imeiLabel: string | null | undefined) {

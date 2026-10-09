@@ -36,6 +36,7 @@ export const agentsCopy = defineCopy({
     actions: 'Actions',
     viewDetails: 'View Details',
     edit: 'Edit',
+    changePassword: 'Change password',
     pagination: { showing: 'Showing', of: 'of', show: 'Show:', perPage: 'per page', previous: 'Previous page', next: 'Next page', noun: 'salesmen' },
     details: {
       title: 'Activity history', live: 'Live audit', sector: 'Sector: {n}',
@@ -69,9 +70,10 @@ export const agentsCopy = defineCopy({
       region: 'Region / Sales territory', regionPlaceholder: 'Select a region',
       device: 'Work device binding (Tablet / Smartphone)', deviceNone: 'Not bound: binds on the first sign-in', deviceReset: 'Reset binding (new device)',
       status: 'Employee activity status', statuses: { ACTIVE: 'Active', ON_LEAVE: 'On leave', ARCHIVED: 'Archive' },
-      cancel: 'Cancel', save: 'Save changes', resetPassword: 'Reset password',
-      created: 'Salesman added', passwordNote: 'Temporary password (shown once, pass it to the salesman):', done: 'Done',
-      errors: { required: 'Fill in the required fields', phone: 'Enter a Turkmen mobile number: +993 6X XXXXXX (or 71, 72)', plan: 'The audit plan cannot exceed the visit plan', CONFLICT: 'This phone or code is already used, or the record was changed. Reload and try again.', generic: 'Could not save. Try again.' }
+      cancel: 'Cancel', save: 'Save changes',
+      password: 'Password', passwordPlaceholder: 'At least 8 characters', showPassword: 'Show', hidePassword: 'Hide',
+      passwordTitle: 'Change password', newPassword: 'New password', passwordHint: 'The salesman is signed out on all devices and signs in with the new password.', savePassword: 'Save password',
+      errors: { required: 'Fill in the required fields', phone: 'Enter a Turkmen mobile number: +993 6X XXXXXX (or 71, 72)', password: 'The password needs at least 8 characters', plan: 'The audit plan cannot exceed the visit plan', CONFLICT: 'This phone or code is already used, or the record was changed. Reload and try again.', generic: 'Could not save. Try again.' }
     }
   },
   ru: {
@@ -108,6 +110,7 @@ export const agentsCopy = defineCopy({
     actions: 'Действия',
     viewDetails: 'Подробнее',
     edit: 'Редактировать',
+    changePassword: 'Изменить пароль',
     pagination: { showing: 'Показано', of: 'из', show: 'Показывать:', perPage: 'на странице', previous: 'Предыдущая страница', next: 'Следующая страница', noun: 'агентов' },
     details: {
       title: 'История активности', live: 'Аудит в реальном времени', sector: 'Сектор: {n}',
@@ -141,9 +144,10 @@ export const agentsCopy = defineCopy({
       region: 'Регион / Территория продаж', regionPlaceholder: 'Выберите регион',
       device: 'Привязка рабочего устройства (Планшет / Смартфон)', deviceNone: 'Не привязано: привяжется при первом входе', deviceReset: 'Сбросить привязку (новое устройство)',
       status: 'Статус активности сотрудника', statuses: { ACTIVE: 'Активен', ON_LEAVE: 'Отпуск', ARCHIVED: 'Архив' },
-      cancel: 'Отменить', save: 'Сохранить изменения', resetPassword: 'Сбросить пароль',
-      created: 'Агент добавлен', passwordNote: 'Временный пароль (показывается один раз, передайте его агенту):', done: 'Готово',
-      errors: { required: 'Заполните обязательные поля', phone: 'Введите мобильный номер Туркменистана: +993 6X XXXXXX (или 71, 72)', plan: 'План аудитов не может превышать план визитов', CONFLICT: 'Этот телефон или код уже занят, либо запись изменена. Обновите страницу и повторите.', generic: 'Не удалось сохранить. Попробуйте ещё раз.' }
+      cancel: 'Отменить', save: 'Сохранить изменения',
+      password: 'Пароль', passwordPlaceholder: 'Не менее 8 символов', showPassword: 'Показать', hidePassword: 'Скрыть',
+      passwordTitle: 'Изменить пароль', newPassword: 'Новый пароль', passwordHint: 'Агент выйдет на всех устройствах и войдёт с новым паролем.', savePassword: 'Сохранить пароль',
+      errors: { required: 'Заполните обязательные поля', phone: 'Введите мобильный номер Туркменистана: +993 6X XXXXXX (или 71, 72)', password: 'Пароль должен быть не короче 8 символов', plan: 'План аудитов не может превышать план визитов', CONFLICT: 'Этот телефон или код уже занят, либо запись изменена. Обновите страницу и повторите.', generic: 'Не удалось сохранить. Попробуйте ещё раз.' }
     }
   }
 })

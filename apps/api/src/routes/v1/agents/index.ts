@@ -1,5 +1,5 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox'
-import { CreateAgentBody, CursorQuery, DateQuery, DeviceBody, IdParams, ListAgentsQuery, PatchAgentBody, PeriodQuery } from '../../../modules/agents/agents.schema.js'
+import { CreateAgentBody, CursorQuery, DateQuery, DeviceBody, IdParams, ListAgentsQuery, PasswordBody, PatchAgentBody, PeriodQuery } from '../../../modules/agents/agents.schema.js'
 
 const agents: FastifyPluginAsyncTypebox = async (fastify) => {
   const service = fastify.services.agents
@@ -25,8 +25,8 @@ const agents: FastifyPluginAsyncTypebox = async (fastify) => {
   fastify.patch('/:id', { schema: { params: IdParams, body: PatchAgentBody, tags }, config: admin },
     async (req) => service.patch(req.params.id, req.body))
 
-  fastify.post('/:id/reset-password', { schema: { params: IdParams, tags }, config: admin },
-    async (req) => service.resetPassword(req.params.id))
+  fastify.put('/:id/password', { schema: { params: IdParams, body: PasswordBody, tags }, config: admin },
+    async (req, reply) => { await service.setPassword(req.params.id, req.body.password); return reply.status(204).send() })
 
   fastify.put('/:id/device', { schema: { params: IdParams, body: DeviceBody, tags }, config: admin },
     async (req) => service.rebindDevice(req.params.id, req.body.imeiLabel))

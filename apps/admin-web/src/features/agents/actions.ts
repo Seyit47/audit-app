@@ -29,12 +29,13 @@ const fields = (i: AgentInput) => ({
   workStatus: i.status === 'ON_LEAVE' ? 'ON_LEAVE' : 'ACTIVE'
 })
 
-export async function createAgent (input: AgentInput) {
+/** Adds a salesman with the password the admin typed. */
+export async function createAgent (input: AgentInput, password: string) {
   return run(async () => {
-    const created = await api<{ id: string, version: number, code: string, temporaryPassword: string }>('/v1/agents', { method: 'POST', body: fields(input) })
+    const created = await api<{ id: string, version: number, code: string }>('/v1/agents', { method: 'POST', body: { ...fields(input), password } })
     if (input.status === 'ARCHIVED') await api(`/v1/agents/${created.id}`, { method: 'PATCH', body: { version: created.version, active: false } })
     revalidatePath('/salesmen')
-    return { id: created.id, code: created.code, temporaryPassword: created.temporaryPassword }
+    return { id: created.id, code: created.code }
   })
 }
 
@@ -46,8 +47,9 @@ export async function updateAgent (id: string, version: number, input: AgentInpu
   })
 }
 
-export async function resetAgentPassword (id: string) {
-  return run(() => api<{ temporaryPassword: string }>(`/v1/agents/${id}/reset-password`, { method: 'POST' }))
+/** "Изменить пароль": signs the salesman out everywhere. */
+export async function setAgentPassword (id: string, password: string) {
+  return run(() => api(`/v1/agents/${id}/password`, { method: 'PUT', body: { password } }))
 }
 
 export async function rebindAgentDevice (id: string) {

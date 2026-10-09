@@ -91,16 +91,6 @@ test('deactivate unassigns shops (closing assignment rows) and reactivate restor
   assert.strictEqual(signIn.statusCode, 200)
 })
 
-test('reset-password returns a new temporary password and revokes sessions', async () => {
-  const g = await f.agent(app)
-  const res = await app.inject({ method: 'POST', url: `/v1/agents/${g.userId}/reset-password`, headers: admin })
-  assert.strictEqual(res.statusCode, 200, res.body)
-  const { temporaryPassword } = res.json()
-  const signIn = (password: string) => app.inject({ method: 'POST', url: '/v1/auth/login', payload: { login: g.phone, password, device: { installId: 'i', model: 'm' } } })
-  assert.strictEqual((await signIn(f.PASSWORD)).statusCode, 401)
-  assert.strictEqual((await signIn(temporaryPassword)).statusCode, 200)
-})
-
 test('PUT /agents/:id/device clears the binding and sets the IMEI label', async () => {
   const g = await f.agent(app, { installId: 'old-phone' })
   const res = await app.inject({ method: 'PUT', url: `/v1/agents/${g.userId}/device`, headers: admin, payload: { imeiLabel: '35-209900-176148-1' } })
@@ -185,4 +175,26 @@ test('the admin form sends the previewed code: the next preview moves on, so a s
   assert.strictEqual(await peek(), `SL-${ahead + 1}`)
   const auto = await create(await valid({ phone: '+99365000044' }))
   assert.strictEqual(auto.json().code, `SL-${ahead + 1}`)
+})
+
+test('the admin types the password on create and changes it from the actions; the old one and sessions stop working', async () => {
+  const signIn = (login: string, password: string) => app.inject({ method: 'POST', url: '/v1/auth/login', payload: { login, password, device: { installId: 'pw', model: 'm' } } })
+  const created = await create(await valid({ phone: '+99365000051', password: 'Kamil-2026' }))
+  assert.strictEqual(created.statusCode, 201, created.body)
+  assert.strictEqual(created.json().temporaryPassword, undefined, 'a typed password is not echoed back')
+  const first = await signIn('+99365000051', 'Kamil-2026')
+  assert.strictEqual(first.statusCode, 200)
+
+  const id = created.json().id
+  const change = (payload: object) => app.inject({ method: 'PUT', url: `/v1/agents/${id}/password`, headers: admin, payload })
+  assert.strictEqual((await change({ password: 'short' })).statusCode, 400)
+  assert.strictEqual((await change({})).statusCode, 400, 'a password is required')
+  assert.strictEqual((await change({ password: 'New-pass-77' })).statusCode, 204)
+  assert.strictEqual((await signIn('+99365000051', 'Kamil-2026')).statusCode, 401)
+  assert.strictEqual((await signIn('+99365000051', 'New-pass-77')).statusCode, 200)
+  const refresh = await app.inject({ method: 'POST', url: '/v1/auth/refresh', payload: { refreshToken: first.json().refreshToken } })
+  assert.strictEqual(refresh.statusCode, 401, 'old sessions are signed out')
+
+  const other = await app.inject({ method: 'PUT', url: '/v1/agents/00000000-0000-7000-8000-000000000000/password', headers: admin, payload: { password: 'Whatever-1' } })
+  assert.strictEqual(other.statusCode, 404)
 })

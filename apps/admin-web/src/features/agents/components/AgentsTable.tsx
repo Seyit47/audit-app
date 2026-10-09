@@ -54,7 +54,9 @@ export function AgentsTable ({ page, copy, locale, sort }: { page: Page<AgentRow
       render: (a) => (
         <RowMenu label={copy.actions} items={[
           { label: copy.viewDetails, icon: { name: 'menu-view', width: 14.667, height: 10 }, href: `/salesmen/${a.id}` },
-          { label: copy.edit, icon: { name: 'menu-edit', width: 12, height: 12 }, href: `/salesmen?edit=${a.id}`, dialog: { kind: 'agent', id: a.id } }
+          { label: copy.edit, icon: { name: 'menu-edit', width: 12, height: 12 }, href: `/salesmen?edit=${a.id}`, dialog: { kind: 'agent', id: a.id } },
+          // Opens AgentPasswordHost in the browser (?password=<id>).
+          { label: copy.changePassword, icon: { name: 'menu-edit', width: 12, height: 12 }, href: `/salesmen?password=${a.id}`, dialog: { kind: 'agent', id: a.id } }
         ]} />
       )
     }

@@ -8,10 +8,11 @@ import { Button } from '@/components/ui/Button'
 import { Dialog } from '@/components/ui/Dialog'
 import { FigmaIcon } from '@/components/ui/FigmaIcon'
 import { FormField, SelectInput, StatusSwitch, TextArea, TextInput } from '@/components/ui/FormField'
-import { createAgent, rebindAgentDevice, resetAgentPassword, updateAgent, type AgentInput } from '../actions'
+import { createAgent, rebindAgentDevice, updateAgent, type AgentInput } from '../actions'
 import type { Agent, Region } from '../api'
 import type { AgentsCopy } from '../copy'
 import { displayPhone, phoneInputProps, tmPhone } from '@/lib/phone'
+import { MIN_PASSWORD, PasswordInput } from './PasswordInput'
 
 type Status = AgentInput['status']
 
@@ -28,7 +29,6 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref, en
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
-  const [password, setPassword] = useState<string | null>(null)
   const [code, setCode] = useState(agent?.code ?? nextCode)
   const [status, setStatus] = useState<Status>(agent == null ? 'ACTIVE' : !agent.active ? 'ARCHIVED' : agent.workStatus)
   // The server renders the page without the dialog; the progress bar shows while it answers.
@@ -63,12 +63,15 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref, en
     input.phone = phone
     input.whatsappPhone = whatsapp
     if (input.dailyAuditPlan > input.dailyVisitPlan) return setError(f.errors.plan)
+    const password = String(form.get('password') ?? '')
+    if (agent == null && password.length < MIN_PASSWORD) return setError(f.errors.password)
     setError(null)
     startTransition(() => guard(async () => {
       if (agent == null) {
-        const res = await createAgent(input)
+        const res = await createAgent(input, password)
         if (!res.ok) return setError(res.code === 'CONFLICT' ? f.errors.CONFLICT : f.errors.generic)
-        setPassword(res.data.temporaryPassword)
+        say('created')
+        close(true)
       } else {
         const res = await updateAgent(agent.id, agent.version, input)
         if (!res.ok) return setError(res.code === 'CONFLICT' ? f.errors.CONFLICT : f.errors.generic)
@@ -77,25 +80,6 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref, en
         close(true)
       }
     }))
-  }
-
-  function resetPassword () {
-    if (agent == null) return
-    startTransition(() => guard(async () => {
-      const res = await resetAgentPassword(agent.id)
-      if (res.ok) setPassword(res.data.temporaryPassword)
-      else setError(f.errors.generic)
-    }))
-  }
-
-  if (password != null) {
-    return (
-      <Dialog open={open} variant='form' width={560} onClose={() => close(true)} closeLabel={f.close} title={agent == null ? f.created : f.resetPassword}
-        footer={<Button size='md' onClick={() => close(true)}>{f.done}</Button>}>
-        <p className='text-sm leading-5 text-slate-700'>{f.passwordNote}</p>
-        <p className='select-all rounded-xl border border-border bg-slate-50 px-3.5 py-2.5 font-mono text-base text-slate-800'>{password}</p>
-      </Dialog>
-    )
   }
 
   const device = agent?.device
@@ -108,14 +92,14 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref, en
       subtitle={f.subtitle}
       footer={
         <>
-          {agent != null && <button data-ripple type='button' onClick={resetPassword} disabled={pending} className='mr-auto px-2 py-1 text-xs font-medium text-accent'>{f.resetPassword}</button>}
           {error != null && <p role='alert' className='mr-auto text-xs text-error'>{error}</p>}
           <Button variant='outline' size='md' data-dialog-close className='border-slate-300 text-slate-700'>{f.cancel}</Button>
           <Button type='submit' form='agent-form' size='md' disabled={pending} icon={<FigmaIcon name='check-light' width={16} height={16} />}>{f.save}</Button>
         </>
       }
     >
-      <form id='agent-form' action={submit} className='flex flex-col gap-4'>
+      {/* onSubmit, not action: React resets a form after an action, which wiped the fields on a validation error. */}
+      <form id='agent-form' onSubmit={(e) => { e.preventDefault(); submit(new FormData(e.currentTarget)) }} className='flex flex-col gap-4'>
         <div className='grid grid-cols-2 gap-x-6 gap-y-4'>
           <FormField variant='form' label={f.fullName} required htmlFor='fullName'>
             <TextInput variant='form' id='fullName' name='fullName' defaultValue={agent?.fullName} placeholder={f.fullNamePlaceholder} required />
@@ -132,6 +116,12 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref, en
           <FormField variant='form' label={f.whatsapp} htmlFor='whatsappPhone'>
             <TextInput variant='form' id='whatsappPhone' name='whatsappPhone' {...phoneInputProps()} defaultValue={displayPhone(agent?.whatsappPhone)} placeholder='+993 61 987654' icon={<FigmaIcon name='whatsapp-field' width={14} height={14} />} />
           </FormField>
+          {/* Sign-in password, set when adding; later changes go through "Изменить пароль" in the row actions. */}
+          {agent == null && (
+            <FormField variant='form' label={f.password} required htmlFor='password'>
+              <PasswordInput id='password' name='password' placeholder={f.passwordPlaceholder} showLabel={f.showPassword} hideLabel={f.hidePassword} />
+            </FormField>
+          )}
         </div>
         <FormField variant='form' label={f.notes} htmlFor='routeNotes'>
           <TextArea id='routeNotes' name='routeNotes' defaultValue={agent?.routeNotes ?? ''} placeholder={f.notesPlaceholder} rows={1} />
