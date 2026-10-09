@@ -18,7 +18,7 @@ class Bone extends StatefulWidget {
 }
 
 class _BoneState extends State<Bone> with SingleTickerProviderStateMixin {
-  late final AnimationController _shimmer = AnimationController(vsync: this, duration: const Duration(milliseconds: 1400))..repeat();
+  late final AnimationController _shimmer = AnimationController(vsync: this, duration: const Duration(milliseconds: 1800))..repeat();
 
   @override
   void dispose() {
@@ -34,7 +34,8 @@ class _BoneState extends State<Bone> with SingleTickerProviderStateMixin {
     return AnimatedBuilder(
       animation: _shimmer,
       builder: (context, _) {
-        final t = _shimmer.value * 3 - 1; // sweeps from left (-1) to right (2)
+        // One eased sweep: the highlight comes in from off the left edge and leaves off the right.
+        final t = Curves.easeInOut.transform(_shimmer.value) * 4 - 2;
         return Container(
           width: widget.width,
           height: widget.height,

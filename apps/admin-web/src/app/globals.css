@@ -151,7 +151,8 @@ html::-webkit-scrollbar { display: none; }
 @keyframes panel-in-left { from { opacity: 0; transform: translateX(-24px); } }
 @keyframes rise-in { from { opacity: 0; transform: translateY(8px); } }
 @keyframes snackbar-in { from { opacity: 0; transform: translateY(16px) scale(0.98); } }
-@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+/* One sweep of the highlight across the block (background 3× wide: 100% → 0% moves it two widths). */
+@keyframes shimmer { from { background-position: 100% 0; } to { background-position: 0% 0; } }
 @keyframes progress { 0% { transform: translateX(-100%) scaleX(0.3); } 50% { transform: translateX(10%) scaleX(0.6); } 100% { transform: translateX(110%) scaleX(0.3); } }
 
 .anim-fade-in { animation: fade-in var(--dur-medium) var(--ease-standard) backwards; }
@@ -170,9 +171,10 @@ html::-webkit-scrollbar { display: none; }
 
 .skeleton {
   border-radius: 8px;
-  background: linear-gradient(90deg, var(--secondary-bg) 25%, #e9e7fb 37%, var(--secondary-bg) 63%);
-  background-size: 400% 100%; animation: shimmer 1.4s ease infinite;
+  background: linear-gradient(90deg, var(--secondary-bg) 35%, #e9e7fb 50%, var(--secondary-bg) 65%);
+  background-size: 300% 100%; animation: shimmer 1.8s ease-in-out infinite;
 }
+@media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }
 
 /* Hover elevation for cards and tiles that open something. */
 .lift { transition: box-shadow var(--dur-medium) var(--ease-standard), transform var(--dur-medium) var(--ease-standard); }
