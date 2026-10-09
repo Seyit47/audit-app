@@ -101,9 +101,6 @@ export default async function ShopDetailsPage ({ params, searchParams }: PagePro
                 key={v.id} status='done' statusLabel={d.done}
                 when={`${dayTime(v.startedAt, locale, copy.today)} — ${dayTime(v.at, locale, '', false)}`}
                 aside={sub(d.duration, v.durationMin)}
-                thumbnailUrl={v.photos[0]?.previewUrl400 ?? shop.facade?.previewUrl400}
-                title={v.agent.fullName}
-                subtitle={`${shop.address} · ${d.code}: ${shop.code}`}
                 comment={<><span>{v.hasViolation ? d.violation : d.comment}</span> <span className='font-normal'>«{v.comment}»</span></>}
                 photos={v.photos.map((p) => ({ id: p.id, url: p.previewUrl400 }))}
                 morePhotosLabel={(n) => sub(d.morePhotos, n + (v.photoCount - v.photos.length))}
@@ -114,9 +111,6 @@ export default async function ShopDetailsPage ({ params, searchParams }: PagePro
               <VisitHistoryItem
                 key={v.id} status='missed' statusLabel={d.missedStatus}
                 when={dayTime(v.at, locale, copy.today)} aside={d.declined}
-                thumbnailUrl={shop.facade?.previewUrl400}
-                title={v.agent.fullName}
-                subtitle={`${shop.address} · ${d.code}: ${shop.code}`}
               />
               ))}
           {visits.nextCursor != null && (
