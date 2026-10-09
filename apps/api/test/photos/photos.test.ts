@@ -62,6 +62,8 @@ test('summary: total and today', async () => {
   await seed()
   const s = (await app.inject({ url: '/v1/photos/summary', headers: admin })).json()
   assert.deepStrictEqual(s, { total: 6, today: 4 })
+  const audits = (await app.inject({ url: '/v1/photos/summary?type=AUDIT', headers: admin })).json()
+  assert.deepStrictEqual(audits, { total: 5, today: 3 }, 'the admin upload is left out')
 })
 
 test('detail has shop, agent, audit comment, violation and related photos', async () => {

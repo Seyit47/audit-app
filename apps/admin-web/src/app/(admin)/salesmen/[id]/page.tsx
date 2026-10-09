@@ -43,7 +43,7 @@ export default async function SalesmanDetailsPage ({ params, searchParams }: Pag
     getTimeline(id, day),
     getTrack(id, day),
     getAgentVisits(id, sp.cursor),
-    api<GalleryPage>('/v1/photos', { query: { agentId: id, from: sp.from != null ? `${sp.from}T00:00:00.000Z` : undefined, to: sp.to != null ? `${sp.to}T23:59:59.999Z` : undefined, limit: 5 } })
+    api<GalleryPage>('/v1/photos', { query: { type: 'AUDIT', agentId: id, from: sp.from != null ? `${sp.from}T00:00:00.000Z` : undefined, to: sp.to != null ? `${sp.to}T23:59:59.999Z` : undefined, limit: 5 } })
   ])
 
   const keep = (extra: Search) => new URLSearchParams(Object.entries({ from: sp.from, to: sp.to, ...extra }).filter((e): e is [string, string] => e[1] != null)).toString()

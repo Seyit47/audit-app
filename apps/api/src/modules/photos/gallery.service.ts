@@ -24,6 +24,9 @@ export const GalleryQuery = Type.Object({
   groups: Type.Optional(Type.Boolean())
 }, { additionalProperties: false })
 export type GalleryQuery = Static<typeof GalleryQuery>
+/** The admin web gallery counts audit photos only (type=AUDIT). */
+export const GallerySummaryQuery = Type.Pick(GalleryQuery, ['type'], { additionalProperties: false })
+export type GallerySummaryQuery = Static<typeof GallerySummaryQuery>
 
 const GALLERY_KINDS = ['AUDIT', 'FACADE', 'ADMIN_UPLOAD'] as const
 const include = {
@@ -106,9 +109,9 @@ export class GalleryService {
     return rows
   }
 
-  async summary (user: AuthUser) {
+  async summary (user: AuthUser, q: GallerySummaryQuery = {}) {
     const tz = (await this.settings.get()).timezone
-    const where = this.where(user, {})
+    const where = this.where(user, { type: q.type })
     const [total, today] = await Promise.all([
       this.prisma.photo.count({ where }),
       this.prisma.photo.count({ where: { AND: [where, { takenAt: { gte: startOfLocalDay(localDate(new Date(), tz), tz) } }] } })

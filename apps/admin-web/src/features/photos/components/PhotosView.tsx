@@ -15,7 +15,6 @@ import { useUrlState } from '@/lib/url-state'
 import { loadPhotos } from '../actions'
 import type { PhotosCopy } from '../copy'
 import type { GalleryPage, GalleryPhoto, GalleryQuery, PhotoDetail } from '../types'
-import { UploadPhotosDialog } from './UploadPhotosDialog'
 
 const tag = (l: Locale) => (l === 'ru' ? 'ru-RU' : 'en-GB')
 const sub = (s: string, n: number | string) => s.replace('{n}', String(n))
@@ -25,12 +24,11 @@ function stamp (iso: string, l: Locale) {
 }
 
 /** Pictures of 53:1375 (grid) and 138:11987 (detail panel). */
-export function PhotosView ({ first, query, summary, regions, shops, copy, locale, initialDetail = null }: {
+export function PhotosView ({ first, query, summary, regions, copy, locale, initialDetail = null }: {
   first: GalleryPage
   query: GalleryQuery
   summary: { total: number, today: number }
   regions: Array<{ id: string, name: string }>
-  shops: Array<{ id: string, name: string, code: string }>
   copy: PhotosCopy
   locale: Locale
   /** Opened from `?photo=<id>` (e.g. a Salesman details photo report). */
@@ -43,7 +41,6 @@ export function PhotosView ({ first, query, summary, regions, shops, copy, local
   const [loading, startLoading] = useTransition()
   const [detail, setDetail] = useState<PhotoDetail | null>(initialDetail)
   const [showFilters, setShowFilters] = useState(true)
-  const [uploading, setUploading] = useState(false)
   const mode = (params.get('mode') ?? 'grid') as 'grid' | 'byDate'
   const sentinel = useRef<HTMLDivElement>(null)
 
@@ -98,7 +95,7 @@ export function PhotosView ({ first, query, summary, regions, shops, copy, local
     }, () => { if (latest.current === p.id) setOpening(null) }).finally(() => clearTimeout(slow))
     if (!split) setOpening(p) // the first open needs the panel at once to start the layout change
   }
-  const activeFilters = ['type', 'regionId', 'verified', 'date'].filter((k) => params.get(k) != null).length
+  const activeFilters = ['regionId', 'verified', 'date'].filter((k) => params.get(k) != null).length
 
   const tile = (p: GalleryPhoto, size = 'h-[170px] w-full') => (
     <PhotoTile
@@ -137,9 +134,6 @@ export function PhotosView ({ first, query, summary, regions, shops, copy, local
             <FigmaIcon name='filters' width={13.5} height={13.5} />{copy.filters}
             {activeFilters > 0 && <span className='flex size-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-white'>{activeFilters}</span>}
           </button>
-          <button data-ripple type='button' onClick={() => setUploading(true)} className='flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-lg bg-accent px-4 text-sm font-medium leading-5 text-white shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
-            <FigmaIcon name='upload-photo' width={16.5} height={15} />{copy.upload}
-          </button>
         </div>
       </div>
 
@@ -151,8 +145,6 @@ export function PhotosView ({ first, query, summary, regions, shops, copy, local
       >
         <div className='-mx-1 -mb-1 min-h-0 overflow-hidden'>
           <div className='flex flex-wrap items-center gap-3 px-1 pb-1 pt-2.5'>
-          <FilterSelect size='lg' label={copy.type} value={params.get('type') ?? ''} onChange={(v) => set({ type: v })}
-            options={[{ value: '', label: copy.allTypes }, ...(['AUDIT', 'FACADE', 'ADMIN_UPLOAD'] as const).map((t) => ({ value: t, label: copy.types[t] }))]} />
           <FilterSelect size='lg' label={copy.location} value={params.get('regionId') ?? ''} onChange={(v) => set({ regionId: v })}
             options={[{ value: '', label: copy.allLocations }, ...regions.map((r) => ({ value: r.id, label: r.name }))]} />
           <FilterSelect size='lg' label={copy.status} value={params.get('verified') ?? ''} onChange={(v) => set({ verified: v })}
@@ -189,8 +181,6 @@ export function PhotosView ({ first, query, summary, regions, shops, copy, local
           </div>
         )}
       </div>
-
-      {uploading && <UploadPhotosDialog shops={shops} copy={copy} onClose={() => setUploading(false)} />}
     </>
   )
 }
