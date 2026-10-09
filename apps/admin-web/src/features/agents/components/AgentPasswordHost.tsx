@@ -4,11 +4,10 @@ import { useSearchParams } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Dialog } from '@/components/ui/Dialog'
-import { FormField } from '@/components/ui/FormField'
 import { guard, say } from '@/lib/feedback'
 import { setAgentPassword } from '../actions'
 import type { AgentsCopy } from '../copy'
-import { MIN_PASSWORD, PasswordInput } from './PasswordInput'
+import { PasswordFields, passwordOk } from './PasswordInput'
 
 /**
  * "Изменить пароль" from a salesman's row actions: opens from `?password=<id>` in the browser (no server render),
@@ -34,7 +33,7 @@ function AgentPasswordDialog ({ id, name, copy }: { id: string, name?: string, c
 
   function submit (form: FormData) {
     const password = String(form.get('password') ?? '')
-    if (password.length < MIN_PASSWORD) return setError(f.errors.password)
+    if (!passwordOk(password, String(form.get('confirmPassword') ?? ''))) return setError(f.errors.password)
     setError(null)
     startTransition(() => guard(async () => {
       const res = await setAgentPassword(id, password)
@@ -46,7 +45,7 @@ function AgentPasswordDialog ({ id, name, copy }: { id: string, name?: string, c
 
   return (
     <Dialog
-      open variant='form' width={480} onClose={close} closeLabel={f.close} title={f.passwordTitle} subtitle={name}
+      open variant='form' width={640} onClose={close} closeLabel={f.close} title={f.passwordTitle} subtitle={name}
       footer={
         <>
           {error != null && <p role='alert' className='mr-auto text-xs text-error'>{error}</p>}
@@ -57,9 +56,7 @@ function AgentPasswordDialog ({ id, name, copy }: { id: string, name?: string, c
     >
       {/* onSubmit, not action: React resets a form after an action, which wiped the fields on a validation error. */}
       <form id='agent-password-form' onSubmit={(e) => { e.preventDefault(); submit(new FormData(e.currentTarget)) }} className='flex flex-col gap-2'>
-        <FormField variant='form' label={f.newPassword} required htmlFor='new-password'>
-          <PasswordInput id='new-password' name='password' placeholder={f.passwordPlaceholder} showLabel={f.showPassword} hideLabel={f.hidePassword} autoFocus />
-        </FormField>
+        <PasswordFields copy={f} label={f.newPassword} autoFocus />
         <p className='text-xs leading-4 text-muted'>{f.passwordHint}</p>
       </form>
     </Dialog>

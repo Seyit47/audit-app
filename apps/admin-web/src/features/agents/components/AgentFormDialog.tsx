@@ -12,7 +12,7 @@ import { createAgent, rebindAgentDevice, updateAgent, type AgentInput } from '..
 import type { Agent, Region } from '../api'
 import type { AgentsCopy } from '../copy'
 import { displayPhone, phoneInputProps, tmPhone } from '@/lib/phone'
-import { MIN_PASSWORD, PasswordInput } from './PasswordInput'
+import { PasswordFields, passwordOk } from './PasswordInput'
 
 type Status = AgentInput['status']
 
@@ -64,7 +64,7 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref, en
     input.whatsappPhone = whatsapp
     if (input.dailyAuditPlan > input.dailyVisitPlan) return setError(f.errors.plan)
     const password = String(form.get('password') ?? '')
-    if (agent == null && password.length < MIN_PASSWORD) return setError(f.errors.password)
+    if (agent == null && !passwordOk(password, String(form.get('confirmPassword') ?? ''))) return setError(f.errors.password)
     setError(null)
     startTransition(() => guard(async () => {
       if (agent == null) {
@@ -116,13 +116,9 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref, en
           <FormField variant='form' label={f.whatsapp} htmlFor='whatsappPhone'>
             <TextInput variant='form' id='whatsappPhone' name='whatsappPhone' {...phoneInputProps()} defaultValue={displayPhone(agent?.whatsappPhone)} placeholder='+993 61 987654' icon={<FigmaIcon name='whatsapp-field' width={14} height={14} />} />
           </FormField>
-          {/* Sign-in password, set when adding; later changes go through "Изменить пароль" in the row actions. */}
-          {agent == null && (
-            <FormField variant='form' label={f.password} required htmlFor='password'>
-              <PasswordInput id='password' name='password' placeholder={f.passwordPlaceholder} showLabel={f.showPassword} hideLabel={f.hidePassword} />
-            </FormField>
-          )}
         </div>
+        {/* Sign-in password, set when adding; later changes go through "Изменить пароль" in the row actions. */}
+        {agent == null && <PasswordFields copy={f} />}
         <FormField variant='form' label={f.notes} htmlFor='routeNotes'>
           <TextArea id='routeNotes' name='routeNotes' defaultValue={agent?.routeNotes ?? ''} placeholder={f.notesPlaceholder} rows={1} />
         </FormField>

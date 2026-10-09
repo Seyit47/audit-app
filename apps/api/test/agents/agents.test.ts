@@ -188,6 +188,9 @@ test('the admin types the password on create and changes it from the actions; th
   const id = created.json().id
   const change = (payload: object) => app.inject({ method: 'PUT', url: `/v1/agents/${id}/password`, headers: admin, payload })
   assert.strictEqual((await change({ password: 'short' })).statusCode, 400)
+  assert.strictEqual((await change({ password: 'onlyletters' })).statusCode, 400, 'needs a digit')
+  assert.strictEqual((await change({ password: '1234567890' })).statusCode, 400, 'needs a letter')
+  assert.strictEqual((await change({ password: 'Пароль2026' })).statusCode, 204, 'Cyrillic letters count')
   assert.strictEqual((await change({})).statusCode, 400, 'a password is required')
   assert.strictEqual((await change({ password: 'New-pass-77' })).statusCode, 204)
   assert.strictEqual((await signIn('+99365000051', 'Kamil-2026')).statusCode, 401)

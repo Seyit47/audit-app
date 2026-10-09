@@ -71,9 +71,10 @@ export const agentsCopy = defineCopy({
       device: 'Work device binding (Tablet / Smartphone)', deviceNone: 'Not bound: binds on the first sign-in', deviceReset: 'Reset binding (new device)',
       status: 'Employee activity status', statuses: { ACTIVE: 'Active', ON_LEAVE: 'On leave', ARCHIVED: 'Archive' },
       cancel: 'Cancel', save: 'Save changes',
-      password: 'Password', passwordPlaceholder: 'At least 8 characters', showPassword: 'Show', hidePassword: 'Hide',
+      password: 'Password', confirmPassword: 'Confirm password', passwordPlaceholder: '••••••••', showPassword: 'Show', hidePassword: 'Hide',
+      rules: { length: 'At least 8 characters', letter: 'A letter', digit: 'A digit', match: 'Passwords match' },
       passwordTitle: 'Change password', newPassword: 'New password', passwordHint: 'The salesman is signed out on all devices and signs in with the new password.', savePassword: 'Save password',
-      errors: { required: 'Fill in the required fields', phone: 'Enter a Turkmen mobile number: +993 6X XXXXXX (or 71, 72)', password: 'The password needs at least 8 characters', plan: 'The audit plan cannot exceed the visit plan', CONFLICT: 'This phone or code is already used, or the record was changed. Reload and try again.', generic: 'Could not save. Try again.' }
+      errors: { required: 'Fill in the required fields', phone: 'Enter a Turkmen mobile number: +993 6X XXXXXX (or 71, 72)', password: 'The password does not meet the rules below', plan: 'The audit plan cannot exceed the visit plan', CONFLICT: 'This phone or code is already used, or the record was changed. Reload and try again.', generic: 'Could not save. Try again.' }
     }
   },
   ru: {
@@ -145,9 +146,10 @@ export const agentsCopy = defineCopy({
       device: 'Привязка рабочего устройства (Планшет / Смартфон)', deviceNone: 'Не привязано: привяжется при первом входе', deviceReset: 'Сбросить привязку (новое устройство)',
       status: 'Статус активности сотрудника', statuses: { ACTIVE: 'Активен', ON_LEAVE: 'Отпуск', ARCHIVED: 'Архив' },
       cancel: 'Отменить', save: 'Сохранить изменения',
-      password: 'Пароль', passwordPlaceholder: 'Не менее 8 символов', showPassword: 'Показать', hidePassword: 'Скрыть',
+      password: 'Пароль', confirmPassword: 'Подтвердите пароль', passwordPlaceholder: '••••••••', showPassword: 'Показать', hidePassword: 'Скрыть',
+      rules: { length: 'Не менее 8 символов', letter: 'Буква', digit: 'Цифра', match: 'Пароли совпадают' },
       passwordTitle: 'Изменить пароль', newPassword: 'Новый пароль', passwordHint: 'Агент выйдет на всех устройствах и войдёт с новым паролем.', savePassword: 'Сохранить пароль',
-      errors: { required: 'Заполните обязательные поля', phone: 'Введите мобильный номер Туркменистана: +993 6X XXXXXX (или 71, 72)', password: 'Пароль должен быть не короче 8 символов', plan: 'План аудитов не может превышать план визитов', CONFLICT: 'Этот телефон или код уже занят, либо запись изменена. Обновите страницу и повторите.', generic: 'Не удалось сохранить. Попробуйте ещё раз.' }
+      errors: { required: 'Заполните обязательные поля', phone: 'Введите мобильный номер Туркменистана: +993 6X XXXXXX (или 71, 72)', password: 'Пароль не соответствует требованиям ниже', plan: 'План аудитов не может превышать план визитов', CONFLICT: 'Этот телефон или код уже занят, либо запись изменена. Обновите страницу и повторите.', generic: 'Не удалось сохранить. Попробуйте ещё раз.' }
     }
   }
 })

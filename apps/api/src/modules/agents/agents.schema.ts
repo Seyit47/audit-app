@@ -14,8 +14,8 @@ const Fields = {
   imeiLabel: Type.Optional(Type.Union([Type.String({ maxLength: 64 }), Type.Null()]))
 }
 
-/** A password the admin chooses for the salesman (otherwise one is generated and shown once). */
-const Password = Type.String({ minLength: 8, maxLength: 128 })
+/** A password the admin types for the salesman: 8+ characters with a letter and a digit (the forms show these rules). */
+const Password = Type.String({ minLength: 8, maxLength: 128, pattern: '^(?=.*\\p{L})(?=.*\\d).*$' })
 
 export const CreateAgentBody = Type.Object({
   ...Fields,
