@@ -28,6 +28,12 @@ class AppMapController {
   (double, double)? _focus;
   bool _styled = false;
 
+  /// Whether the camera has been fitted to the markers once (they often arrive after the map is ready).
+  bool _fitted = false;
+
+  /// Room kept around the markers when fitting (the full-screen maps' floating bars by default).
+  EdgeInsets _fitPadding = AppMapView.fullScreenPadding;
+
   /// Centres the map on one point at street level: now if the map is ready, otherwise as soon as its
   /// style has loaded (instead of fitting all markers).
   Future<void> focus(double lat, double lng) async {
@@ -52,10 +58,10 @@ class AppMapController {
     await _map?.animateCamera(
       CameraUpdate.newLatLngBounds(
         LatLngBounds(southwest: LatLng(lats.reduce(math.min), lngs.reduce(math.min)), northeast: LatLng(lats.reduce(math.max), lngs.reduce(math.max))),
-        left: 48,
-        right: 48,
-        top: 160,
-        bottom: 120,
+        left: _fitPadding.left,
+        right: _fitPadding.right,
+        top: _fitPadding.top,
+        bottom: _fitPadding.bottom,
       ),
     );
   }
@@ -72,7 +78,14 @@ class AppMapView extends StatefulWidget {
     this.initial,
     this.initialZoom = 13,
     this.onCameraIdle,
+    this.fitPadding = fullScreenPadding,
   });
+
+  /// Clear of the full-screen maps' top bar and bottom controls.
+  static const fullScreenPadding = EdgeInsets.fromLTRB(48, 160, 48, 120);
+
+  /// Room around the markers when the camera fits them all; small for a map inside a card.
+  final EdgeInsets fitPadding;
 
   final List<MapMarker> markers;
   final AppMapController controller;
@@ -128,7 +141,7 @@ class _AppMapViewState extends State<AppMapView> {
   @override
   void didUpdateWidget(AppMapView old) {
     super.didUpdateWidget(old);
-    if (_ready && !identical(old.markers, widget.markers)) _syncMarkers();
+    if (_ready && !identical(old.markers, widget.markers)) _syncMarkers().then((_) => _fitOnce());
   }
 
   Future<void> _onStyleLoaded() async {
@@ -142,10 +155,19 @@ class _AppMapViewState extends State<AppMapView> {
     final focus = ctrl._focus;
     if (focus != null) {
       await ctrl.moveTo(focus.$1, focus.$2, zoom: 16);
-    } else if (widget.initial == null && !ctrl._styled) {
-      await ctrl.fit([for (final m in widget.markers) (m.lat, m.lng)]);
+    } else {
+      await _fitOnce();
     }
     ctrl._styled = true;
+  }
+
+  /// Shows every marker the first time there are any, unless the view starts at a given point or focuses
+  /// one shop. Later marker updates (sync, filters) leave the camera where the user put it.
+  Future<void> _fitOnce() async {
+    final ctrl = widget.controller;
+    if (!_ready || ctrl._fitted || ctrl._focus != null || widget.initial != null || widget.markers.isEmpty) return;
+    ctrl._fitted = true;
+    await ctrl.fit([for (final m in widget.markers) (m.lat, m.lng)]);
   }
 
   Future<void> _syncMarkers() async {
@@ -201,7 +223,9 @@ class _AppMapViewState extends State<AppMapView> {
       compassEnabled: false,
       attributionButtonPosition: AttributionButtonPosition.bottomLeft,
       onMapCreated: (map) {
-        widget.controller._map = map;
+        widget.controller
+          .._map = map
+          .._fitPadding = widget.fitPadding;
         map.onSymbolTapped.add((s) {
           final id = s.data?['id'];
           if (id is String) widget.onMarkerTap?.call(id);

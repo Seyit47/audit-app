@@ -49,6 +49,7 @@ class AgentDetailsScreen extends ConsumerStatefulWidget {
 class _AgentDetailsScreenState extends ConsumerState<AgentDetailsScreen> {
   bool _timelineOpen = true;
   bool _exporting = false;
+  final _map = AppMapController();
 
   Future<void> _export(String type) async {
     final l10n = AppLocalizations.of(context);
@@ -271,7 +272,8 @@ class _AgentDetailsScreenState extends ConsumerState<AgentDetailsScreen> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: AppMapView(
-                  controller: AppMapController(),
+                  controller: _map,
+                  fitPadding: const EdgeInsets.all(32),
                   markers: [
                     for (final p in checkpoints)
                       MapMarker(
