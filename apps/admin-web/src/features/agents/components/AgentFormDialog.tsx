@@ -158,10 +158,12 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref, en
             </SelectInput>
           </FormField>
           <FormField variant='form' label={f.status}>
+            {/* Same switch as the product status (761:2324): Активен green, Отпуск red, Архив grey. */}
             <StatusSwitch<Status>
+              compact
               value={status}
               onChange={setStatus}
-              options={(['ACTIVE', 'ON_LEAVE', 'ARCHIVED'] as const).map((v) => ({ value: v, label: f.statuses[v], tone: v === 'ACTIVE' ? 'success' as const : undefined }))}
+              options={([['ACTIVE', 'success'], ['ON_LEAVE', 'error'], ['ARCHIVED', 'muted']] as const).map(([v, tone]) => ({ value: v, label: f.statuses[v], tone }))}
             />
           </FormField>
         </div>
