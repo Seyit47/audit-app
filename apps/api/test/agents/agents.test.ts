@@ -170,3 +170,19 @@ test('phones: Turkmen mobile only, stored as +993XXXXXXXX; sign-in accepts any c
   const signIn = await app.inject({ method: 'POST', url: '/v1/auth/login', payload: { login: '65 000077', password: created.json().temporaryPassword, device: { installId: 'i-1', model: 'm' } } })
   assert.strictEqual(signIn.statusCode, 200, signIn.body)
 })
+
+test('the admin form sends the previewed code: the next preview moves on, so a second create works', async () => {
+  const peek = async () => (await app.inject({ url: '/v1/agents/next-code', headers: admin })).json().code
+  const first = await peek()
+  assert.strictEqual((await create(await valid({ phone: '+99365000041', code: first }))).statusCode, 201)
+  const second = await peek()
+  assert.notStrictEqual(second, first)
+  assert.strictEqual((await create(await valid({ phone: '+99365000042', code: second }))).statusCode, 201)
+
+  // A hand-typed code ahead of the counter is skipped too, by the preview and by a create without a code.
+  const ahead = Number((await peek()).slice(3)) + 50
+  assert.strictEqual((await create(await valid({ phone: '+99365000043', code: `SL-${ahead}` }))).statusCode, 201)
+  assert.strictEqual(await peek(), `SL-${ahead + 1}`)
+  const auto = await create(await valid({ phone: '+99365000044' }))
+  assert.strictEqual(auto.json().code, `SL-${ahead + 1}`)
+})

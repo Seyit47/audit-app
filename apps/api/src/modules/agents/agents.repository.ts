@@ -57,13 +57,23 @@ export class AgentsRepository {
   }
 
   /** The code the next agent would get, without using it up ("Сгенерировать код"). */
+  /**
+   * The next free SL- number: past the counter and past every SL-<n> already used. The admin form sends the
+   * previewed code back (so the counter alone never moved on) and codes can be typed by hand.
+   */
+  private readonly nextFree = Prisma.sql`GREATEST(
+    (SELECT CASE WHEN is_called THEN last_value + 1 ELSE last_value END FROM agent_code_seq),
+    (SELECT COALESCE(MAX(substring("code" FROM 4)::bigint), 0) + 1 FROM "Agent" WHERE "code" ~ '^SL-[0-9]{1,18}$')
+  )`
+
   async peekCode (): Promise<string> {
-    const [row] = await this.prisma.$queryRaw<Array<{ n: bigint }>>`SELECT CASE WHEN is_called THEN last_value + 1 ELSE last_value END AS n FROM agent_code_seq`
+    const [row] = await this.prisma.$queryRaw<Array<{ n: bigint }>>`SELECT ${this.nextFree} AS n`
     return `SL-${row!.n}`
   }
 
+  /** Takes the next free code (the counter moves to it). */
   async nextCode (): Promise<string> {
-    const [row] = await this.prisma.$queryRaw<Array<{ n: bigint }>>`SELECT nextval('agent_code_seq') AS n`
+    const [row] = await this.prisma.$queryRaw<Array<{ n: bigint }>>`SELECT setval('agent_code_seq', ${this.nextFree}) AS n`
     return `SL-${row!.n}`
   }
 
