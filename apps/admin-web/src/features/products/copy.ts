@@ -41,6 +41,26 @@ export const productsCopy = defineCopy({
       cancel: 'Отменить', save: 'Сохранить изменения',
       errors: { required: 'Заполните название, артикул, категорию и цену', field: 'Обязательное поле', price: 'Введите цену, например 185.00', count: 'Целое число, 0 или больше', CONFLICT: 'Этот артикул уже используется', generic: 'Не удалось сохранить. Попробуйте ещё раз.', image: 'Изображение: PNG или JPG до 5 МБ' }
     }
+  },
+  tk: {
+    title: 'Önümler', badge: 'Işde',
+    description: 'Harytlary dolandyryň we olaryň nokatlar, merçendaýzerler we sebitler boýunça ýaýraýşyny yzarlaň.',
+    exportCatalog: 'Katalogy eksport et', addProduct: 'Önüm goş', search: 'Önümi gözle...',
+    status: 'Ýagdaý', allStatus: 'Ähli ýagdaýlar', statuses: { ACTIVE: 'Işjeň', DRAFT: 'Garalama', INACTIVE: 'Arhiw' },
+    columns: { product: 'Önüm', code: 'Kod', status: 'Ýagdaý' },
+    selectAll: 'Ählisini saýla', selectRow: 'Önümi saýla', actions: 'Hereketler', edit: 'Üýtget', empty: 'Häzirlikçe önüm ýok', exportFailed: 'Faýly düşürip bolmady. Gaýtadan synanyşyň.',
+    pagination: { showing: 'Görkezilýär', of: '/', show: 'Görkez:', perPage: 'sahypada', previous: 'Öňki sahypa', next: 'Indiki sahypa', noun: 'önüm' },
+    form: {
+      addTitle: 'Önüm goş', editTitle: 'Önümi üýtget', subtitle: 'Katalog we galyndylary hasaba almak üçin harydyň häsiýetlerini dolduryň', close: 'Ýap',
+      image: 'Harydyň suraty', photo: 'SURAT', imageHint: 'Auditoryň mobil programmasynda we sapar hasabatlarynda görkezilýär (PNG, JPG 5 MB çenli).', chooseFile: 'Faýl saýla', noFile: 'Faýl saýlanmady', uploading: 'Ýüklenýär…', uploadFailed: 'Ýükläp bolmady',
+      descriptionLabel: 'Beýany we düzümi', descriptionPlaceholder: 'Jikme-jik häsiýetleri, ulanyş düzgünleri we maslahatlar...',
+      name: 'Önümiň ady', namePlaceholder: 'Mysal üçin, Saç üçin dikeldiji maska 500ml', sku: 'Artikul (SKU)', skuPlaceholder: 'SKU-204',
+      category: 'Kategoriýa', categoryPlaceholder: 'Kategoriýany saýlaň...', brand: 'Brend', brandPlaceholder: 'Brendiň ady',
+      price: 'Bölek satuw bahasy', currency: 'TMT', statusLabel: 'Harydyň ýagdaýy', statuses: { ACTIVE: 'Işjeň', DRAFT: 'Garalama', INACTIVE: 'Arhiw' },
+      stock: 'Ammar hasaby we partiýalar', stockQty: 'Häzirki galyndy (sany)', minStock: 'Duýduryş üçin iň az çäk',
+      cancel: 'Ýatyr', save: 'Üýtgeşmeleri ýatda sakla',
+      errors: { required: 'Adyny, artikuly, kategoriýany we bahany dolduryň', field: 'Hökmany meýdança', price: 'Bahany giriziň, mysal üçin 185.00', count: 'Bitin san, 0 ýa-da köp', CONFLICT: 'Bu artikul eýýäm ulanylýar', generic: 'Ýatda saklap bolmady. Gaýtadan synanyşyň.', image: 'Surat: PNG ýa-da JPG, 5 MB çenli' }
+    }
   }
 })
 

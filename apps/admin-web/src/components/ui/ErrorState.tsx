@@ -1,5 +1,6 @@
 'use client'
 
+import { pageLocale, DEFAULT_LOCALE } from '@/lib/i18n'
 import Link from 'next/link'
 import { useSyncExternalStore } from 'react'
 
@@ -17,15 +18,22 @@ const text = {
     retry: 'Повторить',
     home: 'К списку клиентов',
     code: 'Код ошибки'
+  },
+  tk: {
+    error: { title: 'Bir zat nädogry boldy', body: 'Bölümi ýükläp bolmady. Maglumatlaryňyz howpsuz — birazdan gaýtadan synanyşyň.' },
+    notFound: { title: 'Bu ýerde hiç zat ýok', body: 'Bu sahypa ýa-da ýazgy ýok ýa-da pozuldy.' },
+    retry: 'Gaýtadan synanyş',
+    home: 'Müşderiler sanawyna',
+    code: 'Ýalňyşlyk kody'
   }
 }
 
 const noop = () => () => {}
-const lang = () => (document.documentElement.lang === 'en' ? 'en' : 'ru')
+const lang = pageLocale
 
 /** In-page fallback for failed loads and missing records; the sidebar and header stay usable. */
 export function ErrorState ({ kind = 'error', retry, digest }: { kind?: 'error' | 'notFound', retry?: () => void, digest?: string }) {
-  const t = text[useSyncExternalStore(noop, lang, () => 'ru' as const)]
+  const t = text[useSyncExternalStore(noop, lang, () => DEFAULT_LOCALE)]
   const m = t[kind]
   return (
     <div role={kind === 'error' ? 'alert' : undefined} className='anim-rise-in flex min-h-[60vh] flex-col items-center justify-center gap-4 p-8 text-center'>

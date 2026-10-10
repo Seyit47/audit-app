@@ -31,3 +31,17 @@ test('SHOPS_XLSX goes QUEUED → DONE and its rows match the filters', async () 
   await book.xlsx.load(file as unknown as ArrayBuffer)
   assert.strictEqual(book.worksheets[0]!.rowCount, 2, 'header + one INACTIVE shop')
 })
+
+test('an export with locale tk has Turkmen headers and statuses', async () => {
+  const a = await f.admin(app)
+  const h = bearer(app, { id: a.id, role: 'ADMIN' })
+  await f.shop(app, { createdById: a.id, status: 'INACTIVE' })
+  const created = await app.inject({ method: 'POST', url: '/v1/exports', headers: h, payload: { type: 'SHOPS_XLSX', params: { locale: 'tk' } } })
+  await runExport(app, created.json().id)
+  const file = await app.storage.getObject((await app.prisma.export.findUniqueOrThrow({ where: { id: created.json().id } })).fileKey!)
+  const book = new ExcelJS.Workbook()
+  await book.xlsx.load(file as unknown as ArrayBuffer)
+  const sheet = book.worksheets[0]!
+  assert.strictEqual(sheet.getCell('B1').value, 'Ady')
+  assert.strictEqual(sheet.getCell('H2').value, 'Işjeň däl')
+})

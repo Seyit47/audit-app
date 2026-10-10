@@ -8,18 +8,16 @@ import { ShopHeader } from '@/features/shops/components/ShopHeader'
 import { ShopMiniMap } from '@/features/shops/components/ShopMiniMap'
 import { shopFormCopy, shopsCopy } from '@/features/shops/copy'
 import { ApiError } from '@/lib/api'
-import { sub, type Locale } from '@/lib/i18n'
+import { sub, type Locale, formatDate } from '@/lib/i18n'
 import { getLocale } from '@/lib/locale'
 import { parseAsUuid } from '@/lib/search-params'
 
-const tag = (l: Locale) => (l === 'ru' ? 'ru-RU' : 'en-US')
-
 function dayTime (iso: string, l: Locale, today: string, withDate = true) {
   const d = new Date(iso)
-  const time = new Intl.DateTimeFormat(tag(l), { hour: '2-digit', minute: '2-digit', hour12: false }).format(d)
+  const time = formatDate(l, { hour: '2-digit', minute: '2-digit', hour12: false }, d)
   if (!withDate) return time
   if (d.toDateString() === new Date().toDateString()) return `${today}, ${time}`
-  return `${new Intl.DateTimeFormat(tag(l), { day: 'numeric', month: 'short' }).format(d)}, ${time}`
+  return `${formatDate(l, { day: 'numeric', month: 'short' }, d)}, ${time}`
 }
 
 function Kpi ({ icon, iconBg, label, value, unit, foot, footIcon, footTone = 'text-success' }: {

@@ -11,6 +11,11 @@ export const feedCopy = defineCopy({
     open: 'Уведомления', title: 'Активность', subtitle: 'Нарушения и пропущенные визиты',
     close: 'Закрыть', violation: 'Нарушение', missed: 'Пропущен', comment: 'Зафиксировано нарушение:',
     empty: 'Пока ничего нового', more: 'Показать ещё', today: 'Сегодня', error: 'Не удалось загрузить ленту'
+  },
+  tk: {
+    open: 'Bildirişler', title: 'Işjeňlik', subtitle: 'Bozulmalar we sypdyrylan saparlar',
+    close: 'Ýap', violation: 'Bozulma', missed: 'Sypdyryldy', comment: 'Bozulma bellenildi:',
+    empty: 'Häzirlikçe täze zat ýok', more: 'Ýene görkez', today: 'Şu gün', error: 'Habarlary ýükläp bolmady'
   }
 })
 

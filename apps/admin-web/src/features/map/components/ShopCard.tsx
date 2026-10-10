@@ -7,7 +7,7 @@ import { hhmm } from '@/features/agents/components/RouteTimeline'
 import type { GalleryPhoto } from '@/features/photos/types'
 import type { ShopDetails, Visit } from '@/features/shops/api'
 import { formatPhone } from '@/lib/format'
-import { sub, type Locale } from '@/lib/i18n'
+import { sub, type Locale, pick, formatDate } from '@/lib/i18n'
 import type { MapCopy } from '../copy'
 import { FloatingScrollbar } from '@/components/ui/FloatingScrollbar'
 
@@ -23,8 +23,8 @@ function Info ({ label, children }: { label: string, children: ReactNode }) {
 function dayTime (iso: string, locale: Locale) {
   const d = new Date(iso)
   const day = d.toDateString() === new Date().toDateString()
-    ? (locale === 'ru' ? 'Сегодня' : 'Today')
-    : new Intl.DateTimeFormat(locale === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' }).format(d)
+    ? pick(locale, { ru: 'Сегодня', en: 'Today', tk: 'Şu gün' })
+    : formatDate(locale, { day: 'numeric', month: 'short' }, d)
   return `${day}, ${hhmm(iso, locale)}`
 }
 
@@ -68,7 +68,7 @@ export function ShopCard ({ shop, visits, totals, photos, onClose, copy, history
         <div className='flex flex-col gap-1.5 rounded-xl bg-secondary-bg p-3'>
           <Info label={c.region}>{shop.region?.name ?? c.none}</Info>
           <Info label={c.address}><span className='font-medium'>{shop.address}{shop.addressDetail != null ? `, ${shop.addressDetail}` : ''}</span></Info>
-          <Info label={c.lastAudit}>{shop.kpis.lastAuditAt != null ? new Intl.DateTimeFormat(locale === 'ru' ? 'ru-RU' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(shop.kpis.lastAuditAt)) : c.none}</Info>
+          <Info label={c.lastAudit}>{shop.kpis.lastAuditAt != null ? formatDate(locale, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }, new Date(shop.kpis.lastAuditAt)) : c.none}</Info>
           <Info label={c.agent}>
             {shop.agent != null
               ? <Link href={`/salesmen/${shop.agent.id}`} className='flex items-center gap-1 text-accent'><FigmaIcon name='map-agent' width={8.67} height={8.67} />{shop.agent.fullName}</Link>

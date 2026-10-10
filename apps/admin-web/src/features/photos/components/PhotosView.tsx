@@ -1,5 +1,6 @@
 'use client'
 
+import { intlTag, formatDate } from '@/lib/i18n'
 import { guard } from '@/lib/feedback'
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react'
 import { useFlip } from '@/components/motion/useFlip'
@@ -18,11 +19,11 @@ import { getJson, getQueryClient } from '@/lib/query'
 import type { PhotosCopy } from '../copy'
 import type { GalleryPage, GalleryPhoto, GalleryQuery, PhotoDetail } from '../types'
 
-const tag = (l: Locale) => (l === 'ru' ? 'ru-RU' : 'en-GB')
+const tag = intlTag
 const sub = (s: string, n: number | string) => s.replace('{n}', String(n))
 
 function stamp (iso: string, l: Locale) {
-  return new Intl.DateTimeFormat(tag(l), { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(iso))
+  return formatDate(l, { day: '2-digit', month: '2-digit', year: 'numeric' }, new Date(iso))
 }
 
 /** Pictures of 53:1375 (grid) and 138:11987 (detail panel). */
@@ -162,7 +163,7 @@ export function PhotosView ({ first, query, summary, regions, copy, locale, init
             : [...byDay.entries()].map(([day, list]) => (
               <section key={day} className='mb-4 flex flex-col gap-2.5'>
                 <h2 className='flex items-baseline gap-2 text-sm font-bold leading-5 text-ink'>
-                  {new Intl.DateTimeFormat(tag(locale), { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(day))}
+                  {formatDate(locale, { day: 'numeric', month: 'long', year: 'numeric' }, new Date(day))}
                   <span className='font-display text-xs font-normal text-muted'>{groups.find((g) => g.date === day)?.count ?? list.length}</span>
                 </h2>
                 {grid(list)}
@@ -218,10 +219,10 @@ function PendingDetail ({ photo, copy, onClose }: { photo: GalleryPhoto, copy: P
 }
 
 function Detail ({ detail: d, copy, locale, onClose, onOpen }: { detail: PhotoDetail, copy: PhotosCopy, locale: Locale, onClose: () => void, onOpen: (p: GalleryPhoto) => void }) {
-  const time = (iso: string) => new Intl.DateTimeFormat(tag(locale), { hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(iso))
+  const time = (iso: string) => formatDate(locale, { hour: '2-digit', minute: '2-digit', hour12: false }, new Date(iso))
   const day = (iso: string) => new Date(iso).toDateString() === new Date().toDateString()
     ? copy.today2
-    : new Intl.DateTimeFormat(tag(locale), { day: 'numeric', month: 'short' }).format(new Date(iso))
+    : formatDate(locale, { day: 'numeric', month: 'short' }, new Date(iso))
   return (
     <SidePanel
       closeLabel={copy.close}

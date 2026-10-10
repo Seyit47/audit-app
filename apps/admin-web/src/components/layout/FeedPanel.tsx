@@ -1,5 +1,6 @@
 'use client'
 
+import { formatDate } from '@/lib/i18n'
 import { guard } from '@/lib/feedback'
 import { usePathname } from 'next/navigation'
 import { useRef, useState, useSyncExternalStore, useTransition } from 'react'
@@ -20,10 +21,9 @@ const noop = () => () => {}
 
 function when (iso: string, locale: Locale, today: string) {
   const d = new Date(iso)
-  const tag = locale === 'ru' ? 'ru-RU' : 'en-US'
-  const time = new Intl.DateTimeFormat(tag, { hour: '2-digit', minute: '2-digit', hour12: false }).format(d)
+  const time = formatDate(locale, { hour: '2-digit', minute: '2-digit', hour12: false }, d)
   if (d.toDateString() === new Date().toDateString()) return `${today}, ${time}`
-  return `${new Intl.DateTimeFormat(tag, { day: 'numeric', month: 'short' }).format(d)}, ${time}`
+  return `${formatDate(locale, { day: 'numeric', month: 'short' }, d)}, ${time}`
 }
 
 /**

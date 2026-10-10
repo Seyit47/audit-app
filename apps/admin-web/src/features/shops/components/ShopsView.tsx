@@ -1,5 +1,6 @@
 'use client'
 
+import { formatDate } from '@/lib/i18n'
 import { guard, say } from '@/lib/feedback'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -24,13 +25,12 @@ import type { ShopsCopy } from '../copy'
 
 type AgentOption = { id: string, fullName: string, code: string }
 
-const tag = (l: Locale) => (l === 'ru' ? 'ru-RU' : 'en-US')
 
 function visitTime (iso: string, l: Locale, today: string) {
   const d = new Date(iso)
-  const time = new Intl.DateTimeFormat(tag(l), { hour: '2-digit', minute: '2-digit', hour12: l === 'en' }).format(d)
+  const time = formatDate(l, { hour: '2-digit', minute: '2-digit', hour12: l === 'en' }, d)
   if (d.toDateString() === new Date().toDateString()) return `${today}, ${time}`
-  return `${new Intl.DateTimeFormat(tag(l), { month: 'short', day: 'numeric' }).format(d)}, ${time}`
+  return `${formatDate(l, { month: 'short', day: 'numeric' }, d)}, ${time}`
 }
 
 /** Shops list of 3:407 (row menu) and 53:151 (selection with bulk header actions). */

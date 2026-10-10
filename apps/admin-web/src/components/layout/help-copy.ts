@@ -42,7 +42,7 @@ export const helpCopy = defineCopy({
           'Choose a date range or a preset (Today, Yesterday, This week) — the table counts visits and photos for it.',
           'Filter by status and region; click a column header to sort.',
           'Open a salesman for their route, timeline and photo reports, or edit them from ⋯.',
-          '“Add Salesman” creates an account and shows a one-time password; “Export Roster” downloads the list as Excel.'
+          '“Add Salesman” creates an account with the password you set; “Change password” in ⋯ sets a new one; “Export Roster” downloads the list as Excel.'
         ]
       },
       '/salesmen/[id]': {
@@ -58,9 +58,8 @@ export const helpCopy = defineCopy({
         title: 'Gallery',
         tips: [
           'Every audit photo, newest first; switch between grid and grouping by date.',
-          'Use Filters to narrow by date, location, type and status.',
-          'Click a photo to see the shop, salesman, comment and related shots.',
-          '“Upload Photos” adds photos to a shop by hand.'
+          'Use Filters to narrow by date, location and status.',
+          'Click a photo to see the shop, salesman, comment and related shots.'
         ]
       },
       '/settings': {
@@ -112,7 +111,7 @@ export const helpCopy = defineCopy({
           'Выберите период или быстрый фильтр (Сегодня, Вчера, Текущая неделя) — таблица посчитает визиты и фото за него.',
           'Фильтруйте по статусу и региону; нажмите на заголовок столбца для сортировки.',
           'Откройте агента, чтобы увидеть маршрут, хронологию и фотоотчёты, или измените его через ⋯.',
-          '«Добавить агента» создаёт аккаунт и показывает одноразовый пароль; «Экспорт списка» выгружает его в Excel.'
+          '«Добавить агента» создаёт аккаунт с заданным вами паролем; «Изменить пароль» в ⋯ задаёт новый; «Экспорт списка» выгружает список в Excel.'
         ]
       },
       '/salesmen/[id]': {
@@ -128,9 +127,8 @@ export const helpCopy = defineCopy({
         title: 'Галерея',
         tips: [
           'Все фото аудитов, новые сверху; переключайте сетку и группировку по датам.',
-          'Кнопка «Фильтры» сужает выборку по дате, точке, типу и статусу.',
-          'Нажмите на фото — увидите точку, агента, комментарий и связанные снимки.',
-          '«Загрузить фото» добавляет фото к точке вручную.'
+          'Кнопка «Фильтры» сужает выборку по дате, точке и статусу.',
+          'Нажмите на фото — увидите точку, агента, комментарий и связанные снимки.'
         ]
       },
       '/settings': {
@@ -140,6 +138,75 @@ export const helpCopy = defineCopy({
           'Рабочие часы и часовой пояс задают рабочий день и отчёты.',
           'Правила аудита: частота визитов, радиус отметки, минимальная точность GPS и время до сигнала «нет связи».',
           'Нажмите «Сохранить изменения», чтобы применить их для всех.'
+        ]
+      }
+    } satisfies Record<string, HelpTopic>
+  },
+  tk: {
+    heading: 'Bu sahypada',
+    close: 'Ýap',
+    pages: {
+      '/shops': {
+        title: 'Müşderiler',
+        tips: [
+          'Ady, kody ýa-da salgysy boýunça gözläň — gabat gelýänler ýazan wagtyňyz görünýär; Enter sanawy süzýär.',
+          'Tablisanyň üstündäki panelde ýagdaý we sebit boýunça süzüň.',
+          'Agent bellemek, kartada görkezmek ýa-da birnäçesini birden pozmak üçin setirleri belläň.',
+          'Setirdäki ⋯ menýusy: jikme-jik, üýtgetmek, kartada, agent bellemek, pozmak.',
+          '«Müşderi goş» täze nokat döredýär; «Müşderileri eksport et» häzirki sanawy Excel görnüşinde göçürýär.'
+        ]
+      },
+      '/shops/[id]': {
+        title: 'Müşderiniň kartoçkasy',
+        tips: [
+          'Nokadyň görkezijileri, habarlaşmak maglumatlary, berkidilen agent we assortiment.',
+          'Ýokarky bölekde: üýtgetmek, ýagdaýy çalyşmak we karta geçmek.',
+          'Saparlaryň taryhy: suratly, teswirli we bozulmaly auditler, şeýle hem galdyrylan saparlar.',
+          'Suraty galereýada açmak üçin oňa basyň.'
+        ]
+      },
+      '/products': {
+        title: 'Önümler',
+        tips: [
+          'Ýazan wagtyňyz katalog boýunça gözleg; ýagdaý boýunça süzgüç.',
+          'Beýanyny, bahasyny, suratyny we galyndy hasabyny üýtgetmek üçin önüme basyň.',
+          '«Önüm goş» täze haryt döredýär; «Katalogy eksport et» ony Excel görnüşinde göçürýär.'
+        ]
+      },
+      '/salesmen': {
+        title: 'Agentler',
+        tips: [
+          'Ýokardaky kartoçkalar — şu günki meýdan işiniň jemi.',
+          'Döwri ýa-da çalt süzgüji (Şu gün, Düýn, Şu hepde) saýlaň — tablisa şol döwür üçin saparlary we suratlary hasaplar.',
+          'Ýagdaý we sebit boýunça süzüň; tertiplemek üçin sütüniň adyna basyň.',
+          'Ugruny, wakalaryň yzygiderliligini we surat hasabatlaryny görmek üçin agenti açyň ýa-da ⋯ arkaly üýtgediň.',
+          '«Agent goş» siziň beren açar sözüňiz bilen hasap döredýär; ⋯ içindäki «Açar sözi üýtget» täzesini bellär; «Sanawy eksport et» sanawy Excel görnüşinde göçürýär.'
+        ]
+      },
+      '/salesmen/[id]': {
+        title: 'Agentiň kartoçkasy',
+        tips: [
+          'Kartadaky ugur; wakalaryň yzygiderliligi saýlanan günüň ähli duralgalaryny görkezýär.',
+          'Görkezijiler, auditleriň surat hasabatlary we saparlaryň taryhy (tamamlanan we galdyrylan).',
+          'PDF ýa-da Excel hasabat — ýokarky bölekdäki eksport düwmesi bilen.',
+          'Ýagdaý agentiň ulgamdadygyny we soňky ýerleşişiň takyklygyny görkezýär.'
+        ]
+      },
+      '/pictures': {
+        title: 'Galereýa',
+        tips: [
+          'Auditleriň ähli suratlary, täzeleri ýokarda; tor bilen sene boýunça toparlamagyň arasynda geçiň.',
+          '«Süzgüçler» düwmesi saýlawy sene, nokat we ýagdaý boýunça daraldýar.',
+          'Surata basyň — nokady, agenti, teswiri we baglanyşykly suratlary görersiňiz.'
+        ]
+      },
+      '/settings': {
+        title: 'Sazlamalar',
+        tips: [
+          'Gapdal menýudaky kompaniýanyň ady we logotipi.',
+          'Iş sagatlary we sagat guşagy iş gününi we hasabatlary kesgitleýär.',
+          'Audit düzgünleri: saparlaryň ýygylygy, bellik radiusy, GPS-iň iň az takyklygy we «aragatnaşyk ýok» duýduryşyna çenli wagt.',
+          'Hemmeler üçin ulanmak üçin «Üýtgeşmeleri ýatda sakla» düwmesine basyň.'
         ]
       }
     } satisfies Record<string, HelpTopic>

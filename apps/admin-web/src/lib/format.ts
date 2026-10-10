@@ -1,20 +1,24 @@
+import { intlTag, pick, formatDate } from '@/lib/i18n'
 import type { Locale } from './i18n'
 
-const tag = (l: Locale) => (l === 'ru' ? 'ru-RU' : 'en-US')
+const tag = intlTag
 
 /** "Today, 10:42" / "2 min ago" / "12 days ago" (31:2307 LAST ACTIVITY). */
 export function lastActivity (iso: string | null, locale: Locale, now = new Date()): string {
   if (iso == null) return '—'
   const at = new Date(iso)
   const mins = Math.round((now.getTime() - at.getTime()) / 60_000)
-  const rel = new Intl.RelativeTimeFormat(tag(locale), { numeric: 'auto' })
-  if (mins < 1) return locale === 'ru' ? 'Только что' : 'Just now'
-  if (mins < 60) return rel.format(-mins, 'minute')
-  const time = new Intl.DateTimeFormat(tag(locale), { hour: '2-digit', minute: '2-digit', hour12: false }).format(at)
-  if (at.toDateString() === now.toDateString()) return `${locale === 'ru' ? 'Сегодня' : 'Today'}, ${time}`
+  // Browsers have no Turkmen relative times (see intlTag), so Turkmen spells them out: "5 minut öň", "3 gün öň".
+  const ago = (n: number, unit: 'minute' | 'day') => locale === 'tk'
+    ? `${n} ${unit === 'minute' ? 'minut' : 'gün'} öň`
+    : new Intl.RelativeTimeFormat(tag(locale), { numeric: 'auto' }).format(-n, unit)
+  if (mins < 1) return pick(locale, { ru: 'Только что', en: 'Just now', tk: 'Ýaňy' })
+  if (mins < 60) return ago(mins, 'minute')
+  const time = formatDate(locale, { hour: '2-digit', minute: '2-digit', hour12: false }, at)
+  if (at.toDateString() === now.toDateString()) return `${pick(locale, { ru: 'Сегодня', en: 'Today', tk: 'Şu gün' })}, ${time}`
   const days = Math.round((startOfDay(now) - startOfDay(at)) / 86_400_000)
-  if (days === 1) return `${locale === 'ru' ? 'Вчера' : 'Yesterday'}, ${time}`
-  return rel.format(-days, 'day')
+  if (days === 1) return `${pick(locale, { ru: 'Вчера', en: 'Yesterday', tk: 'Düýn' })}, ${time}`
+  return ago(days, 'day')
 }
 
 const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()

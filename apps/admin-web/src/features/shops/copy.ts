@@ -53,6 +53,32 @@ export const shopsCopy = defineCopy({
       done: 'Завершён', missedStatus: 'Пропущен', declined: 'Отклонён', duration: 'Длительность: {n} мин', code: 'Код точки', comment: 'Комментарий агента:', violation: 'Зафиксировано нарушение:',
       morePhotos: '+{n} фото', more: 'Показать ещё', noVisits: 'Визитов ещё нет'
     }
+  },
+  tk: {
+    title: 'Müşderiler',
+    badge: 'Işde',
+    description: 'Dükanlary, söwda nokatlaryny we meýdan işiniň ýerlerini dolandyryň.',
+    exportShops: 'Müşderileri eksport et', addShop: 'Müşderi goş', assign: 'Agent bellemek', viewOnMap: 'Kartada', deleteShop: 'Poz',
+    search: 'Müşderi gözle...', status: 'Ýagdaý', region: 'Sebit', allStatus: 'Ähli ýagdaýlar', allRegions: 'Ähli sebitler',
+    statuses: { ACTIVE: 'Işjeň', INACTIVE: 'Işjeň däl', PENDING_REVIEW: 'Barlagda' },
+    columns: { shop: 'Dükan', code: 'Kod', owner: 'Eýesi', phone: 'Telefon', lastVisit: 'Soňky sapar', agent: 'Agent', status: 'Ýagdaý' },
+    selectAll: 'Ählisini saýla', selectRow: 'Dükany saýla', by: '', today: 'Şu gün', never: '—', unassigned: 'Bellenmedik',
+    actions: 'Hereketler', viewDetails: 'Jikme-jik', editShop: 'Üýtget', empty: 'Bu süzgüçler boýunça müşderi ýok',
+    exportFailed: 'Faýly düşürip bolmady. Gaýtadan synanyşyň.',
+    pagination: { showing: 'Görkezilýär', of: '/', show: 'Sahypada setir:', perPage: '', previous: 'Öňki sahypa', next: 'Indiki sahypa', noun: 'müşderi' },
+    assignDialog: { title: 'Agent bellemek', subtitle: 'Saýlanan dükanlar: {n}', label: 'Agent', none: 'Bellenmedik', cancel: 'Ýatyr', save: 'Belle' },
+    deleteDialog: { title: 'Dükanlary pozmalymy?', body: 'Dükanlar ({n}) sanawlardan, kartadan we geljekki ugurlardan aýrylar. Auditleriň taryhy we suratlar saklanar.', cancel: 'Ýatyr', confirm: 'Poz' },
+    errors: { generic: 'Bir zat nädogry boldy. Gaýtadan synanyşyň.' },
+    details: {
+      breadcrumb: 'Müşderiler', assigned: 'Jogapkär:', statusLabel: 'Ýagdaý:', edit: 'Üýtget',
+      totalAudits: 'Jemi audit', productsCarried: 'Assortiment', skus: 'SKU', compliance: 'Tekjäniň laýyklygy {n}%',
+      auditPhotos: 'Audit suratlary', geotagged: '{n}% geobellikli', noAudits: 'Häzirlikçe audit ýok',
+      geo: 'Geografiýa', gpsValid: 'Ähli GPS nokatlary dogry', noRegion: 'Sebitsiz',
+      recenter: 'Dükany görkez', fullscreen: 'Doly ekran', zoomIn: 'Ýakynlaşdyr', zoomOut: 'Daşlaşdyr',
+      history: 'Saparlaryň taryhy', updatedAt: 'Täzelendi', total: 'Jemi: {n}', completed: 'Tamamlandy ({n})', missed: 'Galdyryldy ({n})',
+      done: 'Tamamlandy', missedStatus: 'Galdyryldy', declined: 'Ret edildi', duration: 'Dowamlylygy: {n} min', code: 'Nokadyň kody', comment: 'Agentiň teswiri:', violation: 'Bozulma bellenildi:',
+      morePhotos: '+{n} surat', more: 'Ýene görkez', noVisits: 'Häzirlikçe sapar ýok'
+    }
   }
 })
 
@@ -85,6 +111,19 @@ export const shopFormCopy = defineCopy({
     phones: 'Контактные телефоны точки', phonesHint: 'Поддерживается до 4 номеров', phoneLabel: 'Подпись (напр. Закупки)', addPhone: 'Добавить еще один номер', removePhone: 'Удалить номер',
     archive: 'Архивировать торговую точку', restore: 'Восстановить торговую точку', cancel: 'Отменить', save: 'Сохранить изменения',
     errors: { required: 'Заполните название, адрес и геопозицию', field: 'Обязательное поле', location: 'Укажите точку на карте', phoneShort: 'Туркменский номер: +993 и 8 цифр', phone: 'Номер должен быть туркменским: +993 и 8 цифр (например, +993 65 123456, +993 12 345678)', CONFLICT: 'Магазин изменён другим пользователем. Обновите страницу и повторите.', generic: 'Не удалось сохранить. Попробуйте ещё раз.' }
+  },
+  tk: {
+    editTitle: 'Söwda nokadyny üýtgetmek', addTitle: 'Täze söwda nokady', subtitle: 'Habarlaşmak maglumatlaryny, salgyny ýa-da jogapkär wekili üýtgediň', close: 'Penjiräni ýap',
+    photoTitle: 'DÜKANYŇ FASADYNYŇ SURATY', photoHint: 'Dükanlaryň kartoçkasynda görkezilýär (PNG, JPG 5 MB çenli).', photoCaption: 'Häzirki',
+    upload: 'Täze surat ýükle', remove: 'Poz', uploading: 'Ýüklenýär…', uploadFailed: 'Ýükläp bolmady',
+    name: 'Söwda nokadynyň ady', nameHint: 'Ýuridik şahsyň ýa-da brendiň resmi ady',
+    agent: 'Berkidilen söwda wekili', agentHint: 'Söwda agenti tekjäni barlamak boýunça awtomatik tabşyryklary we surat hasabatlaryny alýar', noAgent: 'Bellenmedik',
+    address: 'Hakyky salgy we geoýerleşiş', pickOnMap: 'Interaktiw kartada görkez', gpsBound: 'GPS baglanan', gpsMissing: 'GPS ýok',
+    coords: 'Koordinatlar', zone: 'Zona', calibrate: 'GPS-i sazla', mapHint: 'Nokady görkezmek üçin karta basyň',
+    products: 'Nokadyň assortimenti', productsPlaceholder: 'Önüm saýlanmady', productsSearch: 'Önüm gözle...', productsSelected: 'Önümler: {n}',
+    phones: 'Nokadyň habarlaşmak telefonlary', phonesHint: '4 belgä çenli goldanýar', phoneLabel: 'Bellik (mysal üçin, Satyn alyş)', addPhone: 'Ýene bir belgi goş', removePhone: 'Belgini poz',
+    archive: 'Söwda nokadyny arhiwle', restore: 'Söwda nokadyny dikelt', cancel: 'Ýatyr', save: 'Üýtgeşmeleri ýatda sakla',
+    errors: { required: 'Adyny, salgyny we geoýerleşişi dolduryň', field: 'Hökmany meýdança', location: 'Kartada nokady görkeziň', phoneShort: 'Türkmen belgisi: +993 we 8 san', phone: 'Belgi türkmen bolmaly: +993 we 8 san (mysal üçin, +993 65 123456, +993 12 345678)', CONFLICT: 'Dükany başga ulanyjy üýtgetdi. Sahypany täzeläň we gaýtadan synanyşyň.', generic: 'Ýatda saklap bolmady. Gaýtadan synanyşyň.' }
   }
 })
 

@@ -1,17 +1,17 @@
 import { Timeline, type TimelineState } from '@/components/ui/Timeline'
-import { plural, sub, type Locale } from '@/lib/i18n'
+import { plural, sub, type Locale, formatDate } from '@/lib/i18n'
 import type { StopStatus, TimelineStop } from '../api'
 import type { AgentsCopy } from '../copy'
 
 const states: Record<StopStatus, TimelineState> = { DONE: 'done', MISSED: 'missed', IN_PROGRESS: 'active', PLANNED: 'planned' }
 
 export const hhmm = (iso: string, locale: Locale) =>
-  new Intl.DateTimeFormat(locale === 'ru' ? 'ru-RU' : 'en-US', { hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(iso))
+  formatDate(locale, { hour: '2-digit', minute: '2-digit', hour12: false }, new Date(iso))
 
 /** "Today's Route Timeline Sequence" of 122:7981 (122:9841) for one day's route. */
 export function RouteTimeline ({ stops, day, isToday, copy, locale }: { stops: TimelineStop[], day: string, isToday: boolean, copy: AgentsCopy, locale: Locale }) {
   const d = copy.details
-  const dayLabel = new Intl.DateTimeFormat(locale === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long' }).format(new Date(`${day}T12:00:00`))
+  const dayLabel = formatDate(locale, { day: 'numeric', month: 'long' }, new Date(`${day}T12:00:00`))
   return (
     <Timeline
       title={isToday ? d.timelineToday : sub(d.timelineDay, dayLabel)}

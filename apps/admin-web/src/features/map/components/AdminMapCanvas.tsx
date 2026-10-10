@@ -9,7 +9,7 @@ import { FigmaIcon } from '@/components/ui/FigmaIcon'
 import { SearchAutocomplete } from '@/components/ui/SearchAutocomplete'
 import { Bone } from '@/components/ui/Skeleton'
 import { AgentDot, ClusterMarker, DEFAULT_VIEW, MapView, RegionZone, ShopMarker, ShopRadius, shopPinColor, type InitialView } from '@/components/ui/MapView'
-import { plural, sub, type Locale } from '@/lib/i18n'
+import { plural, sub, type Locale, formatDate } from '@/lib/i18n'
 import { navigationStarted } from '@/lib/feedback'
 import { useListParams } from '@/lib/use-list-params'
 import { mapParams } from '../search-params'
@@ -185,7 +185,7 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
             ))}
         {shownPositions.map((p) => (
           <Marker key={p.agentId} longitude={p.lng} latitude={p.lat} anchor='center'>
-            <Link href={`/salesmen/${p.agentId}`} className='group relative flex flex-col items-center' title={`${p.fullName} · ${sub(copy.hereNow, new Date(p.recordedAt).toLocaleTimeString(locale === 'ru' ? 'ru-RU' : 'en-US', { hour: '2-digit', minute: '2-digit' }))}`}>
+            <Link href={`/salesmen/${p.agentId}`} className='group relative flex flex-col items-center' title={`${p.fullName} · ${sub(copy.hereNow, formatDate(locale, { hour: '2-digit', minute: '2-digit' }, p.recordedAt))}`}>
               <AgentDot />
               <span className={`absolute top-full mt-1 hidden whitespace-nowrap rounded-md bg-[#2e303b] px-2.5 py-1 text-[11px] font-semibold leading-[16.5px] text-[#f0effe] group-hover:block ${shadowMd}`}>{p.fullName}</span>
             </Link>

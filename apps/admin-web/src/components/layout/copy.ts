@@ -21,6 +21,16 @@ export const layoutCopy = defineCopy({
     account: 'Аккаунт',
     language: 'Язык',
     signOut: 'Выйти'
+  },
+  tk: {
+    companyFallback: 'COMPANY NAME',
+    nav: { map: 'Karta', shops: 'Müşderiler', products: 'Önümler', salesmen: 'Agentler', pictures: 'Galereýa', settings: 'Sazlamalar' },
+    searchPlaceholder: 'Müşderileri gözle...',
+    notifications: 'Bildirişler',
+    help: 'Kömek',
+    account: 'Hasap',
+    language: 'Dil',
+    signOut: 'Çykmak'
   }
 })
 

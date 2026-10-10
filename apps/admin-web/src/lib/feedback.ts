@@ -1,5 +1,6 @@
 'use client'
 
+import { pageLocale } from '@/lib/i18n'
 // App-wide feedback events: the top progress bar and the snackbar listen for them.
 export type ToastTone = 'info' | 'success' | 'error'
 
@@ -24,12 +25,13 @@ export async function busy<T> (work: Promise<T>): Promise<T> {
 
 const messages = {
   en: { saved: 'Changes saved', created: 'Created', deleted: 'Deleted', assigned: 'Salesman assigned', uploaded: 'Photos uploaded', status: 'Status updated', passwordChanged: 'Password changed', exportFailed: 'The export failed. Try again.', failed: 'Something went wrong. Try again.' },
-  ru: { saved: 'Изменения сохранены', created: 'Создано', deleted: 'Удалено', assigned: 'Агент назначен', uploaded: 'Фото загружены', status: 'Статус обновлён', passwordChanged: 'Пароль изменён', exportFailed: 'Не удалось сформировать файл. Попробуйте ещё раз.', failed: 'Не удалось выполнить действие. Попробуйте ещё раз.' }
+  ru: { saved: 'Изменения сохранены', created: 'Создано', deleted: 'Удалено', assigned: 'Агент назначен', uploaded: 'Фото загружены', status: 'Статус обновлён', passwordChanged: 'Пароль изменён', exportFailed: 'Не удалось сформировать файл. Попробуйте ещё раз.', failed: 'Не удалось выполнить действие. Попробуйте ещё раз.' },
+  tk: { saved: 'Üýtgeşmeler ýatda saklandy', created: 'Döredildi', deleted: 'Pozuldy', assigned: 'Agent bellenildi', uploaded: 'Suratlar ýüklendi', status: 'Ýagdaý täzelendi', passwordChanged: 'Açar söz üýtgedildi', exportFailed: 'Faýly taýýarlap bolmady. Gaýtadan synanyşyň.', failed: 'Hereketi ýerine ýetirip bolmady. Gaýtadan synanyşyň.' }
 }
 
 /** Snackbar text in the page language (`<html lang>`). */
 export function say (key: keyof typeof messages.en, tone: ToastTone = 'success') {
-  const lang = document.documentElement.lang === 'en' ? 'en' : 'ru'
+  const lang = pageLocale()
   toast(messages[lang][key], tone)
 }
 

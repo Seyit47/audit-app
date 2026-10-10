@@ -33,6 +33,22 @@ export const mapCopy = defineCopy({
       photos: 'Фотографии', openGallery: 'Открыть галерею', morePhotos: '+{n} фото', none: '—', unassigned: 'Не назначен',
       details: 'Подробнее'
     }
+  },
+  tk: {
+    search: 'Salgy, müşderi ýa-da ýer boýunça gözle...',
+    filtered: 'Süzgüç: {n}',
+    locations: ['nokat'], salesmen: ['agent'], regions: ['sebit'],
+    filters: 'Süzgüçler', recenter: 'Merkeze getir', zoomIn: 'Ýakynlaşdyr', zoomOut: 'Daşlaşdyr',
+    layers: 'Karta / hemra', fullscreen: 'Doly ekran', refresh: 'Täzele',
+    panel: { show: 'Agentler/Dükanlar', showBoth: 'Ählisi', showAgents: 'Agentler', showShops: 'Dükanlar', status: 'Ýagdaý', statusAll: 'Ählisi', visited: 'Baryp görlen', notVisited: 'Baryp görülmedik', recent: 'Soňky', salesman: 'Agent', searchable: 'Gözleg bilen', searchAgents: 'Agentleri gözle...', region: 'Sebit', allRegions: 'Ähli sebitler ({n})', apply: 'Ulan', clear: 'Arassala', close: 'Ýap', remove: 'Aýyr' },
+    unit: 'nokat', hereNow: 'Signal: {n}',
+    card: {
+      close: 'Ýap', verified: 'Barlandy', pending: 'Barlagda', inactive: 'Işjeň däl',
+      types: { HYPERMARKET: 'Gipermarket', SUPERMARKET: 'Supermarket', MARKET: 'Market', MINIMARKET: 'Minimarket', OTHER: 'Başga' },
+      region: 'Sebit', address: 'Salgy', lastAudit: 'Soňky audit', agent: 'Agent', audits: 'Auditleriň sany', phones: 'Telefon belgisi',
+      photos: 'Suratlar', openGallery: 'Galereýany aç', morePhotos: '+{n} surat', none: '—', unassigned: 'Bellenmedik',
+      details: 'Jikme-jiklikler'
+    }
   }
 })
 

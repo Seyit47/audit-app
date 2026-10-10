@@ -30,7 +30,7 @@ export function AvatarMenu ({ copy, locale }: { copy: LayoutCopy, locale: Locale
           <div className={`flex items-center justify-between gap-2 px-3 py-2 ${pending ? 'opacity-60' : ''}`}>
             <span className='text-xs font-medium leading-4 text-ink'>{copy.language}</span>
             <SegmentedControl
-              options={[{ value: 'ru', label: 'RU' }, { value: 'en', label: 'EN' }]}
+              options={[{ value: 'ru', label: 'RU' }, { value: 'tk', label: 'TK' }, { value: 'en', label: 'EN' }]}
               value={locale}
               onChange={(next) => startTransition(() => setLocale(next))}
             />

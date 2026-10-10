@@ -1,5 +1,6 @@
 'use client'
 
+import { pageLocale } from '@/lib/i18n'
 import { useRouter } from 'next/navigation'
 import { useEffect, useId, useRef, useState } from 'react'
 import { navigationStarted } from '@/lib/feedback'
@@ -13,7 +14,8 @@ export interface SearchGroup { label: string, hits: SearchHit[] }
 
 const text = {
   en: { empty: 'Nothing found', all: 'Show all results for', searching: 'Searching…' },
-  ru: { empty: 'Ничего не найдено', all: 'Показать все результаты для', searching: 'Поиск…' }
+  ru: { empty: 'Ничего не найдено', all: 'Показать все результаты для', searching: 'Поиск…' },
+  tk: { empty: 'Hiç zat tapylmady', all: 'Ähli netijeleri görkez:', searching: 'Gözlenýär…' }
 }
 
 function Highlight ({ value, term }: { value: string, term: string }) {
@@ -51,7 +53,7 @@ export function SearchAutocomplete ({ placeholder, defaultValue = '', load, onSu
   const [active, setActive] = useState(-1)
   const loader = useRef(load)
   useEffect(() => { loader.current = load })
-  const lang = typeof document !== 'undefined' && document.documentElement.lang === 'en' ? 'en' : 'ru'
+  const lang = pageLocale()
   const t = text[lang]
 
   const term = q.trim()

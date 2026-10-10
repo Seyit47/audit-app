@@ -27,5 +27,18 @@ export const authCopy = defineCopy({
       rateLimited: 'Слишком много попыток. Попробуйте через минуту.',
       generic: 'Что-то пошло не так. Попробуйте ещё раз.'
     }
+  },
+  tk: {
+    title: 'Giriş',
+    subtitle: 'Administrator paneli',
+    email: 'Email',
+    password: 'Açar söz',
+    submit: 'Girmek',
+    errors: {
+      credentials: 'Email ýa-da açar söz nädogry',
+      agent: 'Agentler mobil programma arkaly girýärler',
+      rateLimited: 'Synanyşyk gaty köp. Bir minutdan soň gaýtadan synanyşyň.',
+      generic: 'Bir zat nädogry boldy. Gaýtadan synanyşyň.'
+    }
   }
 })

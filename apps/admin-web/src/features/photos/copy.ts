@@ -33,6 +33,22 @@ export const photosCopy = defineCopy({
       title: 'Загрузить фото', subtitle: 'Фото будут добавлены к выбранному магазину', shop: 'Магазин', shopPlaceholder: 'Выберите магазин',
       files: 'Фотографии', choose: 'Выбрать фото', hint: 'PNG, JPG или WebP до 10 МБ каждое', cancel: 'Отменить', save: 'Загрузить', done: 'Загружено: {n}', failed: 'Часть фото не загрузилась'
     }
+  },
+  tk: {
+    title: 'Galereýa', description: 'Söwda nokatlaryndan, auditlerden we sergi barlaglaryndan suratlary görüň.',
+    total: 'Jemi surat: {n}', today: 'Şu gün: {n}', filters: 'Süzgüçler', upload: 'Surat ýükle',
+    modes: { grid: 'Tor', byDate: 'Sene boýunça' },
+    type: 'Görnüş', allTypes: 'Ähli görnüşler', types: { AUDIT: 'Audit', FACADE: 'Fasad', ADMIN_UPLOAD: 'Ýüklenen' },
+    location: 'Sebit', allLocations: 'Ähli sebitler',
+    status: 'Ýagdaý', allStatus: 'Ähli ýagdaýlar', statuses: { true: 'Barlandy', false: 'Barlanmadyk' },
+    date: 'Sene', dates: { today: 'Şu gün', '7': 'Soňky 7 gün', '30': 'Soňky 30 gün', all: 'Ähli wagt' },
+    verified: 'Barlandy', empty: 'Bu süzgüçler boýunça surat ýok', loading: 'Ýüklenýär…',
+    close: 'Ýap', assigned: 'Jogapkär:', duration: 'Dowamlylygy: {n} min', today2: 'Şu gün',
+    agentComment: 'Satyjynyň teswiri:', violation: 'Bozulma bellenildi:', related: 'Auditiň baglanyşykly suratlary ({n})', statusActive: 'Işjeň',
+    uploadDialog: {
+      title: 'Surat ýükle', subtitle: 'Suratlar saýlanan dükana goşular', shop: 'Dükan', shopPlaceholder: 'Dükany saýlaň',
+      files: 'Suratlar', choose: 'Surat saýla', hint: 'PNG, JPG ýa-da WebP, her biri 10 MB çenli', cancel: 'Ýatyr', save: 'Ýükle', done: 'Ýüklendi: {n}', failed: 'Käbir suratlar ýüklenmedi'
+    }
   }
 })
 
