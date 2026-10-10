@@ -67,7 +67,6 @@ export function PhotosView ({ first, query, summary, regions, copy, locale, init
   const split = detail != null || opening != null
   const gridBox = useRef<HTMLDivElement>(null)
   const capture = useFlip(gridBox, split)
-  const close = () => { capture(); setDetail(null); setOpening(null) }
   // Details are fetched once per photo and cached; hovering a tile starts the fetch, so a click usually
   // finds them ready and the panel switches without a placeholder.
   const details = useRef(new Map<string, Promise<PhotoDetail>>())
@@ -81,6 +80,8 @@ export function PhotosView ({ first, query, summary, regions, copy, locale, init
     return pending
   }
   const latest = useRef<string | null>(null)
+  // Closing forgets the photo being opened, so details that arrive afterwards don't reopen the panel.
+  const close = () => { latest.current = null; capture(); setDetail(null); setOpening(null) }
   const open = (p: GalleryPhoto) => {
     if (p.id === detail?.id && opening == null) return
     if (!split) capture()
