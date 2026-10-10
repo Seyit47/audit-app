@@ -947,4 +947,73 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get shopNotActive => 'Dükan barlagda — administrator tassyklandan soň auditler açylar';
+
+  @override
+  String insideShopRadius(String name) {
+    return 'Siz «$name» dükanynyň radiusynda';
+  }
+
+  @override
+  String get serverSettings => 'Serwer sazlamalary';
+
+  @override
+  String get settingsPin => 'PIN kody giriziň';
+
+  @override
+  String get pinWrong => 'PIN kod nädogry';
+
+  @override
+  String get serverHost => 'IP salgy ýa-da domen';
+
+  @override
+  String get serverPort => 'Port';
+
+  @override
+  String get serverHttps => 'Goragly baglanyşyk (HTTPS)';
+
+  @override
+  String serverCurrent(String url) {
+    return 'Häzir: $url';
+  }
+
+  @override
+  String get serverReset => 'Başdaky ýagdaýa gaýtar';
+
+  @override
+  String get serverUnreachable => 'Serwer bu salgyda jogap bermeýär';
+
+  @override
+  String get serverSaved => 'Serweriň salgysy ýatda saklandy';
+
+  @override
+  String get hostInvalid => 'IP salgy ýa-da domen giriziň, mysal üçin 192.168.1.10 ýa-da api.example.com';
+
+  @override
+  String get portInvalid => '1-den 65535-e çenli port';
+
+  @override
+  String get activationTitle => 'Işjeňleşdirilmegine garaşylýar';
+
+  @override
+  String get activationBody => 'Enjam hasaba alyndy. Moderator tassyklandan soň işläp bilersiňiz.';
+
+  @override
+  String get activationRegisterTitle => 'Enjam hasaba alynmadyk';
+
+  @override
+  String get activationRegisterBody => 'Ilkinji gezek ulanmazdan öň enjamy hasaba alyň. Soňra moderator ony işjeňleşdirer.';
+
+  @override
+  String get activationRegister => 'Hasaba al';
+
+  @override
+  String activationDeviceId(String id) {
+    return 'Enjamyň ID-si: $id';
+  }
+
+  @override
+  String get activationError => 'Işjeňleşdiriş serweri bilen aragatnaşyk ýok';
+
+  @override
+  String get activationChecking => 'Enjam barlanýar…';
 }

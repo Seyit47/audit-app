@@ -1772,6 +1772,132 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Магазин на проверке — аудит станет доступен после одобрения администратором'**
   String get shopNotActive;
+
+  /// No description provided for @insideShopRadius.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вы в радиусе магазина «{name}»'**
+  String insideShopRadius(String name);
+
+  /// No description provided for @serverSettings.
+  ///
+  /// In ru, this message translates to:
+  /// **'Настройки сервера'**
+  String get serverSettings;
+
+  /// No description provided for @settingsPin.
+  ///
+  /// In ru, this message translates to:
+  /// **'Введите PIN-код'**
+  String get settingsPin;
+
+  /// No description provided for @pinWrong.
+  ///
+  /// In ru, this message translates to:
+  /// **'Неверный PIN-код'**
+  String get pinWrong;
+
+  /// No description provided for @serverHost.
+  ///
+  /// In ru, this message translates to:
+  /// **'IP-адрес или домен'**
+  String get serverHost;
+
+  /// No description provided for @serverPort.
+  ///
+  /// In ru, this message translates to:
+  /// **'Порт'**
+  String get serverPort;
+
+  /// No description provided for @serverHttps.
+  ///
+  /// In ru, this message translates to:
+  /// **'Защищённое соединение (HTTPS)'**
+  String get serverHttps;
+
+  /// No description provided for @serverCurrent.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сейчас: {url}'**
+  String serverCurrent(String url);
+
+  /// No description provided for @serverReset.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сбросить по умолчанию'**
+  String get serverReset;
+
+  /// No description provided for @serverUnreachable.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сервер не отвечает по этому адресу'**
+  String get serverUnreachable;
+
+  /// No description provided for @serverSaved.
+  ///
+  /// In ru, this message translates to:
+  /// **'Адрес сервера сохранён'**
+  String get serverSaved;
+
+  /// No description provided for @hostInvalid.
+  ///
+  /// In ru, this message translates to:
+  /// **'Укажите IP-адрес или домен, например 192.168.1.10 или api.example.com'**
+  String get hostInvalid;
+
+  /// No description provided for @portInvalid.
+  ///
+  /// In ru, this message translates to:
+  /// **'Порт от 1 до 65535'**
+  String get portInvalid;
+
+  /// No description provided for @activationTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ожидание активации'**
+  String get activationTitle;
+
+  /// No description provided for @activationBody.
+  ///
+  /// In ru, this message translates to:
+  /// **'Устройство зарегистрировано. Работа станет доступна после одобрения модератором.'**
+  String get activationBody;
+
+  /// No description provided for @activationRegisterTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Устройство не зарегистрировано'**
+  String get activationRegisterTitle;
+
+  /// No description provided for @activationRegisterBody.
+  ///
+  /// In ru, this message translates to:
+  /// **'Перед первым запуском устройство нужно зарегистрировать. После этого модератор его активирует.'**
+  String get activationRegisterBody;
+
+  /// No description provided for @activationRegister.
+  ///
+  /// In ru, this message translates to:
+  /// **'Зарегистрировать'**
+  String get activationRegister;
+
+  /// No description provided for @activationDeviceId.
+  ///
+  /// In ru, this message translates to:
+  /// **'ID устройства: {id}'**
+  String activationDeviceId(String id);
+
+  /// No description provided for @activationError.
+  ///
+  /// In ru, this message translates to:
+  /// **'Нет связи с сервером активации'**
+  String get activationError;
+
+  /// No description provided for @activationChecking.
+  ///
+  /// In ru, this message translates to:
+  /// **'Проверка устройства…'**
+  String get activationChecking;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

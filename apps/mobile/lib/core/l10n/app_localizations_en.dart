@@ -947,4 +947,73 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shopNotActive => 'The shop is pending review — audits open once an admin approves it';
+
+  @override
+  String insideShopRadius(String name) {
+    return 'You\'re within $name\'s radius';
+  }
+
+  @override
+  String get serverSettings => 'Server settings';
+
+  @override
+  String get settingsPin => 'Enter the PIN';
+
+  @override
+  String get pinWrong => 'Wrong PIN';
+
+  @override
+  String get serverHost => 'IP address or domain';
+
+  @override
+  String get serverPort => 'Port';
+
+  @override
+  String get serverHttps => 'Secure connection (HTTPS)';
+
+  @override
+  String serverCurrent(String url) {
+    return 'Now: $url';
+  }
+
+  @override
+  String get serverReset => 'Reset to default';
+
+  @override
+  String get serverUnreachable => 'The server doesn\'t respond at this address';
+
+  @override
+  String get serverSaved => 'Server address saved';
+
+  @override
+  String get hostInvalid => 'Enter an IP address or domain, e.g. 192.168.1.10 or api.example.com';
+
+  @override
+  String get portInvalid => 'A port from 1 to 65535';
+
+  @override
+  String get activationTitle => 'Waiting for activation';
+
+  @override
+  String get activationBody => 'This device is registered. You can start working once a moderator approves it.';
+
+  @override
+  String get activationRegisterTitle => 'Device not registered';
+
+  @override
+  String get activationRegisterBody => 'Register this device before first use. A moderator then activates it.';
+
+  @override
+  String get activationRegister => 'Register';
+
+  @override
+  String activationDeviceId(String id) {
+    return 'Device ID: $id';
+  }
+
+  @override
+  String get activationError => 'Can\'t reach the activation server';
+
+  @override
+  String get activationChecking => 'Checking this device…';
 }

@@ -947,4 +947,73 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get shopNotActive => 'Магазин на проверке — аудит станет доступен после одобрения администратором';
+
+  @override
+  String insideShopRadius(String name) {
+    return 'Вы в радиусе магазина «$name»';
+  }
+
+  @override
+  String get serverSettings => 'Настройки сервера';
+
+  @override
+  String get settingsPin => 'Введите PIN-код';
+
+  @override
+  String get pinWrong => 'Неверный PIN-код';
+
+  @override
+  String get serverHost => 'IP-адрес или домен';
+
+  @override
+  String get serverPort => 'Порт';
+
+  @override
+  String get serverHttps => 'Защищённое соединение (HTTPS)';
+
+  @override
+  String serverCurrent(String url) {
+    return 'Сейчас: $url';
+  }
+
+  @override
+  String get serverReset => 'Сбросить по умолчанию';
+
+  @override
+  String get serverUnreachable => 'Сервер не отвечает по этому адресу';
+
+  @override
+  String get serverSaved => 'Адрес сервера сохранён';
+
+  @override
+  String get hostInvalid => 'Укажите IP-адрес или домен, например 192.168.1.10 или api.example.com';
+
+  @override
+  String get portInvalid => 'Порт от 1 до 65535';
+
+  @override
+  String get activationTitle => 'Ожидание активации';
+
+  @override
+  String get activationBody => 'Устройство зарегистрировано. Работа станет доступна после одобрения модератором.';
+
+  @override
+  String get activationRegisterTitle => 'Устройство не зарегистрировано';
+
+  @override
+  String get activationRegisterBody => 'Перед первым запуском устройство нужно зарегистрировать. После этого модератор его активирует.';
+
+  @override
+  String get activationRegister => 'Зарегистрировать';
+
+  @override
+  String activationDeviceId(String id) {
+    return 'ID устройства: $id';
+  }
+
+  @override
+  String get activationError => 'Нет связи с сервером активации';
+
+  @override
+  String get activationChecking => 'Проверка устройства…';
 }

@@ -637,5 +637,47 @@
   "planRange": "От 1 до 100",
   "priceInvalid": "Введите цену, например 185.00",
   "countInvalid": "Целое число, 0 или больше",
-  "shopNotActive": "Магазин на проверке — аудит станет доступен после одобрения администратором"
+  "shopNotActive": "Магазин на проверке — аудит станет доступен после одобрения администратором",
+  "insideShopRadius": "Вы в радиусе магазина «{name}»",
+  "@insideShopRadius": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "serverSettings": "Настройки сервера",
+  "settingsPin": "Введите PIN-код",
+  "pinWrong": "Неверный PIN-код",
+  "serverHost": "IP-адрес или домен",
+  "serverPort": "Порт",
+  "serverHttps": "Защищённое соединение (HTTPS)",
+  "serverCurrent": "Сейчас: {url}",
+  "@serverCurrent": {
+    "placeholders": {
+      "url": {
+        "type": "String"
+      }
+    }
+  },
+  "serverReset": "Сбросить по умолчанию",
+  "serverUnreachable": "Сервер не отвечает по этому адресу",
+  "serverSaved": "Адрес сервера сохранён",
+  "hostInvalid": "Укажите IP-адрес или домен, например 192.168.1.10 или api.example.com",
+  "portInvalid": "Порт от 1 до 65535",
+  "activationTitle": "Ожидание активации",
+  "activationBody": "Устройство зарегистрировано. Работа станет доступна после одобрения модератором.",
+  "activationRegisterTitle": "Устройство не зарегистрировано",
+  "activationRegisterBody": "Перед первым запуском устройство нужно зарегистрировать. После этого модератор его активирует.",
+  "activationRegister": "Зарегистрировать",
+  "activationDeviceId": "ID устройства: {id}",
+  "@activationDeviceId": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "activationError": "Нет связи с сервером активации",
+  "activationChecking": "Проверка устройства…"
 }
