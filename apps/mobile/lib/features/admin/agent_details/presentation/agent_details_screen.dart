@@ -616,7 +616,7 @@ class _AgentDetailsScreenState extends ConsumerState<AgentDetailsScreen> {
 
   static String _ago(String lang, DateTime at) {
     final mins = DateTime.now().difference(at).inMinutes;
-    if (mins < 60) return lang == 'ru' ? '$mins мин. назад' : '$mins min ago';
+    if (mins < 60) return switch (lang) { 'ru' => '$mins мин. назад', 'tk' => '$mins min öň', _ => '$mins min ago' };
     return DateFormat('d MMM HH:mm', lang).format(at.toLocal());
   }
 }

@@ -51,7 +51,7 @@ class ThemeToggle extends StatelessWidget {
   }
 }
 
-/// RU / EN switch of the Home header (`111:6788`): a rounded track with a fully rounded accent pill that
+/// RU / TK / EN switch of the Home header (`111:6788`): a rounded track with a fully rounded accent pill that
 /// slides to the chosen language. Android: Material ink on each half; iOS: the native
 /// [CupertinoSlidingSegmentedControl] in the same track. Choosing the current language does nothing.
 class LocaleToggle extends StatelessWidget {
@@ -60,7 +60,7 @@ class LocaleToggle extends StatelessWidget {
   final String value;
   final ValueChanged<String> onChanged;
 
-  static const _codes = ['ru', 'en'];
+  static const _codes = ['ru', 'tk', 'en'];
   static const _segment = 52.0;
 
   @override
@@ -115,11 +115,11 @@ class LocaleToggle extends StatelessWidget {
       decoration: track,
       child: Stack(
         children: [
-          // The pill slides between the halves.
+          // The pill slides between the segments.
           AnimatedAlign(
             duration: const Duration(milliseconds: 220),
             curve: Curves.easeOutCubic,
-            alignment: index == 0 ? Alignment.centerLeft : Alignment.centerRight,
+            alignment: Alignment(-1 + 2 * index / (_codes.length - 1), 0),
             child: Container(
               width: _segment,
               decoration: BoxDecoration(

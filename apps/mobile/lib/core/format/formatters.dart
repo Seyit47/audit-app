@@ -1,6 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 
+import '../l10n/turkmen.dart';
+
 String _tag(BuildContext context) => Localizations.localeOf(context).languageCode;
 
 /// "14 сент. 15:17" (`83:16884`).
@@ -22,5 +24,5 @@ String coords(double lat, double lng) => '${lat.toStringAsFixed(6)}, ${lng.toStr
 String distance(BuildContext context, double meters) {
   final ru = _tag(context) == 'ru';
   if (meters < 1000) return '${meters.round()} ${ru ? 'м' : 'm'}';
-  return '${NumberFormat('0.0', _tag(context)).format(meters / 1000)} ${ru ? 'км' : 'km'}';
+  return '${NumberFormat('0.0', numberLocale(_tag(context))).format(meters / 1000)} ${ru ? 'км' : 'km'}';
 }

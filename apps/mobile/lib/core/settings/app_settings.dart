@@ -7,7 +7,7 @@ final sharedPreferencesProvider = Provider<SharedPreferences>((ref) => throw Uni
 
 const _themeKey = 'theme_mode';
 const _localeKey = 'locale';
-const supportedLocales = [Locale('ru'), Locale('en')];
+const supportedLocales = [Locale('ru'), Locale('tk'), Locale('en')];
 
 /// Theme mode from the Home toggle; follows the system until the user picks one.
 final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(ThemeModeNotifier.new);
@@ -26,12 +26,16 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
   }
 }
 
-/// App language from the Home RU/EN switch; Russian when nothing is chosen.
+/// App language from the Home RU/TK/EN switch; Russian when nothing is chosen.
 final localeProvider = NotifierProvider<LocaleNotifier, Locale>(LocaleNotifier.new);
 
 class LocaleNotifier extends Notifier<Locale> {
   @override
-  Locale build() => ref.watch(sharedPreferencesProvider).getString(_localeKey) == 'en' ? const Locale('en') : const Locale('ru');
+  Locale build() => switch (ref.watch(sharedPreferencesProvider).getString(_localeKey)) {
+    'en' => const Locale('en'),
+    'tk' => const Locale('tk'),
+    _ => const Locale('ru'),
+  };
 
   Future<void> set(Locale locale) async {
     state = locale;

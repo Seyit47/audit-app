@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/format/formatters.dart';
 import '../../../../core/l10n/app_localizations.dart';
+import '../../../../core/l10n/turkmen.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_top_bar.dart';
 import '../../../../core/widgets/filter_chips.dart';
@@ -79,8 +80,8 @@ class _AgentsScreenState extends ConsumerState<AgentsScreen> {
     final c = context.colors;
     final s = _summary;
     final lang = Localizations.localeOf(context).languageCode;
-    String n(num? v) => NumberFormat.decimalPattern(lang).format(v ?? 0);
-    String pct(num? v) => v == null ? '—' : NumberFormat('0.#', lang).format(v);
+    String n(num? v) => NumberFormat.decimalPattern(numberLocale(lang)).format(v ?? 0);
+    String pct(num? v) => v == null ? '—' : NumberFormat('0.#', numberLocale(lang)).format(v);
     final vs = s?['auditsVsPlanPct'] as num?;
 
     return Scaffold(
