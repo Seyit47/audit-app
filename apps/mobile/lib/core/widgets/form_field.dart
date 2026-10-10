@@ -196,18 +196,127 @@ class AppTextInput extends StatelessWidget {
   }
 }
 
-/// Field errors as the user types: a field reports its error once the user has changed it (the forms' Save stays
-/// disabled until everything is valid, so these say what is still wrong).
-mixin DirtyFields<T extends StatefulWidget> on State<T> {
-  final Set<String> _dirty = {};
+/// A labelled text field of a [Form] (Flutter's FormField): validates once the user has interacted with it
+/// (`AutovalidateMode.onUserInteraction`) and on [FormState.validate], showing the error under the input with a red
+/// border, and the green check (`252:26607`) when a filled value is valid. It follows its [controller], so text set
+/// in code (a clear button, a loaded record) is validated too.
+class AppTextFormField extends StatefulWidget {
+  const AppTextFormField({
+    super.key,
+    required this.label,
+    required this.controller,
+    this.validator,
+    this.required = false,
+    this.hint,
+    this.keyboardType,
+    this.textInputAction,
+    this.inputFormatters,
+    this.prefix,
+    this.suffix,
+    this.onChanged,
+    this.minLines,
+    this.maxLines = 1,
+    this.maxLength,
+    this.dependsOn = const [],
+  });
 
-  /// `onChanged` for a field: marks it changed and rebuilds (its error follows every keystroke).
-  ValueChanged<String> dirty(String key) =>
-      (_) => markDirty(key);
+  final String label;
+  final TextEditingController controller;
 
-  /// Marks a field changed when its value lives elsewhere (the field reports up to its owner).
-  void markDirty(String key) => setState(() => _dirty.add(key));
+  /// Other fields this one's rule reads (the audit plan reads the visit plan): when they change, a field the user
+  /// has touched validates again.
+  final List<Listenable> dependsOn;
 
-  /// [error] once the field has been changed.
-  String? fieldError(String key, String? error) => _dirty.contains(key) ? error : null;
+  /// The message for a wrong value, or null.
+  final String? Function(String value)? validator;
+  final bool required;
+  final String? hint;
+  final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
+  final List<TextInputFormatter>? inputFormatters;
+  final Widget? prefix;
+  final Widget? suffix;
+  final ValueChanged<String>? onChanged;
+  final int? minLines;
+  final int? maxLines;
+  final int? maxLength;
+
+  @override
+  State<AppTextFormField> createState() => _AppTextFormFieldState();
+}
+
+class _AppTextFormFieldState extends State<AppTextFormField> {
+  final _field = GlobalKey<FormFieldState<String>>();
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller.addListener(_sync);
+    for (final d in widget.dependsOn) {
+      d.addListener(_recheck);
+    }
+  }
+
+  void _recheck() {
+    final state = _field.currentState;
+    if (state != null && state.hasInteractedByUser) state.validate();
+  }
+
+  @override
+  void didUpdateWidget(AppTextFormField old) {
+    super.didUpdateWidget(old);
+    if (old.controller != widget.controller) {
+      old.controller.removeListener(_sync);
+      widget.controller.addListener(_sync);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_sync);
+    for (final d in widget.dependsOn) {
+      d.removeListener(_recheck);
+    }
+    super.dispose();
+  }
+
+  // Typing and text set in code both reach the form field.
+  void _sync() {
+    final state = _field.currentState;
+    if (state != null && state.value != widget.controller.text) state.didChange(widget.controller.text);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final w = widget;
+    return FormField<String>(
+      key: _field,
+      initialValue: w.controller.text,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: (v) => w.validator?.call(v ?? ''),
+      builder: (state) {
+        final text = state.value ?? '';
+        return AppFormField(
+          label: w.label,
+          required: w.required,
+          error: state.errorText,
+          valid: text.trim().isNotEmpty && w.validator?.call(text) == null,
+          child: AppTextInput(
+            controller: w.controller,
+            hint: w.hint,
+            keyboardType: w.keyboardType,
+            textInputAction: w.textInputAction,
+            inputFormatters: w.inputFormatters,
+            prefix: w.prefix,
+            suffix: w.suffix,
+            minLines: w.minLines,
+            maxLines: w.maxLines,
+            maxLength: w.maxLength,
+            hasError: state.hasError,
+            onChanged: w.onChanged,
+          ),
+        );
+      },
+    );
+  }
 }

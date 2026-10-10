@@ -24,7 +24,7 @@ class AgentFormScreen extends ConsumerStatefulWidget {
   ConsumerState<AgentFormScreen> createState() => _AgentFormScreenState();
 }
 
-class _AgentFormScreenState extends ConsumerState<AgentFormScreen> with DirtyFields {
+class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
   final _name = TextEditingController();
   final _code = TextEditingController();
   final _phone = TextEditingController();
@@ -133,30 +133,15 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> with DirtyFie
     final l10n = AppLocalizations.of(context);
     final c = context.colors;
     const gap = SizedBox(height: 22);
-    final visits = int.tryParse(_visits.text);
-    final audits = int.tryParse(_audits.text);
-    final nameError = fieldError('name', _name.text.trim().isEmpty ? l10n.fieldRequired : null);
-    final phoneError = fieldError(
-      'phone',
-      _phone.text.trim().isEmpty
-          ? l10n.fieldRequired
-          : tmPhone(_phone.text, mobile: true) == null
-          ? l10n.phoneMobileInvalid
-          : null,
-    );
-    final whatsappError = fieldError(
-      'whatsapp',
-      _whatsapp.text.trim().isNotEmpty && tmPhone(_whatsapp.text, mobile: true) == null ? l10n.phoneMobileInvalid : null,
-    );
-    final visitsError = fieldError('visits', visits == null || visits < 1 || visits > 100 ? l10n.planRange : null);
-    final auditsError = fieldError(
-      'audits',
-      audits == null || audits < 0 || audits > 100
-          ? l10n.planRange
-          : visits != null && audits > visits
-          ? l10n.planError
-          : null,
-    );
+    // Save's enabled state follows the fields.
+    void touch(String _) => setState(() {});
+    // Each field reports what is wrong once the user has changed it (Flutter's Form, onUserInteraction).
+    String? required(String v) => v.trim().isEmpty ? l10n.fieldRequired : null;
+    String? mobile(String v) => tmPhone(v, mobile: true) == null ? l10n.phoneMobileInvalid : null;
+    String? plan(String v, {int min = 1}) {
+      final n = int.tryParse(v.trim());
+      return n == null || n < min || n > 100 ? l10n.planRange : null;
+    }
 
     return Scaffold(
       backgroundColor: c.mainBg,
@@ -165,119 +150,102 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> with DirtyFie
           children: [
             AppTopBar(title: l10n.addSalesmanTitle),
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-                children: [
-                  AppFormField(
-                    label: l10n.fullName,
-                    required: true,
-                    valid: _name.text.trim().isNotEmpty,
-                    error: nameError,
-                    child: AppTextInput(
+              child: Form(
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                  children: [
+                    AppTextFormField(
+                      label: l10n.fullName,
+                      required: true,
                       controller: _name,
+                      validator: required,
                       hint: l10n.fullNameHint,
                       textInputAction: TextInputAction.next,
-                      onChanged: dirty('name'),
-                      hasError: nameError != null,
+                      onChanged: touch,
                     ),
-                  ),
-                  gap,
-                  AppFormField(
-                    label: l10n.employeeCode,
-                    child: AppTextInput(controller: _code, onChanged: dirty('code')),
-                  ),
-                  gap,
-                  AppFormField(
-                    label: l10n.phoneNumber,
-                    required: true,
-                    valid: tmPhone(_phone.text, mobile: true) != null,
-                    error: phoneError,
-                    child: AppTextInput(
+                    gap,
+                    AppTextFormField(label: l10n.employeeCode, controller: _code, onChanged: touch),
+                    gap,
+                    AppTextFormField(
+                      label: l10n.phoneNumber,
+                      required: true,
                       controller: _phone,
+                      validator: (v) => required(v) ?? mobile(v),
                       hint: l10n.phoneHint,
                       keyboardType: TextInputType.phone,
                       inputFormatters: const [TmPhoneFormatter()],
-                      onChanged: dirty('phone'),
-                      hasError: phoneError != null,
+                      onChanged: touch,
                     ),
-                  ),
-                  gap,
-                  AppFormField(
-                    label: l10n.whatsapp,
-                    error: whatsappError,
-                    child: AppTextInput(
+                    gap,
+                    AppTextFormField(
+                      label: l10n.whatsapp,
                       controller: _whatsapp,
+                      validator: (v) => v.trim().isEmpty ? null : mobile(v),
                       hint: l10n.phoneHint,
                       keyboardType: TextInputType.phone,
                       inputFormatters: const [TmPhoneFormatter()],
-                      onChanged: dirty('whatsapp'),
-                      hasError: whatsappError != null,
+                      onChanged: touch,
                     ),
-                  ),
-                  gap,
-                  AppFormField(
-                    label: l10n.routeNotes,
-                    child: AppTextInput(controller: _notes, hint: l10n.routeNotesHint, minLines: 3, maxLines: 5, maxLength: 2000),
-                  ),
-                  gap,
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: AppFormField(
-                          label: l10n.visitPlan,
-                          required: true,
-                          error: visitsError,
-                          child: AppTextInput(
+                    gap,
+                    AppTextFormField(label: l10n.routeNotes, controller: _notes, hint: l10n.routeNotesHint, minLines: 3, maxLines: 5, maxLength: 2000),
+                    gap,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: AppTextFormField(
+                            label: l10n.visitPlan,
+                            required: true,
                             controller: _visits,
+                            validator: plan,
                             keyboardType: TextInputType.number,
-                            onChanged: dirty('visits'),
-                            hasError: visitsError != null,
+                            onChanged: touch,
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: AppFormField(
-                          label: l10n.auditPlan,
-                          required: true,
-                          error: auditsError,
-                          child: AppTextInput(
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: AppTextFormField(
+                            label: l10n.auditPlan,
+                            required: true,
                             controller: _audits,
+                            dependsOn: [_visits],
+                            validator: (v) {
+                              final visits = int.tryParse(_visits.text.trim());
+                              return plan(v, min: 0) ?? (visits != null && int.parse(v.trim()) > visits ? l10n.planError : null);
+                            },
                             keyboardType: TextInputType.number,
-                            onChanged: dirty('audits'),
-                            hasError: auditsError != null,
+                            onChanged: touch,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  gap,
-                  AppFormField(
-                    label: l10n.regionField,
-                    required: true,
-                    valid: _regionId != null,
-                    child: AppSelect<String>(
-                      value: _regionId,
-                      hint: l10n.selectRegion,
-                      items: [for (final r in _regions) (r['id'] as String, r['name'] as String)],
-                      onChanged: (v) => setState(() => _regionId = v),
+                      ],
                     ),
-                  ),
-                  gap,
-                  AppFormField(
-                    label: l10n.workStatus,
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: FilterChips<String>(
-                        selected: _status,
-                        onSelected: (v) => setState(() => _status = v),
-                        options: [ChipOption('ACTIVE', l10n.statusACTIVE), ChipOption('ON_LEAVE', l10n.onLeave)],
+                    gap,
+                    AppFormField(
+                      label: l10n.regionField,
+                      required: true,
+                      valid: _regionId != null,
+                      child: AppSelect<String>(
+                        value: _regionId,
+                        hint: l10n.selectRegion,
+                        items: [for (final r in _regions) (r['id'] as String, r['name'] as String)],
+                        onChanged: (v) => setState(() => _regionId = v),
                       ),
                     ),
-                  ),
-                  if (_error != null) ...[const SizedBox(height: 16), Text(_error!, style: AppTextStyles.caption.copyWith(color: c.error))],
-                ],
+                    gap,
+                    AppFormField(
+                      label: l10n.workStatus,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: FilterChips<String>(
+                          selected: _status,
+                          onSelected: (v) => setState(() => _status = v),
+                          options: [ChipOption('ACTIVE', l10n.statusACTIVE), ChipOption('ON_LEAVE', l10n.onLeave)],
+                        ),
+                      ),
+                    ),
+                    if (_error != null) ...[const SizedBox(height: 16), Text(_error!, style: AppTextStyles.caption.copyWith(color: c.error))],
+                  ],
+                ),
               ),
             ),
             Padding(

@@ -27,7 +27,7 @@ class ProductFormScreen extends ConsumerStatefulWidget {
   ConsumerState<ProductFormScreen> createState() => _ProductFormScreenState();
 }
 
-class _ProductFormScreenState extends ConsumerState<ProductFormScreen> with DirtyFields {
+class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   final _sku = TextEditingController();
   final _name = TextEditingController();
   final _brand = TextEditingController();
@@ -113,19 +113,10 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> with Dirt
     final c = context.colors;
     void touch(String _) => setState(() {});
     const gap = SizedBox(height: 22);
+    // Each field reports what is wrong once the user has changed it (Flutter's Form, onUserInteraction).
+    String? required(String v) => v.trim().isEmpty ? l10n.fieldRequired : null;
     String? count(String v) => v.trim().isEmpty || (int.tryParse(v.trim()) ?? -1) >= 0 ? null : l10n.countInvalid;
-    final skuError = fieldError('sku', _sku.text.trim().isEmpty ? l10n.fieldRequired : null);
-    final nameError = fieldError('name', _name.text.trim().isEmpty ? l10n.fieldRequired : null);
-    final priceError = fieldError(
-      'price',
-      _price.text.trim().isEmpty
-          ? l10n.fieldRequired
-          : RegExp(r'^\d+([.,]\d{1,2})?$').hasMatch(_price.text.trim())
-          ? null
-          : l10n.priceInvalid,
-    );
-    final stockError = fieldError('stock', count(_stock.text));
-    final minStockError = fieldError('minStock', count(_minStock.text));
+    String? price(String v) => required(v) ?? (RegExp(r'^\d+([.,]\d{1,2})?$').hasMatch(v.trim()) ? null : l10n.priceInvalid);
 
     return Scaffold(
       backgroundColor: c.mainBg,
@@ -134,147 +125,114 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> with Dirt
           children: [
             AppTopBar(title: l10n.addProductTitle),
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-                children: [
-                  Text(l10n.productImage, style: AppTextStyles.label.copyWith(color: c.textPrimary)),
-                  const SizedBox(height: 6),
-                  if (_image == null)
-                    PhotoEmptyTarget(
-                      title: l10n.productImage,
-                      hint: l10n.productImageHint,
-                      buttonLabel: l10n.takePhoto,
-                      onTake: () => _pick(ImageSource.camera),
-                      galleryLabel: l10n.openGallery,
-                      onGallery: () => _pick(ImageSource.gallery),
-                    )
-                  else
-                    Stack(
-                      children: [
-                        AppImage(_image, height: 176, width: double.infinity),
-                        Positioned(
-                          right: 8,
-                          top: 8,
-                          child: IconButton.filledTonal(
-                            onPressed: () => setState(() => _image = null),
-                            icon: const Icon(Icons.close),
-                            tooltip: l10n.removePhoto,
+              child: Form(
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                  children: [
+                    Text(l10n.productImage, style: AppTextStyles.label.copyWith(color: c.textPrimary)),
+                    const SizedBox(height: 6),
+                    if (_image == null)
+                      PhotoEmptyTarget(
+                        title: l10n.productImage,
+                        hint: l10n.productImageHint,
+                        buttonLabel: l10n.takePhoto,
+                        onTake: () => _pick(ImageSource.camera),
+                        galleryLabel: l10n.openGallery,
+                        onGallery: () => _pick(ImageSource.gallery),
+                      )
+                    else
+                      Stack(
+                        children: [
+                          AppImage(_image, height: 176, width: double.infinity),
+                          Positioned(
+                            right: 8,
+                            top: 8,
+                            child: IconButton.filledTonal(
+                              onPressed: () => setState(() => _image = null),
+                              icon: const Icon(Icons.close),
+                              tooltip: l10n.removePhoto,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  gap,
-                  AppFormField(
-                    label: l10n.sku,
-                    required: true,
-                    valid: _sku.text.trim().isNotEmpty,
-                    error: skuError,
-                    child: AppTextInput(controller: _sku, onChanged: dirty('sku'), hasError: skuError != null),
-                  ),
-                  gap,
-                  AppFormField(
-                    label: l10n.productName,
-                    required: true,
-                    valid: _name.text.trim().isNotEmpty,
-                    error: nameError,
-                    child: AppTextInput(controller: _name, onChanged: dirty('name'), hasError: nameError != null),
-                  ),
-                  gap,
-                  AppFormField(
-                    label: l10n.category,
-                    required: true,
-                    valid: _categoryId != null,
-                    child: AppSelect<String>(
-                      value: _categoryId,
-                      hint: l10n.selectCategory,
-                      items: [for (final cat in _categories) (cat['id'] as String, cat['name'] as String)],
-                      onChanged: (v) => setState(() => _categoryId = v),
-                    ),
-                  ),
-                  gap,
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: AppFormField(
-                          label: l10n.brand,
-                          child: AppTextInput(controller: _brand, onChanged: touch),
-                        ),
+                        ],
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: AppFormField(
-                          label: l10n.retailPrice,
-                          required: true,
-                          error: priceError,
-                          child: AppTextInput(
-                            controller: _price,
-                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                            onChanged: dirty('price'),
-                            hasError: priceError != null,
-                            suffix: const Padding(padding: EdgeInsets.all(12), child: Text('TMT')),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  gap,
-                  AppFormField(
-                    label: l10n.description,
-                    child: AppTextInput(controller: _description, minLines: 3, maxLines: 5),
-                  ),
-                  gap,
-                  AppFormField(
-                    label: l10n.productStatus,
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: FilterChips<String>(
-                        selected: _status,
-                        onSelected: (v) => setState(() => _status = v),
-                        options: [ChipOption('ACTIVE', l10n.statusACTIVE), ChipOption('DRAFT', l10n.statusDRAFT), ChipOption('INACTIVE', l10n.statusINACTIVE)],
+                    gap,
+                    AppTextFormField(label: l10n.sku, required: true, controller: _sku, validator: required, onChanged: touch),
+                    gap,
+                    AppTextFormField(label: l10n.productName, required: true, controller: _name, validator: required, onChanged: touch),
+                    gap,
+                    AppFormField(
+                      label: l10n.category,
+                      required: true,
+                      valid: _categoryId != null,
+                      child: AppSelect<String>(
+                        value: _categoryId,
+                        hint: l10n.selectCategory,
+                        items: [for (final cat in _categories) (cat['id'] as String, cat['name'] as String)],
+                        onChanged: (v) => setState(() => _categoryId = v),
                       ),
                     ),
-                  ),
-                  gap,
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(l10n.stockTracked, style: AppTextStyles.label.copyWith(color: c.textPrimary)),
-                    value: _stockTracked,
-                    onChanged: (v) => setState(() => _stockTracked = v),
-                  ),
-                  if (_stockTracked)
+                    gap,
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          child: AppFormField(
-                            label: l10n.stockQty,
-                            error: stockError,
-                            child: AppTextInput(
-                              controller: _stock,
-                              keyboardType: TextInputType.number,
-                              onChanged: dirty('stock'),
-                              hasError: stockError != null,
-                            ),
-                          ),
+                          child: AppTextFormField(label: l10n.brand, controller: _brand, onChanged: touch),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: AppFormField(
-                            label: l10n.minStockAlert,
-                            error: minStockError,
-                            child: AppTextInput(
-                              controller: _minStock,
-                              keyboardType: TextInputType.number,
-                              onChanged: dirty('minStock'),
-                              hasError: minStockError != null,
-                            ),
+                          child: AppTextFormField(
+                            label: l10n.retailPrice,
+                            required: true,
+                            controller: _price,
+                            validator: price,
+                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            onChanged: touch,
+                            suffix: const Padding(padding: EdgeInsets.all(12), child: Text('TMT')),
                           ),
                         ),
                       ],
                     ),
-                  if (_error != null) ...[const SizedBox(height: 16), Text(_error!, style: AppTextStyles.caption.copyWith(color: c.error))],
-                ],
+                    gap,
+                    AppTextFormField(label: l10n.description, controller: _description, minLines: 3, maxLines: 5),
+                    gap,
+                    AppFormField(
+                      label: l10n.productStatus,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: FilterChips<String>(
+                          selected: _status,
+                          onSelected: (v) => setState(() => _status = v),
+                          options: [
+                            ChipOption('ACTIVE', l10n.statusACTIVE),
+                            ChipOption('DRAFT', l10n.statusDRAFT),
+                            ChipOption('INACTIVE', l10n.statusINACTIVE),
+                          ],
+                        ),
+                      ),
+                    ),
+                    gap,
+                    SwitchListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(l10n.stockTracked, style: AppTextStyles.label.copyWith(color: c.textPrimary)),
+                      value: _stockTracked,
+                      onChanged: (v) => setState(() => _stockTracked = v),
+                    ),
+                    if (_stockTracked)
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: AppTextFormField(label: l10n.stockQty, controller: _stock, validator: count, keyboardType: TextInputType.number),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: AppTextFormField(label: l10n.minStockAlert, controller: _minStock, validator: count, keyboardType: TextInputType.number),
+                          ),
+                        ],
+                      ),
+                    if (_error != null) ...[const SizedBox(height: 16), Text(_error!, style: AppTextStyles.caption.copyWith(color: c.error))],
+                  ],
+                ),
               ),
             ),
             Padding(

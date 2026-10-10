@@ -76,7 +76,7 @@ class ShopFormView extends StatefulWidget {
   State<ShopFormView> createState() => _ShopFormViewState();
 }
 
-class _ShopFormViewState extends State<ShopFormView> with DirtyFields {
+class _ShopFormViewState extends State<ShopFormView> {
   late final _name = TextEditingController(text: widget.name);
   late final _address = TextEditingController(text: widget.address);
   late final _owner = TextEditingController(text: widget.owner);
@@ -104,18 +104,9 @@ class _ShopFormViewState extends State<ShopFormView> with DirtyFields {
       color: c.textPrimary,
     );
     final fix = w.fix;
-    String? required(String key, String v) => fieldError(key, v.trim().isEmpty ? l10n.fieldRequired : null);
-    final nameError = required('name', w.name);
-    final addressError = required('address', w.address);
-    final ownerError = required('owner', w.owner);
-    final phoneError = fieldError(
-      'phone',
-      w.phone.trim().isEmpty
-          ? l10n.fieldRequired
-          : tmPhone(w.phone) == null
-          ? l10n.phoneInvalid
-          : null,
-    );
+    // Each field reports what is wrong once the user has changed it (Flutter's Form, onUserInteraction).
+    String? required(String v) => v.trim().isEmpty ? l10n.fieldRequired : null;
+    String? phone(String v) => required(v) ?? (tmPhone(v) == null ? l10n.phoneInvalid : null);
     final picked = w.picked;
     final at = picked ?? (fix == null ? null : (fix.lat, fix.lng));
 
@@ -126,252 +117,225 @@ class _ShopFormViewState extends State<ShopFormView> with DirtyFields {
           children: [
             AppTopBar(title: w.title),
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-                children: [
-                  AppFormField(
-                    label: l10n.shopName,
-                    required: true,
-                    valid: w.name.trim().isNotEmpty,
-                    error: nameError,
-                    child: AppTextInput(
+              child: Form(
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                  children: [
+                    AppTextFormField(
+                      label: l10n.shopName,
+                      required: true,
                       controller: _name,
+                      validator: required,
                       hint: l10n.shopNameHint,
                       textInputAction: TextInputAction.next,
-                      hasError: nameError != null,
-                      onChanged: (v) {
-                        markDirty('name');
-                        w.onChanged(name: v);
-                      },
+                      onChanged: (v) => w.onChanged(name: v),
                       suffix: w.name.isEmpty
                           ? null
                           : IconButton(
                               tooltip: l10n.clear,
                               onPressed: () {
                                 _name.clear();
-                                markDirty('name');
                                 w.onChanged(name: '');
                               },
                               icon: AppIcon('field-clear', width: 28, height: 28, color: c.textSecondary),
                             ),
                     ),
-                  ),
-                  const SizedBox(height: 22),
-                  AppFormField(
-                    label: l10n.address,
-                    required: true,
-                    valid: w.address.trim().isNotEmpty,
-                    error: addressError,
-                    child: AppTextInput(
+                    const SizedBox(height: 22),
+                    AppTextFormField(
+                      label: l10n.address,
+                      required: true,
                       controller: _address,
+                      validator: required,
                       hint: l10n.addressHint,
                       textInputAction: TextInputAction.next,
-                      hasError: addressError != null,
-                      onChanged: (v) {
-                        markDirty('address');
-                        w.onChanged(address: v);
-                      },
+                      onChanged: (v) => w.onChanged(address: v),
                     ),
-                  ),
-                  const SizedBox(height: 22),
-                  AppFormField(
-                    label: l10n.owner,
-                    required: true,
-                    valid: w.owner.trim().isNotEmpty,
-                    error: ownerError,
-                    child: AppTextInput(
+                    const SizedBox(height: 22),
+                    AppTextFormField(
+                      label: l10n.owner,
+                      required: true,
                       controller: _owner,
+                      validator: required,
                       hint: l10n.ownerHint,
                       textInputAction: TextInputAction.next,
-                      hasError: ownerError != null,
-                      onChanged: (v) {
-                        markDirty('owner');
-                        w.onChanged(owner: v);
-                      },
+                      onChanged: (v) => w.onChanged(owner: v),
                     ),
-                  ),
-                  const SizedBox(height: 22),
-                  AppFormField(
-                    label: l10n.phoneNumber,
-                    required: true,
-                    valid: tmPhone(w.phone) != null,
-                    error: phoneError,
-                    child: AppTextInput(
+                    const SizedBox(height: 22),
+                    AppTextFormField(
+                      label: l10n.phoneNumber,
+                      required: true,
                       controller: _phone,
+                      validator: phone,
                       hint: l10n.phoneHint,
                       keyboardType: TextInputType.phone,
                       inputFormatters: const [TmPhoneFormatter()],
-                      hasError: phoneError != null,
-                      onChanged: (v) {
-                        markDirty('phone');
-                        w.onChanged(phone: v);
-                      },
+                      onChanged: (v) => w.onChanged(phone: v),
                       prefix: AppIcon('phone', width: 12, height: 12, color: c.textSecondary),
                     ),
-                  ),
-                  // 252:25423: the admin's "Агент" comes after the phone number.
-                  if (w.agentField != null) ...[
-                    const SizedBox(height: 22),
-                    AppFormField(label: l10n.agent, required: true, valid: w.agentValid, child: w.agentField!),
-                  ],
-                  const SizedBox(height: 28),
-                  Row(
-                    children: [
-                      const AppIcon('navigate', width: 15, height: 15),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(l10n.currentLocation, style: label)),
-                      _Chip(icon: const AppIcon('refresh-small', width: 9.33, height: 9.33), label: l10n.recheck, onTap: w.locating ? null : w.onRecheck),
+                    // 252:25423: the admin's "Агент" comes after the phone number.
+                    if (w.agentField != null) ...[
+                      const SizedBox(height: 22),
+                      AppFormField(label: l10n.agent, required: true, valid: w.agentValid, child: w.agentField!),
                     ],
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: c.accent6, borderRadius: BorderRadius.circular(8)),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    const SizedBox(height: 28),
+                    Row(
                       children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                w.locating
-                                    ? l10n.geoLocating
-                                    : picked != null
-                                    ? l10n.pickedOnMap
-                                    : fix == null
-                                    ? l10n.geoUnavailable
-                                    : l10n.accuracyLine(fix.accuracyM.round()),
-                                style: TextStyle(
-                                  fontFamily: AppTextStyles.family,
-                                  fontSize: 12,
-                                  height: 16 / 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: at == null && !w.locating ? c.error : c.textSecondary,
-                                ),
-                              ),
-                            ),
-                            // Admin only: the agent's shop is where the agent stands.
-                            if (w.onPickOnMap != null)
-                              _Chip(
-                                icon: const AppIcon('target-small', width: 9.33, height: 9.33),
-                                label: l10n.pickOnMap,
-                                onTap: w.locating ? null : w.onPickOnMap,
-                              ),
-                          ],
-                        ),
-                        if (at != null) ...[
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              AppIcon('target-small', width: 11.86, height: 11.86, color: c.textSecondary),
-                              const SizedBox(width: 4),
-                              Text(
-                                l10n.coordsLine(at.$1.toStringAsFixed(4), at.$2.toStringAsFixed(4)),
-                                style: TextStyle(fontFamily: AppTextStyles.mono, fontSize: 12, height: 16.5 / 12, color: c.textSecondary),
-                              ),
-                            ],
-                          ),
-                        ],
+                        const AppIcon('navigate', width: 15, height: 15),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text(l10n.currentLocation, style: label)),
+                        _Chip(icon: const AppIcon('refresh-small', width: 9.33, height: 9.33), label: l10n.recheck, onTap: w.locating ? null : w.onRecheck),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      const AppIcon('storefront', width: 16.74, height: 15),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(l10n.storefrontPhoto, style: label)),
-                      if (w.photo != null && w.photoSizeBytes != null)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(color: const Color(0xCC2E303B), borderRadius: BorderRadius.circular(6)),
-                          child: Text(
-                            l10n.photoCaptured('${(w.photoSizeBytes! / 1048576).toStringAsFixed(1)} MB'),
-                            style: const TextStyle(
-                              fontFamily: AppTextStyles.family,
-                              fontSize: 11,
-                              height: 1.5,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFFF0EFFE),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(color: c.accent6, borderRadius: BorderRadius.circular(8)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  w.locating
+                                      ? l10n.geoLocating
+                                      : picked != null
+                                      ? l10n.pickedOnMap
+                                      : fix == null
+                                      ? l10n.geoUnavailable
+                                      : l10n.accuracyLine(fix.accuracyM.round()),
+                                  style: TextStyle(
+                                    fontFamily: AppTextStyles.family,
+                                    fontSize: 12,
+                                    height: 16 / 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: at == null && !w.locating ? c.error : c.textSecondary,
+                                  ),
+                                ),
+                              ),
+                              // Admin only: the agent's shop is where the agent stands.
+                              if (w.onPickOnMap != null)
+                                _Chip(
+                                  icon: const AppIcon('target-small', width: 9.33, height: 9.33),
+                                  label: l10n.pickOnMap,
+                                  onTap: w.locating ? null : w.onPickOnMap,
+                                ),
+                            ],
+                          ),
+                          if (at != null) ...[
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                AppIcon('target-small', width: 11.86, height: 11.86, color: c.textSecondary),
+                                const SizedBox(width: 4),
+                                Text(
+                                  l10n.coordsLine(at.$1.toStringAsFixed(4), at.$2.toStringAsFixed(4)),
+                                  style: TextStyle(fontFamily: AppTextStyles.mono, fontSize: 12, height: 16.5 / 12, color: c.textSecondary),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        const AppIcon('storefront', width: 16.74, height: 15),
+                        const SizedBox(width: 8),
+                        Expanded(child: Text(l10n.storefrontPhoto, style: label)),
+                        if (w.photo != null && w.photoSizeBytes != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(color: const Color(0xCC2E303B), borderRadius: BorderRadius.circular(6)),
+                            child: Text(
+                              l10n.photoCaptured('${(w.photoSizeBytes! / 1048576).toStringAsFixed(1)} MB'),
+                              style: const TextStyle(
+                                fontFamily: AppTextStyles.family,
+                                fontSize: 11,
+                                height: 1.5,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFFF0EFFE),
+                              ),
                             ),
                           ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  if (w.photo == null)
-                    PhotoEmptyTarget(
-                      title: l10n.photoNotTaken,
-                      hint: l10n.photoEmptyHint,
-                      buttonLabel: l10n.takePhoto,
-                      onTake: w.onTakePhoto,
-                      galleryLabel: l10n.openGallery,
-                      onGallery: w.onPickPhoto,
-                    )
-                  else
-                    SizedBox(
-                      height: 176,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          AppImage(w.photo, radius: 8),
-                          Positioned(
-                            left: 10,
-                            right: 10,
-                            bottom: 10,
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Material(
-                                    color: const Color(0xD92E303B),
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Pressable(
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    if (w.photo == null)
+                      PhotoEmptyTarget(
+                        title: l10n.photoNotTaken,
+                        hint: l10n.photoEmptyHint,
+                        buttonLabel: l10n.takePhoto,
+                        onTake: w.onTakePhoto,
+                        galleryLabel: l10n.openGallery,
+                        onGallery: w.onPickPhoto,
+                      )
+                    else
+                      SizedBox(
+                        height: 176,
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            AppImage(w.photo, radius: 8),
+                            Positioned(
+                              left: 10,
+                              right: 10,
+                              bottom: 10,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Material(
+                                      color: const Color(0xD92E303B),
                                       borderRadius: BorderRadius.circular(8),
-                                      onTap: w.onTakePhoto,
-                                      child: SizedBox(
-                                        height: 36,
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            const AppIcon('retake', width: 13.33, height: 12),
-                                            const SizedBox(width: 6),
-                                            Text(
-                                              l10n.retake,
-                                              style: const TextStyle(
-                                                fontFamily: AppTextStyles.family,
-                                                fontSize: 12,
-                                                height: 16 / 12,
-                                                fontWeight: FontWeight.w600,
-                                                color: Color(0xFFF0EFFE),
+                                      child: Pressable(
+                                        borderRadius: BorderRadius.circular(8),
+                                        onTap: w.onTakePhoto,
+                                        child: SizedBox(
+                                          height: 36,
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              const AppIcon('retake', width: 13.33, height: 12),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                l10n.retake,
+                                                style: const TextStyle(
+                                                  fontFamily: AppTextStyles.family,
+                                                  fontSize: 12,
+                                                  height: 16 / 12,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Color(0xFFF0EFFE),
+                                                ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(width: 12),
-                                Tooltip(
-                                  message: l10n.removePhoto,
-                                  child: Material(
-                                    color: const Color(0xFFF9EDEC),
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Pressable(
+                                  const SizedBox(width: 12),
+                                  Tooltip(
+                                    message: l10n.removePhoto,
+                                    child: Material(
+                                      color: const Color(0xFFF9EDEC),
                                       borderRadius: BorderRadius.circular(8),
-                                      onTap: w.onRemovePhoto,
-                                      child: const SizedBox(width: 36, height: 36, child: Center(child: AppIcon('trash-red', width: 12, height: 13.5))),
+                                      child: Pressable(
+                                        borderRadius: BorderRadius.circular(8),
+                                        onTap: w.onRemovePhoto,
+                                        child: const SizedBox(width: 36, height: 36, child: Center(child: AppIcon('trash-red', width: 12, height: 13.5))),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  if (w.error != null) ...[const SizedBox(height: 12), Text(w.error!, style: AppTextStyles.caption.copyWith(color: c.error))],
-                ],
+                    if (w.error != null) ...[const SizedBox(height: 12), Text(w.error!, style: AppTextStyles.caption.copyWith(color: c.error))],
+                  ],
+                ),
               ),
             ),
             Container(
