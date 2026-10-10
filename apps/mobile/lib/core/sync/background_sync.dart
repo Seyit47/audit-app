@@ -1,6 +1,8 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 
 import '../auth/session.dart';
+import '../config/server_address.dart';
 import '../auth/session_store.dart';
 import '../db/app_database.dart';
 import '../network/api_client.dart';
@@ -33,7 +35,8 @@ void callbackDispatcher() {
 
     final db = AppDatabase();
     try {
-      final api = HttpSyncApi(ApiClient(tokens: store, onSessionExpired: () {}));
+      final prefs = await SharedPreferences.getInstance();
+      final api = HttpSyncApi(ApiClient(tokens: store, onSessionExpired: () {}, baseUrl: storedApiUrl(prefs)));
       final outbox = OutboxRepository(db);
       await SyncEngine(db: db, api: api, outbox: outbox).run();
       await PullService(db: db, api: api, outbox: outbox).pullAll();

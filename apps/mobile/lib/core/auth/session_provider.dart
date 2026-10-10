@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../config/server_address.dart';
 import '../network/api_client.dart';
 import 'session.dart';
 import 'session_store.dart';
@@ -7,7 +8,11 @@ import 'session_store.dart';
 final sessionStoreProvider = Provider<SessionStore>((ref) => SessionStore());
 
 final apiClientProvider = Provider<ApiClient>(
-  (ref) => ApiClient(tokens: ref.watch(sessionStoreProvider), onSessionExpired: () => ref.read(sessionProvider.notifier).expire()),
+  (ref) => ApiClient(
+    tokens: ref.watch(sessionStoreProvider),
+    onSessionExpired: () => ref.read(sessionProvider.notifier).expire(),
+    baseUrl: ref.watch(apiUrlProvider),
+  ),
 );
 
 /// The signed-in user, or null. Loaded from secure storage at startup.

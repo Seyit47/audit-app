@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/session_provider.dart';
+import '../../../core/config/app_config.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/network/api_exception.dart';
 import '../../../core/theme/app_colors.dart';
@@ -10,6 +11,7 @@ import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/form_field.dart';
 import '../../../core/widgets/home_header.dart';
 import '../data/device_identity.dart';
+import 'server_settings_sheet.dart';
 
 /// Sign-in (approved exception G1): built only from the Figma form field, primary button, header
 /// type and Home background.
@@ -126,6 +128,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
             ),
           ),
+          if (AppConfig.settingsPin.isNotEmpty)
+            SafeArea(
+              child: Align(
+                alignment: Alignment.topRight,
+                child: IconButton(
+                  tooltip: l10n.serverSettings,
+                  icon: Icon(Icons.settings_outlined, color: c.textSecondary),
+                  onPressed: () => openServerSettings(context),
+                ),
+              ),
+            ),
         ],
       ),
     );

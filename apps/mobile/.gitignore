@@ -49,3 +49,6 @@ app.*.map.json
 
 # gen-l10n report
 untranslated.json
+
+# Build secrets (SETTINGS_PIN): passed with a second --dart-define-from-file
+env/secrets.json
