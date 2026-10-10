@@ -8,7 +8,7 @@ export const productsCopy = defineCopy({
     exportCatalog: 'Export Catalog', addProduct: 'Add Product', search: 'Search product...',
     status: 'Status', allStatus: 'All status', statuses: { ACTIVE: 'Active', DRAFT: 'Draft', INACTIVE: 'Archived' },
     columns: { product: 'Product', code: 'Code', status: 'Status' },
-    selectAll: 'Select all', selectRow: 'Select product', actions: 'Actions', edit: 'Edit', empty: 'No products yet', exportFailed: 'The export failed. Try again.',
+    selectAll: 'Select all', selectRow: 'Select product', actions: 'Actions', changeStatus: 'Change status', edit: 'Edit', empty: 'No products yet', exportFailed: 'The export failed. Try again.',
     pagination: { showing: 'Showing', of: 'of', show: 'Show:', perPage: 'per page', previous: 'Previous page', next: 'Next page', noun: 'products' },
     form: {
       addTitle: 'Add product', editTitle: 'Edit product', subtitle: 'Fill in the product details for the catalog and stock tracking', close: 'Close',
@@ -28,7 +28,7 @@ export const productsCopy = defineCopy({
     exportCatalog: 'Экспорт каталога', addProduct: 'Добавить продукт', search: 'Поиск продукта...',
     status: 'Статус', allStatus: 'Все статусы', statuses: { ACTIVE: 'Активен', DRAFT: 'Черновик', INACTIVE: 'Архив' },
     columns: { product: 'Продукт', code: 'Код', status: 'Статус' },
-    selectAll: 'Выбрать все', selectRow: 'Выбрать продукт', actions: 'Действия', edit: 'Редактировать', empty: 'Продуктов пока нет', exportFailed: 'Не удалось выгрузить файл. Попробуйте ещё раз.',
+    selectAll: 'Выбрать все', selectRow: 'Выбрать продукт', actions: 'Действия', changeStatus: 'Изменить статус', edit: 'Редактировать', empty: 'Продуктов пока нет', exportFailed: 'Не удалось выгрузить файл. Попробуйте ещё раз.',
     pagination: { showing: 'Показано', of: 'из', show: 'Показывать:', perPage: 'на странице', previous: 'Предыдущая страница', next: 'Следующая страница', noun: 'продуктов' },
     form: {
       addTitle: 'Добавить продукт', editTitle: 'Редактировать продукт', subtitle: 'Заполните характеристики товара для каталога и учета остатков', close: 'Закрыть',
@@ -48,7 +48,7 @@ export const productsCopy = defineCopy({
     exportCatalog: 'Katalogy eksport et', addProduct: 'Önüm goş', search: 'Önümi gözle...',
     status: 'Ýagdaý', allStatus: 'Ähli ýagdaýlar', statuses: { ACTIVE: 'Işjeň', DRAFT: 'Garalama', INACTIVE: 'Arhiw' },
     columns: { product: 'Önüm', code: 'Kod', status: 'Ýagdaý' },
-    selectAll: 'Ählisini saýla', selectRow: 'Önümi saýla', actions: 'Hereketler', edit: 'Üýtget', empty: 'Häzirlikçe önüm ýok', exportFailed: 'Faýly düşürip bolmady. Gaýtadan synanyşyň.',
+    selectAll: 'Ählisini saýla', selectRow: 'Önümi saýla', actions: 'Hereketler', changeStatus: 'Ýagdaýy üýtget', edit: 'Üýtget', empty: 'Häzirlikçe önüm ýok', exportFailed: 'Faýly düşürip bolmady. Gaýtadan synanyşyň.',
     pagination: { showing: 'Görkezilýär', of: '/', show: 'Görkez:', perPage: 'sahypada', previous: 'Öňki sahypa', next: 'Indiki sahypa', noun: 'önüm' },
     form: {
       addTitle: 'Önüm goş', editTitle: 'Önümi üýtget', subtitle: 'Katalog we galyndylary hasaba almak üçin harydyň häsiýetlerini dolduryň', close: 'Ýap',

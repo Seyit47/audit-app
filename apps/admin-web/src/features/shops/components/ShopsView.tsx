@@ -19,7 +19,8 @@ import { UrlPagination } from '@/components/ui/UrlPagination'
 import type { Page } from '@/lib/api'
 import { formatPhone } from '@/lib/format'
 import type { Locale } from '@/lib/i18n'
-import { assignShops, deleteShops } from '../actions'
+import { StatusDialog } from '@/components/ui/StatusDialog'
+import { assignShops, deleteShops, setShopStatus } from '../actions'
 import type { ShopRow } from '../api'
 import type { ShopsCopy } from '../copy'
 
@@ -53,6 +54,7 @@ export function ShopsView ({ page, copy, locale, agents, exportHref, children }:
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [assigning, setAssigning] = useState<string[] | null>(null)
   const [deleting, setDeleting] = useState<string[] | null>(null)
+  const [statusFor, setStatusFor] = useState<ShopRow | null>(null)
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const ids = page.items.map((s) => s.id)
@@ -115,6 +117,7 @@ export function ShopsView ({ page, copy, locale, agents, exportHref, children }:
         <RowMenu label={copy.actions} items={[
           { label: copy.viewDetails, icon: { name: 'menu-view', width: 14.667, height: 10 }, href: `/shops/${s.id}` },
           { label: copy.editShop, icon: { name: 'menu-edit', width: 12, height: 12 }, href: editHref(s.id), dialog: { kind: 'shop', id: s.id } },
+          { label: copy.changeStatus, icon: { name: 'menu-edit', width: 12, height: 12 }, onSelect: () => setStatusFor(s) },
           { label: copy.viewOnMap, icon: { name: 'menu-map', width: 13.3, height: 13.267 }, href: `/map?ids=${s.id}` },
           { label: copy.assign, icon: { name: 'menu-assign', width: 13.333, height: 13.333 }, onSelect: () => setAssigning([s.id]) },
           { label: copy.deleteShop, icon: { name: 'menu-delete', width: 10.667, height: 12 }, danger: true, separated: true, onSelect: () => setDeleting([s.id]) }
@@ -167,6 +170,14 @@ export function ShopsView ({ page, copy, locale, agents, exportHref, children }:
       {assigning != null && (
         <AssignDialog copy={copy} count={assigning.length} agents={agents} pending={pending} error={error}
           onClose={() => setAssigning(null)} onSave={(agentId) => act(() => assignShops(assigning, agentId))} />
+      )}
+      {statusFor != null && (
+        <StatusDialog
+          title={copy.changeStatus} name={statusFor.name} initial={statusFor.status}
+          options={([['ACTIVE', 'success'], ['PENDING_REVIEW', 'error'], ['INACTIVE', 'muted']] as const).map(([v, tone]) => ({ value: v, label: copy.statuses[v], tone }))}
+          labels={{ cancel: copy.deleteDialog.cancel, save: copy.saveStatus, error: copy.errors.generic }}
+          onClose={() => setStatusFor(null)} onSave={(status) => setShopStatus(statusFor.id, statusFor.version, status)}
+        />
       )}
       {deleting != null && (
         <Dialog open variant='form' width={480} onClose={() => setDeleting(null)} closeLabel={copy.deleteDialog.cancel} title={copy.deleteDialog.title}

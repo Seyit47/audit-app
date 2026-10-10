@@ -58,3 +58,16 @@ export async function rebindAgentDevice (id: string) {
     revalidatePath('/salesmen')
   })
 }
+
+/** "Change status" from the row actions: the list rows carry no version, so it is read first. */
+export async function setAgentStatus (id: string, status: AgentInput['status']) {
+  return run(async () => {
+    const { version } = await api<{ version: number }>(`/v1/agents/${id}`)
+    await api(`/v1/agents/${id}`, {
+      method: 'PATCH',
+      body: { version, workStatus: status === 'ON_LEAVE' ? 'ON_LEAVE' : 'ACTIVE', active: status !== 'ARCHIVED' }
+    })
+    revalidatePath('/salesmen')
+    revalidatePath(`/salesmen/${id}`)
+  })
+}

@@ -10,10 +10,13 @@ import type { Page } from '@/lib/api'
 import type { Product } from '../api'
 import type { ProductsCopy } from '../copy'
 import { DialogLink } from '@/components/ui/DialogLink'
+import { StatusDialog } from '@/components/ui/StatusDialog'
+import { setProductStatus } from '../actions'
 
 /** Products table of 30:574 (31:3037). */
 export function ProductsView ({ page, copy }: { page: Page<Product>, copy: ProductsCopy }) {
   const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [statusFor, setStatusFor] = useState<Product | null>(null)
   const ids = page.items.map((p) => p.id)
   const all = ids.length > 0 && ids.every((id) => selected.has(id))
   const toggle = (id: string) => setSelected((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n })
@@ -42,13 +45,29 @@ export function ProductsView ({ page, copy }: { page: Page<Product>, copy: Produ
         ? <StatusBadge tone='success'>{copy.statuses.ACTIVE}</StatusBadge>
         : p.status === 'DRAFT' ? <StatusBadge tone='pending'>{copy.statuses.DRAFT}</StatusBadge> : <StatusBadge tone='inactive'>{copy.statuses.INACTIVE}</StatusBadge>
     },
-    { key: 'menu', header: '', className: 'px-4 text-right', render: (p) => <RowMenu label={copy.actions} items={[{ label: copy.edit, icon: { name: 'menu-edit', width: 12, height: 12 }, href: `/products?edit=${p.id}`, dialog: { kind: 'product', id: p.id } }]} /> }
+    { key: 'menu', header: '', className: 'px-4 text-right', render: (p) => (
+        <RowMenu label={copy.actions} items={[
+          { label: copy.edit, icon: { name: 'menu-edit', width: 12, height: 12 }, href: `/products?edit=${p.id}`, dialog: { kind: 'product', id: p.id } },
+          { label: copy.changeStatus, icon: { name: 'menu-edit', width: 12, height: 12 }, onSelect: () => setStatusFor(p) }
+        ]} />
+      )
+    }
   ]
 
   return (
-    <DataTable
-      columns={columns} rows={page.items} rowKey={(p) => p.id} isSelected={(p) => selected.has(p.id)} empty={copy.empty}
-      footer={<UrlPagination page={page.page} size={page.size} total={page.total} noun={copy.pagination.noun} copy={copy.pagination} />}
-    />
+    <>
+      <DataTable
+        columns={columns} rows={page.items} rowKey={(p) => p.id} isSelected={(p) => selected.has(p.id)} empty={copy.empty}
+        footer={<UrlPagination page={page.page} size={page.size} total={page.total} noun={copy.pagination.noun} copy={copy.pagination} />}
+      />
+      {statusFor != null && (
+        <StatusDialog
+          title={copy.changeStatus} name={statusFor.name} initial={statusFor.status}
+          options={([['ACTIVE', 'success'], ['DRAFT', 'error'], ['INACTIVE', 'muted']] as const).map(([v, tone]) => ({ value: v, label: copy.statuses[v], tone }))}
+          labels={{ cancel: copy.form.cancel, save: copy.form.save, error: copy.form.errors.generic }}
+          onClose={() => setStatusFor(null)} onSave={(status) => setProductStatus(statusFor.id, status)}
+        />
+      )}
+    </>
   )
 }

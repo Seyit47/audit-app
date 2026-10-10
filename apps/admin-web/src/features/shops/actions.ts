@@ -42,7 +42,7 @@ export async function updateShop (id: string, version: number, input: ShopInput)
   })
 }
 
-export async function setShopStatus (id: string, version: number, status: 'ACTIVE' | 'INACTIVE') {
+export async function setShopStatus (id: string, version: number, status: 'ACTIVE' | 'INACTIVE' | 'PENDING_REVIEW') {
   return run(async () => {
     await api(`/v1/shops/${id}`, { method: 'PATCH', body: { version, status } })
     revalidate(id)

@@ -5,6 +5,7 @@ import { getAgentsSummary, listAgents, listRegions, type AgentListQuery } from '
 import { AgentsSummary } from '@/features/agents/components/AgentsSummary'
 import { AgentFormHost } from '@/features/agents/components/AgentFormHost'
 import { AgentPasswordHost } from '@/features/agents/components/AgentPasswordHost'
+import { AgentStatusHost } from '@/features/agents/components/AgentStatusHost'
 import { AgentsTable } from '@/features/agents/components/AgentsTable'
 import { AgentsToolbar } from '@/features/agents/components/AgentsToolbar'
 import { agentsCopy } from '@/features/agents/copy'
@@ -60,6 +61,7 @@ export default async function SalesmenPage ({ searchParams }: PageProps<'/salesm
       {/* Opens from ?add=1 / ?edit=<id> in the browser, its data fetched on demand (no server render). */}
       <AgentFormHost copy={copy} />
       <AgentPasswordHost copy={copy} agents={page.items.map((a) => ({ id: a.id, fullName: a.fullName }))} />
+      <AgentStatusHost copy={copy} agents={page.items.map((a) => ({ id: a.id, fullName: a.fullName, status: !a.active ? 'ARCHIVED' : a.workStatus }))} />
     </div>
   )
 }

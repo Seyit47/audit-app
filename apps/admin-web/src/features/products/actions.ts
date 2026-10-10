@@ -25,3 +25,11 @@ export async function saveProduct (id: string | null, input: ProductInput) {
     return { id: p.id }
   })
 }
+
+/** "Change status" from the row actions: only the status. */
+export async function setProductStatus (id: string, status: ProductInput['status']) {
+  return run(async () => {
+    await api(`/v1/products/${id}`, { method: 'PATCH', body: { status } })
+    revalidatePath('/products')
+  })
+}
