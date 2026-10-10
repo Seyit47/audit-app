@@ -31,7 +31,8 @@ export default async function MapPage ({ searchParams }: PageProps<'/map'>) {
   const copy = mapCopy[locale]
   const p = await loadMapParams(searchParams)
   const filters = { agentIds: p.agents, regionIds: p.regions, show: p.show, status: p.status, ids: p.ids }
-  const shopId = p.shop
+  // "View on map" for one shop opens it selected, its card showing, as if its pin were clicked.
+  const shopId = p.shop ?? (p.ids.length === 1 ? p.ids[0] : null)
   const [shops, positions, regions, agents, selected] = await Promise.all([
     api<MapShop[]>('/v1/shops/map', { query: { agentIds: filters.agentIds, regionIds: filters.regionIds, ids: filters.ids } }),
     api<AgentPosition[]>('/v1/agents/positions'),

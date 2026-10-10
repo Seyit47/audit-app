@@ -126,7 +126,9 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
     return ring == null ? [] : [{ id, polygon: { type: 'Polygon' as const, coordinates: [ring] } }]
   }), [filters.regionIds, shops])
   // Opens with every shop and agent in view.
-  const [initialView] = useState(() => viewOf([...shops, ...(filters.show === 'shops' ? [] : positions)]))
+  // Opened from Shops "View on map" (`ids`), the view frames just those shops; otherwise shops and agents.
+  const focusShops = filters.show === 'shops' || filters.ids.length > 0
+  const [initialView] = useState(() => viewOf([...shops, ...(focusShops ? [] : positions)]))
 
   // Clusters come from MapLibre's GeoJSON clustering (research R-12) and render as the Figma markers.
   const recluster = useCallback(() => {
@@ -152,7 +154,7 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
     map.current?.easeTo({ center: [lng, lat], zoom: zoom ?? (map.current.getZoom() + 2) })
   }
   const recenter = () => {
-    const v = viewOf([...visible, ...shownPositions])
+    const v = viewOf([...visible, ...(filters.ids.length > 0 ? [] : shownPositions)])
     if (v.bounds != null) map.current?.fitBounds(v.bounds, v.fitBoundsOptions)
     else map.current?.flyTo({ center: [v.longitude!, v.latitude!], zoom: v.zoom })
   }
