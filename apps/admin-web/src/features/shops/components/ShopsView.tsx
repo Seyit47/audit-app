@@ -2,7 +2,7 @@
 
 import { guard, say } from '@/lib/feedback'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { Avatar } from '@/components/ui/Avatar'
 import { Button } from '@/components/ui/Button'
@@ -43,6 +43,13 @@ export function ShopsView ({ page, copy, locale, agents, exportHref, children }:
   children?: React.ReactNode
 }) {
   const router = useRouter()
+  const params = useSearchParams()
+  // Edit opens the dialog over this list (keeping its page and filters), not on the shop's own page.
+  const editHref = (id: string) => {
+    const next = new URLSearchParams(params.toString())
+    next.delete('add'); next.set('edit', id)
+    return `/shops?${next.toString()}`
+  }
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [assigning, setAssigning] = useState<string[] | null>(null)
   const [deleting, setDeleting] = useState<string[] | null>(null)
@@ -107,7 +114,7 @@ export function ShopsView ({ page, copy, locale, agents, exportHref, children }:
       render: (s) => (
         <RowMenu label={copy.actions} items={[
           { label: copy.viewDetails, icon: { name: 'menu-view', width: 14.667, height: 10 }, href: `/shops/${s.id}` },
-          { label: copy.editShop, icon: { name: 'menu-edit', width: 12, height: 12 }, href: `/shops/${s.id}?edit=1` },
+          { label: copy.editShop, icon: { name: 'menu-edit', width: 12, height: 12 }, href: editHref(s.id), dialog: { kind: 'shop', id: s.id } },
           { label: copy.viewOnMap, icon: { name: 'menu-map', width: 13.3, height: 13.267 }, href: `/map?ids=${s.id}` },
           { label: copy.assign, icon: { name: 'menu-assign', width: 13.333, height: 13.333 }, onSelect: () => setAssigning([s.id]) },
           { label: copy.deleteShop, icon: { name: 'menu-delete', width: 10.667, height: 12 }, danger: true, separated: true, onSelect: () => setDeleting([s.id]) }
