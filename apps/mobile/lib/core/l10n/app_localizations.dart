@@ -1863,28 +1863,10 @@ abstract class AppLocalizations {
   /// **'Устройство зарегистрировано. Работа станет доступна после одобрения модератором.'**
   String get activationBody;
 
-  /// No description provided for @activationRegisterTitle.
-  ///
-  /// In ru, this message translates to:
-  /// **'Устройство не зарегистрировано'**
-  String get activationRegisterTitle;
-
-  /// No description provided for @activationRegisterBody.
-  ///
-  /// In ru, this message translates to:
-  /// **'Перед первым запуском устройство нужно зарегистрировать. После этого модератор его активирует.'**
-  String get activationRegisterBody;
-
-  /// No description provided for @activationRegister.
-  ///
-  /// In ru, this message translates to:
-  /// **'Зарегистрировать'**
-  String get activationRegister;
-
   /// No description provided for @activationDeviceId.
   ///
   /// In ru, this message translates to:
-  /// **'ID устройства: {id}'**
+  /// **'IMEI: {id}'**
   String activationDeviceId(String id);
 
   /// No description provided for @activationError.
@@ -1898,6 +1880,66 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Проверка устройства…'**
   String get activationChecking;
+
+  /// No description provided for @imeiTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Введите IMEI устройства'**
+  String get imeiTitle;
+
+  /// No description provided for @imeiBody.
+  ///
+  /// In ru, this message translates to:
+  /// **'Наберите *#06# на этом телефоне — IMEI появится на экране.'**
+  String get imeiBody;
+
+  /// No description provided for @imeiDualSim.
+  ///
+  /// In ru, this message translates to:
+  /// **'Если номеров два, введите IMEI 1.'**
+  String get imeiDualSim;
+
+  /// No description provided for @imeiIosHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'На iPhone IMEI также есть в Настройки → Основные → Об этом устройстве.'**
+  String get imeiIosHint;
+
+  /// No description provided for @imeiField.
+  ///
+  /// In ru, this message translates to:
+  /// **'IMEI'**
+  String get imeiField;
+
+  /// No description provided for @imeiLength.
+  ///
+  /// In ru, this message translates to:
+  /// **'IMEI состоит из 15 цифр'**
+  String get imeiLength;
+
+  /// No description provided for @imeiTypo.
+  ///
+  /// In ru, this message translates to:
+  /// **'В IMEI опечатка — сверьте цифры с экраном'**
+  String get imeiTypo;
+
+  /// No description provided for @imeiOpenDialer.
+  ///
+  /// In ru, this message translates to:
+  /// **'Открыть набор номера'**
+  String get imeiOpenDialer;
+
+  /// No description provided for @imeiContinue.
+  ///
+  /// In ru, this message translates to:
+  /// **'Продолжить'**
+  String get imeiContinue;
+
+  /// No description provided for @imeiChange.
+  ///
+  /// In ru, this message translates to:
+  /// **'Изменить IMEI'**
+  String get imeiChange;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

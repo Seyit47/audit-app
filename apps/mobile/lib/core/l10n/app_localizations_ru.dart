@@ -998,17 +998,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get activationBody => 'Устройство зарегистрировано. Работа станет доступна после одобрения модератором.';
 
   @override
-  String get activationRegisterTitle => 'Устройство не зарегистрировано';
-
-  @override
-  String get activationRegisterBody => 'Перед первым запуском устройство нужно зарегистрировать. После этого модератор его активирует.';
-
-  @override
-  String get activationRegister => 'Зарегистрировать';
-
-  @override
   String activationDeviceId(String id) {
-    return 'ID устройства: $id';
+    return 'IMEI: $id';
   }
 
   @override
@@ -1016,4 +1007,34 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get activationChecking => 'Проверка устройства…';
+
+  @override
+  String get imeiTitle => 'Введите IMEI устройства';
+
+  @override
+  String get imeiBody => 'Наберите *#06# на этом телефоне — IMEI появится на экране.';
+
+  @override
+  String get imeiDualSim => 'Если номеров два, введите IMEI 1.';
+
+  @override
+  String get imeiIosHint => 'На iPhone IMEI также есть в Настройки → Основные → Об этом устройстве.';
+
+  @override
+  String get imeiField => 'IMEI';
+
+  @override
+  String get imeiLength => 'IMEI состоит из 15 цифр';
+
+  @override
+  String get imeiTypo => 'В IMEI опечатка — сверьте цифры с экраном';
+
+  @override
+  String get imeiOpenDialer => 'Открыть набор номера';
+
+  @override
+  String get imeiContinue => 'Продолжить';
+
+  @override
+  String get imeiChange => 'Изменить IMEI';
 }

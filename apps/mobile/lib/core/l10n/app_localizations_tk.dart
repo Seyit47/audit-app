@@ -998,17 +998,8 @@ class AppLocalizationsTk extends AppLocalizations {
   String get activationBody => 'Enjam hasaba alyndy. Moderator tassyklandan soň işläp bilersiňiz.';
 
   @override
-  String get activationRegisterTitle => 'Enjam hasaba alynmadyk';
-
-  @override
-  String get activationRegisterBody => 'Ilkinji gezek ulanmazdan öň enjamy hasaba alyň. Soňra moderator ony işjeňleşdirer.';
-
-  @override
-  String get activationRegister => 'Hasaba al';
-
-  @override
   String activationDeviceId(String id) {
-    return 'Enjamyň ID-si: $id';
+    return 'IMEI: $id';
   }
 
   @override
@@ -1016,4 +1007,34 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get activationChecking => 'Enjam barlanýar…';
+
+  @override
+  String get imeiTitle => 'Enjamyň IMEI belgisini giriziň';
+
+  @override
+  String get imeiBody => 'Bu telefonda *#06# ýygnaň — IMEI ekranda peýda bolar.';
+
+  @override
+  String get imeiDualSim => 'Iki belgi görünse, IMEI 1-i giriziň.';
+
+  @override
+  String get imeiIosHint => 'iPhone-da ol Sazlamalar → Esasy → Bu enjam barada bölüminde hem bar.';
+
+  @override
+  String get imeiField => 'IMEI';
+
+  @override
+  String get imeiLength => 'IMEI 15 sandan ybarat';
+
+  @override
+  String get imeiTypo => 'IMEI-de ýalňyşlyk bar — sanlary ekran bilen deňeşdiriň';
+
+  @override
+  String get imeiOpenDialer => 'Jaň ediş penjiresini aç';
+
+  @override
+  String get imeiContinue => 'Dowam et';
+
+  @override
+  String get imeiChange => 'IMEI-ni üýtget';
 }

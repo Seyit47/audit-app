@@ -667,10 +667,7 @@
   "portInvalid": "Порт от 1 до 65535",
   "activationTitle": "Ожидание активации",
   "activationBody": "Устройство зарегистрировано. Работа станет доступна после одобрения модератором.",
-  "activationRegisterTitle": "Устройство не зарегистрировано",
-  "activationRegisterBody": "Перед первым запуском устройство нужно зарегистрировать. После этого модератор его активирует.",
-  "activationRegister": "Зарегистрировать",
-  "activationDeviceId": "ID устройства: {id}",
+  "activationDeviceId": "IMEI: {id}",
   "@activationDeviceId": {
     "placeholders": {
       "id": {
@@ -679,5 +676,15 @@
     }
   },
   "activationError": "Нет связи с сервером активации",
-  "activationChecking": "Проверка устройства…"
+  "activationChecking": "Проверка устройства…",
+  "imeiTitle": "Введите IMEI устройства",
+  "imeiBody": "Наберите *#06# на этом телефоне — IMEI появится на экране.",
+  "imeiDualSim": "Если номеров два, введите IMEI 1.",
+  "imeiIosHint": "На iPhone IMEI также есть в Настройки → Основные → Об этом устройстве.",
+  "imeiField": "IMEI",
+  "imeiLength": "IMEI состоит из 15 цифр",
+  "imeiTypo": "В IMEI опечатка — сверьте цифры с экраном",
+  "imeiOpenDialer": "Открыть набор номера",
+  "imeiContinue": "Продолжить",
+  "imeiChange": "Изменить IMEI"
 }

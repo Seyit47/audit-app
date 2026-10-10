@@ -295,10 +295,17 @@
   "portInvalid": "A port from 1 to 65535",
   "activationTitle": "Waiting for activation",
   "activationBody": "This device is registered. You can start working once a moderator approves it.",
-  "activationRegisterTitle": "Device not registered",
-  "activationRegisterBody": "Register this device before first use. A moderator then activates it.",
-  "activationRegister": "Register",
-  "activationDeviceId": "Device ID: {id}",
+  "activationDeviceId": "IMEI: {id}",
   "activationError": "Can't reach the activation server",
-  "activationChecking": "Checking this device…"
+  "activationChecking": "Checking this device…",
+  "imeiTitle": "Enter this phone's IMEI",
+  "imeiBody": "Dial *#06# on this phone and the IMEI appears on screen.",
+  "imeiDualSim": "If two numbers appear, enter IMEI 1.",
+  "imeiIosHint": "On iPhone it's also in Settings → General → About.",
+  "imeiField": "IMEI",
+  "imeiLength": "An IMEI has 15 digits",
+  "imeiTypo": "This IMEI has a typo — check the digits against the screen",
+  "imeiOpenDialer": "Open the dialer",
+  "imeiContinue": "Continue",
+  "imeiChange": "Change IMEI"
 }
