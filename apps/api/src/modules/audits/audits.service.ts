@@ -15,6 +15,11 @@ const SKEW_MS = 10 * 60_000
 const invalid = (message: string) => new AppError(400, 'VALIDATION_FAILED', message)
 
 /** Audits (US2): geofenced start, idempotent immutable create, server-side evidence checks. */
+/** Only active shops are audited: a shop an agent added waits for an admin's approval (PENDING_REVIEW). */
+function assertActive (shop: { status: string }) {
+  if (shop.status !== 'ACTIVE') throw new AppError(409, 'SHOP_NOT_ACTIVE', 'The shop is not active yet (pending review) or is archived')
+}
+
 export class AuditsService {
   private readonly repo: AuditsRepository
   private readonly settings: SettingsService
@@ -30,6 +35,7 @@ export class AuditsService {
   async checkStart (user: AuthUser, body: CheckStartBody) {
     const shop = await this.repo.shop(body.shopId)
     if (shop == null || shop.deletedAt != null || shop.assignedAgentId !== user.id) throw notFound('Shop')
+    assertActive(shop)
     const s = await this.settings.get()
     if (body.accuracyM > s.minGpsAccuracyM) {
       throw new AppError(422, 'GPS_ACCURACY', 'GPS accuracy is too low', { accuracyM: body.accuracyM, limitM: s.minGpsAccuracyM })
@@ -52,6 +58,7 @@ export class AuditsService {
 
     const shop = await this.repo.shop(body.shopId)
     if (shop == null || !await this.repo.wasAssigned(shop.id, user.id, started)) throw notFound('Shop')
+    assertActive(shop)
 
     const photos = await this.repo.photos(body.photoIds)
     const usable = photos.filter((p) => p.uploadedById === user.id && p.kind === 'AUDIT' && p.status === 'READY')

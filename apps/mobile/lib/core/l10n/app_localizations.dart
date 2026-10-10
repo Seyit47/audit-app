@@ -1765,6 +1765,12 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Целое число, 0 или больше'**
   String get countInvalid;
+
+  /// No description provided for @shopNotActive.
+  ///
+  /// In ru, this message translates to:
+  /// **'Магазин на проверке — аудит станет доступен после одобрения администратором'**
+  String get shopNotActive;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

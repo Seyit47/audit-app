@@ -9,7 +9,8 @@ class Fix {
   final double accuracyM;
 }
 
-enum GeoStatus { locating, inside, outside, inaccurate, unavailable }
+/// [notActive]: the shop is not ACTIVE (pending an admin's review, or archived), so it cannot be audited.
+enum GeoStatus { locating, inside, outside, inaccurate, unavailable, notActive }
 
 /// Haversine distance in meters, the same formula as the server (`apps/api/src/lib/geo.ts`).
 double distanceMeters(double lat1, double lng1, double lat2, double lng2) {

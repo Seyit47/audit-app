@@ -278,5 +278,6 @@
   "phoneInvalid": "A Turkmen number: +993 and 8 digits",
   "planRange": "From 1 to 100",
   "priceInvalid": "Enter a price, e.g. 185.00",
-  "countInvalid": "A whole number, 0 or more"
+  "countInvalid": "A whole number, 0 or more",
+  "shopNotActive": "The shop is pending review — audits open once an admin approves it"
 }

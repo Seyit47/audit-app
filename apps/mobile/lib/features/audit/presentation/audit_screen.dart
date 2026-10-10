@@ -204,6 +204,8 @@ class _LocationBar extends StatelessWidget {
         problem = l10n.geoInaccurate(fix?.accuracyM.round() ?? 0);
       case GeoStatus.unavailable:
         problem = l10n.geoUnavailable;
+      case GeoStatus.notActive:
+        problem = l10n.shopNotActive;
       case GeoStatus.inside:
         problem = null;
     }

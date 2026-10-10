@@ -944,4 +944,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get countInvalid => 'Целое число, 0 или больше';
+
+  @override
+  String get shopNotActive => 'Магазин на проверке — аудит станет доступен после одобрения администратором';
 }

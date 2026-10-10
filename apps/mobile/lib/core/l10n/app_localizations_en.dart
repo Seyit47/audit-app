@@ -944,4 +944,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get countInvalid => 'A whole number, 0 or more';
+
+  @override
+  String get shopNotActive => 'The shop is pending review — audits open once an admin approves it';
 }

@@ -256,6 +256,9 @@ class ShopSheet extends StatelessWidget {
     final c = context.colors;
     final s = item.shop;
     final inside = meters != null && meters! <= s.auditRadiusM;
+    // Only active shops are audited (one the agent added waits for an admin's approval).
+    final active = s.status == 'ACTIVE';
+    final canAudit = inside && active;
     final text = TextStyle(fontFamily: AppTextStyles.family, fontSize: 14, height: 1.5, color: c.textPrimary);
     final small = TextStyle(fontFamily: AppTextStyles.family, fontSize: 11, height: 16 / 11, fontWeight: FontWeight.w500, color: c.accent);
     return BottomSheetCard(
@@ -359,13 +362,13 @@ class ShopSheet extends StatelessWidget {
               const SizedBox(height: 10),
             ],
             Opacity(
-              opacity: inside ? 1 : 0.5,
+              opacity: canAudit ? 1 : 0.5,
               child: Material(
                 color: c.accent,
                 borderRadius: BorderRadius.circular(12),
                 child: Pressable(
                   borderRadius: BorderRadius.circular(12),
-                  onTap: inside ? () => context.push('/agent/audit/${s.id}') : null,
+                  onTap: canAudit ? () => context.push('/agent/audit/${s.id}') : null,
                   child: SizedBox(
                     height: 40,
                     child: Row(
@@ -374,7 +377,7 @@ class ShopSheet extends StatelessWidget {
                         const AppIcon('play-small', width: 9.17, height: 11.67),
                         const SizedBox(width: 8),
                         Text(
-                          l10n.startAudit,
+                          active ? l10n.startAudit : l10n.statusPENDING_REVIEW,
                           style: const TextStyle(fontFamily: AppTextStyles.family, fontSize: 15, height: 1.5, fontWeight: FontWeight.w600, color: Colors.white),
                         ),
                       ],

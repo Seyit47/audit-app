@@ -264,10 +264,11 @@ class _ShopDetailsScreenState extends ConsumerState<ShopDetailsScreen> {
                             const SizedBox(width: 10),
                             Expanded(
                               child: _ActionButton(
-                                label: l10n.auditButton,
+                                label: shop.status == 'ACTIVE' ? l10n.auditButton : l10n.statusPENDING_REVIEW,
                                 icon: const AppIcon('play', width: 9.17, height: 11.67),
                                 filled: true,
-                                onTap: () => context.push('/agent/audit/${shop.id}'),
+                                // Only active shops are audited; one the agent added waits for an admin's approval.
+                                onTap: shop.status == 'ACTIVE' ? () => context.push('/agent/audit/${shop.id}') : null,
                               ),
                             ),
                           ],
@@ -390,12 +391,14 @@ class _ActionButton extends StatelessWidget {
   final String label;
   final Widget icon;
   final bool filled;
-  final VoidCallback onTap;
+
+  /// Null disables the button (dimmed), e.g. "Аудит" on a shop still pending review.
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    return Material(
+    final button = Material(
       color: filled ? c.accent : c.accent6,
       borderRadius: BorderRadius.circular(12),
       child: Pressable(
@@ -423,5 +426,6 @@ class _ActionButton extends StatelessWidget {
         ),
       ),
     );
+    return onTap == null ? Opacity(opacity: 0.5, child: button) : button;
   }
 }

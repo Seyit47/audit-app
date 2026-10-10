@@ -102,6 +102,8 @@ class AuditController extends Notifier<AuditState> {
     final config = ref.read(remoteConfigProvider).value ?? const RemoteConfig();
     final geo = shop == null
         ? GeoStatus.unavailable
+        : shop.status != 'ACTIVE'
+        ? GeoStatus.notActive
         : geofence(fix: fix, shopLat: shop.lat, shopLng: shop.lng, radiusM: shop.auditRadiusM, minAccuracyM: config.minGpsAccuracyM);
     state = AuditState(shop: shop, draft: state.draft, photos: state.photos, fix: fix, geo: geo, finishing: state.finishing, finished: state.finished);
   }

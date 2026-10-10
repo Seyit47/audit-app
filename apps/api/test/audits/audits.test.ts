@@ -128,3 +128,19 @@ test('violation is stored and shown in shop visits; list and detail filters', as
   const detail = (await app.inject({ url: `/v1/audits/${list.items[0].id}`, headers: admin })).json()
   assert.strictEqual(detail.hasViolation, true)
 })
+
+test('a shop pending review (or inactive) cannot be audited until an admin makes it active', async () => {
+  const g = await f.agent(app)
+  const h = bearer(app, { id: g.userId, role: 'AGENT' })
+  for (const status of ['PENDING_REVIEW', 'INACTIVE'] as const) {
+    const shop = await f.shop(app, { createdById: adminId, agentId: g.userId, ...SHOP, status })
+    const check = await app.inject({ method: 'POST', url: '/v1/audits/check-start', headers: h, payload: { shopId: shop.id, ...SHOP, accuracyM: 5 } })
+    assert.strictEqual(check.statusCode, 409, `${status}: ${check.body}`)
+    assert.strictEqual(check.json().error.code, 'SHOP_NOT_ACTIVE')
+    const p = await photo(g.userId)
+    const create = await app.inject({ method: 'POST', url: '/v1/audits', headers: h, payload: auditBody(shop.id, [p.id]) })
+    assert.strictEqual(create.statusCode, 409, `${status}: ${create.body}`)
+    assert.strictEqual(create.json().error.code, 'SHOP_NOT_ACTIVE')
+  }
+  assert.strictEqual(await app.prisma.audit.count(), 0)
+})

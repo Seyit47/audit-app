@@ -113,12 +113,19 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
                         separatorBuilder: (_, _) => const SizedBox(height: 8),
                         itemBuilder: (context, i) {
                           final s = shown[i].shop;
+                          // A shop the agent added waits for an admin's approval before it can be audited.
+                          final pending = s.status != 'ACTIVE';
                           return ShopListTile(
                             name: s.name,
                             address: s.address,
                             imageUrl: s.facadeUrl,
-                            footerLabel: l10n.lastVisit,
-                            footerValue: s.lastVisitAt == null ? l10n.never : shortDateTime(context, s.lastVisitAt!),
+                            footerLabel: pending ? l10n.statusPENDING_REVIEW : l10n.lastVisit,
+                            footerValue: pending
+                                ? ''
+                                : s.lastVisitAt == null
+                                ? l10n.never
+                                : shortDateTime(context, s.lastVisitAt!),
+                            footerColor: pending ? c.textSecondary : null,
                             onTap: () => context.push('/agent/shops/${s.id}'),
                           );
                         },

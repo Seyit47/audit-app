@@ -63,7 +63,7 @@ class AgentHomeScreen extends ConsumerWidget {
 
     final db = ref.read(databaseProvider);
     final config = ref.read(remoteConfigProvider).value ?? const RemoteConfig();
-    final (fix, shops) = await (ref.read(locatorProvider).current(), (db.select(db.shops)..where((s) => s.status.isNotValue('INACTIVE'))).get()).wait;
+    final (fix, shops) = await (ref.read(locatorProvider).current(), (db.select(db.shops)..where((s) => s.status.equals('ACTIVE'))).get()).wait;
     if (!context.mounted) return;
     if (fix == null) return say(l10n.geoUnavailable);
     if (fix.accuracyM > config.minGpsAccuracyM) return say(l10n.geoInaccurate(fix.accuracyM.round()));

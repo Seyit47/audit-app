@@ -124,6 +124,13 @@ void main() {
     expect(state().shop!.name, 'Shop');
   });
 
+  test('a shop pending review cannot be audited, even standing inside its radius', () async {
+    await (db.update(db.shops)..where((x) => x.id.equals('s1'))).write(const ShopsCompanion(status: Value('PENDING_REVIEW')));
+    container = await open();
+    expect(state().geo, GeoStatus.notActive);
+    expect(state().canFinish, isFalse);
+  });
+
   test('Finish needs at least one photo and a comment, inside the radius', () async {
     container = await open();
     expect(state().canFinish, isFalse);

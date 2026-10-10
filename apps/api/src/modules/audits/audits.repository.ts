@@ -21,7 +21,7 @@ export class AuditsRepository {
   }
 
   shop (id: string) {
-    return this.prisma.shop.findUnique({ where: { id }, select: { id: true, lat: true, lng: true, auditRadiusM: true, assignedAgentId: true, deletedAt: true } })
+    return this.prisma.shop.findUnique({ where: { id }, select: { id: true, lat: true, lng: true, auditRadiusM: true, assignedAgentId: true, deletedAt: true, status: true } })
   }
 
   /** Was the agent assigned the shop at that instant (assignment history)? */
