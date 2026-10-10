@@ -13,6 +13,8 @@ abstract final class AppConfig {
   static const activationUsername = String.fromEnvironment('ACTIVATION_USERNAME');
   static const activationPassword = String.fromEnvironment('ACTIVATION_PASSWORD');
 
-  /// Vector tiles for the map styles (TileJSON URL, research R-12).
+  /// Vector tiles (TileJSON URL) and label fonts for the map styles: the self-hosted Martin of infra/maptiles, or
+  /// openfreemap when the build doesn't set them.
   static const mapTilesUrl = String.fromEnvironment('MAP_TILES_URL', defaultValue: 'https://tiles.openfreemap.org/planet');
+  static const mapGlyphsUrl = String.fromEnvironment('MAP_GLYPHS_URL', defaultValue: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf');
 }

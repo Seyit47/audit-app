@@ -12,7 +12,7 @@ setWorkerUrl('/map/maplibre-gl-worker.mjs')
 export const DEFAULT_VIEW: Partial<ViewState> = { longitude: 58.383, latitude: 37.95, zoom: 12 }
 
 /**
- * MapLibre canvas in the Figma 21:2 palette (`/map/style.json`, research R-12). Markers and
+ * MapLibre canvas in the Figma 21:2 palette (`/map-style.json`, research R-12). Markers and
  * overlays are passed as children; controls are app UI positioned by the page.
  */
 /** A start view; `bounds` ([[west, south], [east, north]]) fits the camera to them instead. */
@@ -26,7 +26,7 @@ export const MapView = forwardRef<MapRef, {
   /** After every camera move or data load, once the map has settled. */
   onIdle?: () => void
   className?: string
-}>(function MapView ({ initialView = DEFAULT_VIEW, mapStyle = '/map/style.json', children, onClick, onIdle, className = 'size-full' }, ref) {
+}>(function MapView ({ initialView = DEFAULT_VIEW, mapStyle = '/map-style.json', children, onClick, onIdle, className = 'size-full' }, ref) {
   return (
     <div className={className}>
       <MapGL ref={ref} initialViewState={initialView} mapStyle={mapStyle} attributionControl={{ compact: true }}

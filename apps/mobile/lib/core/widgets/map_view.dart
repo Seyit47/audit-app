@@ -143,6 +143,7 @@ class _AppMapViewState extends State<AppMapView> {
   static Future<String> _patchedStyle(Brightness b) async {
     final json = jsonDecode(await rootBundle.loadString('assets/map/style-${b == Brightness.dark ? 'dark' : 'light'}.json')) as Map<String, dynamic>;
     (json['sources'] as Map)['openmaptiles'] = {'type': 'vector', 'url': AppConfig.mapTilesUrl};
+    json['glyphs'] = AppConfig.mapGlyphsUrl;
     return jsonEncode(json);
   }
 

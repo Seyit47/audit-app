@@ -1,0 +1,12 @@
+listen_addresses: '0.0.0.0:3000'
+# Tiles change only when the extract is rebuilt.
+cache_size_mb: 512
+
+mbtiles:
+  sources:
+    # The map styles name their source "openmaptiles".
+    openmaptiles: /data/turkmenistan.mbtiles
+
+# Label glyphs are generated from these TTF files; the styles use "Noto Sans Regular".
+fonts:
+  - /fonts

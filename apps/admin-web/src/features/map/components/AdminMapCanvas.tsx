@@ -170,7 +170,7 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
 
   return (
     <div ref={frame} className='relative size-full overflow-hidden bg-secondary-bg'>
-      <MapView ref={map} initialView={initialView} mapStyle={satellite ? satelliteStyle(satelliteTiles) : '/map/style.json'} onIdle={recluster}>
+      <MapView ref={map} initialView={initialView} mapStyle={satellite ? satelliteStyle(satelliteTiles) : '/map-style.json'} onIdle={recluster}>
         {zones.map((z) => <RegionZone key={z.id} id={z.id} polygon={z.polygon} />)}
         {selectedShop != null && <ShopRadius longitude={selectedShop.lng} latitude={selectedShop.lat} radiusM={selectedShop.auditRadiusM} color={shopPinColor(selectedShop.visitState)} />}
         <Source id='shops' type='geojson' data={data} cluster clusterRadius={56} clusterMaxZoom={14}>

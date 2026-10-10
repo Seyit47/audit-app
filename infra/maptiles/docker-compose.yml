@@ -1,0 +1,25 @@
+# Self-hosted map tiles for the admin web and the mobile app (OpenMapTiles schema, Turkmenistan only).
+#
+#   docker compose run --rm build   # once, and to refresh the map data: writes data/turkmenistan.mbtiles
+#   docker compose up -d martin     # serves tiles and fonts on port 3200
+#
+# See README.md.
+services:
+  # Planetiler builds the extract from OpenStreetMap (Geofabrik's Turkmenistan download), plus the water and
+  # Natural Earth layers it needs. Takes a few minutes and about 3 GB of temporary disk.
+  build:
+    image: ghcr.io/onthegomap/planetiler:0.10.2
+    profiles: [build]
+    command: --download --area=turkmenistan --output=/data/turkmenistan.mbtiles --force
+    volumes: [./data:/data]
+
+  # Martin serves the tiles (TileJSON at /openmaptiles) and the label font glyphs (/font/...) built from fonts/.
+  martin:
+    image: ghcr.io/maplibre/martin:v1.16.1
+    command: --config /config/martin.yaml
+    restart: unless-stopped
+    ports: ['3200:3000']
+    volumes:
+      - ./martin.yaml:/config/martin.yaml:ro
+      - ./data:/data:ro
+      - ./fonts:/fonts:ro
