@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react'
+import { iconSrc } from './FigmaIcon'
 
 /**
  * Renders a Figma-exported SVG from /public/icons in `currentColor` at the SVG's own size.
@@ -8,7 +9,7 @@ export function Icon ({ name, width, height, className = '' }: { name: string, w
   const style: CSSProperties = {
     width,
     height,
-    maskImage: `url(/icons/${name}.svg)`,
+    maskImage: `url(${iconSrc(name)})`,
     maskSize: '100% 100%',
     maskRepeat: 'no-repeat',
     backgroundColor: 'currentColor'

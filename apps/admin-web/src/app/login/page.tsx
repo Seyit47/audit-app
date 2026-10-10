@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { SignInForm } from '@/features/auth/components/SignInForm'
 import { authCopy } from '@/features/auth/copy'
 import { getCopy } from '@/lib/locale'
+import { iconSrc } from '@/components/ui/FigmaIcon'
 
 export const metadata: Metadata = { title: 'Audit' }
 
@@ -14,7 +15,7 @@ export default async function LoginPage () {
         <div className='flex items-center gap-3'>
           <span className='flex size-9 items-center justify-center rounded-lg bg-accent'>
             {/* eslint-disable-next-line @next/next/no-img-element -- static Figma SVG */}
-            <img src='/icons/logo.svg' alt='' width={18.2875} height={18.2417} />
+            <img src={iconSrc('logo')} alt='' width={18.2875} height={18.2417} />
           </span>
           <div className='flex flex-col'>
             <h1 className='text-lg font-bold leading-6 text-black'>{copy.title}</h1>

@@ -6,6 +6,7 @@ import { useRef, useState } from 'react'
 import { Icon } from '@/components/ui/Icon'
 import type { LayoutCopy } from './copy'
 import { FloatingScrollbar } from '@/components/ui/FloatingScrollbar'
+import { iconSrc } from '@/components/ui/FigmaIcon'
 
 // Every row is one height so moving the active item never shifts the others. The active-tab image
 // (nav-active-bg.svg, 3:414) is taller: its tab body matches the row and the corner curves stick out
@@ -39,7 +40,7 @@ export function Sidebar ({ companyName, logoUrl, copy }: { companyName: string |
             // eslint-disable-next-line @next/next/no-img-element -- presigned URL from the API
             ? <img src={logoUrl} alt='' className='size-full object-cover' />
             // eslint-disable-next-line @next/next/no-img-element -- static Figma SVG at its own size
-            : <img src='/icons/logo.svg' alt='' width={18.2875} height={18.2417} />}
+            : <img src={iconSrc('logo')} alt='' width={18.2875} height={18.2417} />}
         </div>
         <p className='truncate text-[18px] font-bold leading-4 tracking-[-0.4px] text-white'>
           {companyName ?? copy.companyFallback}
@@ -56,7 +57,7 @@ export function Sidebar ({ companyName, logoUrl, copy }: { companyName: string |
               // it goes back to the section.
               <Link key={item.label} href={item.href} aria-current='page' onClick={(e) => { if (pathname === item.href) e.preventDefault() }} style={{ height: ROW }} className={`relative w-full shrink-0 text-sidebar ${pathname === item.href ? 'cursor-default' : ''}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element -- static Figma SVG at its own size */}
-                <img src='/icons/nav-active-bg.svg' alt='' width={218} height={TAB} style={{ top: (ROW - TAB) / 2, height: TAB }} className='anim-fade-in pointer-events-none absolute inset-x-0 w-full' />
+                <img src={iconSrc('nav-active-bg')} alt='' width={218} height={TAB} style={{ top: (ROW - TAB) / 2, height: TAB }} className='anim-fade-in pointer-events-none absolute inset-x-0 w-full' />
                 <span className='relative flex h-full items-center gap-3 pl-[12.5px]'>
                   <span className='flex w-[17px] shrink-0 justify-center'><Icon name={item.icon} width={item.w} height={item.h} /></span>
                   <span className='text-sm font-medium leading-6'>{item.label}</span>
