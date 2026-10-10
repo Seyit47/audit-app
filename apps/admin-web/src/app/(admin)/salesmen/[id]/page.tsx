@@ -16,7 +16,8 @@ import { api, ApiError } from '@/lib/api'
 import { isoDay } from '@/lib/format'
 import { sub } from '@/lib/i18n'
 import { getLocale } from '@/lib/locale'
-import { range, uuid } from '@/lib/params'
+import { loadPeriodParams } from '@/features/agents/search-params'
+import { dayRange, parseAsUuid } from '@/lib/search-params'
 
 type Search = Record<string, string | undefined>
 
@@ -24,9 +25,10 @@ type Search = Record<string, string | undefined>
 export default async function SalesmanDetailsPage ({ params, searchParams }: PageProps<'/salesmen/[id]'>) {
   const { id } = await params
   const raw = (await searchParams) as Search
-  if (uuid(id) == null) notFound()
+  if (parseAsUuid.parseServerSide(id) == null) notFound()
   // Only a valid day range is used (and kept in links); anything else means "today".
-  const sp: Search = { ...raw, ...range(raw.from, raw.to) }
+  const period = await loadPeriodParams(raw)
+  const sp: Search = { ...raw, ...dayRange(period.from, period.to) }
   const locale = await getLocale()
   const copy = agentsCopy[locale]
   const d = copy.details

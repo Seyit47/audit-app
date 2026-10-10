@@ -4,13 +4,11 @@ import { listRegions } from '@/features/agents/api'
 import { AdminMap } from '@/features/map/components/AdminMap'
 import { loadShopCard } from '@/features/map/card'
 import { mapCopy } from '@/features/map/copy'
-import type { AgentPosition, MapShop, MapShow, MapVisitStatus } from '@/features/map/types'
+import type { AgentPosition, MapShop, MapVisitStatus } from '@/features/map/types'
 import { shopsCopy } from '@/features/shops/copy'
 import { api } from '@/lib/api'
 import { getLocale } from '@/lib/locale'
-import { oneOf, uuid, uuids } from '@/lib/params'
-
-type Search = Record<string, string | undefined>
+import { loadMapParams } from '@/features/map/search-params'
 
 const SATELLITE = process.env.SATELLITE_TILES_URL ?? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
 
@@ -29,17 +27,11 @@ function matchesStatus (s: MapShop, status: MapVisitStatus, now: number): boolea
  * `shop`).
  */
 export default async function MapPage ({ searchParams }: PageProps<'/map'>) {
-  const sp = (await searchParams) as Search
   const locale = await getLocale()
   const copy = mapCopy[locale]
-  const filters = {
-    agentIds: uuids(sp.agents),
-    regionIds: uuids(sp.regions),
-    show: oneOf(sp.show, ['agents', 'shops'] as const) ?? ('both' as MapShow),
-    status: oneOf(sp.status, ['visited', 'not_visited', 'recent'] as const) ?? ('all' as MapVisitStatus),
-    ids: uuids(sp.ids)
-  }
-  const shopId = uuid(sp.shop)
+  const p = await loadMapParams(searchParams)
+  const filters = { agentIds: p.agents, regionIds: p.regions, show: p.show, status: p.status, ids: p.ids }
+  const shopId = p.shop
   const [shops, positions, regions, agents, selected] = await Promise.all([
     api<MapShop[]>('/v1/shops/map', { query: { agentIds: filters.agentIds, regionIds: filters.regionIds, ids: filters.ids } }),
     api<AgentPosition[]>('/v1/agents/positions'),

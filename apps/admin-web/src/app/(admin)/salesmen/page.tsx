@@ -8,7 +8,8 @@ import { AgentPasswordHost } from '@/features/agents/components/AgentPasswordHos
 import { AgentsTable } from '@/features/agents/components/AgentsTable'
 import { AgentsToolbar } from '@/features/agents/components/AgentsToolbar'
 import { agentsCopy } from '@/features/agents/copy'
-import { int, oneOf, range, text, uuid } from '@/lib/params'
+import { loadAgentsParams } from '@/features/agents/search-params'
+import { dayRange } from '@/lib/search-params'
 import { getLocale } from '@/lib/locale'
 
 type Search = Record<string, string | undefined>
@@ -17,16 +18,17 @@ export default async function SalesmenPage ({ searchParams }: PageProps<'/salesm
   const sp = (await searchParams) as Search
   const locale = await getLocale()
   const copy = agentsCopy[locale]
-  const period = range(sp.from, sp.to)
+  const p = await loadAgentsParams(searchParams)
+  const period = dayRange(p.from, p.to)
   const query: AgentListQuery = {
-    page: int(sp.page, 1),
-    size: int(sp.size, 10, 1, 100),
-    q: text(sp.q),
-    status: oneOf(sp.status, ['ACTIVE', 'ON_LEAVE', 'INACTIVE'] as const),
-    regionId: uuid(sp.regionId),
+    page: p.page,
+    size: p.size,
+    q: p.q ?? undefined,
+    status: p.status ?? undefined,
+    regionId: p.regionId ?? undefined,
     ...period,
-    sort: oneOf(sp.sort, ['fullName', 'code', 'locations', 'visits', 'photos', 'lastActivityAt'] as const) ?? 'code',
-    dir: oneOf(sp.dir, ['asc', 'desc'] as const) ?? 'asc'
+    sort: p.sort,
+    dir: p.dir
   }
   const [page, regions, summary] = await Promise.all([
     listAgents(query),

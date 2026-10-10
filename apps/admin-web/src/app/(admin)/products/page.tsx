@@ -6,7 +6,7 @@ import { ProductFormHost } from '@/features/products/components/ProductFormHost'
 import { ProductsToolbar } from '@/features/products/components/ProductsToolbar'
 import { ProductsView } from '@/features/products/components/ProductsView'
 import { productsCopy } from '@/features/products/copy'
-import { int, oneOf, text } from '@/lib/params'
+import { loadProductsParams } from '@/features/products/search-params'
 import { getLocale } from '@/lib/locale'
 
 type Search = Record<string, string | undefined>
@@ -14,7 +14,8 @@ type Search = Record<string, string | undefined>
 export default async function ProductsPage ({ searchParams }: PageProps<'/products'>) {
   const sp = (await searchParams) as Search
   const copy = productsCopy[await getLocale()]
-  const query: ProductListQuery = { page: int(sp.page, 1), size: int(sp.size, 10, 1, 100), q: text(sp.q), status: oneOf(sp.status, ['ACTIVE', 'DRAFT', 'INACTIVE'] as const) }
+  const p = await loadProductsParams(searchParams)
+  const query: ProductListQuery = { page: p.page, size: p.size, q: p.q ?? undefined, status: p.status ?? undefined }
   const page = await listProducts(query)
   const keep = (omit: string[]) => new URLSearchParams(Object.entries(sp).filter((e): e is [string, string] => e[1] != null && !omit.includes(e[0])))
   const exportHref = `/export?${new URLSearchParams({ type: 'PRODUCTS_XLSX', back: '/products', ...Object.fromEntries(keep(['page', 'size', 'add', 'edit', 'exportFailed'])) }).toString()}`

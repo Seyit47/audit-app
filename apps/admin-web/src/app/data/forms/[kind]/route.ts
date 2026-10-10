@@ -3,13 +3,13 @@ import { getAgent, listRegions } from '@/features/agents/api'
 import { getProduct, listCategories } from '@/features/products/api'
 import { getShop, getShopProducts, listAgentOptions, listProductOptions } from '@/features/shops/api'
 import { api, ApiError } from '@/lib/api'
-import { uuid } from '@/lib/params'
+import { parseAsUuid } from '@/lib/search-params'
 
 /** What a URL dialog's form needs (`?id=` when editing), fetched by the browser when the dialog opens. */
 export async function GET (request: Request, ctx: RouteContext<'/data/forms/[kind]'>) {
   const { kind } = await ctx.params
   const raw = new URL(request.url).searchParams.get('id')
-  const id = raw == null ? null : uuid(raw)
+  const id = raw == null ? null : parseAsUuid.parseServerSide(raw)
   if (raw != null && id == null) return NextResponse.json(null, { status: 404 })
   try {
     const body = kind === 'shop'

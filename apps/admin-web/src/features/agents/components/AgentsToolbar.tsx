@@ -6,7 +6,8 @@ import { AppliedFilters, FilterChip } from '@/components/ui/FilterChip'
 import { FilterSelect } from '@/components/ui/FilterSelect'
 import { SegmentedControl } from '@/components/ui/SegmentedControl'
 import { isoDay } from '@/lib/format'
-import { useUrlState } from '@/lib/url-state'
+import { useListParams } from '@/lib/use-list-params'
+import { agentsParams, periodParams } from '../search-params'
 import type { Region } from '../api'
 import type { AgentsCopy } from '../copy'
 
@@ -27,10 +28,10 @@ function presetRange (p: Preset): { from: string, to: string } {
 
 /** Дата от / Дата до and the Сегодня / Вчера / Текущая неделя presets (31:2430, 122:8163), in the URL. */
 export function PeriodFilter ({ copy }: { copy: AgentsCopy }) {
-  const { params, set } = useUrlState()
+  const { values, set } = useListParams(periodParams)
   const today = presetRange('today')
-  const from = params.get('from') ?? today.from
-  const to = params.get('to') ?? params.get('from') ?? today.to
+  const from = values.from ?? today.from
+  const to = values.to ?? values.from ?? today.to
   const preset = (['today', 'yesterday', 'week'] as const).find((p) => { const r = presetRange(p); return r.from === from && r.to === to }) ?? null
   return (
     <>
@@ -47,9 +48,9 @@ export function PeriodFilter ({ copy }: { copy: AgentsCopy }) {
 
 /** "Search & Filters Toolbar" of 31:2307 (31:2430): dates, presets, status, region, applied chips. */
 export function AgentsToolbar ({ copy, regions }: { copy: AgentsCopy, regions: Region[] }) {
-  const { params, set } = useUrlState()
-  const status = params.get('status') ?? ''
-  const regionId = params.get('regionId') ?? ''
+  const { values, set } = useListParams(agentsParams)
+  const status = values.status ?? ''
+  const regionId = values.regionId ?? ''
   const regionName = regions.find((r) => r.id === regionId)?.name
 
   return (
@@ -60,13 +61,13 @@ export function AgentsToolbar ({ copy, regions }: { copy: AgentsCopy, regions: R
           label={copy.status}
           value={status}
           options={[{ value: '', label: copy.allStatus }, ...(['ACTIVE', 'ON_LEAVE', 'INACTIVE'] as const).map((s) => ({ value: s, label: copy.statuses[s] }))]}
-          onChange={(v) => set({ status: v })}
+          onChange={(v) => set({ status: (v || null) as typeof values.status })}
         />
         <FilterSelect
           label={copy.region}
           value={regionId}
           options={[{ value: '', label: copy.allRegions }, ...regions.map((r) => ({ value: r.id, label: r.name }))]}
-          onChange={(v) => set({ regionId: v })}
+          onChange={(v) => set({ regionId: v || null })}
         />
       </div>
       {(status !== '' || regionName != null) && (

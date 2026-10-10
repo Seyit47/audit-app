@@ -11,7 +11,8 @@ import { SidePanel } from '@/components/ui/SidePanel'
 import { Bone } from '@/components/ui/Skeleton'
 import { formatPhone } from '@/lib/format'
 import type { Locale } from '@/lib/i18n'
-import { useUrlState } from '@/lib/url-state'
+import { useListParams } from '@/lib/use-list-params'
+import { picturesParams } from '../search-params'
 import { loadPhotos } from '../actions'
 import { getJson, getQueryClient } from '@/lib/query'
 import type { PhotosCopy } from '../copy'
@@ -35,14 +36,14 @@ export function PhotosView ({ first, query, summary, regions, copy, locale, init
   /** Opened from `?photo=<id>` (e.g. a Salesman details photo report). */
   initialDetail?: PhotoDetail | null
 }) {
-  const { params, set } = useUrlState()
+  const { values, set } = useListParams(picturesParams)
   const [items, setItems] = useState<GalleryPhoto[]>(first.items)
   const [cursor, setCursor] = useState<string | null>(first.nextCursor)
   const groups = first.groups ?? []
   const [loading, startLoading] = useTransition()
   const [detail, setDetail] = useState<PhotoDetail | null>(initialDetail)
   const [showFilters, setShowFilters] = useState(true)
-  const mode = (params.get('mode') ?? 'grid') as 'grid' | 'byDate'
+  const mode = values.mode
   const sentinel = useRef<HTMLDivElement>(null)
 
   const more = useCallback(() => {
@@ -92,7 +93,7 @@ export function PhotosView ({ first, query, summary, regions, copy, locale, init
     }, () => { if (latest.current === p.id) setOpening(null) }).finally(() => clearTimeout(slow))
     if (!split) setOpening(p) // the first open needs the panel at once to start the layout change
   }
-  const activeFilters = ['regionId', 'verified', 'date'].filter((k) => params.get(k) != null).length
+  const activeFilters = [values.regionId, values.verified, values.date !== '7' ? values.date : null].filter((v) => v != null).length
 
   const tile = (p: GalleryPhoto, size = 'h-[240px] w-full') => (
     <PhotoTile
@@ -126,7 +127,7 @@ export function PhotosView ({ first, query, summary, regions, copy, locale, init
             <span className='text-xs leading-4 text-muted/30'>|</span>
             <span className='flex items-center gap-1 text-xs font-semibold leading-4 text-success'><span className='size-1.5 rounded-full bg-success' />{sub(copy.today, summary.today)}</span>
           </span>
-          <SegmentedControl options={[{ value: 'grid', label: copy.modes.grid }, { value: 'byDate', label: copy.modes.byDate }]} value={mode} onChange={(m) => set({ mode: m === 'grid' ? null : m })} />
+          <SegmentedControl options={[{ value: 'grid', label: copy.modes.grid }, { value: 'byDate', label: copy.modes.byDate }]} value={mode} onChange={(m) => set({ mode: m })} />
           <button data-ripple type='button' onClick={() => setShowFilters(!showFilters)} aria-expanded={showFilters} className='flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-lg bg-pure-white px-3 text-xs font-semibold leading-4 text-ink shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
             <FigmaIcon name='filters' width={13.5} height={13.5} />{copy.filters}
             {activeFilters > 0 && <span className='flex size-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-white'>{activeFilters}</span>}
@@ -142,11 +143,11 @@ export function PhotosView ({ first, query, summary, regions, copy, locale, init
       >
         <div className='-mx-1 -mb-1 min-h-0 overflow-hidden'>
           <div className='flex flex-wrap items-center gap-3 px-1 pb-1 pt-2.5'>
-          <FilterSelect size='lg' label={copy.location} value={params.get('regionId') ?? ''} onChange={(v) => set({ regionId: v })}
+          <FilterSelect size='lg' label={copy.location} value={values.regionId ?? ''} onChange={(v) => set({ regionId: v || null })}
             options={[{ value: '', label: copy.allLocations }, ...regions.map((r) => ({ value: r.id, label: r.name }))]} />
-          <FilterSelect size='lg' label={copy.status} value={params.get('verified') ?? ''} onChange={(v) => set({ verified: v })}
+          <FilterSelect size='lg' label={copy.status} value={values.verified ?? ''} onChange={(v) => set({ verified: (v || null) as typeof values.verified })}
             options={[{ value: '', label: copy.allStatus }, { value: 'true', label: copy.statuses.true }, { value: 'false', label: copy.statuses.false }]} />
-          <FilterSelect size='lg' label={copy.date} value={params.get('date') ?? '7'} onChange={(v) => set({ date: v === '7' ? null : v })}
+          <FilterSelect size='lg' label={copy.date} value={values.date} onChange={(v) => set({ date: v as typeof values.date })}
             options={(['today', '7', '30', 'all'] as const).map((d) => ({ value: d, label: copy.dates[d] }))} />
           </div>
         </div>

@@ -9,6 +9,7 @@ import { api } from '@/lib/api'
 import { getLocale } from '@/lib/locale'
 import { getMe } from '@/lib/me'
 import { QueryProvider } from '@/components/QueryProvider'
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 
 export default async function AdminLayout ({ children }: LayoutProps<'/'>) {
   const [{ config }, locale, feed] = await Promise.all([
@@ -19,6 +20,7 @@ export default async function AdminLayout ({ children }: LayoutProps<'/'>) {
   const copy = layoutCopy[locale]
 
   return (
+    <NuqsAdapter>
     <QueryProvider>
     <div className='flex min-h-screen'>
       <Sidebar companyName={config.companyName} logoUrl={config.logo?.previewUrl400 ?? config.logo?.url ?? null} copy={copy} />
@@ -28,5 +30,6 @@ export default async function AdminLayout ({ children }: LayoutProps<'/'>) {
       </div>
     </div>
     </QueryProvider>
+    </NuqsAdapter>
   )
 }

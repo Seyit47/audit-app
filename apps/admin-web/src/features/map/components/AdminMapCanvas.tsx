@@ -11,7 +11,8 @@ import { Bone } from '@/components/ui/Skeleton'
 import { AgentDot, ClusterMarker, DEFAULT_VIEW, MapView, RegionZone, ShopMarker, ShopRadius, shopPinColor, type InitialView } from '@/components/ui/MapView'
 import { plural, sub, type Locale } from '@/lib/i18n'
 import { navigationStarted } from '@/lib/feedback'
-import { useUrlState } from '@/lib/url-state'
+import { useListParams } from '@/lib/use-list-params'
+import { mapParams } from '../search-params'
 import { useQuery } from '@tanstack/react-query'
 import { getJson, getQueryClient } from '@/lib/query'
 import type { MapCopy } from '../copy'
@@ -60,7 +61,7 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
   satelliteTiles: string
 }) {
   const router = useRouter()
-  const { set } = useUrlState()
+  const { set } = useListParams(mapParams)
   // Live positions: the server page's list, then polled every 30 s through the query cache; filtered here.
   const { data: livePositions } = useQuery({
     queryKey: ['positions'],
@@ -243,7 +244,7 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
       {panel && (
         <MapFilters
           agents={agents} regions={regions} value={filters} copy={copy} onClose={() => setPanel(false)}
-          onApply={(next) => { setPanel(false); set({ agents: next.agentIds.join(','), regions: next.regionIds.join(','), show: next.show === 'both' ? null : next.show, status: next.status === 'all' ? null : next.status, ids: null, shop: null }) }}
+          onApply={(next) => { setPanel(false); set({ agents: next.agentIds, regions: next.regionIds, show: next.show, status: next.status, ids: null, shop: null }) }}
         />
       )}
     </div>

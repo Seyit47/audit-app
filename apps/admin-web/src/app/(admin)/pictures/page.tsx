@@ -4,7 +4,7 @@ import { photosCopy } from '@/features/photos/copy'
 import type { GalleryPage, GalleryQuery, PhotoDetail } from '@/features/photos/types'
 import { api } from '@/lib/api'
 import { getLocale } from '@/lib/locale'
-import { bool, text, uuid } from '@/lib/params'
+import { loadPicturesParams } from '@/features/photos/search-params'
 
 type Search = Record<string, string | undefined>
 
@@ -20,8 +20,9 @@ export default async function PicturesPage ({ searchParams }: PageProps<'/pictur
   const sp = (await searchParams) as Search
   const locale = await getLocale()
   // The web gallery is audit photos only (no storefront or admin uploads).
-  const query: GalleryQuery = { type: 'AUDIT', regionId: uuid(sp.regionId), verified: bool(sp.verified), from: since(sp.date), shopId: uuid(sp.shopId), agentId: uuid(sp.agentId), q: text(sp.q) }
-  const photoId = uuid(sp.photo)
+  const p = await loadPicturesParams(searchParams)
+  const query: GalleryQuery = { type: 'AUDIT', regionId: p.regionId ?? undefined, verified: p.verified ?? undefined, from: since(p.date), shopId: p.shopId ?? undefined, agentId: p.agentId ?? undefined, q: p.q ?? undefined }
+  const photoId = p.photo
   const [first, summary, regions, detail] = await Promise.all([
     api<GalleryPage>('/v1/photos', { query: { ...query, limit: 24, groups: sp.mode === 'byDate' || undefined } }),
     api<{ total: number, today: number }>('/v1/photos/summary', { query: { type: 'AUDIT' } }),
