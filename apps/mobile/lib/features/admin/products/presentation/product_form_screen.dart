@@ -27,7 +27,7 @@ class ProductFormScreen extends ConsumerStatefulWidget {
   ConsumerState<ProductFormScreen> createState() => _ProductFormScreenState();
 }
 
-class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
+class _ProductFormScreenState extends ConsumerState<ProductFormScreen> with DirtyFields {
   final _sku = TextEditingController();
   final _name = TextEditingController();
   final _brand = TextEditingController();
@@ -60,7 +60,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   }
 
   bool get _valid =>
-      _sku.text.trim().isNotEmpty && _name.text.trim().isNotEmpty && _categoryId != null && (double.tryParse(_price.text.replaceAll(',', '.')) ?? -1) >= 0;
+      _sku.text.trim().isNotEmpty && _name.text.trim().isNotEmpty && _categoryId != null && RegExp(r'^\d+([.,]\d{1,2})?$').hasMatch(_price.text.trim());
 
   Future<void> _pick(ImageSource source) async {
     final x = await ImagePicker().pickImage(source: source, imageQuality: 85, maxWidth: 2000);
@@ -113,6 +113,19 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     final c = context.colors;
     void touch(String _) => setState(() {});
     const gap = SizedBox(height: 22);
+    String? count(String v) => v.trim().isEmpty || (int.tryParse(v.trim()) ?? -1) >= 0 ? null : l10n.countInvalid;
+    final skuError = fieldError('sku', _sku.text.trim().isEmpty ? l10n.fieldRequired : null);
+    final nameError = fieldError('name', _name.text.trim().isEmpty ? l10n.fieldRequired : null);
+    final priceError = fieldError(
+      'price',
+      _price.text.trim().isEmpty
+          ? l10n.fieldRequired
+          : RegExp(r'^\d+([.,]\d{1,2})?$').hasMatch(_price.text.trim())
+          ? null
+          : l10n.priceInvalid,
+    );
+    final stockError = fieldError('stock', count(_stock.text));
+    final minStockError = fieldError('minStock', count(_minStock.text));
 
     return Scaffold(
       backgroundColor: c.mainBg,
@@ -155,14 +168,16 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                     label: l10n.sku,
                     required: true,
                     valid: _sku.text.trim().isNotEmpty,
-                    child: AppTextInput(controller: _sku, onChanged: touch),
+                    error: skuError,
+                    child: AppTextInput(controller: _sku, onChanged: dirty('sku'), hasError: skuError != null),
                   ),
                   gap,
                   AppFormField(
                     label: l10n.productName,
                     required: true,
                     valid: _name.text.trim().isNotEmpty,
-                    child: AppTextInput(controller: _name, onChanged: touch),
+                    error: nameError,
+                    child: AppTextInput(controller: _name, onChanged: dirty('name'), hasError: nameError != null),
                   ),
                   gap,
                   AppFormField(
@@ -191,10 +206,12 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                         child: AppFormField(
                           label: l10n.retailPrice,
                           required: true,
+                          error: priceError,
                           child: AppTextInput(
                             controller: _price,
                             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                            onChanged: touch,
+                            onChanged: dirty('price'),
+                            hasError: priceError != null,
                             suffix: const Padding(padding: EdgeInsets.all(12), child: Text('TMT')),
                           ),
                         ),
@@ -232,14 +249,26 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                         Expanded(
                           child: AppFormField(
                             label: l10n.stockQty,
-                            child: AppTextInput(controller: _stock, keyboardType: TextInputType.number),
+                            error: stockError,
+                            child: AppTextInput(
+                              controller: _stock,
+                              keyboardType: TextInputType.number,
+                              onChanged: dirty('stock'),
+                              hasError: stockError != null,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: AppFormField(
                             label: l10n.minStockAlert,
-                            child: AppTextInput(controller: _minStock, keyboardType: TextInputType.number),
+                            error: minStockError,
+                            child: AppTextInput(
+                              controller: _minStock,
+                              keyboardType: TextInputType.number,
+                              onChanged: dirty('minStock'),
+                              hasError: minStockError != null,
+                            ),
                           ),
                         ),
                       ],

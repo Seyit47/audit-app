@@ -76,7 +76,7 @@ class ShopFormView extends StatefulWidget {
   State<ShopFormView> createState() => _ShopFormViewState();
 }
 
-class _ShopFormViewState extends State<ShopFormView> {
+class _ShopFormViewState extends State<ShopFormView> with DirtyFields {
   late final _name = TextEditingController(text: widget.name);
   late final _address = TextEditingController(text: widget.address);
   late final _owner = TextEditingController(text: widget.owner);
@@ -104,6 +104,18 @@ class _ShopFormViewState extends State<ShopFormView> {
       color: c.textPrimary,
     );
     final fix = w.fix;
+    String? required(String key, String v) => fieldError(key, v.trim().isEmpty ? l10n.fieldRequired : null);
+    final nameError = required('name', w.name);
+    final addressError = required('address', w.address);
+    final ownerError = required('owner', w.owner);
+    final phoneError = fieldError(
+      'phone',
+      w.phone.trim().isEmpty
+          ? l10n.fieldRequired
+          : tmPhone(w.phone) == null
+          ? l10n.phoneInvalid
+          : null,
+    );
     final picked = w.picked;
     final at = picked ?? (fix == null ? null : (fix.lat, fix.lng));
 
@@ -121,17 +133,23 @@ class _ShopFormViewState extends State<ShopFormView> {
                     label: l10n.shopName,
                     required: true,
                     valid: w.name.trim().isNotEmpty,
+                    error: nameError,
                     child: AppTextInput(
                       controller: _name,
                       hint: l10n.shopNameHint,
                       textInputAction: TextInputAction.next,
-                      onChanged: (v) => w.onChanged(name: v),
+                      hasError: nameError != null,
+                      onChanged: (v) {
+                        markDirty('name');
+                        w.onChanged(name: v);
+                      },
                       suffix: w.name.isEmpty
                           ? null
                           : IconButton(
                               tooltip: l10n.clear,
                               onPressed: () {
                                 _name.clear();
+                                markDirty('name');
                                 w.onChanged(name: '');
                               },
                               icon: AppIcon('field-clear', width: 28, height: 28, color: c.textSecondary),
@@ -143,11 +161,16 @@ class _ShopFormViewState extends State<ShopFormView> {
                     label: l10n.address,
                     required: true,
                     valid: w.address.trim().isNotEmpty,
+                    error: addressError,
                     child: AppTextInput(
                       controller: _address,
                       hint: l10n.addressHint,
                       textInputAction: TextInputAction.next,
-                      onChanged: (v) => w.onChanged(address: v),
+                      hasError: addressError != null,
+                      onChanged: (v) {
+                        markDirty('address');
+                        w.onChanged(address: v);
+                      },
                     ),
                   ),
                   const SizedBox(height: 22),
@@ -155,11 +178,16 @@ class _ShopFormViewState extends State<ShopFormView> {
                     label: l10n.owner,
                     required: true,
                     valid: w.owner.trim().isNotEmpty,
+                    error: ownerError,
                     child: AppTextInput(
                       controller: _owner,
                       hint: l10n.ownerHint,
                       textInputAction: TextInputAction.next,
-                      onChanged: (v) => w.onChanged(owner: v),
+                      hasError: ownerError != null,
+                      onChanged: (v) {
+                        markDirty('owner');
+                        w.onChanged(owner: v);
+                      },
                     ),
                   ),
                   const SizedBox(height: 22),
@@ -167,12 +195,17 @@ class _ShopFormViewState extends State<ShopFormView> {
                     label: l10n.phoneNumber,
                     required: true,
                     valid: tmPhone(w.phone) != null,
+                    error: phoneError,
                     child: AppTextInput(
                       controller: _phone,
                       hint: l10n.phoneHint,
                       keyboardType: TextInputType.phone,
                       inputFormatters: const [TmPhoneFormatter()],
-                      onChanged: (v) => w.onChanged(phone: v),
+                      hasError: phoneError != null,
+                      onChanged: (v) {
+                        markDirty('phone');
+                        w.onChanged(phone: v);
+                      },
                       prefix: AppIcon('phone', width: 12, height: 12, color: c.textSecondary),
                     ),
                   ),

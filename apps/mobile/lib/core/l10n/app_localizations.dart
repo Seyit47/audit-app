@@ -1729,6 +1729,42 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Вы не в радиусе магазина. Ближайший: {name}, {distance}'**
   String notInShopRadius(String name, String distance);
+
+  /// No description provided for @fieldRequired.
+  ///
+  /// In ru, this message translates to:
+  /// **'Обязательное поле'**
+  String get fieldRequired;
+
+  /// No description provided for @phoneMobileInvalid.
+  ///
+  /// In ru, this message translates to:
+  /// **'Мобильный номер: +993 6X XXXXXX (или 71, 72)'**
+  String get phoneMobileInvalid;
+
+  /// No description provided for @phoneInvalid.
+  ///
+  /// In ru, this message translates to:
+  /// **'Туркменский номер: +993 и 8 цифр'**
+  String get phoneInvalid;
+
+  /// No description provided for @planRange.
+  ///
+  /// In ru, this message translates to:
+  /// **'От 1 до 100'**
+  String get planRange;
+
+  /// No description provided for @priceInvalid.
+  ///
+  /// In ru, this message translates to:
+  /// **'Введите цену, например 185.00'**
+  String get priceInvalid;
+
+  /// No description provided for @countInvalid.
+  ///
+  /// In ru, this message translates to:
+  /// **'Целое число, 0 или больше'**
+  String get countInvalid;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

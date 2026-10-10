@@ -272,5 +272,11 @@
   "mapPickDone": "Use this point",
   "pickedOnMap": "Chosen on the map",
   "visitDuration": "Duration: {minutes} min",
-  "notInShopRadius": "You're not within a shop's radius. Nearest: {name}, {distance}"
+  "notInShopRadius": "You're not within a shop's radius. Nearest: {name}, {distance}",
+  "fieldRequired": "Required",
+  "phoneMobileInvalid": "A mobile number: +993 6X XXXXXX (or 71, 72)",
+  "phoneInvalid": "A Turkmen number: +993 and 8 digits",
+  "planRange": "From 1 to 100",
+  "priceInvalid": "Enter a price, e.g. 185.00",
+  "countInvalid": "A whole number, 0 or more"
 }

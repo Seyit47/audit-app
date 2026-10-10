@@ -630,5 +630,11 @@
         "type": "String"
       }
     }
-  }
+  },
+  "fieldRequired": "Обязательное поле",
+  "phoneMobileInvalid": "Мобильный номер: +993 6X XXXXXX (или 71, 72)",
+  "phoneInvalid": "Туркменский номер: +993 и 8 цифр",
+  "planRange": "От 1 до 100",
+  "priceInvalid": "Введите цену, например 185.00",
+  "countInvalid": "Целое число, 0 или больше"
 }

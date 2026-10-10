@@ -926,4 +926,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String notInShopRadius(String name, String distance) {
     return 'You\'re not within a shop\'s radius. Nearest: $name, $distance';
   }
+
+  @override
+  String get fieldRequired => 'Required';
+
+  @override
+  String get phoneMobileInvalid => 'A mobile number: +993 6X XXXXXX (or 71, 72)';
+
+  @override
+  String get phoneInvalid => 'A Turkmen number: +993 and 8 digits';
+
+  @override
+  String get planRange => 'From 1 to 100';
+
+  @override
+  String get priceInvalid => 'Enter a price, e.g. 185.00';
+
+  @override
+  String get countInvalid => 'A whole number, 0 or more';
 }

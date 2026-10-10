@@ -24,7 +24,7 @@ class AgentFormScreen extends ConsumerStatefulWidget {
   ConsumerState<AgentFormScreen> createState() => _AgentFormScreenState();
 }
 
-class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
+class _AgentFormScreenState extends ConsumerState<AgentFormScreen> with DirtyFields {
   final _name = TextEditingController();
   final _code = TextEditingController();
   final _phone = TextEditingController();
@@ -132,8 +132,31 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final c = context.colors;
-    void touch(String _) => setState(() {});
     const gap = SizedBox(height: 22);
+    final visits = int.tryParse(_visits.text);
+    final audits = int.tryParse(_audits.text);
+    final nameError = fieldError('name', _name.text.trim().isEmpty ? l10n.fieldRequired : null);
+    final phoneError = fieldError(
+      'phone',
+      _phone.text.trim().isEmpty
+          ? l10n.fieldRequired
+          : tmPhone(_phone.text, mobile: true) == null
+          ? l10n.phoneMobileInvalid
+          : null,
+    );
+    final whatsappError = fieldError(
+      'whatsapp',
+      _whatsapp.text.trim().isNotEmpty && tmPhone(_whatsapp.text, mobile: true) == null ? l10n.phoneMobileInvalid : null,
+    );
+    final visitsError = fieldError('visits', visits == null || visits < 1 || visits > 100 ? l10n.planRange : null);
+    final auditsError = fieldError(
+      'audits',
+      audits == null || audits < 0 || audits > 100
+          ? l10n.planRange
+          : visits != null && audits > visits
+          ? l10n.planError
+          : null,
+    );
 
     return Scaffold(
       backgroundColor: c.mainBg,
@@ -149,35 +172,46 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
                     label: l10n.fullName,
                     required: true,
                     valid: _name.text.trim().isNotEmpty,
-                    child: AppTextInput(controller: _name, hint: l10n.fullNameHint, textInputAction: TextInputAction.next, onChanged: touch),
+                    error: nameError,
+                    child: AppTextInput(
+                      controller: _name,
+                      hint: l10n.fullNameHint,
+                      textInputAction: TextInputAction.next,
+                      onChanged: dirty('name'),
+                      hasError: nameError != null,
+                    ),
                   ),
                   gap,
                   AppFormField(
                     label: l10n.employeeCode,
-                    child: AppTextInput(controller: _code, onChanged: touch),
+                    child: AppTextInput(controller: _code, onChanged: dirty('code')),
                   ),
                   gap,
                   AppFormField(
                     label: l10n.phoneNumber,
                     required: true,
                     valid: tmPhone(_phone.text, mobile: true) != null,
+                    error: phoneError,
                     child: AppTextInput(
                       controller: _phone,
                       hint: l10n.phoneHint,
                       keyboardType: TextInputType.phone,
                       inputFormatters: const [TmPhoneFormatter()],
-                      onChanged: touch,
+                      onChanged: dirty('phone'),
+                      hasError: phoneError != null,
                     ),
                   ),
                   gap,
                   AppFormField(
                     label: l10n.whatsapp,
+                    error: whatsappError,
                     child: AppTextInput(
                       controller: _whatsapp,
                       hint: l10n.phoneHint,
                       keyboardType: TextInputType.phone,
                       inputFormatters: const [TmPhoneFormatter()],
-                      onChanged: touch,
+                      onChanged: dirty('whatsapp'),
+                      hasError: whatsappError != null,
                     ),
                   ),
                   gap,
@@ -193,7 +227,13 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
                         child: AppFormField(
                           label: l10n.visitPlan,
                           required: true,
-                          child: AppTextInput(controller: _visits, keyboardType: TextInputType.number, onChanged: touch),
+                          error: visitsError,
+                          child: AppTextInput(
+                            controller: _visits,
+                            keyboardType: TextInputType.number,
+                            onChanged: dirty('visits'),
+                            hasError: visitsError != null,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -201,7 +241,13 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
                         child: AppFormField(
                           label: l10n.auditPlan,
                           required: true,
-                          child: AppTextInput(controller: _audits, keyboardType: TextInputType.number, onChanged: touch),
+                          error: auditsError,
+                          child: AppTextInput(
+                            controller: _audits,
+                            keyboardType: TextInputType.number,
+                            onChanged: dirty('audits'),
+                            hasError: auditsError != null,
+                          ),
                         ),
                       ),
                     ],

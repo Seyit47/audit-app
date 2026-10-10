@@ -195,3 +195,19 @@ class AppTextInput extends StatelessWidget {
     );
   }
 }
+
+/// Field errors as the user types: a field reports its error once the user has changed it (the forms' Save stays
+/// disabled until everything is valid, so these say what is still wrong).
+mixin DirtyFields<T extends StatefulWidget> on State<T> {
+  final Set<String> _dirty = {};
+
+  /// `onChanged` for a field: marks it changed and rebuilds (its error follows every keystroke).
+  ValueChanged<String> dirty(String key) =>
+      (_) => markDirty(key);
+
+  /// Marks a field changed when its value lives elsewhere (the field reports up to its owner).
+  void markDirty(String key) => setState(() => _dirty.add(key));
+
+  /// [error] once the field has been changed.
+  String? fieldError(String key, String? error) => _dirty.contains(key) ? error : null;
+}

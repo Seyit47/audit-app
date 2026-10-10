@@ -926,4 +926,22 @@ class AppLocalizationsRu extends AppLocalizations {
   String notInShopRadius(String name, String distance) {
     return 'Вы не в радиусе магазина. Ближайший: $name, $distance';
   }
+
+  @override
+  String get fieldRequired => 'Обязательное поле';
+
+  @override
+  String get phoneMobileInvalid => 'Мобильный номер: +993 6X XXXXXX (или 71, 72)';
+
+  @override
+  String get phoneInvalid => 'Туркменский номер: +993 и 8 цифр';
+
+  @override
+  String get planRange => 'От 1 до 100';
+
+  @override
+  String get priceInvalid => 'Введите цену, например 185.00';
+
+  @override
+  String get countInvalid => 'Целое число, 0 или больше';
 }
