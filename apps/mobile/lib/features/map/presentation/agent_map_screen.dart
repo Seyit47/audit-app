@@ -106,7 +106,12 @@ class _AgentMapScreenState extends ConsumerState<AgentMapScreen> {
             child: AppMapView(
               markers: _markers,
               controller: _map,
-              onMarkerTap: (id) => setState(() => _selected = id),
+              onMarkerTap: (id) {
+                // The tapped pin moves to the middle of the map.
+                final pin = _markers.where((m) => m.id == id).firstOrNull;
+                if (pin != null) _map.panTo(pin.lat, pin.lng);
+                setState(() => _selected = id);
+              },
               onMapTap: () => setState(() => _selected = null),
             ),
           ),

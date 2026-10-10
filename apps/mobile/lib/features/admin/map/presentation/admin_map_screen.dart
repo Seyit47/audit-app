@@ -90,6 +90,9 @@ class _AdminMapScreenState extends ConsumerState<AdminMapScreen> {
 
   Future<void> _select(String id) async {
     if (id.startsWith('agent:')) return;
+    // The tapped pin moves to the middle of the map.
+    final pin = _markers.where((m) => m.id == id).firstOrNull;
+    if (pin != null) _map.panTo(pin.lat, pin.lng);
     setState(() {
       _selected = id;
       _details = null;

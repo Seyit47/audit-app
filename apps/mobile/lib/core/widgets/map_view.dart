@@ -48,6 +48,9 @@ class AppMapController {
     return t == null ? null : (t.latitude, t.longitude);
   }
 
+  /// Pans to a point, keeping the zoom (a tapped marker).
+  Future<void> panTo(double lat, double lng) async => _map?.animateCamera(CameraUpdate.newLatLng(LatLng(lat, lng)));
+
   Future<void> zoomIn() async => _map?.animateCamera(CameraUpdate.zoomIn());
   Future<void> zoomOut() async => _map?.animateCamera(CameraUpdate.zoomOut());
   Future<void> moveTo(double lat, double lng, {double zoom = 15}) async => _map?.animateCamera(CameraUpdate.newLatLngZoom(LatLng(lat, lng), zoom));

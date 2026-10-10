@@ -97,7 +97,13 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
     const qs = next.toString()
     window.history.replaceState(null, '', qs === '' ? window.location.pathname : `?${qs}`)
   }
-  const select = (id: string) => { setSelectedId(id); loadCard(id); writeShopParam(id) }
+  // Centres the shop in the map area right of its card (w-96 + 16 px inset), keeping the zoom.
+  const centerOn = (s: { lng: number, lat: number }) => map.current?.easeTo({ center: [s.lng, s.lat], offset: [(384 + 16) / 2, 0], duration: 500 })
+  const select = (id: string) => {
+    setSelectedId(id); loadCard(id); writeShopParam(id)
+    const s = shops.find((x) => x.id === id)
+    if (s != null) centerOn(s)
+  }
   const closeCard = () => { setSelectedId(null); writeShopParam(null) }
   const selectedCard = selectedId == null ? undefined : cards[selectedId]
   const selectedShop = selectedId == null ? undefined : shops.find((s) => s.id === selectedId)
