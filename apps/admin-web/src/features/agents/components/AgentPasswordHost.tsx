@@ -7,8 +7,10 @@ import { Dialog } from '@/components/ui/Dialog'
 import { guard, say } from '@/lib/feedback'
 import { setAgentPassword } from '../actions'
 import type { AgentsCopy } from '../copy'
-import { PasswordFields, passwordOk, passwordRules } from './PasswordInput'
-import { useLiveValidation } from '@/lib/use-live-validation'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { passwordSchema, type PasswordValues } from '../schema'
+import { PasswordFields } from './PasswordInput'
 
 /**
  * "Изменить пароль" from a salesman's row actions: opens from `?password=<id>` in the browser (no server render),
@@ -32,16 +34,15 @@ function AgentPasswordDialog ({ id, name, copy }: { id: string, name?: string, c
     window.history.replaceState(null, '', `${window.location.pathname}${qs === '' ? '' : `?${qs}`}`)
   }
 
-  // Each field says what is wrong as soon as it has been changed (and both on Save).
-  const live = useLiveValidation({
-    password: (v) => { const r = passwordRules(v, v); return r.length && r.letter && r.digit ? null : f.errors.password },
-    confirmPassword: (v, get) => v !== get('password') ? f.errors.confirm : null
+  // Each field reports what is wrong once it has been changed, and both on Save.
+  const [schema] = useState(() => passwordSchema(f))
+  const { register, control, handleSubmit, formState: { errors } } = useForm<PasswordValues>({
+    resolver: zodResolver(schema),
+    mode: 'onChange',
+    defaultValues: { password: '', confirmPassword: '' }
   })
 
-  function submit (form: FormData, el: HTMLFormElement) {
-    if (!live.validate(el)) return setError(null)
-    const password = String(form.get('password') ?? '')
-    if (!passwordOk(password, String(form.get('confirmPassword') ?? ''))) return setError(f.errors.password)
+  const save = handleSubmit(({ password }) => {
     setError(null)
     startTransition(() => guard(async () => {
       const res = await setAgentPassword(id, password)
@@ -49,7 +50,7 @@ function AgentPasswordDialog ({ id, name, copy }: { id: string, name?: string, c
       say('passwordChanged')
       close()
     }))
-  }
+  })
 
   return (
     <Dialog
@@ -62,9 +63,8 @@ function AgentPasswordDialog ({ id, name, copy }: { id: string, name?: string, c
         </>
       }
     >
-      {/* onSubmit, not action: React resets a form after an action, which wiped the fields on a validation error. */}
-      <form id='agent-password-form' noValidate onInput={live.onInput} onSubmit={(e) => { e.preventDefault(); submit(new FormData(e.currentTarget), e.currentTarget) }} className='flex flex-col gap-2'>
-        <PasswordFields copy={f} label={f.newPassword} autoFocus errors={{ password: live.error('password'), confirmPassword: live.error('confirmPassword') }} />
+      <form id='agent-password-form' noValidate onSubmit={(e) => { void save(e) }} className='flex flex-col gap-2'>
+        <PasswordFields copy={f} label={f.newPassword} autoFocus register={register} control={control} errors={errors} />
         <p className='text-xs leading-4 text-muted'>{f.passwordHint}</p>
       </form>
     </Dialog>

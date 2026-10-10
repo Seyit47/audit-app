@@ -5,22 +5,25 @@ import dynamic from 'next/dynamic'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { forgetFormData } from '@/lib/url-dialog'
 import { useState, useTransition } from 'react'
+import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/Button'
 import { Dialog } from '@/components/ui/Dialog'
 import { FigmaIcon } from '@/components/ui/FigmaIcon'
 import { FormField, SelectInput, TextInput } from '@/components/ui/FormField'
 import { ImageUpload } from '@/components/ui/ImageUpload'
 import { MultiSelect } from '@/components/ui/MultiSelect'
-import { createShop, setShopStatus, updateShop, type ShopInput } from '../actions'
+import { phoneField } from '@/lib/form'
+import { displayPhone } from '@/lib/phone'
+import { createShop, setShopStatus, updateShop } from '../actions'
 import type { Shop } from '../api'
 import type { ShopFormCopy } from '../copy'
-import { displayPhone, phoneInputProps, tmPhone } from '@/lib/phone'
+import { shopSchema, type ShopValues } from '../schema'
 
 const MapView = dynamic(() => import('@/components/ui/MapView').then((m) => m.MapView), { ssr: false })
 const ShopMarker = dynamic(() => import('@/components/ui/MapView').then((m) => m.ShopMarker), { ssr: false })
 
 const MAX_PHONES = 4
-type Phone = { phone: string, label: string }
 
 /** Edit / add shop dialog of Figma 162:20071, with exactly the frame's fields. */
 export function ShopEditDialog ({ shop, agents, products, productIds, copy, closeHref, enterStartedAt }: {
@@ -35,14 +38,25 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
-  const [name, setName] = useState(shop?.name ?? '')
-  const [address, setAddress] = useState(shop?.address ?? '')
-  const [agentId, setAgentId] = useState(shop?.agent?.id ?? '')
-  const [point, setPoint] = useState<{ lat: number, lng: number } | null>(shop != null ? { lat: shop.lat, lng: shop.lng } : null)
   const [picking, setPicking] = useState(shop == null)
-  const [carried, setCarried] = useState<string[]>(productIds)
-  const [facadeId, setFacadeId] = useState<string | null>(shop?.facade?.id ?? null)
-  const [phones, setPhones] = useState<Phone[]>(shop?.contacts.length ? shop.contacts.map((c) => ({ phone: displayPhone(c.phone), label: c.label ?? '' })) : [{ phone: '', label: '' }])
+  const [schema] = useState(() => shopSchema(copy))
+  // A field reports what is wrong once it has been changed, and every field on Save.
+  const { register, control, handleSubmit, setValue, formState: { errors } } = useForm<ShopValues, unknown, ReturnType<typeof schema.parse>>({
+    resolver: zodResolver(schema),
+    mode: 'onChange',
+    defaultValues: {
+      name: shop?.name ?? '',
+      address: shop?.address ?? '',
+      agentId: shop?.agent?.id ?? '',
+      point: shop != null ? { lat: shop.lat, lng: shop.lng } : null,
+      productIds,
+      facadePhotoId: shop?.facade?.id ?? null,
+      phones: shop?.contacts.length ? shop.contacts.map((c) => ({ phone: displayPhone(c.phone), label: c.label ?? '' })) : [{ phone: '', label: '' }]
+    }
+  })
+  const phones = useFieldArray({ control, name: 'phones' })
+  const [point, name] = useWatch({ control, name: ['point', 'name'] })
+  const addressError = errors.address?.message ?? errors.point?.message
   // The server renders the page without the dialog; the progress bar shows while it answers.
   // Open while the URL says so (`?add=1`, `?edit=…`). Closing only rewrites the URL in the browser: the page
   // behind is unchanged, so there is no server round trip to wait for (a slow or failed one used to leave
@@ -54,43 +68,26 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
     if (changed) { forgetFormData(); router.refresh() }
   }
 
-  // Each field says what is wrong once it has been changed (and all of them on Save).
-  const [touched, setTouched] = useState<ReadonlySet<string>>(new Set())
-  const touch = (key: string) => { if (!touched.has(key)) setTouched(new Set(touched).add(key)) }
-  const fieldErrors: Record<string, string | null> = {
-    name: name.trim() === '' ? copy.errors.field : null,
-    address: address.trim() === '' ? copy.errors.field : null,
-    location: point == null ? copy.errors.location : null,
-    ...Object.fromEntries(phones.map((p, i) => [`phone${i}`, p.phone.trim() !== '' && tmPhone(p.phone, 'any') == null ? copy.errors.phoneShort : null]))
-  }
-  const fieldError = (key: string) => (touched.has(key) ? fieldErrors[key] ?? undefined : undefined)
-
-  function save () {
-    setTouched(new Set(Object.keys(fieldErrors)))
-    if (Object.values(fieldErrors).some((e) => e != null)) return setError(null)
-    if (name.trim() === '' || address.trim() === '' || point == null) return setError(copy.errors.required)
-    // Contacts: Turkmen mobile or landline numbers, sent in the stored form +993XXXXXXXX.
-    const filled = phones.filter((p) => p.phone.trim() !== '')
-    const canonical = filled.map((p) => tmPhone(p.phone, 'any'))
-    if (canonical.some((p) => p == null)) return setError(copy.errors.phone)
-    const input: ShopInput = {
-      name: name.trim(),
-      address: address.trim(),
-      lat: point.lat,
-      lng: point.lng,
-      facadePhotoId: facadeId,
-      assignedAgentId: agentId === '' ? null : agentId,
-      contacts: filled.map((p, i) => ({ phone: canonical[i]!, label: p.label.trim() || null })),
-      productIds: carried
-    }
+  const save = handleSubmit((v) => {
     setError(null)
+    const input = {
+      name: v.name,
+      address: v.address,
+      lat: v.point!.lat,
+      lng: v.point!.lng,
+      facadePhotoId: v.facadePhotoId,
+      assignedAgentId: v.agentId,
+      // Contacts are sent in the stored form +993XXXXXXXX; empty rows are dropped.
+      contacts: v.phones.filter((p) => p.phone != null).map((p) => ({ phone: p.phone!, label: p.label })),
+      productIds: v.productIds
+    }
     startTransition(() => guard(async () => {
       const res = shop == null ? await createShop(input) : await updateShop(shop.id, shop.version, input)
       if (!res.ok) return setError(res.code === 'CONFLICT' ? copy.errors.CONFLICT : copy.errors.generic)
       say(shop == null ? 'created' : 'saved')
       close(true)
     }))
-  }
+  })
 
   function toggleArchive () {
     if (shop == null) return
@@ -101,8 +98,6 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
       close(true)
     }))
   }
-
-  const setPhone = (i: number, patch: Partial<Phone>) => setPhones((ps) => ps.map((p, j) => (j === i ? { ...p, ...patch } : p)))
 
   return (
     <Dialog
@@ -118,7 +113,7 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
           <div className='flex items-center gap-3'>
             {error != null && <p role='alert' className='max-w-80 text-xs text-error'>{error}</p>}
             <Button variant='outline' size='md' data-dialog-close>{copy.cancel}</Button>
-            <Button size='md' disabled={pending} onClick={save}>{copy.save}</Button>
+            <Button size='md' disabled={pending} onClick={() => { void save() }}>{copy.save}</Button>
           </div>
         </>
       }
@@ -131,16 +126,16 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
         previewUrl={shop?.facade?.previewUrl400 ?? null}
         caption={copy.photoCaption}
         copy={{ upload: copy.upload, remove: copy.remove, uploading: copy.uploading, failed: copy.uploadFailed }}
-        onChange={(photo) => setFacadeId(photo?.id ?? null)}
+        onChange={(photo) => setValue('facadePhotoId', photo?.id ?? null)}
       />
 
       <div className='grid grid-cols-2 gap-4'>
-        <FormField label={copy.name} required hint={copy.nameHint} htmlFor='shop-name' error={fieldError('name')}>
-          <TextInput id='shop-name' value={name} onChange={(e) => { setName(e.target.value); touch('name') }} />
+        <FormField label={copy.name} required hint={copy.nameHint} htmlFor='shop-name' error={errors.name?.message}>
+          <TextInput id='shop-name' {...register('name')} />
         </FormField>
         <FormField label={copy.agent} hint={copy.agentHint} htmlFor='shop-agent'>
           <div className='pt-0.5'>
-            <SelectInput id='shop-agent' value={agentId} onChange={(e) => setAgentId(e.target.value)}>
+            <SelectInput id='shop-agent' {...register('agentId')}>
               <option value=''>{copy.noAgent}</option>
               {agents.map((a) => <option key={a.id} value={a.id}>{a.fullName} {a.code}</option>)}
             </SelectInput>
@@ -149,27 +144,32 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
       </div>
 
       <FormField label={copy.products} htmlFor='shop-products'>
-        <MultiSelect
-          id='shop-products' value={carried} onChange={setCarried}
-          options={products.map((p) => ({ value: p.id, label: p.name, hint: p.sku }))}
-          placeholder={copy.productsPlaceholder} searchPlaceholder={copy.productsSearch}
-          summary={(n) => copy.productsSelected.replace('{n}', String(n))}
+        <Controller
+          control={control} name='productIds'
+          render={({ field }) => (
+            <MultiSelect
+              id='shop-products' value={field.value} onChange={field.onChange}
+              options={products.map((p) => ({ value: p.id, label: p.name, hint: p.sku }))}
+              placeholder={copy.productsPlaceholder} searchPlaceholder={copy.productsSearch}
+              summary={(n) => copy.productsSelected.replace('{n}', String(n))}
+            />
+          )}
         />
       </FormField>
 
       <div className='flex flex-col gap-3'>
         <FormField
-          label={copy.address} required htmlFor='shop-address' error={fieldError('address') ?? fieldError('location')}
+          label={copy.address} required htmlFor='shop-address' error={addressError}
           action={
             <button data-ripple type='button' onClick={() => setPicking(!picking)} className='-mx-1.5 -my-1 rounded-md px-1.5 py-1 flex items-center gap-1 text-xs font-semibold leading-4 text-accent'>
               <FigmaIcon name='map-pin-accent' width={14} height={14} />{copy.pickOnMap}
             </button>
           }
         >
-          <div className={`flex h-[42px] items-center justify-between gap-2 rounded-lg border px-3.5 ${fieldError('address') ?? fieldError('location') ? 'border-error' : 'border-border'}`}>
+          <div className={`flex h-[42px] items-center justify-between gap-2 rounded-lg border px-3.5 ${addressError != null ? 'border-error' : 'border-border'}`}>
             <span className='flex min-w-0 flex-1 items-center gap-2'>
               <FigmaIcon name='building' width={16} height={16} />
-              <input id='shop-address' value={address} onChange={(e) => { setAddress(e.target.value); touch('address') }} className='min-w-0 flex-1 bg-transparent text-sm font-medium leading-5 text-black focus:outline-none' />
+              <input id='shop-address' className='min-w-0 flex-1 bg-transparent text-sm font-medium leading-5 text-black focus:outline-none' {...register('address')} />
             </span>
             {point != null
               ? <span className='flex shrink-0 items-center gap-1 rounded-full bg-success-10 px-2 py-0.5 font-display text-[11px] font-medium leading-[16.5px] text-success'><FigmaIcon name='check-success' width={12} height={12} />{copy.gpsBound}</span>
@@ -178,7 +178,7 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
         </FormField>
         {picking && (
           <div className='h-56 overflow-hidden rounded-lg border border-border'>
-            <MapView initialView={point != null ? { latitude: point.lat, longitude: point.lng, zoom: 15 } : undefined} onClick={(p) => { setPoint({ lat: p.lat, lng: p.lng }); touch('location') }}>
+            <MapView initialView={point != null ? { latitude: point.lat, longitude: point.lng, zoom: 15 } : undefined} onClick={(p) => setValue('point', { lat: p.lat, lng: p.lng }, { shouldValidate: true, shouldDirty: true })}>
               {point != null && <ShopMarker latitude={point.lat} longitude={point.lng} label={name || copy.name} imageUrl={shop?.facade?.previewUrl400} color='#493ee5' />}
             </MapView>
           </div>
@@ -199,30 +199,35 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
           <span className='text-xs leading-4 text-off-white'>{copy.phonesHint}</span>
         </div>
         <div className='flex flex-col gap-2.5'>
-          {phones.map((p, i) => (
-            <div key={i} className='flex flex-col gap-1'>
-            <div className='flex items-center gap-2'>
-              <div className='relative w-[405px]'>
-                <span className='pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-display text-xs leading-4 text-off-white'>№{i + 1}</span>
-                <input
-                  value={p.phone} {...phoneInputProps((phone) => { setPhone(i, { phone }); touch(`phone${i}`) })} aria-label={`${copy.phones} ${i + 1}`} aria-invalid={fieldError(`phone${i}`) != null}
-                  className={`h-[38px] w-full rounded-lg border pl-9 pr-3 font-display text-sm leading-5 text-black focus:outline-none ${fieldError(`phone${i}`) != null ? 'border-error' : 'border-border focus:border-accent'}`}
-                />
+          {phones.fields.map((row, i) => {
+            const phoneError = errors.phones?.[i]?.phone?.message
+            return (
+              <div key={row.id} className='flex flex-col gap-1'>
+                <div className='flex items-center gap-2'>
+                  <div className='relative w-[405px]'>
+                    <span className='pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-display text-xs leading-4 text-off-white'>№{i + 1}</span>
+                    <input
+                      aria-label={`${copy.phones} ${i + 1}`} aria-invalid={phoneError != null}
+                      className={`h-[38px] w-full rounded-lg border pl-9 pr-3 font-display text-sm leading-5 text-black focus:outline-none ${phoneError != null ? 'border-error' : 'border-border focus:border-accent'}`}
+                      {...phoneField(register(`phones.${i}.phone`))}
+                    />
+                  </div>
+                  <input
+                    placeholder={copy.phoneLabel} aria-label={copy.phoneLabel}
+                    className='h-[34px] w-[223px] rounded-lg border border-border px-3 text-xs leading-4 text-default-black placeholder:text-off-white focus:border-accent focus:outline-none'
+                    {...register(`phones.${i}.label`)}
+                  />
+                  <button data-ripple type='button' aria-label={copy.removePhone} onClick={() => phones.remove(i)} className='rounded-lg p-2'>
+                    <FigmaIcon name='phone-delete' width={16} height={16} />
+                  </button>
+                </div>
+                {phoneError != null && <p role='alert' className='text-[11px] leading-[16.5px] text-error'>{phoneError}</p>}
               </div>
-              <input
-                value={p.label} onChange={(e) => setPhone(i, { label: e.target.value })} placeholder={copy.phoneLabel} aria-label={copy.phoneLabel}
-                className='h-[34px] w-[223px] rounded-lg border border-border px-3 text-xs leading-4 text-default-black placeholder:text-off-white focus:border-accent focus:outline-none'
-              />
-              <button data-ripple type='button' aria-label={copy.removePhone} onClick={() => setPhones((ps) => ps.filter((_, j) => j !== i))} className='rounded-lg p-2'>
-                <FigmaIcon name='phone-delete' width={16} height={16} />
-              </button>
-            </div>
-            {fieldError(`phone${i}`) != null && <p role='alert' className='text-[11px] leading-[16.5px] text-error'>{fieldError(`phone${i}`)}</p>}
-            </div>
-          ))}
+            )
+          })}
         </div>
-        {phones.length < MAX_PHONES && (
-          <button data-ripple type='button' onClick={() => setPhones((ps) => [...ps, { phone: '', label: '' }])} className='-mx-1.5 -mb-1 rounded-md px-1.5 pb-1 flex items-center gap-1.5 self-start pt-0.5 text-xs font-semibold leading-4 text-accent'>
+        {phones.fields.length < MAX_PHONES && (
+          <button data-ripple type='button' onClick={() => phones.append({ phone: '', label: '' })} className='-mx-1.5 -mb-1 rounded-md px-1.5 pb-1 flex items-center gap-1.5 self-start pt-0.5 text-xs font-semibold leading-4 text-accent'>
             <FigmaIcon name='plus-accent' width={14} height={14} />{copy.addPhone}
           </button>
         )}

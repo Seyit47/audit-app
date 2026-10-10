@@ -1,16 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import { useWatch, type Control, type FieldErrors, type UseFormRegister } from 'react-hook-form'
 import { FormField, TextInput } from '@/components/ui/FormField'
-
-/** The salesman password rules, the same as the API (`agents.schema.ts`). */
-export const passwordRules = (password: string, confirm: string) => ({
-  length: password.length >= 8,
-  letter: /\p{L}/u.test(password),
-  digit: /\d/.test(password),
-  match: password !== '' && password === confirm
-})
-export const passwordOk = (password: string, confirm: string) => Object.values(passwordRules(password, confirm)).every(Boolean)
+import { passwordRules } from '../schema'
 
 export interface PasswordCopy {
   password: string
@@ -21,58 +14,55 @@ export interface PasswordCopy {
   rules: { length: string, letter: string, digit: string, match: string }
 }
 
-function Field ({ id, name, placeholder, shown, onToggle, value, onChange, copy, autoFocus }: {
-  id: string
-  name: string
-  placeholder: string
-  shown: boolean
-  onToggle: () => void
-  value: string
-  onChange: (v: string) => void
-  copy: PasswordCopy
-  autoFocus?: boolean
-}) {
-  return (
-    <div className='relative'>
-      <TextInput
-        variant='form' id={id} name={name} type={shown ? 'text' : 'password'} placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)}
-        maxLength={128} autoComplete='new-password' autoFocus={autoFocus} required className='pr-24'
-      />
-      {/* Positioned by a wrapper: data-ripple makes the button itself position: relative. */}
-      <span className='absolute right-2 top-1/2 -translate-y-1/2'>
-        <button data-ripple type='button' onClick={onToggle} className='rounded-md px-2 py-1 text-[11px] font-semibold leading-4 text-accent'>
-          {shown ? copy.hidePassword : copy.showPassword}
-        </button>
-      </span>
-    </div>
-  )
-}
+/** The form fields this block owns. */
+interface PasswordFormValues { password?: string, confirmPassword?: string }
 
 /**
- * Password and its confirmation, with the rules ticking off as the admin types. Both inputs post with the form
- * (`password`, `confirmPassword`); the caller checks `passwordOk` before saving.
+ * Password and its confirmation in a react-hook-form form, with the rules ticking off as the admin types and each
+ * field's error under it. "Показать" reveals both.
  */
-export function PasswordFields ({ copy, label, autoFocus, errors, className = '' }: {
+export function PasswordFields<T extends PasswordFormValues, O = T> ({ copy, label, autoFocus, register, control, errors, className = '' }: {
   copy: PasswordCopy
   label?: string
   autoFocus?: boolean
-  /** Live field errors (useLiveValidation), shown under each input. */
-  errors?: { password?: string, confirmPassword?: string }
+  register: UseFormRegister<T>
+  control: Control<T, unknown, O>
+  errors: FieldErrors<T>
   className?: string
 }) {
-  const [password, setPassword] = useState('')
-  const [confirm, setConfirm] = useState('')
+  // The block only knows its own two fields; the casts narrow the form's types to them.
+  const reg = register as unknown as UseFormRegister<PasswordFormValues>
+  const ctl = control as unknown as Control<PasswordFormValues>
+  const errs = errors as FieldErrors<PasswordFormValues>
+  const [password = '', confirm = ''] = useWatch({ control: ctl, name: ['password', 'confirmPassword'] })
   const [shown, setShown] = useState(false)
   const rules = passwordRules(password, confirm)
-  const toggle = () => setShown((s) => !s)
+  const toggle = (
+    // Positioned by a wrapper: data-ripple makes the button itself position: relative.
+    <span className='absolute right-2 top-1/2 -translate-y-1/2'>
+      <button data-ripple type='button' onClick={() => setShown((s) => !s)} className='rounded-md px-2 py-1 text-[11px] font-semibold leading-4 text-accent'>
+        {shown ? copy.hidePassword : copy.showPassword}
+      </button>
+    </span>
+  )
+  const input = (name: 'password' | 'confirmPassword', focus?: boolean) => (
+    <div className='relative'>
+      <TextInput
+        variant='form' id={name} type={shown ? 'text' : 'password'} placeholder={copy.passwordPlaceholder}
+        maxLength={128} autoComplete='new-password' autoFocus={focus} className='pr-24'
+        {...reg(name, name === 'password' ? { deps: ['confirmPassword'] } : undefined)}
+      />
+      {toggle}
+    </div>
+  )
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
       <div className='grid grid-cols-2 gap-x-6 gap-y-4'>
-        <FormField variant='form' label={label ?? copy.password} required htmlFor='password' error={errors?.password}>
-          <Field id='password' name='password' placeholder={copy.passwordPlaceholder} shown={shown} onToggle={toggle} value={password} onChange={setPassword} copy={copy} autoFocus={autoFocus} />
+        <FormField variant='form' label={label ?? copy.password} required htmlFor='password' error={errs.password?.message}>
+          {input('password', autoFocus)}
         </FormField>
-        <FormField variant='form' label={copy.confirmPassword} required htmlFor='confirmPassword' error={errors?.confirmPassword}>
-          <Field id='confirmPassword' name='confirmPassword' placeholder={copy.passwordPlaceholder} shown={shown} onToggle={toggle} value={confirm} onChange={setConfirm} copy={copy} />
+        <FormField variant='form' label={copy.confirmPassword} required htmlFor='confirmPassword' error={errs.confirmPassword?.message}>
+          {input('confirmPassword')}
         </FormField>
       </div>
       <ul aria-live='polite' className='flex flex-wrap gap-x-4 gap-y-1'>

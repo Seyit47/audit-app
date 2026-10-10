@@ -3,12 +3,15 @@
 import { guard, say } from '@/lib/feedback'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { FormField, SelectInput, TextInput } from '@/components/ui/FormField'
 import { ImageUpload } from '@/components/ui/ImageUpload'
 import { saveSettings, type SettingsInput } from '../actions'
 import type { SettingsCopy } from '../copy'
+import { settingsSchema, type SettingsValues } from '../schema'
 
 function Section ({ title, children }: { title: string, children: React.ReactNode }) {
   return (
@@ -22,62 +25,53 @@ function Section ({ title, children }: { title: string, children: React.ReactNod
 /** Company settings (approved exception A4) from the 162:20071 form components. */
 export function SettingsForm ({ initial, logoUrl, timezones, copy }: { initial: SettingsInput, logoUrl: string | null, timezones: string[], copy: SettingsCopy }) {
   const router = useRouter()
-  const [v, setV] = useState(initial)
   const [status, setStatus] = useState<'idle' | 'saved' | string>('idle')
   const [pending, startTransition] = useTransition()
-  // Each field says what is wrong once it has been changed (and all of them on Save).
-  const [touched, setTouched] = useState<ReadonlySet<string>>(new Set())
-  const set = <K extends keyof SettingsInput>(k: K, value: SettingsInput[K]) => {
-    setV((x) => ({ ...x, [k]: value })); setStatus('idle')
-    if (!touched.has(k)) setTouched(new Set(touched).add(k))
-  }
-  const range = (n: number, min: number, max: number) => Number.isInteger(n) && n >= min && n <= max ? null : copy.errors.range.replace('{min}', String(min)).replace('{max}', String(max))
-  const fieldErrors: Record<string, string | null> = {
-    companyName: v.companyName.trim() === '' ? copy.errors.field : null,
-    workEnd: v.workEnd <= v.workStart ? copy.errors.hours : null,
-    visitFrequencyDays: range(v.visitFrequencyDays, 1, 90),
-    defaultAuditRadiusM: range(v.defaultAuditRadiusM, 10, 1000),
-    minGpsAccuracyM: range(v.minGpsAccuracyM, 5, 200),
-    noSignalMinutes: range(v.noSignalMinutes, 5, 240)
-  }
-  // The end-time rule also reacts to the start time.
-  const fieldError = (k: string) => (touched.has(k) || (k === 'workEnd' && touched.has('workStart')) ? fieldErrors[k] ?? undefined : undefined)
-  const num = (k: 'visitFrequencyDays' | 'defaultAuditRadiusM' | 'minGpsAccuracyM' | 'noSignalMinutes') => ({
-    type: 'number', inputMode: 'numeric' as const, value: String(v[k]), onChange: (e: React.ChangeEvent<HTMLInputElement>) => set(k, Number(e.target.value))
+  const [schema] = useState(() => settingsSchema(copy))
+  // A field reports what is wrong once it has been changed, and every field on Save.
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<SettingsValues, unknown, ReturnType<typeof schema.parse>>({
+    resolver: zodResolver(schema),
+    mode: 'onChange',
+    defaultValues: {
+      ...initial,
+      visitFrequencyDays: String(initial.visitFrequencyDays),
+      defaultAuditRadiusM: String(initial.defaultAuditRadiusM),
+      minGpsAccuracyM: String(initial.minGpsAccuracyM),
+      noSignalMinutes: String(initial.noSignalMinutes)
+    }
   })
+  const num = (k: 'visitFrequencyDays' | 'defaultAuditRadiusM' | 'minGpsAccuracyM' | 'noSignalMinutes') =>
+    ({ type: 'number', inputMode: 'numeric' as const, ...register(k, { onChange: () => setStatus('idle') }) })
 
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setTouched(new Set(Object.keys(fieldErrors)))
-    if (Object.values(fieldErrors).some((x) => x != null)) { setStatus('idle'); return }
+  const submit = handleSubmit((v) => {
     startTransition(() => guard(async () => {
-      const r = await saveSettings({ ...v, companyName: v.companyName.trim() })
+      const r = await saveSettings(v)
       if (r.ok) { setStatus('saved'); say('saved'); router.refresh() } else setStatus(copy.errors[r.code as keyof typeof copy.errors] ?? copy.errors.generic)
     }))
-  }
+  })
 
   return (
-    <form noValidate onSubmit={submit} className='flex flex-col gap-4'>
+    <form noValidate onSubmit={(e) => { void submit(e) }} className='flex flex-col gap-4'>
       <Section title={copy.company}>
         <ImageUpload
           title={copy.logo} hint={copy.logoHint} kind='LOGO' previewUrl={logoUrl} copy={copy.upload}
-          onChange={(photo) => set('logoPhotoId', photo?.id ?? null)}
+          onChange={(photo) => setValue('logoPhotoId', photo?.id ?? null, { shouldDirty: true })}
         />
-        <FormField label={copy.companyName} required htmlFor='companyName' error={fieldError('companyName')}>
-          <TextInput id='companyName' value={v.companyName} maxLength={120} onChange={(e) => set('companyName', e.target.value)} className='h-11 px-3' />
+        <FormField label={copy.companyName} required htmlFor='companyName' error={errors.companyName?.message}>
+          <TextInput id='companyName' maxLength={120} className='h-11 px-3' {...register('companyName', { onChange: () => setStatus('idle') })} />
         </FormField>
       </Section>
 
       <Section title={copy.hours}>
         <div className='grid grid-cols-3 gap-4'>
           <FormField label={copy.workStart} htmlFor='workStart'>
-            <TextInput id='workStart' type='time' value={v.workStart} onChange={(e) => set('workStart', e.target.value)} className='h-11 px-3' />
+            <TextInput id='workStart' type='time' className='h-11 px-3' {...register('workStart', { deps: ['workEnd'], onChange: () => setStatus('idle') })} />
           </FormField>
-          <FormField label={copy.workEnd} htmlFor='workEnd' error={fieldError('workEnd')}>
-            <TextInput id='workEnd' type='time' value={v.workEnd} onChange={(e) => set('workEnd', e.target.value)} className='h-11 px-3' />
+          <FormField label={copy.workEnd} htmlFor='workEnd' error={errors.workEnd?.message}>
+            <TextInput id='workEnd' type='time' className='h-11 px-3' {...register('workEnd', { onChange: () => setStatus('idle') })} />
           </FormField>
           <FormField label={copy.timezone} htmlFor='timezone'>
-            <SelectInput id='timezone' value={v.timezone} onChange={(e) => set('timezone', e.target.value)}>
+            <SelectInput id='timezone' {...register('timezone', { onChange: () => setStatus('idle') })}>
               {timezones.map((tz) => <option key={tz} value={tz}>{tz}</option>)}
             </SelectInput>
           </FormField>
@@ -87,16 +81,16 @@ export function SettingsForm ({ initial, logoUrl, timezones, copy }: { initial: 
 
       <Section title={copy.rules}>
         <div className='grid grid-cols-2 gap-4'>
-          <FormField label={copy.visitFrequency} htmlFor='visitFrequencyDays' error={fieldError('visitFrequencyDays')}>
+          <FormField label={copy.visitFrequency} htmlFor='visitFrequencyDays' error={errors.visitFrequencyDays?.message}>
             <TextInput id='visitFrequencyDays' min={1} max={90} {...num('visitFrequencyDays')} variant='form' suffix={copy.days} className='h-11' />
           </FormField>
-          <FormField label={copy.radius} hint={copy.radiusHint} htmlFor='defaultAuditRadiusM' error={fieldError('defaultAuditRadiusM')}>
+          <FormField label={copy.radius} hint={copy.radiusHint} htmlFor='defaultAuditRadiusM' error={errors.defaultAuditRadiusM?.message}>
             <TextInput id='defaultAuditRadiusM' min={10} max={1000} {...num('defaultAuditRadiusM')} variant='form' suffix={copy.meters} className='h-11' />
           </FormField>
-          <FormField label={copy.accuracy} htmlFor='minGpsAccuracyM' error={fieldError('minGpsAccuracyM')}>
+          <FormField label={copy.accuracy} htmlFor='minGpsAccuracyM' error={errors.minGpsAccuracyM?.message}>
             <TextInput id='minGpsAccuracyM' min={5} max={200} {...num('minGpsAccuracyM')} variant='form' suffix={copy.meters} className='h-11' />
           </FormField>
-          <FormField label={copy.noSignal} htmlFor='noSignalMinutes' error={fieldError('noSignalMinutes')}>
+          <FormField label={copy.noSignal} htmlFor='noSignalMinutes' error={errors.noSignalMinutes?.message}>
             <TextInput id='noSignalMinutes' min={5} max={240} {...num('noSignalMinutes')} variant='form' suffix={copy.minutes} className='h-11' />
           </FormField>
         </div>
