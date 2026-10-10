@@ -1,3 +1,4 @@
 {
-  "API_URL": "https://audit-api-5r1n.onrender.com"
+  "API_URL": "https://audit-api-5r1n.onrender.com",
+  "ACTIVATION_URL": "http://216.250.13.114:3100/api"
 }

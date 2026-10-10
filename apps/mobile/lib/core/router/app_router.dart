@@ -2,6 +2,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/activation/activation_provider.dart';
+import '../../features/activation/presentation/activation_screen.dart';
 import '../../features/admin/agent_details/presentation/agent_details_screen.dart';
 import '../../features/admin/agent_form/presentation/agent_form_screen.dart';
 import '../../features/admin/agents/presentation/agents_screen.dart';
@@ -38,6 +40,7 @@ class LocationGranted extends Notifier<bool> {
 
 /// Routes per contracts/screens.md. Each story adds its screens here.
 List<RouteBase> appRoutes() => [
+  GoRoute(path: Paths.activation, builder: (_, _) => const ActivationScreen()),
   GoRoute(path: Paths.login, builder: (_, _) => const LoginScreen()),
   GoRoute(path: Paths.agentPermission, builder: (_, _) => const PermissionScreen()),
   GoRoute(path: Paths.agentHome, builder: (_, _) => const AgentHomeScreen(), routes: agentRoutes),
@@ -129,6 +132,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final refresh = ValueNotifier(0);
   ref.listen(sessionProvider, (_, _) => refresh.value++);
   ref.listen(locationGrantedProvider, (_, _) => refresh.value++);
+  ref.listen(activationProvider, (_, _) => refresh.value++);
   ref.onDispose(refresh.dispose);
 
   final router = GoRouter(
@@ -138,7 +142,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final session = ref.read(sessionProvider);
       if (session.isLoading) return null;
-      return redirectFor(location: state.matchedLocation, user: session.value, locationGranted: ref.read(locationGrantedProvider));
+      return redirectFor(
+        location: state.matchedLocation,
+        user: session.value,
+        locationGranted: ref.read(locationGrantedProvider),
+        activated: ref.read(activationProvider) == Activation.active,
+      );
     },
   );
   ref.onDispose(router.dispose);

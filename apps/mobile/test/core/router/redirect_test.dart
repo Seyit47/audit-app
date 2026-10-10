@@ -6,7 +6,8 @@ void main() {
   const agent = SessionUser(id: 'u1', role: Role.agent, agentId: 'u1');
   const admin = SessionUser(id: 'u2', role: Role.admin);
 
-  String? go(String location, SessionUser? user, {bool granted = true}) => redirectFor(location: location, user: user, locationGranted: granted);
+  String? go(String location, SessionUser? user, {bool granted = true, bool activated = true}) =>
+      redirectFor(location: location, user: user, locationGranted: granted, activated: activated);
 
   test('no session goes to sign-in', () {
     expect(go('/agent/shops', null), '/login');
@@ -25,5 +26,13 @@ void main() {
     expect(go('/agent', agent, granted: false), '/agent/permission');
     expect(go('/agent/permission', agent, granted: false), isNull);
     expect(go('/agent/permission', agent), '/agent');
+  });
+
+  test('a device that is not activated stays on the activation screen, whoever is signed in', () {
+    expect(go('/login', null, activated: false), '/activation');
+    expect(go('/agent/shops', agent, activated: false), '/activation');
+    expect(go('/activation', admin, activated: false), isNull);
+    expect(go('/activation', null), '/login');
+    expect(go('/activation', admin), '/admin');
   });
 }
