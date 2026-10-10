@@ -79,7 +79,8 @@ export default async function ShopDetailsPage ({ params, searchParams }: PagePro
               foot={k.geotaggedPct != null ? sub(d.geotagged, k.geotaggedPct) : '—'} footIcon={['kpi-verified', 13.75, 13.125]} />
           </div>
           <ShopMiniMap
-            lat={shop.lat} lng={shop.lng} name={shop.name}
+            lat={shop.lat} lng={shop.lng} name={shop.name} imageUrl={shop.facade?.previewUrl400} radiusM={shop.auditRadiusM}
+            lastVisitAt={shop.lastVisitAt} nextDueAt={shop.nextDueAt}
             labels={{ title: d.geo, region: shop.region?.name ?? d.noRegion, gps: d.gpsValid, recenter: d.recenter, fullscreen: d.fullscreen, zoomIn: d.zoomIn, zoomOut: d.zoomOut }}
           />
         </div>

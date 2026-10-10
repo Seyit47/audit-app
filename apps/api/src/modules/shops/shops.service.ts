@@ -240,6 +240,7 @@ export class ShopsService {
       address: s.address,
       lat: s.lat,
       lng: s.lng,
+      auditRadiusM: s.auditRadiusM,
       status: s.status,
       agentId: s.assignedAgentId,
       regionId: s.regionId,

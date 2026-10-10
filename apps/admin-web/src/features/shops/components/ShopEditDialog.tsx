@@ -166,7 +166,7 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
         {picking && (
           <div className='h-56 overflow-hidden rounded-lg border border-border'>
             <MapView initialView={point != null ? { latitude: point.lat, longitude: point.lng, zoom: 15 } : undefined} onClick={(p) => setPoint({ lat: p.lat, lng: p.lng })}>
-              {point != null && <ShopMarker latitude={point.lat} longitude={point.lng} label={name || copy.name} />}
+              {point != null && <ShopMarker latitude={point.lat} longitude={point.lng} label={name || copy.name} imageUrl={shop?.facade?.previewUrl400} color='#493ee5' />}
             </MapView>
           </div>
         )}

@@ -3,7 +3,7 @@
 import { useRef } from 'react'
 import type { MapRef } from 'react-map-gl/maplibre'
 import { FigmaIcon } from '@/components/ui/FigmaIcon'
-import { MapView, ShopMarker } from '@/components/ui/MapView'
+import { MapView, ShopMarker, ShopRadius, shopPinColor, visitStateOf } from '@/components/ui/MapView'
 
 export interface ShopMapLabels { title: string, region: string, gps: string, recenter: string, fullscreen: string, zoomIn: string, zoomOut: string }
 
@@ -14,7 +14,17 @@ const shadowMd = 'shadow-[0px_2px_4px_-2px_rgba(0,0,0,0.1),0px_4px_6px_-1px_rgba
  * "Quick Location Snapshot Preview" of 47:7387, with the map controls of the salesman route map (122:9535):
  * back to the shop and full screen in the header, zoom in the map's corner.
  */
-export default function ShopMapCanvas ({ lat, lng, name, labels }: { lat: number, lng: number, name: string, labels: ShopMapLabels }) {
+export default function ShopMapCanvas ({ lat, lng, name, imageUrl, radiusM, lastVisitAt, nextDueAt, labels }: {
+  lat: number
+  lng: number
+  name: string
+  imageUrl?: string | null
+  radiusM: number
+  lastVisitAt: string | null
+  nextDueAt: string | null
+  labels: ShopMapLabels
+}) {
+  const color = shopPinColor(visitStateOf(lastVisitAt, nextDueAt))
   const map = useRef<MapRef>(null)
   const card = useRef<HTMLElement>(null)
   return (
@@ -33,7 +43,8 @@ export default function ShopMapCanvas ({ lat, lng, name, labels }: { lat: number
       {/* The map attribution sits above the region bar instead of covering it. */}
       <div className='relative min-h-0 flex-1 overflow-hidden rounded-lg bg-dark-accent [&_.maplibregl-ctrl-bottom-right]:bottom-10!'>
         <MapView ref={map} initialView={{ latitude: lat, longitude: lng, zoom: ZOOM }}>
-          <ShopMarker latitude={lat} longitude={lng} label={name} />
+          <ShopRadius longitude={lng} latitude={lat} radiusM={radiusM} color={color} />
+          <ShopMarker latitude={lat} longitude={lng} label={name} imageUrl={imageUrl} color={color} />
         </MapView>
         <div className={`absolute bottom-[76px] right-2 flex w-8 flex-col overflow-hidden rounded-lg bg-pure-white ${shadowMd}`}>
           <button data-ripple type='button' onClick={() => map.current?.zoomIn()} aria-label={labels.zoomIn} className='flex h-8 items-center justify-center text-sm font-bold leading-5 text-ink'>+</button>

@@ -8,7 +8,7 @@ import { Layer, Marker, Source, type MapRef, type StyleSpecification } from 'rea
 import { FigmaIcon } from '@/components/ui/FigmaIcon'
 import { SearchAutocomplete } from '@/components/ui/SearchAutocomplete'
 import { Bone } from '@/components/ui/Skeleton'
-import { ClusterMarker, DEFAULT_VIEW, MapView, RegionZone, ShopMarker, type InitialView } from '@/components/ui/MapView'
+import { AgentDot, ClusterMarker, DEFAULT_VIEW, MapView, RegionZone, ShopMarker, ShopRadius, shopPinColor, type InitialView } from '@/components/ui/MapView'
 import { plural, sub, type Locale } from '@/lib/i18n'
 import { navigationStarted } from '@/lib/feedback'
 import { useUrlState } from '@/lib/url-state'
@@ -156,20 +156,23 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
     <div ref={frame} className='relative size-full overflow-hidden bg-secondary-bg'>
       <MapView ref={map} initialView={initialView} mapStyle={satellite ? satelliteStyle(satelliteTiles) : '/map/style.json'} onIdle={recluster}>
         {zones.map((z) => <RegionZone key={z.id} id={z.id} polygon={z.polygon} />)}
+        {selectedShop != null && <ShopRadius longitude={selectedShop.lng} latitude={selectedShop.lat} radiusM={selectedShop.auditRadiusM} color={shopPinColor(selectedShop.visitState)} />}
         <Source id='shops' type='geojson' data={data} cluster clusterRadius={56} clusterMaxZoom={14}>
           {/* Invisible: keeps the source's tiles loaded so the clusters can be queried. */}
           <Layer id='shops-hit' type='circle' paint={{ 'circle-radius': 1, 'circle-opacity': 0 }} />
         </Source>
         {clusters.map((c) => c.kind === 'cluster'
           ? <ClusterMarker key={`c${c.id}`} longitude={c.lng} latitude={c.lat} count={c.count} unitLabel={c.count >= 100 ? copy.unit : undefined} onClick={() => { void expand(c.id, c.lng, c.lat) }} />
-          : <ShopMarker key={c.shop.id} longitude={c.shop.lng} latitude={c.shop.lat} label={c.shop.name} active={c.shop.id === selectedId} onHover={() => loadCard(c.shop.id)} onClick={() => select(c.shop.id)} />)}
+          : (
+            <ShopMarker
+              key={c.shop.id} longitude={c.shop.lng} latitude={c.shop.lat} label={c.shop.name} imageUrl={c.shop.thumbUrl} color={shopPinColor(c.shop.visitState)}
+              active={c.shop.id === selectedId} onHover={() => loadCard(c.shop.id)} onClick={() => select(c.shop.id)}
+            />
+            ))}
         {positions.map((p) => (
           <Marker key={p.agentId} longitude={p.lng} latitude={p.lat} anchor='center'>
             <Link href={`/salesmen/${p.agentId}`} className='group relative flex flex-col items-center' title={`${p.fullName} · ${sub(copy.hereNow, new Date(p.recordedAt).toLocaleTimeString(locale === 'ru' ? 'ru-RU' : 'en-US', { hour: '2-digit', minute: '2-digit' }))}`}>
-              <span className='absolute size-10 rounded-full bg-accent/25' />
-              <span className='relative flex size-8 items-center justify-center rounded-full border-2 border-white bg-accent'>
-                <FigmaIcon name='marker-walk' width={8.66} height={14.34} />
-              </span>
+              <AgentDot />
               <span className={`absolute top-full mt-1 hidden whitespace-nowrap rounded-md bg-[#2e303b] px-2.5 py-1 text-[11px] font-semibold leading-[16.5px] text-[#f0effe] group-hover:block ${shadowMd}`}>{p.fullName}</span>
             </Link>
           </Marker>

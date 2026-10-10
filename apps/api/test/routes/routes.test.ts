@@ -36,6 +36,7 @@ test('routes/today is the agent own route; counts and map match visit states', a
   assert.strictEqual(map.find((m: { id: string }) => m.id === visited.id).visitState, 'VISITED')
 
   const adminMap = (await app.inject({ url: '/v1/shops/map', headers: bearer(app, { id: a.id, role: 'ADMIN' }) })).json()
+  assert.ok(adminMap.every((s: { auditRadiusM: number }) => s.auditRadiusM > 0), 'the map draws each selected shop\'s radius')
   assert.strictEqual(adminMap.length, 4)
   const filtered = (await app.inject({ url: `/v1/shops/map?agentIds=${other.userId}`, headers: bearer(app, { id: a.id, role: 'ADMIN' }) })).json()
   assert.strictEqual(filtered.length, 1)

@@ -4,7 +4,6 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import { setWorkerUrl } from 'maplibre-gl'
 import { forwardRef, type ReactNode } from 'react'
 import MapGL, { Layer, Marker, Source, type MapRef, type StyleSpecification, type ViewState } from 'react-map-gl/maplibre'
-import { FigmaIcon } from './FigmaIcon'
 
 // Served from /map by scripts/copy-maplibre-worker.mjs (Turbopack can't resolve the bundled worker).
 setWorkerUrl('/map/maplibre-gl-worker.mjs')
@@ -84,11 +83,33 @@ export function ClusterMarker ({ longitude, latitude, count, unitLabel, onClick 
   )
 }
 
-/** Shop marker of 21:2 (21:108) with the dark label pin when active (21:120). */
-export function ShopMarker ({ longitude, latitude, label, active = false, onClick, onHover }: {
+/** Today's visit state from a shop's dates (as the API's map does), for pages that get the shop itself. */
+export function visitStateOf (lastVisitAt: string | null, nextDueAt: string | null, now = new Date()): string {
+  const dayStart = new Date(now); dayStart.setHours(0, 0, 0, 0)
+  const dayEnd = new Date(dayStart.getTime() + 86_400_000)
+  if (lastVisitAt != null && new Date(lastVisitAt) >= dayStart) return 'VISITED'
+  if (nextDueAt != null && new Date(nextDueAt) < dayStart) return 'OVERDUE'
+  if (nextDueAt != null && new Date(nextDueAt) < dayEnd) return 'SCHEDULED'
+  return 'ASSIGNED'
+}
+
+/** Pin colors of 21:2 / 574:3155 by today's visit: visited green, due (or overdue) and not visited red, other grey. */
+export function shopPinColor (visitState: string): string {
+  if (visitState === 'VISITED') return '#10b981'
+  if (visitState === 'OVERDUE' || visitState === 'SCHEDULED') return '#f43f5e'
+  return '#94a3b8'
+}
+
+/**
+ * Shop pin of 21:2 (574:2732): the storefront photo in a ring of the visit color, with a pointer. The selected
+ * one carries the dark name label (21:120).
+ */
+export function ShopMarker ({ longitude, latitude, label, imageUrl, color, active = false, onClick, onHover }: {
   longitude: number
   latitude: number
   label: string
+  imageUrl?: string | null
+  color: string
   active?: boolean
   onClick?: () => void
   /** Pointer over the marker: start loading what a click will show. */
@@ -98,17 +119,51 @@ export function ShopMarker ({ longitude, latitude, label, active = false, onClic
     <Marker longitude={longitude} latitude={latitude} anchor='bottom' onClick={(e) => { e.originalEvent.stopPropagation(); onClick?.() }}>
       <button type='button' aria-label={label} aria-pressed={active} onPointerEnter={onHover} onFocus={onHover} className='flex flex-col items-center'>
         {active && (
-          <span className={`mb-2.5 flex items-center gap-1.5 rounded-md bg-[#2e303b] px-2.5 py-1 text-[11px] font-semibold leading-[16.5px] tracking-[-0.28px] text-[#f0effe] ${shadowLg}`}>
+          <span className={`mb-1.5 flex items-center gap-1.5 rounded-md bg-[#2e303b] px-2.5 py-1 text-[11px] font-semibold leading-[16.5px] tracking-[-0.28px] text-[#f0effe] ${shadowLg}`}>
             {label}
             <span className='size-1.5 rounded-full bg-[#72f8df]' />
           </span>
         )}
-        <span className={`flex size-8 items-center justify-center rounded-full bg-[#008372] ${shadowMd} ring-2 ring-white`}>
-          <FigmaIcon name='marker-shop' width={13.32} height={13.33} />
+        <span className={`relative block h-11 w-[37px] transition-transform ${active ? 'scale-110' : ''}`} style={{ color }}>
+          <span className='absolute left-3 top-[31px] size-[13px] bg-current [clip-path:polygon(0_0,100%_0,50%_100%)]' />
+          <span className='absolute left-0 top-0 size-[37px] rounded-full bg-current' />
+          <span className='absolute left-[3.5px] top-[3.5px] size-[30px] overflow-hidden rounded-full border border-white bg-current'>
+            {/* eslint-disable-next-line @next/next/no-img-element -- presigned storefront preview */}
+            {imageUrl != null && <img src={imageUrl} alt='' loading='lazy' className='size-full object-cover' />}
+          </span>
         </span>
-        {active && <span className='-mt-1 size-[8.49px] rotate-45 bg-[#008372]' />}
       </button>
     </Marker>
+  )
+}
+
+/** Agent position of 21:2 (574:2662): a blue dot with a white rim on a 60% light-blue halo. */
+export function AgentDot () {
+  return (
+    <span className='relative flex size-8 items-center justify-center'>
+      <span className='absolute inset-0 rounded-full bg-[#60a5fa] opacity-60' />
+      <span className='relative size-5 rounded-full border-2 border-white bg-[#2563eb]' />
+    </span>
+  )
+}
+
+/** A circle of `radiusM` meters as a polygon (the selected shop's audit radius). */
+function circle (lng: number, lat: number, radiusM: number, steps = 64): number[][] {
+  const dLat = radiusM / 111_320
+  const dLng = radiusM / (111_320 * Math.cos((lat * Math.PI) / 180))
+  return Array.from({ length: steps + 1 }, (_, i) => {
+    const a = (i / steps) * 2 * Math.PI
+    return [lng + dLng * Math.cos(a), lat + dLat * Math.sin(a)]
+  })
+}
+
+/** The selected shop's audit radius: where an agent can start its audit (accent tint, dashed outline). */
+export function ShopRadius ({ longitude, latitude, radiusM, color }: { longitude: number, latitude: number, radiusM: number, color: string }) {
+  return (
+    <Source id='shop-radius' type='geojson' data={{ type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [circle(longitude, latitude, radiusM)] } }}>
+      <Layer id='shop-radius-fill' type='fill' paint={{ 'fill-color': color, 'fill-opacity': 0.12 }} />
+      <Layer id='shop-radius-line' type='line' paint={{ 'line-color': color, 'line-width': 2, 'line-dasharray': [3, 2] }} />
+    </Source>
   )
 }
 

@@ -8,6 +8,7 @@ export interface MapShop {
   address: string
   lat: number
   lng: number
+  auditRadiusM: number
   status: 'PENDING_REVIEW' | 'ACTIVE' | 'INACTIVE'
   agentId: string | null
   regionId: string | null
