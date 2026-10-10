@@ -41,7 +41,7 @@
 /* Gallery sizing: the grid fits as many cards as the width allows, none narrower than photo-tile; the detail
    panel takes part of the row up to its Figma width (138:11987, 582 px). */
 @theme {
-  --container-photo-tile: 15rem;
+  --container-photo-tile: 18rem;
   --container-photo-panel: 36.375rem;
 }
 

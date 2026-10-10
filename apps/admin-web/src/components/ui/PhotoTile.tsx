@@ -14,7 +14,7 @@ export function VerifiedTag ({ label }: { label: string }) {
  * Photo card of 138:11987 (138:12115): image, "Verified" pin, and the bottom gradient with shop,
  * address and date, shown on hover/focus and while the card is active.
  */
-export function PhotoTile ({ src, alt, verifiedLabel, title, address, date, active = false, onSelect, onPrefetch, flipId, className = 'aspect-[3/4] w-full' }: {
+export function PhotoTile ({ src, alt, verifiedLabel, title, address, date, active = false, onSelect, onPrefetch, flipId, className = 'aspect-[4/3] w-full' }: {
   src: string
   alt: string
   /** Shown as the pin when the photo is verified. */
