@@ -59,6 +59,8 @@ dependencies:
   share_plus: ^13.3.1
   flutter_localizations:
     sdk: flutter
+  cached_network_image: ^4.0.4
+  flutter_cache_manager: ^3.4.5
 
 dev_dependencies:
   flutter_test:

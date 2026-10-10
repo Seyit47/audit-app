@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../config/app_config.dart';
+import '../network/photo_cache.dart';
 
 /// A shop pin of `83:17636`: a colored ring with the facade photo and a pointer.
 class MapMarker {
@@ -200,9 +201,8 @@ class _AppMapViewState extends State<AppMapView> {
     if (url == null || url.isEmpty) return null;
     if (_photos.containsKey(url)) return _photos[url];
     try {
-      final bytes = url.startsWith('/')
-          ? await File(url).readAsBytes()
-          : await (await (await HttpClient().getUrl(Uri.parse(url))).close()).fold<List<int>>(<int>[], (a, b) => a..addAll(b));
+      // The same disk cache as the photos elsewhere in the app.
+      final bytes = url.startsWith('/') ? await File(url).readAsBytes() : await (await photoCache.getSingleFile(url, key: photoCacheKey(url))).readAsBytes();
       final codec = await ui.instantiateImageCodec(Uint8List.fromList(bytes), targetWidth: 96);
       return _photos[url] = (await codec.getNextFrame()).image;
     } catch (_) {

@@ -1,7 +1,9 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import '../network/photo_cache.dart';
 import '../theme/app_colors.dart';
 
 /// A photo from a presigned URL, or a local file (`/…`) not yet uploaded; a tinted box while
@@ -25,13 +27,17 @@ class AppImage extends StatelessWidget {
     } else if (src.startsWith('/')) {
       image = Image.file(File(src), width: width, height: height, fit: fit, errorBuilder: (_, _, _) => placeholder);
     } else {
-      image = Image.network(
-        src,
+      // Kept on disk under the storage path: shown offline, not downloaded again when the signature changes.
+      image = CachedNetworkImage(
+        imageUrl: src,
+        cacheKey: photoCacheKey(src),
+        cacheManager: photoCache,
         width: width,
         height: height,
         fit: fit,
-        errorBuilder: (_, _, _) => placeholder,
-        loadingBuilder: (_, child, progress) => progress == null ? child : placeholder,
+        fadeInDuration: const Duration(milliseconds: 150),
+        placeholder: (_, _) => placeholder,
+        errorWidget: (_, _, _) => placeholder,
       );
     }
     return ClipRRect(borderRadius: BorderRadius.circular(radius), child: image);
