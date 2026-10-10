@@ -37,12 +37,16 @@ function satelliteStyle (tiles: string): StyleSpecification {
   }
 }
 
-function viewOf (shops: MapShop[]): InitialView {
-  if (shops.length === 0) return DEFAULT_VIEW
-  if (shops.length === 1) return { longitude: shops[0].lng, latitude: shops[0].lat, zoom: 15 }
-  const lngs = shops.map((s) => s.lng)
-  const lats = shops.map((s) => s.lat)
-  return { bounds: [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]], fitBoundsOptions: { padding: { top: 96, bottom: 48, left: 64, right: 64 }, maxZoom: 15 } }
+/**
+ * A view showing every point (shops and agents). Padding keeps them clear of the floating top bar plus a pin's
+ * height above its point, and of the edges.
+ */
+function viewOf (points: Array<{ lng: number, lat: number }>): InitialView {
+  if (points.length === 0) return DEFAULT_VIEW
+  if (points.length === 1) return { longitude: points[0].lng, latitude: points[0].lat, zoom: 15 }
+  const lngs = points.map((s) => s.lng)
+  const lats = points.map((s) => s.lat)
+  return { bounds: [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]], fitBoundsOptions: { padding: { top: 140, bottom: 56, left: 64, right: 64 }, maxZoom: 15 } }
 }
 
 
@@ -121,7 +125,8 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
     const ring = hullRing(shops.filter((s) => s.regionId === id).map((s) => [s.lng, s.lat]))
     return ring == null ? [] : [{ id, polygon: { type: 'Polygon' as const, coordinates: [ring] } }]
   }), [filters.regionIds, shops])
-  const [initialView] = useState(() => viewOf(shops))
+  // Opens with every shop and agent in view.
+  const [initialView] = useState(() => viewOf([...shops, ...(filters.show === 'shops' ? [] : positions)]))
 
   // Clusters come from MapLibre's GeoJSON clustering (research R-12) and render as the Figma markers.
   const recluster = useCallback(() => {
@@ -147,7 +152,7 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
     map.current?.easeTo({ center: [lng, lat], zoom: zoom ?? (map.current.getZoom() + 2) })
   }
   const recenter = () => {
-    const v = viewOf(visible)
+    const v = viewOf([...visible, ...shownPositions])
     if (v.bounds != null) map.current?.fitBounds(v.bounds, v.fitBoundsOptions)
     else map.current?.flyTo({ center: [v.longitude!, v.latitude!], zoom: v.zoom })
   }
