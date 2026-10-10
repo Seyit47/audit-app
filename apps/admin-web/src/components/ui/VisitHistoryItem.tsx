@@ -76,7 +76,7 @@ export function VisitHistoryItem ({ when, aside, status, statusLabel, thumbnailU
         <div className='flex items-center gap-1.5 pt-3'>
           {shown.map((p, i) => {
             const more = photos.length > MAX_THUMBS && i === MAX_THUMBS - 1
-            const cls = 'relative flex size-[60px] shrink-0 items-center justify-center overflow-hidden rounded-lg bg-dark-accent'
+            const cls = 'relative flex size-15 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-dark-accent'
             const inner = (
               <>
                 {/* eslint-disable-next-line @next/next/no-img-element -- presigned preview URL */}

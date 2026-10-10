@@ -22,13 +22,13 @@ export function PhotoReports ({ photos, total, galleryHref, copy, locale }: { ph
         : (
           <div className='grid grid-cols-3 gap-3'>
             {shown.map((p) => (
-              <Link key={p.id} href={`/pictures?agentId=${p.agent?.id ?? ''}&photo=${p.id}`} className='relative h-[107px] overflow-hidden rounded-lg bg-dark-accent shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
+              <Link key={p.id} href={`/pictures?agentId=${p.agent?.id ?? ''}&photo=${p.id}`} className='relative aspect-[4/3] overflow-hidden rounded-lg bg-dark-accent shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
                 {/* eslint-disable-next-line @next/next/no-img-element -- presigned preview URL */}
                 <img src={p.previewUrl400} alt='' loading='lazy' className='absolute inset-0 size-full object-cover' />
                 <span className='absolute inset-0 flex items-end bg-[linear-gradient(0deg,rgba(46,48,59,0.8)_0%,rgba(46,48,59,0)_50%)] p-2 font-display text-[10px] leading-[15px] text-[#f0effe]'>{hhmm(p.takenAt, locale)}</span>
               </Link>
             ))}
-            <Link href={galleryHref} className='flex h-[107px] flex-col items-center justify-center rounded-lg bg-secondary-bg p-3 text-center'>
+            <Link href={galleryHref} className='flex aspect-[4/3] flex-col items-center justify-center rounded-lg bg-secondary-bg p-3 text-center'>
               <FigmaIcon name='photos-counter' width={23.33} height={21} />
               <span className='pt-1 text-xs font-bold leading-4 text-ink'>{total > shown.length ? sub(d.morePhotos, total - shown.length) : d.openGallery}</span>
               {total > shown.length && <span className='pt-0.5 text-[10px] leading-[15px] text-subtle'>{d.openGallery}</span>}
