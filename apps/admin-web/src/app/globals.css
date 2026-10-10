@@ -38,6 +38,17 @@
   --alert-bg: rgb(255 218 214 / 0.4);
 }
 
+/* Gallery sizing: the grid fits as many cards as the width allows, none narrower than photo-tile; the detail
+   panel takes part of the row up to its Figma width (138:11987, 582 px). */
+@theme {
+  --container-photo-tile: 15rem;
+  --container-photo-panel: 36.375rem;
+}
+
+@utility grid-photos {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--container-photo-tile)), 1fr));
+}
+
 @theme inline {
   --color-accent: var(--accent);
   --color-accent-6: var(--accent-6);

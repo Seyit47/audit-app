@@ -96,9 +96,9 @@ export function PhotosView ({ first, query, summary, regions, copy, locale, init
   }
   const activeFilters = [values.regionId, values.verified, values.date !== '7' ? values.date : null].filter((v) => v != null).length
 
-  const tile = (p: GalleryPhoto, size = 'h-[240px] w-full') => (
+  const tile = (p: GalleryPhoto) => (
     <PhotoTile
-      key={p.id} flipId={p.id} src={p.previewUrl400} alt={p.shop?.name ?? ''} className={size}
+      key={p.id} flipId={p.id} src={p.previewUrl400} alt={p.shop?.name ?? ''}
       verifiedLabel={p.verified ? copy.verified : null}
       title={p.agent?.fullName ?? p.shop?.name} address={p.shop?.address} date={stamp(p.takenAt, locale)}
       active={(opening ?? detail)?.id === p.id} onSelect={() => open(p)} onPrefetch={() => { void fetchDetail(p.id).catch(() => {}) }}
@@ -106,7 +106,7 @@ export function PhotosView ({ first, query, summary, regions, copy, locale, init
   )
 
   const grid = (list: GalleryPhoto[]) => (
-    <div className={`grid gap-2.5 ${split ? 'grid-cols-2' : 'grid-cols-4'}`}>{list.map((p) => tile(p))}</div>
+    <div className='grid grid-photos gap-2.5'>{list.map((p) => tile(p))}</div>
   )
 
   const byDay = new Map<string, GalleryPhoto[]>()
@@ -173,7 +173,7 @@ export function PhotosView ({ first, query, summary, regions, copy, locale, init
         </div>
         {/* One shell slides in once; switching from the placeholder to the details (or to another photo) happens inside it. */}
         {split && (
-          <div className='anim-panel-right sticky top-20 shrink-0 self-start'>
+          <div className='anim-panel-right sticky top-20 w-1/2 max-w-photo-panel shrink-0 self-start'>
             {opening != null && detail?.id !== opening.id
               ? <PendingDetail photo={opening} copy={copy} onClose={close} />
               : detail != null && <Detail detail={detail} copy={copy} locale={locale} onClose={close} onOpen={open} />}
@@ -188,12 +188,12 @@ function PendingDetail ({ photo, copy, onClose }: { photo: GalleryPhoto, copy: P
   // Same frame as Detail, filled with what the grid already knows, so only the loading parts change.
   return (
     <SidePanel
-      closeLabel={copy.close} onClose={onClose} className='w-[582px]' animate={false}
+      closeLabel={copy.close} onClose={onClose} className='w-full' animate={false}
       header={photo.shop == null
         ? <span className='text-2xl font-bold text-ink'>{photo.agent?.fullName}</span>
         : (
           <div className='flex items-center gap-5'>
-            <Bone className='size-[72px] shrink-0 rounded-xl' />
+            <Bone className='size-18 shrink-0 rounded-xl' />
             <div className='flex min-w-0 flex-col gap-1'>
               <div className='flex min-w-0 items-center gap-3'>
                 <span className='min-w-0 truncate text-2xl font-bold leading-8 tracking-[-0.6px] text-ink'>{photo.shop.name}</span>
@@ -205,7 +205,7 @@ function PendingDetail ({ photo, copy, onClose }: { photo: GalleryPhoto, copy: P
           </div>
           )}
     >
-      <div className='relative h-[350px] overflow-hidden rounded-xl bg-dark-accent shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
+      <div className='relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-dark-accent shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
         {/* eslint-disable-next-line @next/next/no-img-element -- presigned URL */}
         <img src={photo.previewUrl1200} alt='' className='size-full object-cover' />
         {photo.verified && <VerifiedTag label={copy.verified} />}
@@ -227,12 +227,12 @@ function Detail ({ detail: d, copy, locale, onClose, onOpen }: { detail: PhotoDe
     <SidePanel
       closeLabel={copy.close}
       onClose={onClose}
-      className='w-[582px]' animate={false}
+      className='w-full' animate={false}
       header={d.shop == null
         ? <span className='text-2xl font-bold text-ink'>{d.agent?.fullName}</span>
         : (
           <div className='flex items-center gap-5'>
-            <span className='size-[72px] shrink-0 overflow-hidden rounded-xl bg-[#e2dfff] shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
+            <span className='size-18 shrink-0 overflow-hidden rounded-xl bg-[#e2dfff] shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
               {/* eslint-disable-next-line @next/next/no-img-element -- presigned URL */}
               {d.shop.facade != null && <img src={d.shop.facade.previewUrl400} alt='' className='size-full object-cover' />}
             </span>
@@ -248,7 +248,7 @@ function Detail ({ detail: d, copy, locale, onClose, onOpen }: { detail: PhotoDe
           </div>
           )}
     >
-      <div className='relative h-[350px] overflow-hidden rounded-xl bg-dark-accent shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
+      <div className='relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-dark-accent shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'>
         {/* eslint-disable-next-line @next/next/no-img-element -- presigned URL */}
         <img src={d.previewUrl1200} alt='' className='size-full object-cover' />
         {d.verified && <VerifiedTag label={copy.verified} />}

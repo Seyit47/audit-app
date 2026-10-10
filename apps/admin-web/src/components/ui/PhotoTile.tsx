@@ -14,7 +14,7 @@ export function VerifiedTag ({ label }: { label: string }) {
  * Photo card of 138:11987 (138:12115): image, "Verified" pin, and the bottom gradient with shop,
  * address and date, shown on hover/focus and while the card is active.
  */
-export function PhotoTile ({ src, alt, verifiedLabel, title, address, date, active = false, onSelect, onPrefetch, flipId, className = 'h-[170px] w-[286px]' }: {
+export function PhotoTile ({ src, alt, verifiedLabel, title, address, date, active = false, onSelect, onPrefetch, flipId, className = 'aspect-[3/4] w-full' }: {
   src: string
   alt: string
   /** Shown as the pin when the photo is verified. */
@@ -41,7 +41,7 @@ export function PhotoTile ({ src, alt, verifiedLabel, title, address, date, acti
       {verifiedLabel != null && <VerifiedTag label={verifiedLabel} />}
       {overlay && (
         <span
-          className={`absolute inset-x-0 bottom-0 flex h-[90px] items-end p-3.5 transition-opacity bg-[linear-gradient(0deg,rgba(0,0,0,0.9)_0%,rgba(0,0,0,0.63)_45.67%,rgba(0,0,0,0.15)_75.48%,rgba(0,0,0,0)_100%)] ${active ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100'}`}
+          className={`absolute inset-x-0 bottom-0 flex h-2/5 items-end p-3.5 transition-opacity bg-[linear-gradient(0deg,rgba(0,0,0,0.9)_0%,rgba(0,0,0,0.63)_45.67%,rgba(0,0,0,0.15)_75.48%,rgba(0,0,0,0)_100%)] ${active ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100'}`}
         >
           <span className='flex min-w-0 flex-1 flex-col drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)]'>
             {title != null && <span className='truncate text-sm font-bold leading-5 tracking-[-0.35px] text-white'>{title}</span>}
