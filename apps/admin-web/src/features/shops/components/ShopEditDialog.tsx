@@ -54,7 +54,20 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
     if (changed) { forgetFormData(); router.refresh() }
   }
 
+  // Each field says what is wrong once it has been changed (and all of them on Save).
+  const [touched, setTouched] = useState<ReadonlySet<string>>(new Set())
+  const touch = (key: string) => { if (!touched.has(key)) setTouched(new Set(touched).add(key)) }
+  const fieldErrors: Record<string, string | null> = {
+    name: name.trim() === '' ? copy.errors.field : null,
+    address: address.trim() === '' ? copy.errors.field : null,
+    location: point == null ? copy.errors.location : null,
+    ...Object.fromEntries(phones.map((p, i) => [`phone${i}`, p.phone.trim() !== '' && tmPhone(p.phone, 'any') == null ? copy.errors.phoneShort : null]))
+  }
+  const fieldError = (key: string) => (touched.has(key) ? fieldErrors[key] ?? undefined : undefined)
+
   function save () {
+    setTouched(new Set(Object.keys(fieldErrors)))
+    if (Object.values(fieldErrors).some((e) => e != null)) return setError(null)
     if (name.trim() === '' || address.trim() === '' || point == null) return setError(copy.errors.required)
     // Contacts: Turkmen mobile or landline numbers, sent in the stored form +993XXXXXXXX.
     const filled = phones.filter((p) => p.phone.trim() !== '')
@@ -122,8 +135,8 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
       />
 
       <div className='grid grid-cols-2 gap-4'>
-        <FormField label={copy.name} required hint={copy.nameHint} htmlFor='shop-name'>
-          <TextInput id='shop-name' value={name} onChange={(e) => setName(e.target.value)} />
+        <FormField label={copy.name} required hint={copy.nameHint} htmlFor='shop-name' error={fieldError('name')}>
+          <TextInput id='shop-name' value={name} onChange={(e) => { setName(e.target.value); touch('name') }} />
         </FormField>
         <FormField label={copy.agent} hint={copy.agentHint} htmlFor='shop-agent'>
           <div className='pt-0.5'>
@@ -146,17 +159,17 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
 
       <div className='flex flex-col gap-3'>
         <FormField
-          label={copy.address} required htmlFor='shop-address'
+          label={copy.address} required htmlFor='shop-address' error={fieldError('address') ?? fieldError('location')}
           action={
             <button data-ripple type='button' onClick={() => setPicking(!picking)} className='-mx-1.5 -my-1 rounded-md px-1.5 py-1 flex items-center gap-1 text-xs font-semibold leading-4 text-accent'>
               <FigmaIcon name='map-pin-accent' width={14} height={14} />{copy.pickOnMap}
             </button>
           }
         >
-          <div className='flex h-[42px] items-center justify-between gap-2 rounded-lg border border-border px-3.5'>
+          <div className={`flex h-[42px] items-center justify-between gap-2 rounded-lg border px-3.5 ${fieldError('address') ?? fieldError('location') ? 'border-error' : 'border-border'}`}>
             <span className='flex min-w-0 flex-1 items-center gap-2'>
               <FigmaIcon name='building' width={16} height={16} />
-              <input id='shop-address' value={address} onChange={(e) => setAddress(e.target.value)} className='min-w-0 flex-1 bg-transparent text-sm font-medium leading-5 text-black focus:outline-none' />
+              <input id='shop-address' value={address} onChange={(e) => { setAddress(e.target.value); touch('address') }} className='min-w-0 flex-1 bg-transparent text-sm font-medium leading-5 text-black focus:outline-none' />
             </span>
             {point != null
               ? <span className='flex shrink-0 items-center gap-1 rounded-full bg-success-10 px-2 py-0.5 font-display text-[11px] font-medium leading-[16.5px] text-success'><FigmaIcon name='check-success' width={12} height={12} />{copy.gpsBound}</span>
@@ -165,7 +178,7 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
         </FormField>
         {picking && (
           <div className='h-56 overflow-hidden rounded-lg border border-border'>
-            <MapView initialView={point != null ? { latitude: point.lat, longitude: point.lng, zoom: 15 } : undefined} onClick={(p) => setPoint({ lat: p.lat, lng: p.lng })}>
+            <MapView initialView={point != null ? { latitude: point.lat, longitude: point.lng, zoom: 15 } : undefined} onClick={(p) => { setPoint({ lat: p.lat, lng: p.lng }); touch('location') }}>
               {point != null && <ShopMarker latitude={point.lat} longitude={point.lng} label={name || copy.name} imageUrl={shop?.facade?.previewUrl400} color='#493ee5' />}
             </MapView>
           </div>
@@ -187,12 +200,13 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
         </div>
         <div className='flex flex-col gap-2.5'>
           {phones.map((p, i) => (
-            <div key={i} className='flex items-center gap-2'>
+            <div key={i} className='flex flex-col gap-1'>
+            <div className='flex items-center gap-2'>
               <div className='relative w-[405px]'>
                 <span className='pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-display text-xs leading-4 text-off-white'>№{i + 1}</span>
                 <input
-                  value={p.phone} {...phoneInputProps((phone) => setPhone(i, { phone }))} aria-label={`${copy.phones} ${i + 1}`}
-                  className='h-[38px] w-full rounded-lg border border-border pl-9 pr-3 font-display text-sm leading-5 text-black focus:border-accent focus:outline-none'
+                  value={p.phone} {...phoneInputProps((phone) => { setPhone(i, { phone }); touch(`phone${i}`) })} aria-label={`${copy.phones} ${i + 1}`} aria-invalid={fieldError(`phone${i}`) != null}
+                  className={`h-[38px] w-full rounded-lg border pl-9 pr-3 font-display text-sm leading-5 text-black focus:outline-none ${fieldError(`phone${i}`) != null ? 'border-error' : 'border-border focus:border-accent'}`}
                 />
               </div>
               <input
@@ -202,6 +216,8 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
               <button data-ripple type='button' aria-label={copy.removePhone} onClick={() => setPhones((ps) => ps.filter((_, j) => j !== i))} className='rounded-lg p-2'>
                 <FigmaIcon name='phone-delete' width={16} height={16} />
               </button>
+            </div>
+            {fieldError(`phone${i}`) != null && <p role='alert' className='text-[11px] leading-[16.5px] text-error'>{fieldError(`phone${i}`)}</p>}
             </div>
           ))}
         </div>

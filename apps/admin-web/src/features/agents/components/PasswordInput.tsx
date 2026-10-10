@@ -52,7 +52,14 @@ function Field ({ id, name, placeholder, shown, onToggle, value, onChange, copy,
  * Password and its confirmation, with the rules ticking off as the admin types. Both inputs post with the form
  * (`password`, `confirmPassword`); the caller checks `passwordOk` before saving.
  */
-export function PasswordFields ({ copy, label, autoFocus, className = '' }: { copy: PasswordCopy, label?: string, autoFocus?: boolean, className?: string }) {
+export function PasswordFields ({ copy, label, autoFocus, errors, className = '' }: {
+  copy: PasswordCopy
+  label?: string
+  autoFocus?: boolean
+  /** Live field errors (useLiveValidation), shown under each input. */
+  errors?: { password?: string, confirmPassword?: string }
+  className?: string
+}) {
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [shown, setShown] = useState(false)
@@ -61,10 +68,10 @@ export function PasswordFields ({ copy, label, autoFocus, className = '' }: { co
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
       <div className='grid grid-cols-2 gap-x-6 gap-y-4'>
-        <FormField variant='form' label={label ?? copy.password} required htmlFor='password'>
+        <FormField variant='form' label={label ?? copy.password} required htmlFor='password' error={errors?.password}>
           <Field id='password' name='password' placeholder={copy.passwordPlaceholder} shown={shown} onToggle={toggle} value={password} onChange={setPassword} copy={copy} autoFocus={autoFocus} />
         </FormField>
-        <FormField variant='form' label={copy.confirmPassword} required htmlFor='confirmPassword'>
+        <FormField variant='form' label={copy.confirmPassword} required htmlFor='confirmPassword' error={errors?.confirmPassword}>
           <Field id='confirmPassword' name='confirmPassword' placeholder={copy.passwordPlaceholder} shown={shown} onToggle={toggle} value={confirm} onChange={setConfirm} copy={copy} />
         </FormField>
       </div>

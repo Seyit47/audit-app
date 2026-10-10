@@ -7,7 +7,8 @@ import { Dialog } from '@/components/ui/Dialog'
 import { guard, say } from '@/lib/feedback'
 import { setAgentPassword } from '../actions'
 import type { AgentsCopy } from '../copy'
-import { PasswordFields, passwordOk } from './PasswordInput'
+import { PasswordFields, passwordOk, passwordRules } from './PasswordInput'
+import { useLiveValidation } from '@/lib/use-live-validation'
 
 /**
  * "Изменить пароль" from a salesman's row actions: opens from `?password=<id>` in the browser (no server render),
@@ -31,7 +32,14 @@ function AgentPasswordDialog ({ id, name, copy }: { id: string, name?: string, c
     window.history.replaceState(null, '', `${window.location.pathname}${qs === '' ? '' : `?${qs}`}`)
   }
 
-  function submit (form: FormData) {
+  // Each field says what is wrong as soon as it has been changed (and both on Save).
+  const live = useLiveValidation({
+    password: (v) => { const r = passwordRules(v, v); return r.length && r.letter && r.digit ? null : f.errors.password },
+    confirmPassword: (v, get) => v !== get('password') ? f.errors.confirm : null
+  })
+
+  function submit (form: FormData, el: HTMLFormElement) {
+    if (!live.validate(el)) return setError(null)
     const password = String(form.get('password') ?? '')
     if (!passwordOk(password, String(form.get('confirmPassword') ?? ''))) return setError(f.errors.password)
     setError(null)
@@ -55,8 +63,8 @@ function AgentPasswordDialog ({ id, name, copy }: { id: string, name?: string, c
       }
     >
       {/* onSubmit, not action: React resets a form after an action, which wiped the fields on a validation error. */}
-      <form id='agent-password-form' onSubmit={(e) => { e.preventDefault(); submit(new FormData(e.currentTarget)) }} className='flex flex-col gap-2'>
-        <PasswordFields copy={f} label={f.newPassword} autoFocus />
+      <form id='agent-password-form' noValidate onInput={live.onInput} onSubmit={(e) => { e.preventDefault(); submit(new FormData(e.currentTarget), e.currentTarget) }} className='flex flex-col gap-2'>
+        <PasswordFields copy={f} label={f.newPassword} autoFocus errors={{ password: live.error('password'), confirmPassword: live.error('confirmPassword') }} />
         <p className='text-xs leading-4 text-muted'>{f.passwordHint}</p>
       </form>
     </Dialog>

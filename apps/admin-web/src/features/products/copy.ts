@@ -19,7 +19,7 @@ export const productsCopy = defineCopy({
       price: 'Retail price', currency: 'TMT', statusLabel: 'Product status', statuses: { ACTIVE: 'Active', DRAFT: 'Draft', INACTIVE: 'Archive' },
       stock: 'Stock and batches', stockQty: 'Current stock (pcs)', minStock: 'Minimum alert threshold',
       cancel: 'Cancel', save: 'Save changes',
-      errors: { required: 'Fill in the name, SKU, category and price', CONFLICT: 'This SKU is already used', generic: 'Could not save. Try again.', image: 'Product images must be PNG or JPG up to 5 MB' }
+      errors: { required: 'Fill in the name, SKU, category and price', field: 'Required', price: 'Enter a price, e.g. 185.00', count: 'A whole number, 0 or more', CONFLICT: 'This SKU is already used', generic: 'Could not save. Try again.', image: 'Product images must be PNG or JPG up to 5 MB' }
     }
   },
   ru: {
@@ -39,7 +39,7 @@ export const productsCopy = defineCopy({
       price: 'Розничная цена', currency: 'TMT', statusLabel: 'Статус товара', statuses: { ACTIVE: 'Активен', DRAFT: 'Черновик', INACTIVE: 'Архив' },
       stock: 'Складской учет и партии', stockQty: 'Текущий остаток (шт)', minStock: 'Минимальный лимит оповещения',
       cancel: 'Отменить', save: 'Сохранить изменения',
-      errors: { required: 'Заполните название, артикул, категорию и цену', CONFLICT: 'Этот артикул уже используется', generic: 'Не удалось сохранить. Попробуйте ещё раз.', image: 'Изображение: PNG или JPG до 5 МБ' }
+      errors: { required: 'Заполните название, артикул, категорию и цену', field: 'Обязательное поле', price: 'Введите цену, например 185.00', count: 'Целое число, 0 или больше', CONFLICT: 'Этот артикул уже используется', generic: 'Не удалось сохранить. Попробуйте ещё раз.', image: 'Изображение: PNG или JPG до 5 МБ' }
     }
   }
 })

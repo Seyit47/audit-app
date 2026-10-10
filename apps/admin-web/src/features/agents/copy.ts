@@ -74,7 +74,7 @@ export const agentsCopy = defineCopy({
       password: 'Password', confirmPassword: 'Confirm password', passwordPlaceholder: '••••••••', showPassword: 'Show', hidePassword: 'Hide',
       rules: { length: 'At least 8 characters', letter: 'A letter', digit: 'A digit', match: 'Passwords match' },
       passwordTitle: 'Change password', newPassword: 'New password', passwordHint: 'The salesman is signed out on all devices and signs in with the new password.', savePassword: 'Save password',
-      errors: { required: 'Fill in the required fields', phone: 'Enter a Turkmen mobile number: +993 6X XXXXXX (or 71, 72)', password: 'The password does not meet the rules below', plan: 'The audit plan cannot exceed the visit plan', CONFLICT: 'This phone or code is already used, or the record was changed. Reload and try again.', generic: 'Could not save. Try again.' }
+      errors: { required: 'Fill in the required fields', field: 'Required', code: 'Latin letters, digits and dashes, 2–20 characters', visitPlan: 'From 1 to 100', confirm: 'The passwords do not match', phone: 'Enter a Turkmen mobile number: +993 6X XXXXXX (or 71, 72)', password: 'The password does not meet the rules below', plan: 'The audit plan cannot exceed the visit plan', CONFLICT: 'This phone or code is already used, or the record was changed. Reload and try again.', generic: 'Could not save. Try again.' }
     }
   },
   ru: {
@@ -149,7 +149,7 @@ export const agentsCopy = defineCopy({
       password: 'Пароль', confirmPassword: 'Подтвердите пароль', passwordPlaceholder: '••••••••', showPassword: 'Показать', hidePassword: 'Скрыть',
       rules: { length: 'Не менее 8 символов', letter: 'Буква', digit: 'Цифра', match: 'Пароли совпадают' },
       passwordTitle: 'Изменить пароль', newPassword: 'Новый пароль', passwordHint: 'Агент выйдет на всех устройствах и войдёт с новым паролем.', savePassword: 'Сохранить пароль',
-      errors: { required: 'Заполните обязательные поля', phone: 'Введите мобильный номер Туркменистана: +993 6X XXXXXX (или 71, 72)', password: 'Пароль не соответствует требованиям ниже', plan: 'План аудитов не может превышать план визитов', CONFLICT: 'Этот телефон или код уже занят, либо запись изменена. Обновите страницу и повторите.', generic: 'Не удалось сохранить. Попробуйте ещё раз.' }
+      errors: { required: 'Заполните обязательные поля', field: 'Обязательное поле', code: 'Латинские буквы, цифры и дефис, 2–20 символов', visitPlan: 'От 1 до 100', confirm: 'Пароли не совпадают', phone: 'Введите мобильный номер Туркменистана: +993 6X XXXXXX (или 71, 72)', password: 'Пароль не соответствует требованиям ниже', plan: 'План аудитов не может превышать план визитов', CONFLICT: 'Этот телефон или код уже занят, либо запись изменена. Обновите страницу и повторите.', generic: 'Не удалось сохранить. Попробуйте ещё раз.' }
     }
   }
 })

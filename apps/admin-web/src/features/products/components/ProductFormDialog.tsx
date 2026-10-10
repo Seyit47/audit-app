@@ -3,6 +3,7 @@
 import { guard, say } from '@/lib/feedback'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { forgetFormData } from '@/lib/url-dialog'
+import { useLiveValidation } from '@/lib/use-live-validation'
 import { useRef, useState, useTransition } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Dialog } from '@/components/ui/Dialog'
@@ -59,7 +60,19 @@ export function ProductFormDialog ({ product, categories, copy, closeHref, enter
     }
   }
 
-  function submit (form: FormData) {
+  const count = (v: string) => v === '' || (Number.isInteger(Number(v)) && Number(v) >= 0) ? null : f.errors.count
+  // Each field says what is wrong as soon as it has been changed (and all of them on Save).
+  const live = useLiveValidation({
+    name: (v) => v === '' ? f.errors.field : null,
+    sku: (v) => v === '' ? f.errors.field : null,
+    categoryId: (v) => v === '' ? f.errors.field : null,
+    retailPrice: (v) => v === '' ? f.errors.field : /^\d+([.,]\d{1,2})?$/.test(v) ? null : f.errors.price,
+    stockQty: count,
+    minStockAlert: count
+  })
+
+  function submit (form: FormData, el: HTMLFormElement) {
+    if (!live.validate(el)) return setError(null)
     const s = (k: string) => String(form.get(k) ?? '').trim()
     const input: ProductInput = {
       sku: s('sku'), name: s('name'), categoryId: s('categoryId'), brand: s('brand') || null,
@@ -90,7 +103,7 @@ export function ProductFormDialog ({ product, categories, copy, closeHref, enter
       }
     >
       {/* onSubmit, not action: React resets a form after an action, which wiped the fields on a validation error. */}
-      <form id='product-form' onSubmit={(e) => { e.preventDefault(); submit(new FormData(e.currentTarget)) }} className='flex flex-col gap-5'>
+      <form id='product-form' noValidate onInput={live.onInput} onSubmit={(e) => { e.preventDefault(); submit(new FormData(e.currentTarget), e.currentTarget) }} className='flex flex-col gap-5'>
         <div className='grid grid-cols-2 gap-5'>
           <div className='flex flex-col gap-1.5'>
             <span className='text-xs font-bold leading-4 text-default-black'>{f.image}</span>
@@ -118,15 +131,15 @@ export function ProductFormDialog ({ product, categories, copy, closeHref, enter
           </FormField>
         </div>
         <div className='grid grid-cols-2 gap-5'>
-          <FormField variant='form' label={f.name} required htmlFor='name'>
+          <FormField variant='form' label={f.name} required htmlFor='name' error={live.error('name')}>
             <TextInput variant='form' id='name' name='name' defaultValue={product?.name} placeholder={f.namePlaceholder} className={big} />
           </FormField>
-          <FormField variant='form' label={f.sku} required htmlFor='sku'>
+          <FormField variant='form' label={f.sku} required htmlFor='sku' error={live.error('sku')}>
             <TextInput variant='form' id='sku' name='sku' defaultValue={product?.sku} placeholder={f.skuPlaceholder} className={`${big} font-mono`} />
           </FormField>
         </div>
         <div className='grid grid-cols-2 gap-4'>
-          <FormField variant='form' label={f.category} required htmlFor='categoryId'>
+          <FormField variant='form' label={f.category} required htmlFor='categoryId' error={live.error('categoryId')}>
             <SelectInput variant='form' id='categoryId' name='categoryId' defaultValue={product?.category.id ?? ''} className='h-[46px] shadow-none'>
               <option value='' disabled>{f.categoryPlaceholder}</option>
               {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -137,7 +150,7 @@ export function ProductFormDialog ({ product, categories, copy, closeHref, enter
           </FormField>
         </div>
         <div className='grid grid-cols-2 gap-4'>
-          <FormField variant='form' label={f.price} required htmlFor='retailPrice'>
+          <FormField variant='form' label={f.price} required htmlFor='retailPrice' error={live.error('retailPrice')}>
             <TextInput variant='form' id='retailPrice' name='retailPrice' inputMode='decimal' defaultValue={product != null ? product.retailPrice.toFixed(2) : ''} placeholder='185.00' suffix={f.currency} className={big} />
           </FormField>
           <FormField variant='form' label={f.statusLabel}>
@@ -151,10 +164,10 @@ export function ProductFormDialog ({ product, categories, copy, closeHref, enter
           </div>
           {stock && (
             <div className='grid grid-cols-2 gap-4'>
-              <FormField variant='form' label={f.stockQty} htmlFor='stockQty'>
+              <FormField variant='form' label={f.stockQty} htmlFor='stockQty' error={live.error('stockQty')}>
                 <TextInput variant='form' id='stockQty' name='stockQty' type='number' min={0} defaultValue={product?.stockQty ?? 0} className={big} />
               </FormField>
-              <FormField variant='form' label={f.minStock} htmlFor='minStockAlert'>
+              <FormField variant='form' label={f.minStock} htmlFor='minStockAlert' error={live.error('minStockAlert')}>
                 <TextInput variant='form' id='minStockAlert' name='minStockAlert' type='number' min={0} defaultValue={product?.minStockAlert ?? 0} className={big} />
               </FormField>
             </div>

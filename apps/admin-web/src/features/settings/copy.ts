@@ -14,7 +14,7 @@ export const settingsCopy = defineCopy({
     save: 'Save changes', saving: 'Saving…', saved: 'Saved',
     regions: 'Regions', regionName: 'Region name', addRegion: 'Add region', rename: 'Rename', delete: 'Delete', cancel: 'Cancel', confirm: 'Save',
     noRegions: 'No regions yet',
-    errors: { CONFLICT: 'This name is already used, or the region still has shops or salesmen.', VALIDATION_FAILED: 'Check the values: some are out of range.', generic: 'Could not save. Try again.' }
+    errors: { field: 'Required', range: 'From {min} to {max}', hours: 'The end must be after the start', CONFLICT: 'This name is already used, or the region still has shops or salesmen.', VALIDATION_FAILED: 'Check the values: some are out of range.', generic: 'Could not save. Try again.' }
   },
   ru: {
     title: 'Настройки', description: 'Профиль компании, рабочие часы, правила визитов, проверки GPS и регионы продаж.',
@@ -28,7 +28,7 @@ export const settingsCopy = defineCopy({
     save: 'Сохранить изменения', saving: 'Сохранение…', saved: 'Сохранено',
     regions: 'Регионы', regionName: 'Название региона', addRegion: 'Добавить регион', rename: 'Переименовать', delete: 'Удалить', cancel: 'Отмена', confirm: 'Сохранить',
     noRegions: 'Регионов пока нет',
-    errors: { CONFLICT: 'Название уже занято, или в регионе ещё есть точки или агенты.', VALIDATION_FAILED: 'Проверьте значения: некоторые вне допустимого диапазона.', generic: 'Не удалось сохранить. Попробуйте ещё раз.' }
+    errors: { field: 'Обязательное поле', range: 'От {min} до {max}', hours: 'Конец должен быть позже начала', CONFLICT: 'Название уже занято, или в регионе ещё есть точки или агенты.', VALIDATION_FAILED: 'Проверьте значения: некоторые вне допустимого диапазона.', generic: 'Не удалось сохранить. Попробуйте ещё раз.' }
   }
 })
 

@@ -12,7 +12,8 @@ import { createAgent, rebindAgentDevice, updateAgent, type AgentInput } from '..
 import type { Agent, Region } from '../api'
 import type { AgentsCopy } from '../copy'
 import { displayPhone, phoneInputProps, tmPhone } from '@/lib/phone'
-import { PasswordFields, passwordOk } from './PasswordInput'
+import { PasswordFields, passwordOk, passwordRules } from './PasswordInput'
+import { useLiveValidation } from '@/lib/use-live-validation'
 
 type Status = AgentInput['status']
 
@@ -42,7 +43,25 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref, en
     if (changed) { forgetFormData(); router.refresh() }
   }
 
-  function submit (form: FormData) {
+  // Each field says what is wrong as soon as it has been changed (and all of them on Save).
+  const live = useLiveValidation({
+    fullName: (v) => v === '' ? f.errors.field : null,
+    code: (v) => v === '' ? f.errors.field : /^[A-Za-z0-9-]{2,20}$/.test(v) ? null : f.errors.code,
+    phone: (v) => v === '' ? f.errors.field : tmPhone(v, 'mobile') == null ? f.errors.phone : null,
+    whatsappPhone: (v) => v !== '' && tmPhone(v, 'mobile') == null ? f.errors.phone : null,
+    dailyVisitPlan: (v) => { const n = Number(v); return Number.isInteger(n) && n >= 1 && n <= 100 ? null : f.errors.visitPlan },
+    dailyAuditPlan: (v, get) => { const n = Number(v); return !Number.isInteger(n) || n < 0 || n > 100 ? f.errors.visitPlan : n > Number(get('dailyVisitPlan')) ? f.errors.plan : null },
+    regionId: (v) => v === '' ? f.errors.field : null,
+    ...(agent == null
+      ? {
+          password: (v: string) => { const r = passwordRules(v, v); return r.length && r.letter && r.digit ? null : f.errors.password },
+          confirmPassword: (v: string, get: (name: string) => string) => v !== get('password') ? f.errors.confirm : null
+        }
+      : {})
+  })
+
+  function submit (form: FormData, el: HTMLFormElement) {
+    if (!live.validate(el)) return setError(null)
     const s = (k: string) => String(form.get(k) ?? '').trim()
     const input: AgentInput = {
       fullName: s('fullName'),
@@ -99,38 +118,38 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref, en
       }
     >
       {/* onSubmit, not action: React resets a form after an action, which wiped the fields on a validation error. */}
-      <form id='agent-form' onSubmit={(e) => { e.preventDefault(); submit(new FormData(e.currentTarget)) }} className='flex flex-col gap-4'>
+      <form id='agent-form' noValidate onInput={live.onInput} onSubmit={(e) => { e.preventDefault(); submit(new FormData(e.currentTarget), e.currentTarget) }} className='flex flex-col gap-4'>
         <div className='grid grid-cols-2 gap-x-6 gap-y-4'>
-          <FormField variant='form' label={f.fullName} required htmlFor='fullName'>
+          <FormField variant='form' label={f.fullName} required htmlFor='fullName' error={live.error('fullName')}>
             <TextInput variant='form' id='fullName' name='fullName' defaultValue={agent?.fullName} placeholder={f.fullNamePlaceholder} required />
           </FormField>
           <FormField
-            variant='form' label={f.code} required htmlFor='code'
+            variant='form' label={f.code} required htmlFor='code' error={live.error('code')}
             action={agent == null && <button data-ripple type='button' onClick={() => setCode(nextCode)} className='-mx-1.5 rounded-md px-1.5 py-0.5 text-[10px] font-medium leading-[15px] text-[#4f46e5]'>{f.generate}</button>}
           >
-            <TextInput variant='form' id='code' value={code} onChange={(e) => setCode(e.target.value)} className='bg-slate-50/70 font-mono font-medium' required />
+            <TextInput variant='form' id='code' name='code' value={code} onChange={(e) => setCode(e.target.value)} className='bg-slate-50/70 font-mono font-medium' required />
           </FormField>
-          <FormField variant='form' label={f.phone} required htmlFor='phone'>
+          <FormField variant='form' label={f.phone} required htmlFor='phone' error={live.error('phone')}>
             <TextInput variant='form' id='phone' name='phone' {...phoneInputProps()} defaultValue={displayPhone(agent?.phone)} placeholder='+993 65 124582' icon={<FigmaIcon name='phone-field' width={14} height={14} />} required />
           </FormField>
-          <FormField variant='form' label={f.whatsapp} htmlFor='whatsappPhone'>
+          <FormField variant='form' label={f.whatsapp} htmlFor='whatsappPhone' error={live.error('whatsappPhone')}>
             <TextInput variant='form' id='whatsappPhone' name='whatsappPhone' {...phoneInputProps()} defaultValue={displayPhone(agent?.whatsappPhone)} placeholder='+993 61 987654' icon={<FigmaIcon name='whatsapp-field' width={14} height={14} />} />
           </FormField>
         </div>
         {/* Sign-in password, set when adding; later changes go through "Изменить пароль" in the row actions. */}
-        {agent == null && <PasswordFields copy={f} />}
+        {agent == null && <PasswordFields copy={f} errors={{ password: live.error('password'), confirmPassword: live.error('confirmPassword') }} />}
         <FormField variant='form' label={f.notes} htmlFor='routeNotes'>
           <TextArea id='routeNotes' name='routeNotes' defaultValue={agent?.routeNotes ?? ''} placeholder={f.notesPlaceholder} rows={1} />
         </FormField>
         <div className='grid grid-cols-2 gap-x-6'>
-          <FormField variant='form' label={f.visitPlan} htmlFor='dailyVisitPlan'>
+          <FormField variant='form' label={f.visitPlan} htmlFor='dailyVisitPlan' error={live.error('dailyVisitPlan')}>
             <TextInput variant='form' id='dailyVisitPlan' name='dailyVisitPlan' type='number' min={1} max={100} defaultValue={agent?.dailyVisitPlan ?? 25} suffix={f.visitSuffix} />
           </FormField>
-          <FormField variant='form' label={f.auditPlan} htmlFor='dailyAuditPlan'>
+          <FormField variant='form' label={f.auditPlan} htmlFor='dailyAuditPlan' error={live.error('dailyAuditPlan')}>
             <TextInput variant='form' id='dailyAuditPlan' name='dailyAuditPlan' type='number' min={0} max={100} defaultValue={agent?.dailyAuditPlan ?? 20} suffix={f.auditSuffix} />
           </FormField>
         </div>
-        <FormField variant='form' label={f.region} required htmlFor='regionId'>
+        <FormField variant='form' label={f.region} required htmlFor='regionId' error={live.error('regionId')}>
           <SelectInput variant='form' id='regionId' name='regionId' defaultValue={agent?.region.id ?? ''} required>
             <option value='' disabled>{f.regionPlaceholder}</option>
             {regions.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}

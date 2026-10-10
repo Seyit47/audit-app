@@ -71,7 +71,7 @@ export const shopFormCopy = defineCopy({
     products: 'Products carried', productsPlaceholder: 'No products selected', productsSearch: 'Search products...', productsSelected: '{n} products',
     phones: 'Shop contact phones', phonesHint: 'Up to 4 numbers supported', phoneLabel: 'Label (e.g. Purchasing)', addPhone: 'Add another number', removePhone: 'Remove number',
     archive: 'Archive the shop', restore: 'Restore the shop', cancel: 'Cancel', save: 'Save changes',
-    errors: { required: 'Fill in the name, address and location', phone: 'Phone numbers must be Turkmen: +993 and 8 digits (e.g. +993 65 123456, +993 12 345678)', CONFLICT: 'Someone changed this shop. Reload the page and try again.', generic: 'Could not save. Try again.' }
+    errors: { required: 'Fill in the name, address and location', field: 'Required', location: 'Pick the location on the map', phoneShort: 'A Turkmen number: +993 and 8 digits', phone: 'Phone numbers must be Turkmen: +993 and 8 digits (e.g. +993 65 123456, +993 12 345678)', CONFLICT: 'Someone changed this shop. Reload the page and try again.', generic: 'Could not save. Try again.' }
   },
   ru: {
     editTitle: 'Редактирование торговой точки', addTitle: 'Новая торговая точка', subtitle: 'Измените контактные данные, адрес или ответственного представителя', close: 'Закрыть модальное окно',
@@ -84,7 +84,7 @@ export const shopFormCopy = defineCopy({
     products: 'Ассортимент точки', productsPlaceholder: 'Продукты не выбраны', productsSearch: 'Поиск продукта...', productsSelected: 'Продуктов: {n}',
     phones: 'Контактные телефоны точки', phonesHint: 'Поддерживается до 4 номеров', phoneLabel: 'Подпись (напр. Закупки)', addPhone: 'Добавить еще один номер', removePhone: 'Удалить номер',
     archive: 'Архивировать торговую точку', restore: 'Восстановить торговую точку', cancel: 'Отменить', save: 'Сохранить изменения',
-    errors: { required: 'Заполните название, адрес и геопозицию', phone: 'Номер должен быть туркменским: +993 и 8 цифр (например, +993 65 123456, +993 12 345678)', CONFLICT: 'Магазин изменён другим пользователем. Обновите страницу и повторите.', generic: 'Не удалось сохранить. Попробуйте ещё раз.' }
+    errors: { required: 'Заполните название, адрес и геопозицию', field: 'Обязательное поле', location: 'Укажите точку на карте', phoneShort: 'Туркменский номер: +993 и 8 цифр', phone: 'Номер должен быть туркменским: +993 и 8 цифр (например, +993 65 123456, +993 12 345678)', CONFLICT: 'Магазин изменён другим пользователем. Обновите страницу и повторите.', generic: 'Не удалось сохранить. Попробуйте ещё раз.' }
   }
 })
 
