@@ -8,6 +8,7 @@ import type { FeedPage } from '@/features/feed/types'
 import { api } from '@/lib/api'
 import { getLocale } from '@/lib/locale'
 import { getMe } from '@/lib/me'
+import { QueryProvider } from '@/components/QueryProvider'
 
 export default async function AdminLayout ({ children }: LayoutProps<'/'>) {
   const [{ config }, locale, feed] = await Promise.all([
@@ -18,6 +19,7 @@ export default async function AdminLayout ({ children }: LayoutProps<'/'>) {
   const copy = layoutCopy[locale]
 
   return (
+    <QueryProvider>
     <div className='flex min-h-screen'>
       <Sidebar companyName={config.companyName} logoUrl={config.logo?.previewUrl400 ?? config.logo?.url ?? null} copy={copy} />
       <div className='flex min-w-0 flex-1 flex-col'>
@@ -25,5 +27,6 @@ export default async function AdminLayout ({ children }: LayoutProps<'/'>) {
         <main className='flex-1'>{children}</main>
       </div>
     </div>
+    </QueryProvider>
   )
 }

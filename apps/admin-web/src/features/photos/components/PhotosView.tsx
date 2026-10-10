@@ -13,6 +13,7 @@ import { formatPhone } from '@/lib/format'
 import type { Locale } from '@/lib/i18n'
 import { useUrlState } from '@/lib/url-state'
 import { loadPhotos } from '../actions'
+import { getJson, getQueryClient } from '@/lib/query'
 import type { PhotosCopy } from '../copy'
 import type { GalleryPage, GalleryPhoto, GalleryQuery, PhotoDetail } from '../types'
 
@@ -67,18 +68,13 @@ export function PhotosView ({ first, query, summary, regions, copy, locale, init
   const split = detail != null || opening != null
   const gridBox = useRef<HTMLDivElement>(null)
   const capture = useFlip(gridBox, split)
-  // Details are fetched once per photo and cached; hovering a tile starts the fetch, so a click usually
+  // Details come from the shared query cache (kept 5 min); hovering a tile starts the fetch, so a click usually
   // finds them ready and the panel switches without a placeholder.
-  const details = useRef(new Map<string, Promise<PhotoDetail>>())
-  const fetchDetail = (id: string) => {
-    let pending = details.current.get(id)
-    if (pending == null) {
-      pending = fetch(`/data/photos/${id}`).then(async (r) => { if (!r.ok) throw new Error(`photo ${r.status}`); return await r.json() as PhotoDetail })
-      pending.catch(() => details.current.delete(id))
-      details.current.set(id, pending)
-    }
-    return pending
-  }
+  const fetchDetail = (id: string) => getQueryClient().fetchQuery({
+    queryKey: ['photo', id],
+    queryFn: () => getJson<PhotoDetail>(`/data/photos/${id}`),
+    staleTime: 5 * 60_000
+  })
   const latest = useRef<string | null>(null)
   // Closing forgets the photo being opened, so details that arrive afterwards don't reopen the panel.
   const close = () => { latest.current = null; capture(); setDetail(null); setOpening(null) }

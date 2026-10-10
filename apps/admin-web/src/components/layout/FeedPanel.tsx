@@ -2,13 +2,14 @@
 
 import { guard } from '@/lib/feedback'
 import { usePathname } from 'next/navigation'
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore, useTransition } from 'react'
+import { useRef, useState, useSyncExternalStore, useTransition } from 'react'
 import { createPortal } from 'react-dom'
 import { Bone } from '@/components/ui/Skeleton'
 import { usePopup } from '@/lib/use-popup'
 import { Icon } from '@/components/ui/Icon'
 import { SidePanel } from '@/components/ui/SidePanel'
 import { VisitHistoryItem } from '@/components/ui/VisitHistoryItem'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { loadFeed, markFeedSeen } from '@/features/feed/actions'
 import type { FeedCopy } from '@/features/feed/copy'
 import type { FeedItem } from '@/features/feed/types'
@@ -30,7 +31,15 @@ function when (iso: string, locale: Locale, today: string) {
  * 30 s, and a side panel of violations and missed visits built from the visit history cards.
  */
 export function FeedPanel ({ initialUnread, copy, locale }: { initialUnread: number, copy: FeedCopy, locale: Locale }) {
-  const [unread, setUnread] = useState(initialUnread)
+  const queryClient = useQueryClient()
+  // The unread dot, polled every 30 s while the tab is visible (TanStack Query skips hidden tabs).
+  const { data: unread = initialUnread } = useQuery({
+    queryKey: ['feed', 'unread'],
+    queryFn: async () => (await loadFeed()).unreadCount,
+    initialData: initialUnread,
+    refetchInterval: POLL_MS,
+    staleTime: POLL_MS
+  })
   const [open, setOpen] = useState(false)
   const [items, setItems] = useState<FeedItem[]>([])
   const [cursor, setCursor] = useState<string | null>(null)
@@ -48,13 +57,6 @@ export function FeedPanel ({ initialUnread, copy, locale }: { initialUnread: num
   const panel = useRef<HTMLDivElement>(null)
   usePopup(open, () => setOpen(false), [bell, panel])
 
-  const poll = useCallback(async () => {
-    try { setUnread((await loadFeed()).unreadCount) } catch { /* keep the last count */ }
-  }, [])
-  useEffect(() => {
-    const id = setInterval(() => { if (document.visibilityState === 'visible') void poll() }, POLL_MS)
-    return () => clearInterval(id)
-  }, [poll])
 
   const show = () => {
     setTop((bell.current?.getBoundingClientRect().bottom ?? 0) + 8)
@@ -64,7 +66,7 @@ export function FeedPanel ({ initialUnread, copy, locale }: { initialUnread: num
         const page = await loadFeed()
         setItems(page.items); setCursor(page.nextCursor); setFailed(false)
         await markFeedSeen()
-        setUnread(0)
+        queryClient.setQueryData(['feed', 'unread'], 0)
       } catch {
         setFailed(true)
       }

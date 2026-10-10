@@ -12,6 +12,8 @@ import { AgentDot, ClusterMarker, DEFAULT_VIEW, MapView, RegionZone, ShopMarker,
 import { plural, sub, type Locale } from '@/lib/i18n'
 import { navigationStarted } from '@/lib/feedback'
 import { useUrlState } from '@/lib/url-state'
+import { useQuery } from '@tanstack/react-query'
+import { getJson, getQueryClient } from '@/lib/query'
 import type { MapCopy } from '../copy'
 import { hullRing } from '../hull'
 import type { AgentPosition, MapFilterState, MapShop, ShopCardData } from '../types'
@@ -42,9 +44,6 @@ function viewOf (shops: MapShop[]): InitialView {
   return { bounds: [[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]], fitBoundsOptions: { padding: { top: 96, bottom: 48, left: 64, right: 64 }, maxZoom: 15 } }
 }
 
-// A shop card fetched in the last 30 s is reused; only called from event handlers.
-const now = () => Date.now()
-const stale = (at: number) => now() - at > 30_000
 
 /** Admin Map of 21:2 / 3:2: clustered shops, agent positions, region zones, search, filters and controls (B2). */
 export default function AdminMapCanvas ({ shops, positions, regions, agents, filters, initialCard, history, copy, locale, satelliteTiles }: {
@@ -62,6 +61,14 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
 }) {
   const router = useRouter()
   const { set } = useUrlState()
+  // Live positions: the server page's list, then polled every 30 s through the query cache; filtered here.
+  const { data: livePositions } = useQuery({
+    queryKey: ['positions'],
+    queryFn: () => getJson<AgentPosition[]>('/data/positions'),
+    initialData: positions,
+    refetchInterval: 30_000
+  })
+  const shownPositions = filters.show === 'shops' ? [] : filters.agentIds.length > 0 ? livePositions.filter((p) => filters.agentIds.includes(p.agentId)) : livePositions
   const map = useRef<MapRef>(null)
   const frame = useRef<HTMLDivElement>(null)
   const [q, setQ] = useState('')
@@ -72,21 +79,16 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
   // on marker hover) and only `?shop=` changes in the URL, so the map page is not re-rendered on the server.
   const [selectedId, setSelectedId] = useState<string | null>(initialCard?.shop.id ?? null)
   const [cards, setCards] = useState<Record<string, ShopCardData | null>>(() => initialCard == null ? {} : { [initialCard.shop.id]: initialCard })
-  const fetched = useRef(new Map<string, number>())
   // A refresh from the server (auto-refresh, the refresh button) brings a fresh card for the selected shop.
   const [seenInitial, setSeenInitial] = useState(initialCard)
   if (initialCard !== seenInitial) {
     setSeenInitial(initialCard)
     if (initialCard != null) setCards((all) => ({ ...all, [initialCard.shop.id]: initialCard }))
   }
+  // From the shared query cache: a card fetched in the last 30 s is reused.
   const loadCard = (id: string) => {
-    const at = fetched.current.get(id)
-    if (at != null && !stale(at)) return // fresh enough (the page auto-refreshes every 30 s)
-    fetched.current.set(id, now())
-    fetch(`/data/shops/${id}/card`)
-      .then(async (r) => (r.ok ? await r.json() as ShopCardData : null))
-      .then((card) => setCards((all) => ({ ...all, [id]: card })))
-      .catch(() => { fetched.current.delete(id) })
+    getQueryClient().fetchQuery({ queryKey: ['shop-card', id], queryFn: () => getJson<ShopCardData>(`/data/shops/${id}/card`) })
+      .then((card) => setCards((all) => ({ ...all, [id]: card })), () => setCards((all) => ({ ...all, [id]: null })))
   }
   const writeShopParam = (id: string | null) => {
     const next = new URLSearchParams(window.location.search)
@@ -169,7 +171,7 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
               active={c.shop.id === selectedId} onHover={() => loadCard(c.shop.id)} onClick={() => select(c.shop.id)}
             />
             ))}
-        {positions.map((p) => (
+        {shownPositions.map((p) => (
           <Marker key={p.agentId} longitude={p.lng} latitude={p.lat} anchor='center'>
             <Link href={`/salesmen/${p.agentId}`} className='group relative flex flex-col items-center' title={`${p.fullName} · ${sub(copy.hereNow, new Date(p.recordedAt).toLocaleTimeString(locale === 'ru' ? 'ru-RU' : 'en-US', { hour: '2-digit', minute: '2-digit' }))}`}>
               <AgentDot />

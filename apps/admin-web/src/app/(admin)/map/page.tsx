@@ -51,13 +51,13 @@ export default async function MapPage ({ searchParams }: PageProps<'/map'>) {
   const d = shopsCopy[locale].details
   const now = new Date().getTime()
   const shownShops = filters.show === 'agents' ? [] : shops.filter((s) => matchesStatus(s, filters.status, now))
-  const shown = filters.show === 'shops' ? [] : filters.agentIds.length > 0 ? positions.filter((p) => filters.agentIds.includes(p.agentId)) : positions
 
   return (
     <div className='h-screen pl-4'>
-      <AutoRefresh seconds={30} />
+      {/* Agent positions poll every 30 s in the map itself; the whole page (shop visit colors) every 5 min. */}
+      <AutoRefresh seconds={300} />
       <AdminMap
-        shops={shownShops} positions={shown} regions={regions} agents={agents.items.filter((a) => a.active)}
+        shops={shownShops} positions={positions} regions={regions} agents={agents.items.filter((a) => a.active)}
         filters={filters} initialCard={selected} copy={copy} locale={locale} satelliteTiles={SATELLITE}
         history={{ title: d.history, updatedAt: d.updatedAt, total: d.total, completed: d.completed, missed: d.missed, duration: d.duration, comment: d.comment, violation: d.violation, missedStatus: d.missedStatus, noVisits: d.noVisits }}
       />
