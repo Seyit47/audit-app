@@ -15,7 +15,7 @@ services:
 
   # Martin serves the tiles (TileJSON at /openmaptiles) and the label font glyphs (/font/...) built from fonts/.
   martin:
-    image: ghcr.io/maplibre/martin:v1.16.1
+    image: ghcr.io/maplibre/martin:1.16.1
     command: --config /config/martin.yaml
     restart: unless-stopped
     ports: ['3200:3000']
