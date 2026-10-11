@@ -141,7 +141,9 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
       const key = props.cluster === true ? `c${props.cluster_id}` : `s${props.id}`
       if (seen.has(key)) continue
       seen.add(key)
-      const [lng, lat] = (f.geometry as { coordinates: [number, number] }).coordinates
+      // Shops and clusters are points; anything else has no single position to place a marker at.
+      if (f.geometry.type !== 'Point') continue
+      const [lng, lat] = f.geometry.coordinates
       if (props.cluster === true) next.push({ kind: 'cluster', id: props.cluster_id!, lng, lat, count: props.point_count! })
       else if (props.id != null && byId.has(props.id)) next.push({ kind: 'shop', shop: byId.get(props.id)! })
     }
