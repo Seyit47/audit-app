@@ -28,9 +28,9 @@ declare module 'fastify' {
 
 /** S3-compatible object storage (SeaweedFS locally, any S3 in production). Private bucket, presigned URLs. */
 export default fp(async (fastify) => {
-  const { endpoint, region, bucket, accessKey, secretKey } = fastify.config.s3
-  const s3 = new S3Client({
-    endpoint,
+  const { endpoint, publicEndpoint, region, bucket, accessKey, secretKey } = fastify.config.s3
+  const client = (url: string) => new S3Client({
+    endpoint: url,
     region,
     forcePathStyle: true,
     credentials: { accessKeyId: accessKey, secretAccessKey: secretKey },
@@ -38,6 +38,10 @@ export default fp(async (fastify) => {
     requestChecksumCalculation: 'WHEN_REQUIRED',
     responseChecksumValidation: 'WHEN_REQUIRED'
   })
+  const s3 = client(endpoint)
+  // Presigned URLs are opened by phones and browsers, and the signature covers the host: sign them for the
+  // public address (no network call; signing is local).
+  const signer = publicEndpoint === endpoint ? s3 : client(publicEndpoint)
 
   // The bucket is created when missing (local SeaweedFS). Hosted storage (R2) usually has it created in
   // its dashboard and a token scoped to that bucket, which may not be allowed to check it: warn, go on.
@@ -66,10 +70,10 @@ export default fp(async (fastify) => {
 
   const storage: Storage = {
     async presignPut (key, contentType, sizeBytes) {
-      const url = await getSignedUrl(s3, new PutObjectCommand({ Bucket: bucket, Key: key, ContentType: contentType, ContentLength: sizeBytes }), { expiresIn: URL_TTL_S })
+      const url = await getSignedUrl(signer, new PutObjectCommand({ Bucket: bucket, Key: key, ContentType: contentType, ContentLength: sizeBytes }), { expiresIn: URL_TTL_S })
       return { url, headers: { 'Content-Type': contentType }, expiresAt: new Date(Date.now() + URL_TTL_S * 1000).toISOString() }
     },
-    presignGet: (key, downloadName) => getSignedUrl(s3, new GetObjectCommand({
+    presignGet: (key, downloadName) => getSignedUrl(signer, new GetObjectCommand({
       Bucket: bucket,
       Key: key,
       ResponseContentDisposition: downloadName == null ? undefined : `attachment; filename*=UTF-8''${encodeURIComponent(downloadName)}`
@@ -94,5 +98,8 @@ export default fp(async (fastify) => {
     }
   }
   fastify.decorate('storage', storage)
-  fastify.addHook('onClose', async () => { s3.destroy() })
+  fastify.addHook('onClose', async () => {
+    s3.destroy()
+    if (signer !== s3) signer.destroy()
+  })
 }, { name: 'storage', dependencies: ['env'] })

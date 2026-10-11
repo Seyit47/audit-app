@@ -43,3 +43,22 @@ test('read URLs stay the same within the hour, so clients reuse cached images', 
   t.after(() => app.close())
   assert.strictEqual(await app.storage.presignGet('a/b.jpg'), await app.storage.presignGet('a/b.jpg'))
 })
+
+test('with S3_PUBLIC_ENDPOINT, presigned URLs are signed for the public address and work there', async (t) => {
+  // The API talks to localhost; phones get 127.0.0.1 (a stand-in for the server's public IP).
+  const base = loadConfig()
+  const app = Fastify()
+  const s3 = { ...base.s3, bucket: process.env.S3_BUCKET_TEST ?? 'audit-photos-test', endpoint: base.s3.endpoint, publicEndpoint: base.s3.endpoint.replace('localhost', '127.0.0.1') }
+  await app.register(fp(async (i) => { i.decorate('config', { ...base, s3 }) }, { name: 'env' }))
+  await app.register(storage)
+  await app.ready()
+  t.after(() => app.close())
+
+  const key = `test/public-${Date.now()}.txt`
+  const put = await app.storage.presignPut(key, 'text/plain', 2)
+  assert.strictEqual(new URL(put.url).hostname, '127.0.0.1')
+  assert.strictEqual((await fetch(put.url, { method: 'PUT', body: 'ok', headers: put.headers })).status, 200)
+  const get = await app.storage.presignGet(key)
+  assert.strictEqual(new URL(get).hostname, '127.0.0.1')
+  assert.strictEqual(await (await fetch(get)).text(), 'ok')
+})

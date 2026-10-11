@@ -24,6 +24,18 @@ describe('session', () => {
     expect(jar.get(COOKIES.access)?.value).toBe('a1')
   })
 
+  it('SECURE_COOKIES=false drops the Secure flag, for the admin web on plain HTTP', async () => {
+    process.env.SECURE_COOKIES = 'false'
+    try {
+      const { jar, store } = memoryCookies()
+      const fetch = async () => json(200, { accessToken: 'a1', refreshToken: 'r1', user: { role: 'ADMIN' } })
+      await createSession({ cookies: store, fetch, apiUrl: 'http://api' }).login('a@b.c', 'pw')
+      expect(jar.get(COOKIES.access)?.opts).toMatchObject({ httpOnly: true, secure: false })
+    } finally {
+      delete process.env.SECURE_COOKIES
+    }
+  })
+
   it('refuses agent-role logins without setting cookies', async () => {
     const { jar, store } = memoryCookies()
     const fetch = async () => json(200, { accessToken: 'a', refreshToken: 'r', user: { role: 'AGENT' } })

@@ -5,7 +5,8 @@ export interface AppConfig {
   /** Connections per pool (app queries / job queue); hosted poolers cap the total (Supabase free: 15). */
   pool: { db: number, jobs: number }
   jwtSecret: string
-  s3: { endpoint: string, region: string, bucket: string, accessKey: string, secretKey: string }
+  /** [publicEndpoint]: where phones and browsers reach the storage, when it differs from [endpoint]. */
+  s3: { endpoint: string, publicEndpoint: string, region: string, bucket: string, accessKey: string, secretKey: string }
   webOrigin: string
   retentionYears: number
   currency: string
@@ -43,7 +44,16 @@ export function loadConfig (env: NodeJS.ProcessEnv = process.env): AppConfig {
     pool: { db: Number(env.DATABASE_POOL_MAX ?? 10), jobs: Number(env.JOBS_POOL_MAX ?? 10) },
     jwtSecret: env.JWT_SECRET!,
     // S3_REGION: `auto` for Cloudflare R2; SeaweedFS and MinIO accept the default.
-    s3: { endpoint: s3Endpoint, region: env.S3_REGION ?? 'us-east-1', bucket: env.S3_BUCKET!, accessKey: env.S3_ACCESS_KEY!, secretKey: env.S3_SECRET_KEY! },
+    // S3_PUBLIC_ENDPOINT: the storage's address for phones and browsers when the API reaches it another way
+    // (a self-hosted SeaweedFS on localhost). Presigned URLs are signed for it.
+    s3: {
+      endpoint: s3Endpoint,
+      publicEndpoint: env.S3_PUBLIC_ENDPOINT ? storageEndpoint(env.S3_PUBLIC_ENDPOINT) : s3Endpoint,
+      region: env.S3_REGION ?? 'us-east-1',
+      bucket: env.S3_BUCKET!,
+      accessKey: env.S3_ACCESS_KEY!,
+      secretKey: env.S3_SECRET_KEY!
+    },
     webOrigin: env.WEB_ORIGIN!,
     retentionYears: Number(env.RETENTION_YEARS ?? 3),
     currency: env.CURRENCY ?? 'TMT',

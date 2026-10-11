@@ -25,7 +25,9 @@ export class LoginError extends Error {
 
 interface Tokens { accessToken: string, refreshToken: string }
 
-const cookieOptions = (maxAge: number) => ({ httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge })
+// Secure unless SECURE_COOKIES=false: only for the admin web served on plain HTTP inside a company network,
+// where browsers refuse to store Secure cookies (and logins then travel unencrypted).
+const cookieOptions = (maxAge: number) => ({ httpOnly: true, secure: process.env.SECURE_COOKIES !== 'false', sameSite: 'lax', path: '/', maxAge })
 
 export function createSession ({ cookies, fetch, apiUrl }: { cookies: CookieStore, fetch: Fetch, apiUrl: string }) {
   function store (tokens: Tokens) {
