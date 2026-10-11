@@ -23,6 +23,8 @@ class _Api implements ActivationApi {
 const imei = '356938035643809';
 
 void main() {
+  // The notifier listens for the app returning to the foreground.
+  TestWidgetsFlutterBinding.ensureInitialized();
   late _Api api;
 
   Future<ProviderContainer> open(Map<String, Object> prefs) async {
@@ -99,5 +101,14 @@ void main() {
     await c.read(activationProvider.notifier).changeImei();
     expect(c.read(activationProvider), Activation.needsImei);
     expect((await SharedPreferences.getInstance()).getString('device_imei'), isNull);
+  });
+
+  test('a stored IMEI the server no longer knows goes back to the entry, without registering it again', () async {
+    final c = await open({'device_imei': imei, 'device_active': true});
+    c.read(activationProvider);
+    await settle();
+    expect(c.read(activationProvider), Activation.needsImei);
+    expect(api.registered, isEmpty);
+    expect(c.read(activationProvider.notifier).imei, imei, reason: 'kept to fill in the entry');
   });
 }

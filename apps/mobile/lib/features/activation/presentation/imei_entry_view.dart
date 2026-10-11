@@ -13,16 +13,19 @@ import '../domain/imei.dart';
 /// First launch: the agent enters this phone's IMEI. A looping animation shows a phone dialing *#06# and the
 /// IMEI appearing; on Android a button opens the dialer with the code filled in.
 class ImeiEntryView extends StatefulWidget {
-  const ImeiEntryView({super.key, required this.onSubmit});
+  const ImeiEntryView({super.key, required this.onSubmit, this.initial});
 
   final ValueChanged<String> onSubmit;
+
+  /// The IMEI entered before, when the server no longer knows it.
+  final String? initial;
 
   @override
   State<ImeiEntryView> createState() => _ImeiEntryViewState();
 }
 
 class _ImeiEntryViewState extends State<ImeiEntryView> {
-  final _imei = TextEditingController();
+  late final _imei = TextEditingController(text: widget.initial);
 
   @override
   void dispose() {

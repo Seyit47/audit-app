@@ -53,7 +53,7 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 250),
                   child: state == Activation.needsImei
-                      ? ImeiEntryView(key: const ValueKey('imei'), onSubmit: notifier.submitImei)
+                      ? ImeiEntryView(key: const ValueKey('imei'), initial: notifier.imei, onSubmit: notifier.submitImei)
                       : _Status(key: ValueKey(state), state: state, imei: notifier.imei, notifier: notifier),
                 ),
               ),
