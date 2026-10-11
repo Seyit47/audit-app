@@ -121,7 +121,11 @@ class _ServerSettingsSheetState extends ConsumerState<_ServerSettingsSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(l10n.serverSettings, textAlign: TextAlign.center, style: AppTextStyles.heading.copyWith(color: c.textPrimary)),
+            Text(
+              l10n.serverSettings,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.heading.copyWith(color: c.textPrimary),
+            ),
             const SizedBox(height: 4),
             Text(
               l10n.serverCurrent(ref.watch(apiUrlProvider)),
@@ -159,7 +163,11 @@ class _ServerSettingsSheetState extends ConsumerState<_ServerSettingsSheet> {
               }),
             ),
             if (_error != null) ...[
-              Text(_error!, textAlign: TextAlign.center, style: AppTextStyles.bodyMedium.copyWith(color: c.error)),
+              Text(
+                _error!,
+                textAlign: TextAlign.center,
+                style: AppTextStyles.bodyMedium.copyWith(color: c.error),
+              ),
               const SizedBox(height: 12),
             ],
             const SizedBox(height: 8),

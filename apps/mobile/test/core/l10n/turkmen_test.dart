@@ -8,21 +8,25 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   testWidgets('Turkmen loads its strings, Turkmen dates and the Russian Material fallback', (tester) async {
     late BuildContext ctx;
-    await tester.pumpWidget(MaterialApp(
-      locale: const Locale('tk'),
-      supportedLocales: const [Locale('ru'), Locale('tk'), Locale('en')],
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        ...turkmenFallbackDelegates,
-      ],
-      home: Builder(builder: (context) {
-        ctx = context;
-        return const SizedBox();
-      }),
-    ));
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('tk'),
+        supportedLocales: const [Locale('ru'), Locale('tk'), Locale('en')],
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          ...turkmenFallbackDelegates,
+        ],
+        home: Builder(
+          builder: (context) {
+            ctx = context;
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
     await tester.pumpAndSettle();
 
     expect(AppLocalizations.of(ctx).homeStartAudit, 'Audite başla');
