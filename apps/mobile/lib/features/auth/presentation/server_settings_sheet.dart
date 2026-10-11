@@ -13,8 +13,27 @@ import '../../../core/widgets/bottom_sheet_card.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/form_field.dart';
 
-/// The login screen's gear: asks for the build's settings PIN, then opens the server address sheet.
-Future<void> openServerSettings(BuildContext context) async {
+/// Opens the server address sheet: from the login screen's gear after the build's settings PIN ([askPin]),
+/// from an admin's account menu directly (they're already signed in).
+Future<void> openServerSettings(BuildContext context, {bool askPin = true}) async {
+  if (askPin && !await _pinOk(context)) return;
+  if (!context.mounted) return;
+  // iOS: a Cupertino modal popup; Android: a Material modal bottom sheet (as the filter sheet).
+  context.isCupertino
+      ? await showCupertinoModalPopup<void>(
+          context: context,
+          builder: (_) => const Material(type: MaterialType.transparency, child: _ServerSettingsSheet()),
+        )
+      : await showModalBottomSheet<void>(
+          context: context,
+          isScrollControlled: true,
+          showDragHandle: false,
+          backgroundColor: Colors.transparent,
+          builder: (_) => const _ServerSettingsSheet(),
+        );
+}
+
+Future<bool> _pinOk(BuildContext context) async {
   final l10n = AppLocalizations.of(context);
   final pin = TextEditingController();
   final entered = await showAppDialog<String>(
@@ -37,24 +56,12 @@ Future<void> openServerSettings(BuildContext context) async {
     ],
   );
   pin.dispose();
-  if (entered == null || !context.mounted) return;
+  if (entered == null || !context.mounted) return false;
   if (entered != AppConfig.settingsPin) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.pinWrong)));
-    return;
+    return false;
   }
-  // iOS: a Cupertino modal popup; Android: a Material modal bottom sheet (as the filter sheet).
-  context.isCupertino
-      ? await showCupertinoModalPopup<void>(
-          context: context,
-          builder: (_) => const Material(type: MaterialType.transparency, child: _ServerSettingsSheet()),
-        )
-      : await showModalBottomSheet<void>(
-          context: context,
-          isScrollControlled: true,
-          showDragHandle: false,
-          backgroundColor: Colors.transparent,
-          builder: (_) => const _ServerSettingsSheet(),
-        );
+  return true;
 }
 
 class _ServerSettingsSheet extends ConsumerStatefulWidget {

@@ -14,6 +14,7 @@ class AdminHomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     return HomeScaffold(
+      serverSettings: true,
       syncing: false,
       tiles: [
         HomeActionTile(

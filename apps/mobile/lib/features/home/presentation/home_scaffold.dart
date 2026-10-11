@@ -6,15 +6,19 @@ import '../../../core/settings/app_settings.dart';
 import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/home_header.dart';
 import '../../auth/data/sign_out_service.dart';
+import '../../auth/presentation/server_settings_sheet.dart';
 import '../../../core/widgets/adaptive.dart';
 
 /// Layout shared by the agent and admin Home frames (`83:16786`, `101:1880`, `246:23129`):
 /// glow background, avatar + theme + RU/EN header, tiles, sync pill at the bottom.
 class HomeScaffold extends ConsumerWidget {
-  const HomeScaffold({super.key, required this.tiles, required this.syncing});
+  const HomeScaffold({super.key, required this.tiles, required this.syncing, this.serverSettings = false});
 
   final List<Widget> tiles;
   final bool syncing;
+
+  /// Admins can change the API address from the account menu (agents only behind the login screen's PIN).
+  final bool serverSettings;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,8 +41,8 @@ class HomeScaffold extends ConsumerWidget {
                       children: [
                         AppMenuButton<String>(
                           tooltip: l10n.account,
-                          choices: [MenuChoice('signOut', l10n.signOut, destructive: true)],
-                          onSelected: (_) => ref.read(signOutServiceProvider).signOut(),
+                          choices: [if (serverSettings) MenuChoice('server', l10n.serverSettings), MenuChoice('signOut', l10n.signOut, destructive: true)],
+                          onSelected: (choice) => choice == 'server' ? openServerSettings(context, askPin: false) : ref.read(signOutServiceProvider).signOut(),
                           child: const AppIcon('avatar', width: 36, height: 36),
                         ),
                         const Spacer(),
