@@ -15,7 +15,7 @@ enum Activation { checking, unregistered, registering, pending, active, offline 
 final activationEnabledProvider = Provider<bool>((ref) => AppConfig.activationUrl.isNotEmpty);
 final activationApiProvider = Provider<ActivationApi>((ref) => ActivationApi());
 
-/// "SM-A528B-424d82d9" (see [deviceId]).
+/// "samsung SM-A528B-96847ec2" (see [deviceId]).
 final deviceIdProvider = FutureProvider<String>((ref) => deviceId());
 
 const _activeKey = 'device_active';

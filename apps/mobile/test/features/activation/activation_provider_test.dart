@@ -19,7 +19,7 @@ class _Api implements ActivationApi {
   }
 }
 
-const id = 'SM-A528B-424d82d9';
+const id = 'samsung SM-A528B-96847ec2';
 
 void main() {
   // The notifier listens for the app returning to the foreground.

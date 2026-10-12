@@ -9,23 +9,25 @@ import '../../../core/config/app_config.dart';
 
 enum DeviceStatus { unregistered, pending, active }
 
-/// This device's id for activation, in the activation server's format "SM-A528B-424d82d9": the phone model
-/// and the first 8 characters of a stable device id: ANDROID_ID on Android (fixed per device, survives
-/// reinstalls, resets on a factory reset), a Keychain id on iOS (survives reinstalls). Apps can't read the IMEI.
+/// This device's id for activation, in the activation server's format "samsung SM-A528B-96847ec2": the
+/// manufacturer and model as the phone reports them, then the first 8 characters of a stable device id:
+/// ANDROID_ID on Android (fixed per device, survives reinstalls, resets on a factory reset), a Keychain id on
+/// iOS (survives reinstalls). Apps can't read the IMEI.
 Future<String> deviceId() async {
   final info = DeviceInfoPlugin();
-  final model = switch (Platform.operatingSystem) {
-    'android' => (await info.androidInfo).model,
-    'ios' => (await info.iosInfo).utsname.machine,
-    final os => os,
+  final (manufacturer, model) = switch (Platform.operatingSystem) {
+    'android' => await info.androidInfo.then((a) => (a.manufacturer, a.model)),
+    'ios' => await info.iosInfo.then((i) => ('Apple', i.utsname.machine)),
+    final os => (os, ''),
   };
-  return formatDeviceId(model, await FlutterUdid.udid);
+  return formatDeviceId(manufacturer, model, await FlutterUdid.udid);
 }
 
-/// "SM-A528B" + "424d82d9e5f6a7b8" → "SM-A528B-424d82d9"; an iOS UUID ("7946DA4E-8429-…") gives "…-7946da4e".
-String formatDeviceId(String model, String udid) {
+/// ("samsung", "SM-A528B", "96847ec2…") → "samsung SM-A528B-96847ec2"; an iOS UUID ("7946DA4E-8429-…") gives
+/// "Apple iPhone14,5-7946da4e".
+String formatDeviceId(String manufacturer, String model, String udid) {
   final hex = udid.replaceAll('-', '').toLowerCase();
-  return '${model.replaceAll(' ', '')}-${hex.substring(0, hex.length < 8 ? hex.length : 8)}';
+  return '$manufacturer $model-${hex.substring(0, hex.length < 8 ? hex.length : 8)}';
 }
 
 /// The activation server (`AppConfig.activationUrl`).
