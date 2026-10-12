@@ -7,30 +7,28 @@ import '../../core/config/app_config.dart';
 import '../../core/settings/app_settings.dart';
 import 'data/activation_api.dart';
 
-/// [needsImei]: no IMEI entered yet on this install. [offline]: the activation server couldn't be reached and
-/// this device was never seen active.
-enum Activation { checking, needsImei, registering, pending, active, offline }
+/// [unregistered]: the activation server doesn't know this device; it registers when the user taps Register.
+/// [offline]: the activation server couldn't be reached and this device was never seen active.
+enum Activation { checking, unregistered, registering, pending, active, offline }
 
 /// Off when the build has no activation server (tests, local development).
 final activationEnabledProvider = Provider<bool>((ref) => AppConfig.activationUrl.isNotEmpty);
 final activationApiProvider = Provider<ActivationApi>((ref) => ActivationApi());
 
-const _imeiKey = 'device_imei';
+/// "SM-A528B-424d82d9" (see [deviceId]).
+final deviceIdProvider = FutureProvider<String>((ref) => deviceId());
+
 const _activeKey = 'device_active';
 
-/// Whether this device may use the app. Apps can't read the IMEI, so the agent enters it once (dialing *#06#
-/// shows it); the app then checks it with the activation server on every launch and whenever it returns to
-/// the foreground. An unknown IMEI is registered with the phone's details only when the agent submits it, and
-/// the app waits until a moderator activates it. A device seen active opens at once and stays usable offline
-/// (agents start the day without a signal), but is locked again if the server says it isn't active; one the
-/// server no longer knows (deleted by a moderator) goes back to the entry, its IMEI filled in.
+/// Whether this device may use the app. The app checks its device id with the activation server on every
+/// launch and whenever it returns to the foreground. An unknown device is registered (with the phone's
+/// details) only when the user taps Register, so one a moderator deleted isn't silently added back; then the
+/// app waits until a moderator activates it. A device seen active opens at once and stays usable offline
+/// (agents start the day without a signal), but is locked again if the server says it isn't active.
 final activationProvider = NotifierProvider<ActivationNotifier, Activation>(ActivationNotifier.new);
 
 class ActivationNotifier extends Notifier<Activation> {
   bool get _wasActive => ref.read(sharedPreferencesProvider).getBool(_activeKey) ?? false;
-
-  /// The IMEI entered on this install, or null.
-  String? get imei => ref.read(sharedPreferencesProvider).getString(_imeiKey);
 
   @override
   Activation build() {
@@ -38,46 +36,29 @@ class ActivationNotifier extends Notifier<Activation> {
     // The app stays open all day: a device deactivated meanwhile is locked when it comes back to the foreground.
     final lifecycle = AppLifecycleListener(onResume: () => unawaited(check()));
     ref.onDispose(lifecycle.dispose);
-    if (imei == null) return Activation.needsImei;
     unawaited(Future.microtask(check));
     return _wasActive ? Activation.active : Activation.checking;
   }
 
-  /// Saves the IMEI from the entry view, then checks it, registering it if the server doesn't know it.
-  Future<void> submitImei(String value) async {
-    await ref.read(sharedPreferencesProvider).setString(_imeiKey, value);
-    await check(register: true);
-  }
+  /// Registers this device (Register button), then checks it.
+  Future<void> register() => check(register: true);
 
-  /// Back to the entry view to fix a mistyped IMEI.
-  Future<void> changeImei() async {
-    final prefs = ref.read(sharedPreferencesProvider);
-    await prefs.remove(_imeiKey);
-    await prefs.remove(_activeKey);
-    state = Activation.needsImei;
-  }
-
-  /// [register]: only when the agent submitted the IMEI. A launch or resume never registers by itself, so a
-  /// device a moderator deleted isn't silently added back.
+  /// [register]: only from the Register button; a launch or resume never registers by itself.
   Future<void> check({bool register = false}) async {
-    final imei = this.imei;
-    if (imei == null) {
-      state = Activation.needsImei;
-      return;
-    }
     if (!_wasActive) state = Activation.checking;
     try {
+      final id = await ref.read(deviceIdProvider.future);
       final api = ref.read(activationApiProvider);
-      var status = await api.status(imei);
+      var status = await api.status(id);
       if (status == DeviceStatus.unregistered) {
         if (!register) {
           await _remember(false);
-          state = Activation.needsImei;
+          state = Activation.unregistered;
           return;
         }
         state = Activation.registering;
-        await api.register(imei);
-        status = await api.status(imei);
+        await api.register(id);
+        status = await api.status(id);
       }
       await _remember(status == DeviceStatus.active);
       state = status == DeviceStatus.active ? Activation.active : Activation.pending;

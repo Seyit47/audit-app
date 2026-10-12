@@ -999,7 +999,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String activationDeviceId(String id) {
-    return 'IMEI: $id';
+    return 'Device ID: $id';
   }
 
   @override
@@ -1009,32 +1009,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activationChecking => 'Checking this device…';
 
   @override
-  String get imeiTitle => 'Enter this phone\'s IMEI';
+  String get activationRegisterTitle => 'Device not registered';
 
   @override
-  String get imeiBody => 'Dial *#06# on this phone and the IMEI appears on screen.';
+  String get activationRegisterBody => 'Register this device before first use. A moderator then activates it.';
 
   @override
-  String get imeiDualSim => 'If two numbers appear, enter IMEI 1.';
-
-  @override
-  String get imeiIosHint => 'On iPhone it\'s also in Settings → General → About.';
-
-  @override
-  String get imeiField => 'IMEI';
-
-  @override
-  String get imeiLength => 'An IMEI has 15 digits';
-
-  @override
-  String get imeiTypo => 'This IMEI has a typo — check the digits against the screen';
-
-  @override
-  String get imeiOpenDialer => 'Open the dialer';
-
-  @override
-  String get imeiContinue => 'Continue';
-
-  @override
-  String get imeiChange => 'Change IMEI';
+  String get activationRegister => 'Register';
 }

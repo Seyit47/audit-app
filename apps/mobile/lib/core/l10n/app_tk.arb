@@ -295,17 +295,10 @@
   "portInvalid": "1-den 65535-e çenli port",
   "activationTitle": "Işjeňleşdirilmegine garaşylýar",
   "activationBody": "Enjam hasaba alyndy. Moderator tassyklandan soň işläp bilersiňiz.",
-  "activationDeviceId": "IMEI: {id}",
+  "activationDeviceId": "Enjamyň ID-si: {id}",
   "activationError": "Işjeňleşdiriş serweri bilen aragatnaşyk ýok",
   "activationChecking": "Enjam barlanýar…",
-  "imeiTitle": "Enjamyň IMEI belgisini giriziň",
-  "imeiBody": "Bu telefonda *#06# ýygnaň — IMEI ekranda peýda bolar.",
-  "imeiDualSim": "Iki belgi görünse, IMEI 1-i giriziň.",
-  "imeiIosHint": "iPhone-da ol Sazlamalar → Esasy → Bu enjam barada bölüminde hem bar.",
-  "imeiField": "IMEI",
-  "imeiLength": "IMEI 15 sandan ybarat",
-  "imeiTypo": "IMEI-de ýalňyşlyk bar — sanlary ekran bilen deňeşdiriň",
-  "imeiOpenDialer": "Jaň ediş penjiresini aç",
-  "imeiContinue": "Dowam et",
-  "imeiChange": "IMEI-ni üýtget"
+  "activationRegisterTitle": "Enjam hasaba alynmadyk",
+  "activationRegisterBody": "Ilkinji gezek ulanmazdan öň enjamy hasaba alyň. Soňra moderator ony işjeňleşdirer.",
+  "activationRegister": "Hasaba al"
 }

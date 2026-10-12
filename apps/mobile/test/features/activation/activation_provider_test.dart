@@ -1,7 +1,6 @@
 import 'package:audit_mobile/core/settings/app_settings.dart';
 import 'package:audit_mobile/features/activation/activation_provider.dart';
 import 'package:audit_mobile/features/activation/data/activation_api.dart';
-import 'package:audit_mobile/features/activation/domain/imei.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,16 +10,16 @@ class _Api implements ActivationApi {
   final registered = <String>[];
 
   @override
-  Future<DeviceStatus> status(String imei) async => status_ ?? (throw Exception('offline'));
+  Future<DeviceStatus> status(String id) async => status_ ?? (throw Exception('offline'));
 
   @override
-  Future<void> register(String imei) async {
-    registered.add(imei);
+  Future<void> register(String id) async {
+    registered.add(id);
     status_ = DeviceStatus.pending;
   }
 }
 
-const imei = '356938035643809';
+const id = 'SM-A528B-424d82d9';
 
 void main() {
   // The notifier listens for the app returning to the foreground.
@@ -34,6 +33,7 @@ void main() {
         sharedPreferencesProvider.overrideWithValue(await SharedPreferences.getInstance()),
         activationEnabledProvider.overrideWithValue(true),
         activationApiProvider.overrideWithValue(api),
+        deviceIdProvider.overrideWith((ref) async => id),
       ],
     );
     addTearDown(c.dispose);
@@ -45,19 +45,15 @@ void main() {
 
   setUp(() => api = _Api());
 
-  test('IMEI validation catches wrong lengths and typos', () {
-    expect(isValidImei(imei), isTrue);
-    expect(isValidImei('356938035643808'), isFalse, reason: 'check digit');
-    expect(isValidImei('35693803564380'), isFalse);
-    expect(formatImei(imei), '35 693803 564380 9');
-  });
-
-  test('first launch asks for the IMEI, registers it, then waits; activation opens the app', () async {
+  test('an unknown device waits for Register, then for a moderator; activation opens the app', () async {
     final c = await open({});
-    expect(c.read(activationProvider), Activation.needsImei);
+    expect(c.read(activationProvider), Activation.checking);
+    await settle();
+    expect(c.read(activationProvider), Activation.unregistered);
+    expect(api.registered, isEmpty, reason: 'a launch never registers by itself');
 
-    await c.read(activationProvider.notifier).submitImei(imei);
-    expect(api.registered, [imei]);
+    await c.read(activationProvider.notifier).register();
+    expect(api.registered, [id]);
     expect(c.read(activationProvider), Activation.pending);
 
     api.status_ = DeviceStatus.active;
@@ -66,17 +62,17 @@ void main() {
     expect((await SharedPreferences.getInstance()).getBool('device_active'), isTrue);
   });
 
-  test('a known IMEI is not registered again', () async {
+  test('a device already registered is not registered again', () async {
     api.status_ = DeviceStatus.pending;
     final c = await open({});
-    await c.read(activationProvider.notifier).submitImei(imei);
+    await c.read(activationProvider.notifier).register();
     expect(api.registered, isEmpty);
     expect(c.read(activationProvider), Activation.pending);
   });
 
   test('a device seen active opens at once and stays usable offline', () async {
     api.status_ = null;
-    final c = await open({'device_imei': imei, 'device_active': true});
+    final c = await open({'device_active': true});
     expect(c.read(activationProvider), Activation.active);
     await settle();
     expect(c.read(activationProvider), Activation.active);
@@ -84,31 +80,26 @@ void main() {
 
   test('never activated and offline: blocked with a retry', () async {
     api.status_ = null;
-    final c = await open({'device_imei': imei});
+    final c = await open({});
     c.read(activationProvider);
     await settle();
     expect(c.read(activationProvider), Activation.offline);
   });
 
-  test('deactivated by the moderator: locked again; Change IMEI goes back to the entry', () async {
+  test('deactivated by the moderator: locked again', () async {
     api.status_ = DeviceStatus.pending;
-    final c = await open({'device_imei': imei, 'device_active': true});
+    final c = await open({'device_active': true});
     c.read(activationProvider);
     await settle();
     expect(c.read(activationProvider), Activation.pending);
     expect((await SharedPreferences.getInstance()).getBool('device_active'), isNull);
-
-    await c.read(activationProvider.notifier).changeImei();
-    expect(c.read(activationProvider), Activation.needsImei);
-    expect((await SharedPreferences.getInstance()).getString('device_imei'), isNull);
   });
 
-  test('a stored IMEI the server no longer knows goes back to the entry, without registering it again', () async {
-    final c = await open({'device_imei': imei, 'device_active': true});
+  test('deleted by the moderator: back to Register, without registering it again', () async {
+    final c = await open({'device_active': true});
     c.read(activationProvider);
     await settle();
-    expect(c.read(activationProvider), Activation.needsImei);
+    expect(c.read(activationProvider), Activation.unregistered);
     expect(api.registered, isEmpty);
-    expect(c.read(activationProvider.notifier).imei, imei, reason: 'kept to fill in the entry');
   });
 }
