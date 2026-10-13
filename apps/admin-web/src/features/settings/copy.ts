@@ -13,7 +13,9 @@ export const settingsCopy = defineCopy({
     radiusHint: 'Default for new shops; an audit must start within it.',
     save: 'Save changes', saving: 'Saving…', saved: 'Saved',
     regions: 'Regions', regionName: 'Region name', addRegion: 'Add region', rename: 'Rename', delete: 'Delete', cancel: 'Cancel', confirm: 'Save',
-    noRegions: 'No regions yet',
+    noRegions: 'No regions yet', regionInUse: 'This name is already used, or the region still has shops or salesmen.',
+    categories: 'Product categories', categoryName: 'Category name', addCategory: 'Add category', noCategories: 'No categories yet',
+    categoryInUse: 'This name is already used, or products still use this category.',
     errors: { field: 'Required', range: 'From {min} to {max}', hours: 'The end must be after the start', CONFLICT: 'This name is already used, or the region still has shops or salesmen.', VALIDATION_FAILED: 'Check the values: some are out of range.', generic: 'Could not save. Try again.' }
   },
   ru: {
@@ -27,7 +29,9 @@ export const settingsCopy = defineCopy({
     radiusHint: 'По умолчанию для новых точек; аудит начинается только внутри радиуса.',
     save: 'Сохранить изменения', saving: 'Сохранение…', saved: 'Сохранено',
     regions: 'Регионы', regionName: 'Название региона', addRegion: 'Добавить регион', rename: 'Переименовать', delete: 'Удалить', cancel: 'Отмена', confirm: 'Сохранить',
-    noRegions: 'Регионов пока нет',
+    noRegions: 'Регионов пока нет', regionInUse: 'Название уже занято, или в регионе ещё есть точки или агенты.',
+    categories: 'Категории продукции', categoryName: 'Название категории', addCategory: 'Добавить категорию', noCategories: 'Категорий пока нет',
+    categoryInUse: 'Название уже занято, или категорию ещё используют продукты.',
     errors: { field: 'Обязательное поле', range: 'От {min} до {max}', hours: 'Конец должен быть позже начала', CONFLICT: 'Название уже занято, или в регионе ещё есть точки или агенты.', VALIDATION_FAILED: 'Проверьте значения: некоторые вне допустимого диапазона.', generic: 'Не удалось сохранить. Попробуйте ещё раз.' }
   },
   tk: {
@@ -41,7 +45,9 @@ export const settingsCopy = defineCopy({
     radiusHint: 'Täze nokatlar üçin adaty baha; audit diňe radiusyň içinde başlaýar.',
     save: 'Üýtgeşmeleri ýatda sakla', saving: 'Ýatda saklanýar…', saved: 'Ýatda saklandy',
     regions: 'Sebitler', regionName: 'Sebitiň ady', addRegion: 'Sebit goş', rename: 'Adyny üýtget', delete: 'Poz', cancel: 'Ýatyr', confirm: 'Ýatda sakla',
-    noRegions: 'Häzirlikçe sebit ýok',
+    noRegions: 'Häzirlikçe sebit ýok', regionInUse: 'Bu at eýýäm ulanylýar ýa-da sebitde heniz nokatlar ýa-da agentler bar.',
+    categories: 'Önüm kategoriýalary', categoryName: 'Kategoriýanyň ady', addCategory: 'Kategoriýa goş', noCategories: 'Häzirlikçe kategoriýa ýok',
+    categoryInUse: 'Bu at eýýäm ulanylýar ýa-da bu kategoriýany heniz önümler ulanýar.',
     errors: { field: 'Hökmany meýdança', range: '{min}-den {max}-e çenli', hours: 'Ahyry başyndan soň bolmaly', CONFLICT: 'Bu at eýýäm ulanylýar ýa-da sebitde heniz nokatlar ýa-da agentler bar.', VALIDATION_FAILED: 'Bahalary barlaň: käbiri rugsat berlen aralykdan daşarda.', generic: 'Ýatda saklap bolmady. Gaýtadan synanyşyň.' }
   }
 })

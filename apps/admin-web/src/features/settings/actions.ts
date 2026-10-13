@@ -34,3 +34,18 @@ export async function renameRegion (id: string, name: string) {
 export async function deleteRegion (id: string) {
   return run(async () => { await api(`/v1/regions/${id}`, { method: 'DELETE' }); revalidatePath('/settings') })
 }
+
+// Product categories, managed next to regions (products need one; there is no other place to create them).
+const revalidateCategories = () => { revalidatePath('/settings'); revalidatePath('/products') }
+
+export async function addCategory (name: string) {
+  return run(async () => { await api('/v1/product-categories', { method: 'POST', body: { name } }); revalidateCategories() })
+}
+
+export async function renameCategory (id: string, name: string) {
+  return run(async () => { await api(`/v1/product-categories/${id}`, { method: 'PATCH', body: { name } }); revalidateCategories() })
+}
+
+export async function deleteCategory (id: string) {
+  return run(async () => { await api(`/v1/product-categories/${id}`, { method: 'DELETE' }); revalidateCategories() })
+}
