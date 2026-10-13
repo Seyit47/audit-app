@@ -1,11 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../config/server_address.dart';
+import '../db/database_provider.dart';
+import '../settings/app_settings.dart';
+import '../sync/local_data.dart';
+import '../sync/outbox_repository.dart';
 import '../network/api_client.dart';
 import 'session.dart';
 import 'session_store.dart';
 
 final sessionStoreProvider = Provider<SessionStore>((ref) => SessionStore());
+
+/// Whose data the local database holds: `<user id>@<API address>`.
+const _dataOwnerKey = 'data_owner';
 
 final apiClientProvider = Provider<ApiClient>(
   (ref) => ApiClient(
@@ -31,6 +38,19 @@ class SessionNotifier extends AsyncNotifier<SessionUser?> {
     final body = await api.post<Map<String, dynamic>>('/auth/login', body: {'login': login, 'password': password, 'device': ?device}, auth: false);
     final store = ref.read(sessionStoreProvider);
     final user = SessionUser.fromJson(body['user'] as Map<String, dynamic>);
+    // The local data belongs to one user on one server: a different user, or the same phone pointed at another
+    // server, starts clean instead of showing the previous one's shops, audits and photos.
+    // With no owner recorded (data from before this check), unsent audits are kept rather than risked: they can
+    // only belong to the user signing in again after their session expired.
+    final prefs = ref.read(sharedPreferencesProvider);
+    final owner = '${user.id}@${ref.read(apiUrlProvider)}';
+    final previous = prefs.getString(_dataOwnerKey);
+    if (previous != owner) {
+      final db = ref.read(databaseProvider);
+      final unsent = previous == null ? await OutboxRepository(db).openCount() : 0;
+      if (unsent == 0) await ref.read(wipeLocalDataProvider)();
+      await prefs.setString(_dataOwnerKey, owner);
+    }
     await store.writeTokens(Tokens(access: body['accessToken'] as String, refresh: body['refreshToken'] as String));
     await store.writeUser(user);
     state = AsyncData(user);

@@ -1,25 +1,13 @@
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:uuid/uuid.dart';
+import 'package:flutter_udid/flutter_udid.dart';
 
-/// The install id and model sent at sign-in for device binding (FR-002a). The id is created once
-/// per install and survives sign-out.
+/// The device id and model sent at sign-in for device binding (FR-002a). The id is the phone's own stable id
+/// (ANDROID_ID on Android, a Keychain id on iOS): it survives sign-out, clearing the app's data and reinstalling,
+/// so the same phone is always recognised and an agent isn't locked out by "bound to another device".
 class DeviceIdentity {
-  DeviceIdentity([FlutterSecureStorage? storage]) : _storage = storage ?? const FlutterSecureStorage();
-
-  final FlutterSecureStorage _storage;
-  static const _key = 'install_id';
-
-  Future<Map<String, String>> read() async {
-    var installId = await _storage.read(key: _key);
-    if (installId == null) {
-      installId = const Uuid().v4();
-      await _storage.write(key: _key, value: installId);
-    }
-    return {'installId': installId, 'model': await _model()};
-  }
+  Future<Map<String, String>> read() async => {'installId': await FlutterUdid.udid, 'model': await _model()};
 
   Future<String> _model() async {
     final info = DeviceInfoPlugin();
