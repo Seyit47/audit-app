@@ -136,18 +136,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   ref.onDispose(refresh.dispose);
 
   final router = GoRouter(
-    initialLocation: Paths.login,
+    // The app opens on the activation screen ("Checking this device…"), so a device that isn't activated never
+    // shows sign-in first; an activated one moves on as soon as the saved session has loaded.
+    initialLocation: Paths.activation,
     refreshListenable: refresh,
     routes: appRoutes(),
     redirect: (context, state) {
+      final activated = ref.read(activationProvider) == Activation.active;
       final session = ref.read(sessionProvider);
-      if (session.isLoading) return null;
-      return redirectFor(
-        location: state.matchedLocation,
-        user: session.value,
-        locationGranted: ref.read(locationGrantedProvider),
-        activated: ref.read(activationProvider) == Activation.active,
-      );
+      if (activated && session.isLoading) return null;
+      return redirectFor(location: state.matchedLocation, user: session.value, locationGranted: ref.read(locationGrantedProvider), activated: activated);
     },
   );
   ref.onDispose(router.dispose);

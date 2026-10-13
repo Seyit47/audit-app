@@ -14,5 +14,6 @@ export function GET () {
     glyphs: process.env.MAP_GLYPHS_URL ?? OPENFREEMAP_GLYPHS,
     sources: { ...style.sources, openmaptiles: { ...style.sources.openmaptiles, url: process.env.MAP_TILES_URL ?? OPENFREEMAP_TILES } }
   }
-  return Response.json(body, { headers: { 'Cache-Control': 'public, max-age=3600' } })
+  // no-cache: browsers check every time (a tiny request), so a changed map address or style applies at once.
+  return Response.json(body, { headers: { 'Cache-Control': 'no-cache' } })
 }
