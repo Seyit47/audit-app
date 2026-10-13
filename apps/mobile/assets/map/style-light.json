@@ -17,6 +17,88 @@
    }
   },
   {
+   "id": "landuse-residential",
+   "type": "fill",
+   "source": "openmaptiles",
+   "source-layer": "landuse",
+   "filter": [
+    "match",
+    [
+     "get",
+     "class"
+    ],
+    [
+     "residential",
+     "suburb",
+     "neighbourhood",
+     "commercial",
+     "retail",
+     "industrial",
+     "garages",
+     "railway"
+    ],
+    true,
+    false
+   ],
+   "paint": {
+    "fill-color": "#e2e9e4",
+    "fill-opacity": [
+     "interpolate",
+     [
+      "linear"
+     ],
+     [
+      "zoom"
+     ],
+     10,
+     0,
+     12,
+     1
+    ]
+   }
+  },
+  {
+   "id": "landuse-institution",
+   "type": "fill",
+   "source": "openmaptiles",
+   "source-layer": "landuse",
+   "filter": [
+    "match",
+    [
+     "get",
+     "class"
+    ],
+    [
+     "hospital",
+     "school",
+     "university",
+     "college",
+     "kindergarten",
+     "stadium",
+     "cemetery",
+     "military"
+    ],
+    true,
+    false
+   ],
+   "paint": {
+    "fill-color": "#e6e4f1",
+    "fill-opacity": [
+     "interpolate",
+     [
+      "linear"
+     ],
+     [
+      "zoom"
+     ],
+     12,
+     0,
+     13,
+     1
+    ]
+   }
+  },
+  {
    "id": "water",
    "type": "fill",
    "source": "openmaptiles",
@@ -100,6 +182,93 @@
     "line-dasharray": [
      4,
      3
+    ]
+   }
+  },
+  {
+   "id": "aeroway-area",
+   "type": "fill",
+   "source": "openmaptiles",
+   "source-layer": "aeroway",
+   "minzoom": 10,
+   "filter": [
+    "==",
+    [
+     "geometry-type"
+    ],
+    "Polygon"
+   ],
+   "paint": {
+    "fill-color": "#e3e8e5"
+   }
+  },
+  {
+   "id": "aeroway-runway",
+   "type": "line",
+   "source": "openmaptiles",
+   "source-layer": "aeroway",
+   "minzoom": 10,
+   "filter": [
+    "all",
+    [
+     "==",
+     [
+      "geometry-type"
+     ],
+     "LineString"
+    ],
+    [
+     "match",
+     [
+      "get",
+      "class"
+     ],
+     [
+      "runway",
+      "taxiway"
+     ],
+     true,
+     false
+    ]
+   ],
+   "paint": {
+    "line-color": "#ffffff",
+    "line-width": [
+     "interpolate",
+     [
+      "linear"
+     ],
+     [
+      "zoom"
+     ],
+     10,
+     1,
+     16,
+     12
+    ]
+   }
+  },
+  {
+   "id": "building",
+   "type": "fill",
+   "source": "openmaptiles",
+   "source-layer": "building",
+   "minzoom": 14,
+   "paint": {
+    "fill-color": "#dce3de",
+    "fill-outline-color": "#cfd7d1",
+    "fill-opacity": [
+     "interpolate",
+     [
+      "linear"
+     ],
+     [
+      "zoom"
+     ],
+     14,
+     0,
+     15,
+     1
     ]
    }
   },
@@ -225,6 +394,161 @@
    }
   },
   {
+   "id": "water-label",
+   "type": "symbol",
+   "source": "openmaptiles",
+   "source-layer": "water_name",
+   "layout": {
+    "text-field": [
+     "coalesce",
+     [
+      "get",
+      "name:latin"
+     ],
+     [
+      "get",
+      "name"
+     ]
+    ],
+    "text-font": [
+     "Noto Sans Regular"
+    ],
+    "text-size": 12,
+    "text-max-width": 8
+   },
+   "paint": {
+    "text-color": "#4f7da6",
+    "text-halo-color": "#eaf1ec",
+    "text-halo-width": 1.5
+   },
+   "filter": [
+    "==",
+    [
+     "geometry-type"
+    ],
+    "Point"
+   ]
+  },
+  {
+   "id": "water-label-line",
+   "type": "symbol",
+   "source": "openmaptiles",
+   "source-layer": "water_name",
+   "layout": {
+    "text-field": [
+     "coalesce",
+     [
+      "get",
+      "name:latin"
+     ],
+     [
+      "get",
+      "name"
+     ]
+    ],
+    "text-font": [
+     "Noto Sans Regular"
+    ],
+    "text-size": 12,
+    "text-max-width": 8,
+    "symbol-placement": "line"
+   },
+   "paint": {
+    "text-color": "#4f7da6",
+    "text-halo-color": "#eaf1ec",
+    "text-halo-width": 1.5
+   },
+   "filter": [
+    "==",
+    [
+     "geometry-type"
+    ],
+    "LineString"
+   ]
+  },
+  {
+   "id": "housenumber",
+   "type": "symbol",
+   "source": "openmaptiles",
+   "source-layer": "housenumber",
+   "minzoom": 17,
+   "layout": {
+    "text-field": [
+     "get",
+     "housenumber"
+    ],
+    "text-font": [
+     "Noto Sans Regular"
+    ],
+    "text-size": 10
+   },
+   "paint": {
+    "text-color": "#8a8a9c",
+    "text-halo-color": "#eaf1ec",
+    "text-halo-width": 1.5
+   }
+  },
+  {
+   "id": "poi-dot",
+   "type": "circle",
+   "source": "openmaptiles",
+   "source-layer": "poi",
+   "minzoom": 15,
+   "filter": [
+    "has",
+    "name"
+   ],
+   "paint": {
+    "circle-radius": 3,
+    "circle-color": "#7c7b93",
+    "circle-stroke-color": "#eaf1ec",
+    "circle-stroke-width": 1
+   }
+  },
+  {
+   "id": "poi-label",
+   "type": "symbol",
+   "source": "openmaptiles",
+   "source-layer": "poi",
+   "minzoom": 15,
+   "filter": [
+    "has",
+    "name"
+   ],
+   "layout": {
+    "text-field": [
+     "coalesce",
+     [
+      "get",
+      "name:latin"
+     ],
+     [
+      "get",
+      "name"
+     ]
+    ],
+    "text-font": [
+     "Noto Sans Regular"
+    ],
+    "text-size": 11,
+    "text-max-width": 8,
+    "text-anchor": "top",
+    "text-offset": [
+     0,
+     0.5
+    ],
+    "symbol-sort-key": [
+     "get",
+     "rank"
+    ]
+   },
+   "paint": {
+    "text-color": "#62617b",
+    "text-halo-color": "#eaf1ec",
+    "text-halo-width": 1.5
+   }
+  },
+  {
    "id": "road-label",
    "type": "symbol",
    "source": "openmaptiles",
@@ -247,6 +571,82 @@
      "Noto Sans Regular"
     ],
     "text-size": 11
+   },
+   "paint": {
+    "text-color": "#62617b",
+    "text-halo-color": "#eaf1ec",
+    "text-halo-width": 1.5
+   }
+  },
+  {
+   "id": "airport-label",
+   "type": "symbol",
+   "source": "openmaptiles",
+   "source-layer": "aerodrome_label",
+   "minzoom": 10,
+   "layout": {
+    "text-field": [
+     "coalesce",
+     [
+      "get",
+      "name:latin"
+     ],
+     [
+      "get",
+      "name"
+     ]
+    ],
+    "text-font": [
+     "Noto Sans Regular"
+    ],
+    "text-size": 12,
+    "text-max-width": 8
+   },
+   "paint": {
+    "text-color": "#62617b",
+    "text-halo-color": "#eaf1ec",
+    "text-halo-width": 1.5
+   }
+  },
+  {
+   "id": "peak-label",
+   "type": "symbol",
+   "source": "openmaptiles",
+   "source-layer": "mountain_peak",
+   "minzoom": 11,
+   "filter": [
+    "has",
+    "name"
+   ],
+   "layout": {
+    "text-field": [
+     "concat",
+     [
+      "coalesce",
+      [
+       "get",
+       "name:latin"
+      ],
+      [
+       "get",
+       "name"
+      ]
+     ],
+     "\n",
+     [
+      "to-string",
+      [
+       "get",
+       "ele"
+      ]
+     ],
+     " m"
+    ],
+    "text-font": [
+     "Noto Sans Regular"
+    ],
+    "text-size": 11,
+    "text-max-width": 8
    },
    "paint": {
     "text-color": "#62617b",
