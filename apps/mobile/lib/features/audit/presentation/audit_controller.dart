@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 
+import '../../../core/router/app_router.dart';
 import '../../../core/db/app_database.dart';
 import '../../../core/db/database_provider.dart';
 import '../../../core/settings/remote_config.dart';
@@ -25,7 +26,7 @@ class GeolocatorLocator implements Locator {
   }
 }
 
-final photoCaptureProvider = Provider<PhotoCapture>((ref) => CameraPhotoCapture());
+final photoCaptureProvider = Provider<PhotoCapture>((ref) => CameraPhotoCapture(() => rootNavigatorKey.currentState));
 final locatorProvider = Provider<Locator>((ref) => GeolocatorLocator());
 
 /// Runs a sync right after "Завершить аудит" (T092); tests replace it.

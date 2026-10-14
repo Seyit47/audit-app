@@ -1016,4 +1016,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get activationRegister => 'Зарегистрировать';
+
+  @override
+  String get cameraUnavailable => 'Камера недоступна';
+
+  @override
+  String get cameraDenied => 'Разрешите доступ к камере в настройках, чтобы делать фото.';
+
+  @override
+  String get cameraFlash => 'Вспышка';
 }

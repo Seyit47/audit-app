@@ -1016,4 +1016,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get activationRegister => 'Register';
+
+  @override
+  String get cameraUnavailable => 'The camera isn\'t available';
+
+  @override
+  String get cameraDenied => 'Allow camera access in the settings to take photos.';
+
+  @override
+  String get cameraFlash => 'Flash';
 }

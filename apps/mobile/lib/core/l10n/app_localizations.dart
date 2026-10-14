@@ -1898,6 +1898,24 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Зарегистрировать'**
   String get activationRegister;
+
+  /// No description provided for @cameraUnavailable.
+  ///
+  /// In ru, this message translates to:
+  /// **'Камера недоступна'**
+  String get cameraUnavailable;
+
+  /// No description provided for @cameraDenied.
+  ///
+  /// In ru, this message translates to:
+  /// **'Разрешите доступ к камере в настройках, чтобы делать фото.'**
+  String get cameraDenied;
+
+  /// No description provided for @cameraFlash.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вспышка'**
+  String get cameraFlash;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

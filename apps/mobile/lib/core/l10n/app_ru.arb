@@ -679,5 +679,8 @@
   "activationChecking": "Проверка устройства…",
   "activationRegisterTitle": "Устройство не зарегистрировано",
   "activationRegisterBody": "Перед первым запуском устройство нужно зарегистрировать. После этого модератор его активирует.",
-  "activationRegister": "Зарегистрировать"
+  "activationRegister": "Зарегистрировать",
+  "cameraUnavailable": "Камера недоступна",
+  "cameraDenied": "Разрешите доступ к камере в настройках, чтобы делать фото.",
+  "cameraFlash": "Вспышка"
 }

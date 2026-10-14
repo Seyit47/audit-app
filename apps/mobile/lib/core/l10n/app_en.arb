@@ -300,5 +300,8 @@
   "activationChecking": "Checking this device…",
   "activationRegisterTitle": "Device not registered",
   "activationRegisterBody": "Register this device before first use. A moderator then activates it.",
-  "activationRegister": "Register"
+  "activationRegister": "Register",
+  "cameraUnavailable": "The camera isn't available",
+  "cameraDenied": "Allow camera access in the settings to take photos.",
+  "cameraFlash": "Flash"
 }

@@ -300,5 +300,8 @@
   "activationChecking": "Enjam barlanýar…",
   "activationRegisterTitle": "Enjam hasaba alynmadyk",
   "activationRegisterBody": "Ilkinji gezek ulanmazdan öň enjamy hasaba alyň. Soňra moderator ony işjeňleşdirer.",
-  "activationRegister": "Hasaba al"
+  "activationRegister": "Hasaba al",
+  "cameraUnavailable": "Kamera elýeterli däl",
+  "cameraDenied": "Surat düşürmek üçin sazlamalarda kamera rugsadyny beriň.",
+  "cameraFlash": "Ýalpyldawuk"
 }

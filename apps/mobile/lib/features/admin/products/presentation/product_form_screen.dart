@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../core/widgets/camera_capture_screen.dart';
 import '../../../../core/l10n/app_localizations.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -62,9 +63,12 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   bool get _valid =>
       _sku.text.trim().isNotEmpty && _name.text.trim().isNotEmpty && _categoryId != null && RegExp(r'^\d+([.,]\d{1,2})?$').hasMatch(_price.text.trim());
 
+  /// Camera: the in-app camera (back camera); gallery: the system picker.
   Future<void> _pick(ImageSource source) async {
-    final x = await ImagePicker().pickImage(source: source, imageQuality: 85, maxWidth: 2000);
-    if (x != null && mounted) setState(() => _image = x.path);
+    final path = source == ImageSource.camera
+        ? (await takePhoto(Navigator.of(context)))?.path
+        : (await ImagePicker().pickImage(source: source, imageQuality: 85, maxWidth: 2000))?.path;
+    if (path != null && mounted) setState(() => _image = path);
   }
 
   Future<void> _save() async {

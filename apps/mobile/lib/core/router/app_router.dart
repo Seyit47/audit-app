@@ -28,6 +28,9 @@ import '../auth/session_provider.dart';
 import 'redirect.dart';
 
 /// Whether location is granted (checked at start in `main`, updated by the permission screen, A9).
+/// The app's top navigator: code outside widgets (photo capture) opens full-screen pages with it.
+final rootNavigatorKey = GlobalKey<NavigatorState>();
+
 final initialLocationGrantedProvider = Provider<bool>((ref) => false);
 final locationGrantedProvider = NotifierProvider<LocationGranted, bool>(LocationGranted.new);
 
@@ -136,6 +139,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   ref.onDispose(refresh.dispose);
 
   final router = GoRouter(
+    navigatorKey: rootNavigatorKey,
     // The app opens on the activation screen ("Checking this device…"), so a device that isn't activated never
     // shows sign-in first; an activated one moves on as soon as the saved session has loaded.
     initialLocation: Paths.activation,

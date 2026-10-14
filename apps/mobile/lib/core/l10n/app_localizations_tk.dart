@@ -1016,4 +1016,13 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get activationRegister => 'Hasaba al';
+
+  @override
+  String get cameraUnavailable => 'Kamera elýeterli däl';
+
+  @override
+  String get cameraDenied => 'Surat düşürmek üçin sazlamalarda kamera rugsadyny beriň.';
+
+  @override
+  String get cameraFlash => 'Ýalpyldawuk';
 }
