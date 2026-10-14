@@ -11,6 +11,8 @@ export interface AppConfig {
   retentionYears: number
   currency: string
   satelliteTilesUrl: string
+  /** Folder with the mobile app's `latest.json` and APKs (uploaded by FTP); empty: no in-app updates. */
+  updatesDir: string
 }
 
 declare module 'fastify' {
@@ -57,7 +59,8 @@ export function loadConfig (env: NodeJS.ProcessEnv = process.env): AppConfig {
     webOrigin: env.WEB_ORIGIN!,
     retentionYears: Number(env.RETENTION_YEARS ?? 3),
     currency: env.CURRENCY ?? 'TMT',
-    satelliteTilesUrl: env.SATELLITE_TILES_URL ?? ''
+    satelliteTilesUrl: env.SATELLITE_TILES_URL ?? '',
+    updatesDir: env.UPDATES_DIR ?? ''
   }
 }
 
