@@ -106,6 +106,16 @@ test('scope: assigned at startedAt is accepted after reassignment; another agent
   assert.strictEqual((await app.inject({ method: 'POST', url: '/v1/audits', headers: h, payload: auditBody(theirs.id, [p2.id]) })).statusCode, 404)
 })
 
+test('scope: a shop assigned after the phone says the audit started is still accepted (clock skew)', async () => {
+  const g = await f.agent(app)
+  const shop = await f.shop(app, { createdById: adminId, ...SHOP })
+  // Assigned "now" by the server's clock; the phone's start time is 30 minutes earlier.
+  await app.inject({ method: 'POST', url: '/v1/shops/bulk/assign', headers: bearer(app, { id: adminId, role: 'ADMIN' }), payload: { shopIds: [shop.id], agentId: g.userId } })
+  const p = await photo(g.userId)
+  const res = await app.inject({ method: 'POST', url: '/v1/audits', headers: bearer(app, { id: g.userId, role: 'AGENT' }), payload: auditBody(shop.id, [p.id]) })
+  assert.strictEqual(res.statusCode, 201, res.body)
+})
+
 test('immutability: no PATCH/DELETE routes, and SQL UPDATE is rejected', async () => {
   const { g, shop, h } = await setup()
   const p = await photo(g.userId)

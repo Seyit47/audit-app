@@ -57,7 +57,10 @@ export class AuditsService {
     if (body.comment.trim() === '') throw invalid('A comment is required')
 
     const shop = await this.repo.shop(body.shopId)
-    if (shop == null || !await this.repo.wasAssigned(shop.id, user.id, started)) throw notFound('Shop')
+    // The agent's shop now, or theirs when the audit started (an offline audit made before a reassignment).
+    // `startedAt` is the phone's clock and assignments use the server's, so the current assignment alone is
+    // enough: a few minutes of skew between them must not reject the audit of a shop assigned just before.
+    if (shop == null || (shop.assignedAgentId !== user.id && !await this.repo.wasAssigned(shop.id, user.id, started))) throw notFound('Shop')
     assertActive(shop)
 
     const photos = await this.repo.photos(body.photoIds)
