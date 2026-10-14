@@ -11,8 +11,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class _Locator implements Locator {
+  _Locator([this.accuracyM = 7]);
+  final double accuracyM;
+
   @override
-  Future<Fix?> current() async => const Fix(lat: 37.95, lng: 58.38, accuracyM: 7);
+  Future<Fix?> current() async => Fix(lat: 37.95, lng: 58.38, accuracyM: accuracyM);
 }
 
 class _Capture implements PhotoCapture {
@@ -62,5 +65,32 @@ void main() {
     expect((jsonDecode(photo.payloadJson) as Map).containsKey('shopId'), isFalse);
     expect((await db.select(db.shops).getSingle()).status, 'PENDING_REVIEW');
     expect(syncs, 1);
+  });
+
+  test('a fix less precise than the company limit (50 m) cannot be saved: the server would refuse it', () async {
+    final db = AppDatabase(NativeDatabase.memory());
+    final c = ProviderContainer(
+      overrides: [
+        databaseProvider.overrideWithValue(db),
+        locatorProvider.overrideWithValue(_Locator(80)),
+        photoCaptureProvider.overrideWithValue(_Capture()),
+        syncTriggerProvider.overrideWithValue(() {}),
+      ],
+    );
+    addTearDown(() async {
+      c.dispose();
+      await db.close();
+    });
+    c.listen(addShopControllerProvider, (_, _) {});
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    final ctrl = c.read(addShopControllerProvider.notifier);
+    ctrl.edit(name: 'Shop', address: 'Street', owner: 'Owner', phone: '+993 62 112233');
+    await ctrl.takePhoto();
+
+    final s = c.read(addShopControllerProvider);
+    expect(s.fix!.accuracyM, 80);
+    expect(s.accurate, isFalse);
+    expect(s.canSave, isFalse);
+    expect(await ctrl.save(), isNull);
   });
 }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
@@ -42,6 +43,36 @@ class OutboxRepository {
   /// "Продолжить" / "Отправить снова": due at once, whether stopped, failed or backing off.
   Future<void> resume(Iterable<String> ids) =>
       (_db.update(_db.outbox)..where((o) => o.id.isIn(ids))).write(const OutboxCompanion(state: Value(OutboxState.pending), nextAttemptAt: Value(null)));
+
+  /// "Удалить": drops the items and what they would have created on the device (the audit, the new
+  /// shop and the photos with their files), so nothing is left that the server will never accept.
+  Future<void> discard(Iterable<OutboxData> items) async {
+    final files = <String>[];
+    await _db.transaction(() async {
+      for (final item in items) {
+        final payload = jsonDecode(item.payloadJson) as Map<String, dynamic>;
+        final id = payload['id'] as String?;
+        switch (item.kind) {
+          case OutboxKind.auditCreate:
+            await (_db.delete(_db.audits)..where((a) => a.id.equals(id ?? ''))).go();
+          case OutboxKind.shopCreate:
+            await (_db.delete(_db.shopContacts)..where((c) => c.shopId.equals(id ?? ''))).go();
+            await (_db.delete(_db.shops)..where((s) => s.id.equals(id ?? ''))).go();
+          case OutboxKind.photo:
+            await (_db.delete(_db.photos)..where((p) => p.id.equals(id ?? ''))).go();
+            if (payload['localPath'] case final String path) files.add(path);
+          case OutboxKind.pings:
+            break;
+        }
+        await (_db.delete(_db.outbox)..where((o) => o.id.equals(item.id))).go();
+      }
+    });
+    for (final path in files) {
+      try {
+        await File(path).delete();
+      } catch (_) {}
+    }
+  }
 
   Future<OutboxData?> byId(String id) => (_db.select(_db.outbox)..where((o) => o.id.equals(id))).getSingleOrNull();
 

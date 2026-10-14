@@ -330,5 +330,8 @@
   "emailHint": "name@company.com",
   "emailInvalid": "name@company.com ýaly e-poçta giriziň",
   "showPassword": "Açar sözi görkez",
-  "hidePassword": "Açar sözi gizle"
+  "hidePassword": "Açar sözi gizle",
+  "syncDelete": "Poz",
+  "syncDeleteTitle": "Telefondan pozmalymy?",
+  "syncDeleteBody": "Serwer muny kabul etmeýär, täzeden ibermek kömek etmez. Ol we onuň suratlary telefondan doly pozular."
 }

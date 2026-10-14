@@ -128,6 +128,26 @@ void main() {
     expect(groupOutbox(await outbox.open()).first.paused, isTrue);
   });
 
+  test('a rejected audit is deleted with its photos and local rows; other items stay', () async {
+    await db
+        .into(db.audits)
+        .insert(
+          AuditsCompanion.insert(id: 'a1', shopId: 's1', startedAtDevice: now, finishedAtDevice: now, lat: 37.95, lng: 58.38, gpsAccuracyM: 8, comment: 'ok'),
+        );
+    await outbox.enqueue(OutboxKind.auditCreate, {'id': 'a1'}, id: 'au-a1', dependsOn: ['ph-p1']);
+    await photo('p1');
+    api.fail['createAudit:a1'] = [ApiException(code: 'NOT_FOUND', message: 'Shop not found', status: 404)];
+    await engine.run();
+    await photo('p2'); // queued later, unrelated to the audit
+
+    final group = groupOutbox(await outbox.open()).firstWhere((g) => g.record?.id == 'au-a1');
+    expect(group.rejected, isTrue);
+    await outbox.discard(group.items);
+
+    expect((await outbox.open()).map((o) => o.id), ['ph-p2'], reason: 'p1 was already sent; p2 is not part of the audit');
+    expect(await db.select(db.audits).get(), isEmpty);
+  });
+
   test('network errors and 5xx back off; dependents wait', () async {
     await photo('p1');
     await outbox.enqueue(

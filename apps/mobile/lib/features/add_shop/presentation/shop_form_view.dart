@@ -26,6 +26,7 @@ class ShopFormView extends StatefulWidget {
     required this.fix,
     required this.locating,
     required this.onRecheck,
+    this.maxAccuracyM,
     this.picked,
     this.onPickOnMap,
     required this.photo,
@@ -50,6 +51,9 @@ class ShopFormView extends StatefulWidget {
   final Fix? fix;
   final bool locating;
   final VoidCallback onRecheck;
+
+  /// Agents: a fix less precise than this can't be saved (the server would refuse it); admins have none.
+  final int? maxAccuracyM;
 
   /// The point chosen on the map, shown instead of the GPS fix.
   final (double, double)? picked;
@@ -109,6 +113,8 @@ class _ShopFormViewState extends State<ShopFormView> {
     String? phone(String v) => required(v) ?? (tmPhone(v) == null ? l10n.phoneInvalid : null);
     final picked = w.picked;
     final at = picked ?? (fix == null ? null : (fix.lat, fix.lng));
+    final max = w.maxAccuracyM;
+    final inaccurate = picked == null && fix != null && max != null && fix.accuracyM > max;
 
     return Scaffold(
       backgroundColor: c.mainBg,
@@ -203,13 +209,15 @@ class _ShopFormViewState extends State<ShopFormView> {
                                       ? l10n.pickedOnMap
                                       : fix == null
                                       ? l10n.geoUnavailable
+                                      : inaccurate
+                                      ? l10n.geoInaccurate(fix.accuracyM.round())
                                       : l10n.accuracyLine(fix.accuracyM.round()),
                                   style: TextStyle(
                                     fontFamily: AppTextStyles.family,
                                     fontSize: 12,
                                     height: 16 / 12,
                                     fontWeight: FontWeight.w500,
-                                    color: at == null && !w.locating ? c.error : c.textSecondary,
+                                    color: (at == null || inaccurate) && !w.locating ? c.error : c.textSecondary,
                                   ),
                                 ),
                               ),

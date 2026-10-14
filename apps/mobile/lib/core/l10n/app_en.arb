@@ -330,5 +330,8 @@
   "emailHint": "name@company.com",
   "emailInvalid": "Enter an email like name@company.com",
   "showPassword": "Show password",
-  "hidePassword": "Hide password"
+  "hidePassword": "Hide password",
+  "syncDelete": "Delete",
+  "syncDeleteTitle": "Delete from the phone?",
+  "syncDeleteBody": "The server refuses this, so sending it again won't help. It and its photos will be deleted from the phone for good."
 }

@@ -2078,6 +2078,24 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Скрыть пароль'**
   String get hidePassword;
+
+  /// No description provided for @syncDelete.
+  ///
+  /// In ru, this message translates to:
+  /// **'Удалить'**
+  String get syncDelete;
+
+  /// No description provided for @syncDeleteTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Удалить с телефона?'**
+  String get syncDeleteTitle;
+
+  /// No description provided for @syncDeleteBody.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сервер не принимает эту запись, повторная отправка не поможет. Она и её фото будут удалены с телефона без возможности восстановления.'**
+  String get syncDeleteBody;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

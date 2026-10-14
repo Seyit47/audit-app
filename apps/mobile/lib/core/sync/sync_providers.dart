@@ -128,6 +128,12 @@ class SyncController extends Notifier<SyncState> {
     ref.read(syncEngineProvider).cancel(ids);
   }
 
+  /// "Удалить": a rejected audit or shop is dropped from the phone with its photos.
+  Future<void> discard(OutboxGroup group) async {
+    ref.read(syncEngineProvider).cancel(group.ids);
+    await ref.read(outboxProvider).discard(group.items);
+  }
+
   /// "Продолжить" / "Отправить снова": due at once, and sent now.
   Future<void> resume(OutboxGroup group) async {
     await ref.read(outboxProvider).resume(group.ids);

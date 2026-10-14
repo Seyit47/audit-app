@@ -15,6 +15,9 @@ class OutboxGroup {
   /// Stopped by the agent: every item paused.
   bool get paused => items.every((i) => i.state == OutboxState.paused);
 
+  /// Refused by the server (4xx): retrying will not help, so the agent may delete it.
+  bool get rejected => items.any((i) => i.state == OutboxState.failed);
+
   /// The last error of any item, e.g. a server rejection or no connection.
   String? get error => items.map((i) => i.lastError).nonNulls.firstOrNull;
 }

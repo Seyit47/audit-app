@@ -1116,4 +1116,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get hidePassword => 'Скрыть пароль';
+
+  @override
+  String get syncDelete => 'Удалить';
+
+  @override
+  String get syncDeleteTitle => 'Удалить с телефона?';
+
+  @override
+  String get syncDeleteBody =>
+      'Сервер не принимает эту запись, повторная отправка не поможет. Она и её фото будут удалены с телефона без возможности восстановления.';
 }

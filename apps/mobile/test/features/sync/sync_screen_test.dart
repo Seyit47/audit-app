@@ -77,4 +77,52 @@ void main() {
     await tester.pump(Duration.zero);
     await tester.runAsync(db.close);
   });
+
+  testWidgets('a rejected shop shows Delete instead of Stop; confirming removes it', (tester) async {
+    late AppDatabase db;
+    late OutboxRepository outbox;
+    await tester.runAsync(() async {
+      db = AppDatabase(NativeDatabase.memory());
+      outbox = OutboxRepository(db);
+      await outbox.enqueue(OutboxKind.shopCreate, {'id': 's1', 'name': 'Gunes'}, id: 'sh-s1');
+      final item = (await outbox.byId('sh-s1'))!;
+      await outbox.markFailed(item, 'GPS_ACCURACY: GPS accuracy must be at most 50 m');
+    });
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          databaseProvider.overrideWithValue(db),
+          syncControllerProvider.overrideWith(_Sync.new),
+          syncEngineProvider.overrideWithValue(SyncEngine(db: db, api: FakeApi(), outbox: outbox)),
+        ],
+        child: MaterialApp(
+          theme: AppTheme.light(),
+          locale: const Locale('en'),
+          localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
+          supportedLocales: const [Locale('en')],
+          home: const SyncScreen(),
+        ),
+      ),
+    );
+    Future<void> settle() async {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+      await tester.pump();
+    }
+
+    await settle();
+    expect(find.text('Error: GPS_ACCURACY: GPS accuracy must be at most 50 m'), findsOneWidget);
+    expect(find.text('Stop'), findsNothing);
+    await tester.tap(find.text('Delete'));
+    await tester.pumpAndSettle();
+    expect(find.text('Delete from the phone?'), findsOneWidget);
+    await tester.tap(find.text('Delete').last);
+    await tester.pumpAndSettle();
+    await settle();
+    expect(find.text('Everything is on the server'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(Duration.zero);
+    await tester.runAsync(db.close);
+  });
 }

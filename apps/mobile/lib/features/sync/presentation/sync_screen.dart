@@ -54,7 +54,14 @@ class SyncScreen extends ConsumerWidget {
                             if (g.paused)
                               TextButton(onPressed: () => sync.resume(g), child: Text(l10n.syncResume))
                             else ...[
-                              TextButton(onPressed: () => sync.stop(g), child: Text(l10n.syncStop)),
+                              if (g.rejected)
+                                TextButton(
+                                  onPressed: sending ? null : () => _confirmDiscard(context, () => sync.discard(g)),
+                                  style: TextButton.styleFrom(foregroundColor: context.colors.error),
+                                  child: Text(l10n.syncDelete),
+                                )
+                              else
+                                TextButton(onPressed: () => sync.stop(g), child: Text(l10n.syncStop)),
                               TextButton(onPressed: sending ? null : () => sync.resume(g), child: Text(l10n.syncRetry)),
                             ],
                           ],
@@ -71,6 +78,20 @@ class SyncScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+Future<void> _confirmDiscard(BuildContext context, Future<void> Function() discard) async {
+  final l10n = AppLocalizations.of(context);
+  final ok = await showAppDialog<bool>(
+    context: context,
+    title: Text(l10n.syncDeleteTitle),
+    content: Text(l10n.syncDeleteBody),
+    actions: (dialog) => [
+      AppDialogAction(label: l10n.cancel, onPressed: () => Navigator.pop(dialog, false)),
+      AppDialogAction(label: l10n.syncDelete, primary: true, onPressed: () => Navigator.pop(dialog, true)),
+    ],
+  );
+  if (ok ?? false) await discard();
 }
 
 /// The shop an audit was made in, for its title.

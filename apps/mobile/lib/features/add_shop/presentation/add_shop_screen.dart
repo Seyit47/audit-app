@@ -26,6 +26,7 @@ class AddShopScreen extends ConsumerWidget {
       fix: s.fix,
       locating: s.locating,
       onRecheck: ctrl.locate,
+      maxAccuracyM: s.maxAccuracyM,
       photo: s.photo?.path,
       photoSizeBytes: s.photo?.sizeBytes,
       onTakePhoto: ctrl.takePhoto,

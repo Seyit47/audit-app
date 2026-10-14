@@ -1116,4 +1116,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hidePassword => 'Hide password';
+
+  @override
+  String get syncDelete => 'Delete';
+
+  @override
+  String get syncDeleteTitle => 'Delete from the phone?';
+
+  @override
+  String get syncDeleteBody => 'The server refuses this, so sending it again won\'t help. It and its photos will be deleted from the phone for good.';
 }

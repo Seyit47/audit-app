@@ -1116,4 +1116,13 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get hidePassword => 'Açar sözi gizle';
+
+  @override
+  String get syncDelete => 'Poz';
+
+  @override
+  String get syncDeleteTitle => 'Telefondan pozmalymy?';
+
+  @override
+  String get syncDeleteBody => 'Serwer muny kabul etmeýär, täzeden ibermek kömek etmez. Ol we onuň suratlary telefondan doly pozular.';
 }

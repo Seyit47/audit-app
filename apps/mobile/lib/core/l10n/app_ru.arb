@@ -744,5 +744,8 @@
   "emailHint": "name@company.com",
   "emailInvalid": "Введите email, например name@company.com",
   "showPassword": "Показать пароль",
-  "hidePassword": "Скрыть пароль"
+  "hidePassword": "Скрыть пароль",
+  "syncDelete": "Удалить",
+  "syncDeleteTitle": "Удалить с телефона?",
+  "syncDeleteBody": "Сервер не принимает эту запись, повторная отправка не поможет. Она и её фото будут удалены с телефона без возможности восстановления."
 }
