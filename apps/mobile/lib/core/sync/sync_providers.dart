@@ -40,6 +40,9 @@ final syncControllerProvider = NotifierProvider<SyncController, SyncState>(SyncC
 class SyncController extends Notifier<SyncState> {
   Future<void>? _current;
 
+  /// Something was queued while a sync ran: send once more when it ends instead of waiting for the next trigger.
+  bool _again = false;
+
   @override
   SyncState build() {
     final user = ref.watch(sessionProvider).value;
@@ -60,11 +63,29 @@ class SyncController extends Notifier<SyncState> {
     return const SyncState();
   }
 
-  /// Starts a sync, or joins the one already running.
-  Future<void> syncNow() => _current ??= _run().whenComplete(() => _current = null);
+  /// Sends the outbox, then pulls; joins a running sync (which then sends once more).
+  Future<void> syncNow() => _start(_run);
 
-  /// Sends the outbox only (the tracker's pings, so the admin map is current); joins a running sync.
-  Future<void> pushNow() => _current ??= _push().whenComplete(() => _current = null);
+  /// Sends the outbox only: after an audit, a new shop or the tracker's pings, so the admin sees them at once.
+  Future<void> pushNow() => _start(_push);
+
+  Future<void> _start(Future<void> Function() job) {
+    if (_current case final running?) {
+      _again = true;
+      return running;
+    }
+    return _current = () async {
+      try {
+        await job();
+        while (_again) {
+          _again = false;
+          await _push();
+        }
+      } finally {
+        _current = null;
+      }
+    }();
+  }
 
   Future<void> _push() async {
     try {
@@ -90,6 +111,9 @@ class SyncController extends Notifier<SyncState> {
 }
 
 final _openItemsProvider = StreamProvider<int>((ref) => ref.watch(outboxProvider).watchOpenCount());
+
+/// Audits, shops and photos not yet on the server (location pings left out: they come and go every couple of minutes).
+final syncPendingProvider = StreamProvider<int>((ref) => ref.watch(outboxProvider).watchOpenCount(includePings: false));
 
 /// "Данные синхронизированы" / "Синхронизация…" on Home and the audit screen.
 final syncStatusProvider = Provider<SyncStatus>((ref) {

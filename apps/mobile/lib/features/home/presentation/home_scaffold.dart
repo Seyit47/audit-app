@@ -15,10 +15,14 @@ import '../../../core/widgets/adaptive.dart';
 /// Layout shared by the agent and admin Home frames (`83:16786`, `101:1880`, `246:23129`):
 /// glow background, avatar + theme + RU/EN header, tiles, sync pill at the bottom.
 class HomeScaffold extends ConsumerWidget {
-  const HomeScaffold({super.key, required this.tiles, required this.syncing, this.serverSettings = false});
+  const HomeScaffold({super.key, required this.tiles, required this.syncing, this.pending = 0, this.onSync, this.serverSettings = false});
 
   final List<Widget> tiles;
   final bool syncing;
+
+  /// Audits, shops and photos still on the phone; the pill counts them and a tap ([onSync]) sends them.
+  final int pending;
+  final VoidCallback? onSync;
 
   /// Admins can change the API address from the account menu (agents only behind the login screen's PIN).
   final bool serverSettings;
@@ -71,7 +75,21 @@ class HomeScaffold extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  SyncStatusBadge(label: syncing ? l10n.syncRunning : l10n.syncDone, syncing: syncing),
+                  Semantics(
+                    button: onSync != null,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: onSync,
+                      child: SyncStatusBadge(
+                        label: pending > 0
+                            ? l10n.syncPending(pending)
+                            : syncing
+                            ? l10n.syncRunning
+                            : l10n.syncDone,
+                        syncing: syncing,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

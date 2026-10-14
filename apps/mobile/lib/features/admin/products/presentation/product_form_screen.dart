@@ -67,7 +67,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   Future<void> _pick(ImageSource source) async {
     final path = source == ImageSource.camera
         ? (await takePhoto(Navigator.of(context)))?.path
-        : (await ImagePicker().pickImage(source: source, imageQuality: 85, maxWidth: 2000))?.path;
+        : (await ImagePicker().pickImage(source: source, imageQuality: photoQuality, maxWidth: photoMaxSide.toDouble()))?.path;
     if (path != null && mounted) setState(() => _image = path);
   }
 

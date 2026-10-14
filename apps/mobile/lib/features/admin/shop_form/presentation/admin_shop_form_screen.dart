@@ -12,6 +12,7 @@ import '../../../add_shop/presentation/shop_form_view.dart';
 import '../../../audit/domain/geofence.dart';
 import '../../../audit/presentation/audit_controller.dart';
 import '../../data/admin_api.dart';
+import '../../../../core/widgets/camera_capture_screen.dart';
 import '../../../../core/widgets/skeleton.dart';
 import '../../../../core/widgets/adaptive.dart';
 import '../../../../core/format/phone.dart';
@@ -101,7 +102,7 @@ class _AdminShopFormScreenState extends ConsumerState<AdminShopFormScreen> {
   }
 
   Future<void> _gallery() async {
-    final x = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 85, maxWidth: 2560);
+    final x = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: photoQuality, maxWidth: photoMaxSide.toDouble());
     if (x != null && mounted) {
       setState(() {
         _photoPath = x.path;

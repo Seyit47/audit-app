@@ -29,10 +29,11 @@ class GeolocatorLocator implements Locator {
 final photoCaptureProvider = Provider<PhotoCapture>((ref) => CameraPhotoCapture(() => rootNavigatorKey.currentState));
 final locatorProvider = Provider<Locator>((ref) => GeolocatorLocator());
 
-/// Runs a sync right after "Завершить аудит" (T092); tests replace it.
+/// Sends the outbox right after "Завершить аудит" (T092) or a new shop; tests replace it.
+/// Only a push: the full pull runs on app start, resume, reconnect and the 15-minute timer.
 final syncTriggerProvider = Provider<void Function()>(
   (ref) =>
-      () => unawaited(ref.read(syncControllerProvider.notifier).syncNow()),
+      () => unawaited(ref.read(syncControllerProvider.notifier).pushNow()),
 );
 
 class AuditState {

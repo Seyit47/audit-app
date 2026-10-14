@@ -38,11 +38,12 @@ class OutboxRepository {
     return (await query.getSingle()).read(count)!;
   }
 
-  Stream<int> watchOpenCount() {
+  Stream<int> watchOpenCount({bool includePings = true}) {
     final count = _db.outbox.id.count();
     final query = _db.selectOnly(_db.outbox)
       ..addColumns([count])
       ..where(_db.outbox.state.isNotValue(OutboxState.done.name));
+    if (!includePings) query.where(_db.outbox.kind.isNotValue(OutboxKind.pings.name));
     return query.watchSingle().map((row) => row.read(count)!);
   }
 

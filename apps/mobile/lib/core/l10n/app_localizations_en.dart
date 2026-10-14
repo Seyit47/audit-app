@@ -1028,4 +1028,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chooseShop => 'Several shops are within range — choose the one you\'re in';
+
+  @override
+  String syncPending(int count) {
+    return 'Not sent: $count · Tap to send';
+  }
 }

@@ -8,10 +8,12 @@ import '../network/api_exception.dart';
 import 'outbox_repository.dart';
 import 'sync_api.dart';
 
-/// Drains the outbox (contracts/sync.md). After each success it starts again from the head, so
-/// items waiting on a dependency go right after it. Each item is tried at most once per run.
+/// Drains the outbox (contracts/sync.md) with [parallel] workers, so photos upload side by side.
+/// After each success a worker starts again from the head, so items waiting on a dependency go
+/// right after it (an item in flight is still open, so its dependents wait). Each item is tried at
+/// most once per run.
 class SyncEngine {
-  SyncEngine({required this._db, required this._api, required this._outbox, DateTime Function()? clock, double Function()? jitter})
+  SyncEngine({required this._db, required this._api, required this._outbox, DateTime Function()? clock, double Function()? jitter, this.parallel = 3})
     : _clock = clock ?? DateTime.now,
       _jitter = jitter ?? (() => 0.8 + Random().nextDouble() * 0.4);
 
@@ -20,6 +22,7 @@ class SyncEngine {
   final OutboxRepository _outbox;
   final DateTime Function() _clock;
   final double Function() _jitter;
+  final int parallel;
 
   static const _first = Duration(seconds: 5);
   static const _max = Duration(minutes: 10);
@@ -32,10 +35,13 @@ class SyncEngine {
 
   Future<void> run() async {
     final tried = <String>{};
+    await Future.wait([for (var i = 0; i < parallel; i++) _work(tried)]);
+  }
+
+  Future<void> _work(Set<String> tried) async {
     while (true) {
       final next = await _nextReady(tried);
       if (next == null) return;
-      tried.add(next.id);
       try {
         await _send(next);
         await _outbox.markDone(next.id);
@@ -59,6 +65,8 @@ class SyncEngine {
       if (tried.contains(item.id)) continue;
       if (item.nextAttemptAt != null && item.nextAttemptAt!.isAfter(now)) continue;
       if (dependenciesOf(item).any(openIds.contains)) continue;
+      // Claimed before the next await, so no other worker takes it.
+      tried.add(item.id);
       return item;
     }
     return null;

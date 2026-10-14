@@ -54,7 +54,7 @@ void main() {
     await outbox.enqueue(OutboxKind.shopCreate, {'id': 's1', 'facadePhotoId': 'p3'}, id: 'sh-s1', dependsOn: ['ph-p3']);
     await photo('p3');
 
-    await engine.run();
+    await SyncEngine(db: db, api: api, outbox: outbox, clock: () => now, jitter: () => 1.0, parallel: 1).run();
 
     expect(api.calls, [
       'createUpload:p1',
@@ -69,6 +69,21 @@ void main() {
       'complete:p3',
       'createShop:s1',
     ]);
+    expect(await outbox.openCount(), 0);
+  });
+
+  test('uploads photos side by side; the audit waits for all of them', () async {
+    await outbox.enqueue(OutboxKind.auditCreate, {'id': 'a1'}, id: 'au-a1', dependsOn: ['ph-p1', 'ph-p2', 'ph-p3', 'ph-p4']);
+    for (final id in ['p1', 'p2', 'p3', 'p4']) {
+      await photo(id);
+    }
+
+    await engine.run();
+
+    // The second photo starts before the first one is done.
+    expect(api.calls.indexOf('createUpload:p2'), lessThan(api.calls.indexOf('complete:p1')));
+    expect(api.calls.last, 'createAudit:a1');
+    expect(api.calls.where((c) => c.startsWith('complete:')), hasLength(4));
     expect(await outbox.openCount(), 0);
   });
 

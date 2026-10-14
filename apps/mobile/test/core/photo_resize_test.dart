@@ -10,10 +10,10 @@ import 'package:flutter_test/flutter_test.dart';
 }
 
 void main() {
-  test('photos keep a 2560 px longest side in either orientation and aspect', () {
-    expect(resized(3840, 2160), (2560, 1440)); // 4K landscape
-    expect(resized(2160, 3840), (1440, 2560)); // 4K portrait
-    expect(resized(4000, 3000), (2560, 1920)); // 4:3 sensor
-    expect(resized(1920, 1080), (1920, 1080)); // smaller: never enlarged
+  test('photos keep a 1920 px longest side in either orientation and aspect', () {
+    expect(resized(3840, 2160), (1920, 1080)); // 4K landscape
+    expect(resized(2160, 3840), (1080, 1920)); // 4K portrait
+    expect(resized(4000, 3000), (1920, 1440)); // 4:3 sensor
+    expect(resized(1280, 720), (1280, 720)); // smaller: never enlarged
   });
 }

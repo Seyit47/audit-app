@@ -304,5 +304,6 @@
   "cameraUnavailable": "The camera isn't available",
   "cameraDenied": "Allow camera access in the settings to take photos.",
   "cameraFlash": "Flash",
-  "chooseShop": "Several shops are within range — choose the one you're in"
+  "chooseShop": "Several shops are within range — choose the one you're in",
+  "syncPending": "Not sent: {count} · Tap to send"
 }

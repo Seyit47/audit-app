@@ -1028,4 +1028,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get chooseShop => 'Рядом несколько магазинов — выберите тот, в котором вы находитесь';
+
+  @override
+  String syncPending(int count) {
+    return 'Не отправлено: $count · Нажмите, чтобы отправить';
+  }
 }

@@ -1922,6 +1922,12 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Рядом несколько магазинов — выберите тот, в котором вы находитесь'**
   String get chooseShop;
+
+  /// No description provided for @syncPending.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не отправлено: {count} · Нажмите, чтобы отправить'**
+  String syncPending(int count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

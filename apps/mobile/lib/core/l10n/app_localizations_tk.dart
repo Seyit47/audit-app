@@ -1028,4 +1028,9 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get chooseShop => 'Golaýda birnäçe dükan bar — içinde bolan dükanyňyzy saýlaň';
+
+  @override
+  String syncPending(int count) {
+    return 'Iberilmedik: $count · Ibermek üçin basyň';
+  }
 }

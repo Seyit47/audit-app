@@ -11,8 +11,10 @@ import 'package:path_provider/path_provider.dart';
 import '../l10n/app_localizations.dart';
 import '../theme/app_text_styles.dart';
 
-/// The longest side a photo keeps (as before: 2560 px at 85 % JPEG quality).
-const photoMaxSide = 2560;
+/// The longest side a photo keeps, at [photoQuality] % JPEG quality: about 0.3 MB, shelves and
+/// price tags stay readable, and uploads on mobile data take half as long as at 2560 px / 85 %.
+const photoMaxSide = 1920;
+const photoQuality = 80;
 
 /// The `minWidth`/`minHeight` box for [FlutterImageCompress]: it only shrinks, until the photo just covers the box,
 /// so a 16:9 box in the photo's own orientation brings the longest side to [photoMaxSide].
@@ -28,7 +30,7 @@ Future<File?> takePhoto(NavigatorState navigator) async {
   final (minWidth, minHeight) = photoResizeBox(descriptor.width, descriptor.height);
   descriptor.dispose();
   final target = p.join((await getTemporaryDirectory()).path, 'photo-${DateTime.now().microsecondsSinceEpoch}.jpg');
-  final out = await FlutterImageCompress.compressAndGetFile(shot.path, target, minWidth: minWidth, minHeight: minHeight, quality: 85);
+  final out = await FlutterImageCompress.compressAndGetFile(shot.path, target, minWidth: minWidth, minHeight: minHeight, quality: photoQuality);
   await File(shot.path).delete().catchError((_) => File(shot.path));
   return out == null ? null : File(out.path);
 }

@@ -18,6 +18,8 @@ class AgentHomeScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     return HomeScaffold(
       syncing: ref.watch(syncStatusProvider) == SyncStatus.syncing,
+      pending: ref.watch(syncPendingProvider).value ?? 0,
+      onSync: () => ref.read(syncControllerProvider.notifier).syncNow(),
       tiles: [
         HomeHeroTile(badge: l10n.homePrimaryBadge, title: l10n.homeStartAudit, subtitle: l10n.homeStartAuditHint, onTap: () => _startAudit(context, ref)),
         HomeActionTile(
