@@ -16,6 +16,16 @@ const Latest = TypeCompiler.Compile(Type.Object({
 }))
 
 const File = Type.Object({ file: Type.String({ pattern: '^[A-Za-z0-9._-]+\\.apk$' }) })
+/** The file's JSON, or null when it is missing or broken. FTP clients and Notepad may add a byte order mark. */
+function parse (raw: string | null): unknown {
+  if (raw == null) return null
+  try {
+    return JSON.parse(raw.replace(/^\uFEFF/, ''))
+  } catch {
+    return null
+  }
+}
+
 const noUpdate = () => new AppError(404, 'NOT_FOUND', 'No app update published')
 
 /**
@@ -28,10 +38,7 @@ const app: FastifyPluginAsyncTypebox = async (fastify) => {
   fastify.get('/latest', { schema: { tags: ['app'] } }, async () => {
     if (dir() === '') throw noUpdate()
     const raw = await readFile(join(dir(), 'latest.json'), 'utf8').catch(() => null)
-    let latest: unknown = null
-    try {
-      latest = raw == null ? null : JSON.parse(raw.replace(/^﻿/, ''))
-    } catch {}
+    const latest = parse(raw)
     if (!Latest.Check(latest)) throw new AppError(500, 'INTERNAL_ERROR', 'latest.json in the updates folder is not valid')
     const size = await stat(join(dir(), latest.file)).then((s) => s.size, () => null)
     if (size == null) throw new AppError(500, 'INTERNAL_ERROR', `${latest.file} named in latest.json is not in the updates folder`)
