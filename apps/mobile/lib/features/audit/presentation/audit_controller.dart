@@ -12,15 +12,28 @@ import '../../../core/widgets/photo_capture.dart';
 import '../data/audit_local_repository.dart';
 import '../domain/geofence.dart';
 
+/// How old the phone's last known position may be when a fresh fix can't be had (indoors, weak GPS).
+/// The tracker keeps it current during working hours; a minute is at most ~80 m on foot.
+const lastKnownMaxAge = Duration(seconds: 60);
+
+bool freshEnough(DateTime at, DateTime now) => now.difference(at) <= lastKnownMaxAge;
+
 class GeolocatorLocator implements Locator {
   @override
   Future<Fix?> current() async {
     try {
       final p = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.best, timeLimit: Duration(seconds: 20)),
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.best, timeLimit: Duration(seconds: 15)),
       );
       return Fix(lat: p.latitude, lng: p.longitude, accuracyM: p.accuracy);
     } catch (_) {
+      // Timed out or failed: fall back to a recent position from the system (fused/network or the tracker's).
+      try {
+        final last = await Geolocator.getLastKnownPosition();
+        if (last != null && freshEnough(last.timestamp, DateTime.now())) {
+          return Fix(lat: last.latitude, lng: last.longitude, accuracyM: last.accuracy);
+        }
+      } catch (_) {}
       return null;
     }
   }
