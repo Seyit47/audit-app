@@ -23,7 +23,16 @@ class MenuChoice<T> {
 /// An action menu: the Material popup menu anchored to [child] on Android, a [CupertinoActionSheet]
 /// rising from the bottom on iOS.
 class AppMenuButton<T> extends StatelessWidget {
-  const AppMenuButton({super.key, required this.choices, required this.onSelected, required this.child, this.tooltip, this.enabled = true, this.cancelLabel});
+  const AppMenuButton({
+    super.key,
+    required this.choices,
+    required this.onSelected,
+    required this.child,
+    this.tooltip,
+    this.enabled = true,
+    this.cancelLabel,
+    this.header,
+  });
 
   final List<MenuChoice<T>> choices;
   final ValueChanged<T> onSelected;
@@ -31,6 +40,9 @@ class AppMenuButton<T> extends StatelessWidget {
   final String? tooltip;
   final bool enabled;
   final String? cancelLabel;
+
+  /// Shown above the choices and not selectable (e.g. who is signed in).
+  final Widget? header;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +54,7 @@ class AppMenuButton<T> extends StatelessWidget {
                 final picked = await showCupertinoModalPopup<T>(
                   context: context,
                   builder: (sheet) => CupertinoActionSheet(
-                    title: tooltip == null ? null : Text(tooltip!),
+                    title: header ?? (tooltip == null ? null : Text(tooltip!)),
                     actions: [
                       for (final ch in choices)
                         CupertinoActionSheetAction(isDestructiveAction: ch.destructive, onPressed: () => Navigator.pop(sheet, ch.value), child: Text(ch.label)),
@@ -67,6 +79,7 @@ class AppMenuButton<T> extends StatelessWidget {
       onSelected: onSelected,
       position: PopupMenuPosition.under,
       itemBuilder: (_) => [
+        if (header case final header?) ...[PopupMenuItem<T>(enabled: false, child: header), const PopupMenuDivider()],
         for (final ch in choices)
           PopupMenuItem(
             value: ch.value,

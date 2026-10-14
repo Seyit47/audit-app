@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/settings/app_settings.dart';
+import '../../../core/settings/remote_config.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/home_header.dart';
 import '../../auth/data/sign_out_service.dart';
@@ -25,6 +28,7 @@ class HomeScaffold extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final locale = ref.watch(localeProvider);
     final dark = Theme.of(context).brightness == Brightness.dark;
+    final profile = ref.watch(profileProvider).value;
 
     return Scaffold(
       body: Stack(
@@ -41,6 +45,7 @@ class HomeScaffold extends ConsumerWidget {
                       children: [
                         AppMenuButton<String>(
                           tooltip: l10n.account,
+                          header: profile == null ? null : _ProfileHeader(profile),
                           choices: [if (serverSettings) MenuChoice('server', l10n.serverSettings), MenuChoice('signOut', l10n.signOut, destructive: true)],
                           onSelected: (choice) => choice == 'server' ? openServerSettings(context, askPin: false) : ref.read(signOutServiceProvider).signOut(),
                           child: const AppIcon('avatar', width: 36, height: 36),
@@ -73,6 +78,38 @@ class HomeScaffold extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// The signed-in user at the top of the account menu, above Sign out.
+class _ProfileHeader extends StatelessWidget {
+  const _ProfileHeader(this.profile);
+
+  final Profile profile;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final detail = profile.detail;
+    return Column(
+      crossAxisAlignment: context.isCupertino ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          profile.name,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: AppTextStyles.bodyMedium.copyWith(color: c.textPrimary),
+        ),
+        if (detail != null && detail.isNotEmpty)
+          Text(
+            detail,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.caption.copyWith(color: c.textSecondary),
+          ),
+      ],
     );
   }
 }
