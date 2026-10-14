@@ -4,11 +4,29 @@ import { newId } from '../../lib/ids.js'
 const detail = { user: { select: { status: true, deactivatedAt: true, lastActiveAt: true } }, region: true, device: true, position: true } as const
 export type AgentDetail = Prisma.AgentGetPayload<{ include: typeof detail }>
 
+/**
+ * When the server received each agent's latest ping, by the server's own clock. "Online" compares this with
+ * the server's now: the ping's `recordedAt` is the phone's clock, and the two clocks may differ (the
+ * production server runs hours ahead). One index lookup per agent.
+ */
+export async function lastSignalAt (prisma: PrismaClient, agentIds: string[]): Promise<Map<string, Date>> {
+  if (agentIds.length === 0) return new Map()
+  const rows = await prisma.$queryRaw<Array<{ agentId: string, receivedAt: Date }>>`
+    SELECT a.id::text AS "agentId", p."receivedAt"
+    FROM unnest(${agentIds}::uuid[]) AS a(id)
+    CROSS JOIN LATERAL (
+      SELECT "receivedAt" FROM "LocationPing" WHERE "agentId" = a.id ORDER BY "recordedAt" DESC LIMIT 1
+    ) p`
+  return new Map(rows.map((r) => [r.agentId, r.receivedAt]))
+}
+
 export interface AgentFilter { q?: string, status?: 'ACTIVE' | 'ON_LEAVE' | 'INACTIVE', regionId?: string }
 
 export class AgentsRepository {
   private readonly prisma: PrismaClient
   constructor (prisma: PrismaClient) { this.prisma = prisma }
+
+  lastSignal (agentIds: string[]) { return lastSignalAt(this.prisma, agentIds) }
 
   private where (f: AgentFilter): Prisma.AgentWhereInput {
     const where: Prisma.AgentWhereInput = {}

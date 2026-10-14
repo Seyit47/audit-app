@@ -47,6 +47,25 @@ test('pings: accepted for ACTIVE agents within working hours, batches of ≤200,
   assert.strictEqual((await post([ping(1)])).json().accepted, 0, 'outside working hours')
 })
 
+test('online uses when the server received the ping, not the phone clock (server clock 2 h ahead)', async () => {
+  const g = await f.agent(app)
+  const day = localDate(new Date(), 'Asia/Ashgabat')
+  // The phone's clock reads 2 hours behind the server's, so its fresh ping looks 2 hours old.
+  await app.inject({ method: 'POST', url: '/v1/tracking/pings', headers: bearer(app, { id: g.userId, role: 'AGENT' }), payload: { pings: [ping(120)] } })
+  const detail = async () => (await app.inject({ url: `/v1/agents/${g.userId}?from=${day}&to=${day}`, headers: admin })).json()
+  const listed = async () => (await app.inject({ url: '/v1/agents', headers: admin })).json().items[0]
+  const summary = async () => (await app.inject({ url: `/v1/agents/summary?from=${day}&to=${day}`, headers: admin })).json()
+  assert.strictEqual((await detail()).online, true)
+  assert.strictEqual((await listed()).onRoute, true)
+  assert.strictEqual((await summary()).onRoute, 1)
+
+  // Nothing received for an hour (limit 45 min): offline everywhere.
+  await app.prisma.locationPing.updateMany({ data: { receivedAt: new Date(Date.now() - 60 * 60_000) } })
+  assert.strictEqual((await detail()).online, false)
+  assert.strictEqual((await listed()).onRoute, false)
+  assert.strictEqual((await summary()).onRoute, 0)
+})
+
 test('summary, detail KPIs, timeline, track and reports', async () => {
   const g = await f.agent(app)
   await f.agent(app, { workStatus: 'ON_LEAVE' })

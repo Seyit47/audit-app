@@ -3,6 +3,7 @@ import type { Storage } from '../../plugins/storage.js'
 import { decodeCursor, encodeCursor } from '../../lib/pagination.js'
 import { isWithinWorkingHours, localDate, startOfLocalDay } from '../../lib/time.js'
 import { photoView } from '../photos/photo.view.js'
+import { lastSignalAt } from './agents.repository.js'
 import type { SettingsService } from '../settings/settings.service.js'
 
 const pct = (part: number, all: number) => (all === 0 ? null : Math.round((part / all) * 1000) / 10)
@@ -31,16 +32,15 @@ export class AgentInsights {
     const s = await this.settings.get()
     const p = await this.period(from, to)
     const now = new Date()
-    const [total, working, positions, audits, stops, photos, verified] = await Promise.all([
+    const [total, working, audits, stops, photos, verified] = await Promise.all([
       this.prisma.agent.count({ where: { user: { status: 'ACTIVE' } } }),
       this.prisma.agent.findMany({ where: { workStatus: 'ACTIVE', user: { status: 'ACTIVE' } }, select: { userId: true } }),
-      this.prisma.agentPosition.findMany({ select: { agentId: true, recordedAt: true } }),
       this.prisma.audit.count({ where: { finishedAtDevice: { gte: p.start, lt: p.end } } }),
       this.prisma.routeStop.groupBy({ by: ['status'], where: { route: { date: { gte: p.firstDay, lte: p.lastDay } } }, _count: true }),
       this.prisma.photo.count({ where: { kind: 'AUDIT', status: 'READY', takenAt: { gte: p.start, lt: p.end } } }),
       this.prisma.photo.count({ where: { kind: 'AUDIT', status: 'READY', takenAt: { gte: p.start, lt: p.end }, verifiedAt: { not: null } } })
     ])
-    const seen = new Map(positions.map((x) => [x.agentId, x.recordedAt]))
+    const seen = await lastSignalAt(this.prisma, working.map((a) => a.userId))
     const fresh = (id: string) => { const at = seen.get(id); return at != null && now.getTime() - at.getTime() <= s.noSignalMinutes * 60_000 }
     const onRoute = working.filter((a) => fresh(a.userId)).length
     const working_hours = isWithinWorkingHours(now, s)

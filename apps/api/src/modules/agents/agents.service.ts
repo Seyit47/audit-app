@@ -40,8 +40,9 @@ export class AgentsService {
     const agents = await this.repo.listAll(query)
     const counts = await this.repo.counts(agents.map((a) => a.userId), from, to)
     const top = await this.repo.topAudits(from, to)
+    const signals = await this.repo.lastSignal(agents.map((a) => a.userId))
     const now = new Date()
-    const rows = await Promise.all(agents.map((a) => this.row(a, counts, top, settings, now)))
+    const rows = await Promise.all(agents.map((a) => this.row(a, counts, top, settings, now, signals.get(a.userId))))
     const key = query.sort ?? 'code'
     const sign = query.dir === 'desc' ? -1 : 1
     rows.sort((x, y) => {
@@ -56,7 +57,7 @@ export class AgentsService {
     const agent = await this.repo.get(id)
     if (agent == null) throw notFound('Agent')
     const settings = await this.settings.get()
-    const seenAt = agent.position?.recordedAt
+    const seenAt = (await this.repo.lastSignal([id])).get(id)
     return {
       ...await this.view(agent),
       online: seenAt != null && Date.now() - seenAt.getTime() <= settings.noSignalMinutes * 60_000,
@@ -177,11 +178,12 @@ export class AgentsService {
     counts: Awaited<ReturnType<AgentsRepository['counts']>>,
     top: number,
     settings: { noSignalMinutes: number, workStart: string, workEnd: string, timezone: string },
-    now: Date
+    now: Date,
+    /** Server time of the latest ping (see [lastSignalAt]). */
+    seenAt: Date | undefined
   ) {
     const active = a.user.status === 'ACTIVE'
     const working = active && a.workStatus === 'ACTIVE'
-    const seenAt = a.position?.recordedAt
     const fresh = seenAt != null && now.getTime() - seenAt.getTime() <= settings.noSignalMinutes * 60_000
     const visits = counts.audits.get(a.userId) ?? 0
     const lastActivity = [a.user.lastActiveAt, seenAt].filter((d): d is Date => d != null).sort((x, y) => y.getTime() - x.getTime())[0]
