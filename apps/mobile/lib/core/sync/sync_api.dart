@@ -33,7 +33,9 @@ class ShopsPage {
 /// The endpoints the sync engine uses (contracts/sync.md). Every create is idempotent by id.
 abstract interface class SyncApi {
   Future<UploadTarget> createUpload(Map<String, Object?> body);
-  Future<void> putFile(UploadTarget target, String path, String mime);
+
+  /// [onProgress] reports bytes sent; [cancel] stops the upload (it then fails with a network error).
+  Future<void> putFile(UploadTarget target, String path, String mime, {void Function(int sent, int total)? onProgress, CancelToken? cancel});
   Future<void> completeUpload(String id);
   Future<void> createShop(Map<String, Object?> body);
   Future<void> createAudit(Map<String, Object?> body);
@@ -68,12 +70,14 @@ class HttpSyncApi implements SyncApi {
   }
 
   @override
-  Future<void> putFile(UploadTarget target, String path, String mime) async {
+  Future<void> putFile(UploadTarget target, String path, String mime, {void Function(int sent, int total)? onProgress, CancelToken? cancel}) async {
     final file = File(path);
     try {
       await _storage.put<void>(
         target.url!,
         data: file.openRead(),
+        onSendProgress: onProgress,
+        cancelToken: cancel,
         options: Options(headers: {...target.headers, Headers.contentLengthHeader: await file.length(), Headers.contentTypeHeader: mime}),
       );
     } on DioException catch (e) {

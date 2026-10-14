@@ -28,6 +28,21 @@ class OutboxRepository {
             ..orderBy([(o) => OrderingTerm(expression: o.createdAt), (o) => OrderingTerm(expression: const CustomExpression<int>('rowid'))]))
           .get();
 
+  /// [open] as a stream, for the sync screen.
+  Stream<List<OutboxData>> watchOpen() =>
+      (_db.select(_db.outbox)
+            ..where((o) => o.state.isNotValue(OutboxState.done.name))
+            ..orderBy([(o) => OrderingTerm(expression: o.createdAt), (o) => OrderingTerm(expression: const CustomExpression<int>('rowid'))]))
+          .watch();
+
+  /// "Остановить": the items wait until [resume].
+  Future<void> pause(Iterable<String> ids) =>
+      (_db.update(_db.outbox)..where((o) => o.id.isIn(ids))).write(const OutboxCompanion(state: Value(OutboxState.paused), nextAttemptAt: Value(null)));
+
+  /// "Продолжить" / "Отправить снова": due at once, whether stopped, failed or backing off.
+  Future<void> resume(Iterable<String> ids) =>
+      (_db.update(_db.outbox)..where((o) => o.id.isIn(ids))).write(const OutboxCompanion(state: Value(OutboxState.pending), nextAttemptAt: Value(null)));
+
   Future<OutboxData?> byId(String id) => (_db.select(_db.outbox)..where((o) => o.id.equals(id))).getSingleOrNull();
 
   Future<int> openCount() async {

@@ -95,9 +95,10 @@ class AddShopController extends Notifier<AddShopState> {
     state = state.copyWith(clearPhoto: true);
   }
 
-  Future<bool> save() async {
+  /// Saves the shop and its photo to the outbox; returns the SHOP_CREATE item, or null when it can't be saved yet.
+  Future<String?> save() async {
     final s = state;
-    if (!s.canSave) return false;
+    if (!s.canSave) return null;
     state = s.copyWith(saving: true);
     final db = ref.read(databaseProvider);
     final outbox = ref.read(outboxProvider);
@@ -105,6 +106,7 @@ class AddShopController extends Notifier<AddShopState> {
     final id = const Uuid().v7();
     final photo = s.photo!;
     final fix = s.fix!;
+    late String shopItem;
     await db.transaction(() async {
       await db
           .into(db.photos)
@@ -135,7 +137,7 @@ class AddShopController extends Notifier<AddShopState> {
         'accuracyM': ?photo.fix?.accuracyM,
         'localPath': photo.path,
       });
-      await outbox.enqueue(
+      shopItem = await outbox.enqueue(
         OutboxKind.shopCreate,
         {
           'id': id,
@@ -174,7 +176,7 @@ class AddShopController extends Notifier<AddShopState> {
       await db.into(db.shopContacts).insert(ShopContactsCompanion.insert(id: const Uuid().v7(), shopId: id, phone: tmPhone(s.phone)!, position: 0));
     });
     ref.read(syncTriggerProvider)();
-    return true;
+    return shopItem;
   }
 
   static Future<void> _deleteFile(CapturedPhoto? photo) async {

@@ -1031,6 +1031,68 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String syncPending(int count) {
-    return 'Не отправлено: $count · Нажмите, чтобы отправить';
+    return 'Не отправлено: $count';
   }
+
+  @override
+  String get syncTitle => 'Синхронизация';
+
+  @override
+  String get syncNow => 'Синхронизировать';
+
+  @override
+  String get syncEmpty => 'Всё отправлено на сервер';
+
+  @override
+  String syncAudit(String shop) {
+    return 'Аудит · $shop';
+  }
+
+  @override
+  String syncNewShop(String name) {
+    return 'Новый магазин · $name';
+  }
+
+  @override
+  String syncPhoto(int n) {
+    return 'Фото $n';
+  }
+
+  @override
+  String get syncWaiting => 'Ожидает отправки';
+
+  @override
+  String get syncSending => 'Отправка…';
+
+  @override
+  String get syncPaused => 'Остановлено';
+
+  @override
+  String get syncNoConnection => 'Нет связи с сервером';
+
+  @override
+  String syncError(String message) {
+    return 'Ошибка: $message';
+  }
+
+  @override
+  String get syncSent => 'Отправлено';
+
+  @override
+  String get syncStop => 'Остановить';
+
+  @override
+  String get syncResume => 'Продолжить';
+
+  @override
+  String get syncRetry => 'Отправить снова';
+
+  @override
+  String get sendingTitle => 'Отправка на сервер';
+
+  @override
+  String get sendFailed => 'Не удалось отправить сейчас. Данные сохранены на телефоне и отправятся автоматически.';
+
+  @override
+  String get sendInBackground => 'Продолжить в фоне';
 }

@@ -1,5 +1,6 @@
 import 'package:audit_mobile/core/network/api_exception.dart';
 import 'package:audit_mobile/core/sync/sync_api.dart';
+import 'package:dio/dio.dart';
 
 /// Records calls in order. `fail` maps a call name to the error it throws (once per entry).
 class FakeApi implements SyncApi {
@@ -20,7 +21,11 @@ class FakeApi implements SyncApi {
   }
 
   @override
-  Future<void> putFile(UploadTarget target, String path, String mime) => _record('put:$path');
+  Future<void> putFile(UploadTarget target, String path, String mime, {void Function(int sent, int total)? onProgress, CancelToken? cancel}) async {
+    onProgress?.call(5, 10);
+    await _record('put:$path');
+    onProgress?.call(10, 10);
+  }
 
   @override
   Future<void> completeUpload(String id) => _record('complete:$id');

@@ -1,5 +1,6 @@
 import 'package:audit_mobile/core/db/app_database.dart';
 import 'package:audit_mobile/core/network/api_exception.dart';
+import 'package:audit_mobile/core/sync/outbox_groups.dart';
 import 'package:audit_mobile/core/sync/outbox_repository.dart';
 import 'package:audit_mobile/core/sync/pull_service.dart';
 import 'package:audit_mobile/core/sync/sync_api.dart';
@@ -85,6 +86,46 @@ void main() {
     expect(api.calls.last, 'createAudit:a1');
     expect(api.calls.where((c) => c.startsWith('complete:')), hasLength(4));
     expect(await outbox.openCount(), 0);
+  });
+
+  test('a stopped audit waits with its photos; resumed, it goes; progress is reported per item', () async {
+    await outbox.enqueue(OutboxKind.auditCreate, {'id': 'a1'}, id: 'au-a1', dependsOn: ['ph-p1']);
+    await photo('p1');
+    await outbox.pause(['au-a1', 'ph-p1']);
+    final seen = <String, List<double?>>{};
+    final tracked = SyncEngine(db: db, api: api, outbox: outbox, clock: () => now, jitter: () => 1.0, onProgress: (id, f) => (seen[id] ??= []).add(f));
+
+    await tracked.run();
+    expect(api.calls, isEmpty);
+    expect(await outbox.openCount(), 2);
+
+    await outbox.resume(['au-a1', 'ph-p1']);
+    await tracked.run();
+    expect(api.calls.last, 'createAudit:a1');
+    expect(seen['ph-p1'], [0, 0.5, 1.0, null], reason: 'started, half, all bytes, finished');
+    expect(seen['au-a1'], [0, null]);
+  });
+
+  test('groups: each audit or new shop with its own photos; pings left out', () async {
+    await outbox.enqueue(OutboxKind.auditCreate, {'id': 'a1'}, id: 'au-a1', dependsOn: ['ph-p1', 'ph-p2']);
+    await photo('p1');
+    await photo('p2');
+    await outbox.enqueue(OutboxKind.shopCreate, {'id': 's1'}, id: 'sh-s1', dependsOn: ['ph-p3']);
+    await photo('p3');
+    await photo('lonely');
+    await outbox.enqueue(OutboxKind.pings, {'pings': []}, id: 'pi-1');
+
+    final groups = groupOutbox(await outbox.open());
+    expect(
+      [for (final g in groups) g.ids.toList()],
+      [
+        ['au-a1', 'ph-p1', 'ph-p2'],
+        ['sh-s1', 'ph-p3'],
+        ['ph-lonely'],
+      ],
+    );
+    await outbox.pause(groups.first.ids);
+    expect(groupOutbox(await outbox.open()).first.paused, isTrue);
   });
 
   test('network errors and 5xx back off; dependents wait', () async {

@@ -143,21 +143,21 @@ class AuditController extends Notifier<AuditState> {
     if (ref.mounted && draft != null) state = state.copyWith(draft: draft);
   }
 
-  /// Saves the audit and its photos to the outbox; returns false when it may not finish yet.
-  Future<bool> finish() async {
+  /// Saves the audit and its photos to the outbox; returns its outbox item, or null when it may not finish yet.
+  Future<String?> finish() async {
     final draft = state.draft;
     final fix = state.fix;
     final shop = state.shop;
-    if (!state.canFinish || draft == null || fix == null || shop == null) return false;
+    if (!state.canFinish || draft == null || fix == null || shop == null) return null;
     state = state.copyWith(finishing: true);
     final distance = distanceMeters(fix.lat, fix.lng, shop.lat, shop.lng);
-    await _repo.finish(
+    final item = await _repo.finish(
       draft,
       FinishedAudit(finishedAt: DateTime.now().toUtc(), fix: fix, distanceM: distance.round(), withinRadius: distance <= shop.auditRadiusM),
     );
     ref.read(syncTriggerProvider)();
     if (ref.mounted) state = state.copyWith(finishing: false, finished: true);
-    return true;
+    return item;
   }
 }
 

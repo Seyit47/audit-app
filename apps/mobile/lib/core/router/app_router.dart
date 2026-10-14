@@ -2,6 +2,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/sync/presentation/sync_screen.dart';
+
 import '../../features/activation/activation_provider.dart';
 import '../../features/activation/presentation/activation_screen.dart';
 import '../../features/admin/agent_details/presentation/agent_details_screen.dart';
@@ -65,6 +67,7 @@ final List<RouteBase> agentRoutes = [
       ),
     ],
   ),
+  GoRoute(path: 'sync', builder: (_, _) => const SyncScreen()),
   GoRoute(
     path: 'audit/:shopId',
     builder: (_, state) => AuditScreen(shopId: state.pathParameters['shopId']!),

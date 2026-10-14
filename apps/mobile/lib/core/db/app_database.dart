@@ -134,7 +134,8 @@ class AuditDrafts extends Table {
 
 enum OutboxKind { photo, shopCreate, auditCreate, pings }
 
-enum OutboxState { pending, failed, done }
+/// `paused`: stopped by the agent on the sync screen; skipped (with its dependents) until resumed.
+enum OutboxState { pending, failed, paused, done }
 
 class Outbox extends Table {
   TextColumn get id => text()();

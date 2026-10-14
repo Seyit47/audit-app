@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/app_localizations.dart';
+import '../../sync/presentation/sync_screen.dart';
 import 'add_shop_controller.dart';
 import 'shop_form_view.dart';
 
@@ -32,10 +33,10 @@ class AddShopScreen extends ConsumerWidget {
       canSave: s.canSave,
       saving: s.saving,
       onSave: () async {
-        if (await ctrl.save() && context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.shopSaved)));
-          context.pop();
-        }
+        final item = await ctrl.save();
+        if (item == null || !context.mounted) return;
+        await sendNow(context, ref, recordId: item, savedOffline: l10n.shopSaved);
+        if (context.mounted) context.pop();
       },
     );
   }

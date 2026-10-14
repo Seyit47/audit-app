@@ -12,6 +12,7 @@ import '../../../core/widgets/photo_target.dart';
 import '../data/audit_local_repository.dart';
 import '../domain/geofence.dart';
 import 'audit_controller.dart';
+import '../../sync/presentation/sync_screen.dart';
 import '../../../core/widgets/tap.dart';
 import '../../../core/widgets/form_field.dart';
 
@@ -166,10 +167,10 @@ class _AuditScreenState extends ConsumerState<AuditScreen> {
                 busy: s.finishing,
                 onPressed: s.canFinish
                     ? () async {
-                        if (await ctrl.finish() && context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.auditSaved)));
-                          context.pop();
-                        }
+                        final item = await ctrl.finish();
+                        if (item == null || !context.mounted) return;
+                        await sendNow(context, ref, recordId: item, savedOffline: l10n.auditSaved);
+                        if (context.mounted) context.pop();
                       }
                     : null,
               ),

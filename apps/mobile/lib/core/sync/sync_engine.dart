@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:dio/dio.dart';
 import 'package:drift/drift.dart';
 
 import '../db/app_database.dart';
@@ -13,9 +14,16 @@ import 'sync_api.dart';
 /// right after it (an item in flight is still open, so its dependents wait). Each item is tried at
 /// most once per run.
 class SyncEngine {
-  SyncEngine({required this._db, required this._api, required this._outbox, DateTime Function()? clock, double Function()? jitter, this.parallel = 3})
-    : _clock = clock ?? DateTime.now,
-      _jitter = jitter ?? (() => 0.8 + Random().nextDouble() * 0.4);
+  SyncEngine({
+    required this._db,
+    required this._api,
+    required this._outbox,
+    DateTime Function()? clock,
+    double Function()? jitter,
+    this.parallel = 3,
+    this.onProgress,
+  }) : _clock = clock ?? DateTime.now,
+       _jitter = jitter ?? (() => 0.8 + Random().nextDouble() * 0.4);
 
   final AppDatabase _db;
   final SyncApi _api;
@@ -23,6 +31,22 @@ class SyncEngine {
   final DateTime Function() _clock;
   final double Function() _jitter;
   final int parallel;
+
+  /// Progress of the item being sent (0…1; a photo's upload goes up gradually), null when it is no longer in flight.
+  final void Function(String id, double? fraction)? onProgress;
+
+  final _uploads = <String, CancelToken>{};
+  final _cancelled = <String>{};
+
+  /// Stops the uploads in flight among [ids] (the sync screen's "Остановить"); the caller has already paused them.
+  void cancel(Iterable<String> ids) {
+    for (final id in ids) {
+      final upload = _uploads[id];
+      if (upload == null) continue;
+      _cancelled.add(id);
+      upload.cancel();
+    }
+  }
 
   static const _first = Duration(seconds: 5);
   static const _max = Duration(minutes: 10);
@@ -42,10 +66,13 @@ class SyncEngine {
     while (true) {
       final next = await _nextReady(tried);
       if (next == null) return;
+      onProgress?.call(next.id, 0);
       try {
         await _send(next);
         await _outbox.markDone(next.id);
       } on ApiException catch (e) {
+        // Stopped on the sync screen: it is paused already, not a failure.
+        if (_cancelled.remove(next.id)) continue;
         final error = '${e.code}: ${e.message}';
         if (e.isRetryable) {
           final delay = backoff(next.attempts + 1) * _jitter();
@@ -53,6 +80,8 @@ class SyncEngine {
         } else {
           await _outbox.markFailed(next, error);
         }
+      } finally {
+        onProgress?.call(next.id, null);
       }
     }
   }
@@ -62,7 +91,7 @@ class SyncEngine {
     final openIds = {for (final o in open) o.id};
     final now = _clock();
     for (final item in open) {
-      if (tried.contains(item.id)) continue;
+      if (tried.contains(item.id) || item.state == OutboxState.paused) continue;
       if (item.nextAttemptAt != null && item.nextAttemptAt!.isAfter(now)) continue;
       if (dependenciesOf(item).any(openIds.contains)) continue;
       // Claimed before the next await, so no other worker takes it.
@@ -79,7 +108,20 @@ class SyncEngine {
         final localPath = payload.remove('localPath')! as String;
         final target = await _api.createUpload(payload);
         if (!target.ready) {
-          await _api.putFile(target, localPath, payload['mime']! as String);
+          final upload = _uploads[item.id] = CancelToken();
+          try {
+            await _api.putFile(
+              target,
+              localPath,
+              payload['mime']! as String,
+              cancel: upload,
+              onProgress: (sent, total) {
+                if (total > 0) onProgress?.call(item.id, sent / total);
+              },
+            );
+          } finally {
+            _uploads.remove(item.id);
+          }
           await _api.completeUpload(payload['id']! as String);
         }
         await (_db.update(

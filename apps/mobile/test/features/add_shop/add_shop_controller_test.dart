@@ -48,7 +48,7 @@ void main() {
     await ctrl.takePhoto();
     expect(c.read(addShopControllerProvider).canSave, isTrue);
 
-    expect(await ctrl.save(), isTrue);
+    expect(await ctrl.save(), isNotNull);
     final items = await db.select(db.outbox).get();
     final shop = items.singleWhere((o) => o.kind == OutboxKind.shopCreate);
     final photo = items.singleWhere((o) => o.kind == OutboxKind.photo);

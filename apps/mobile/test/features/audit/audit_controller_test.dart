@@ -193,7 +193,7 @@ void main() {
     await ctrl().toggleViolation();
     await ctrl().setComment('Стойка перекрыта');
     await settle();
-    expect(await ctrl().finish(), isTrue);
+    expect(await ctrl().finish(), isNotNull);
 
     final items = await (db.select(db.outbox)..orderBy([(o) => OrderingTerm(expression: o.createdAt)])).get();
     final photos = items.where((o) => o.kind == OutboxKind.photo).toList();

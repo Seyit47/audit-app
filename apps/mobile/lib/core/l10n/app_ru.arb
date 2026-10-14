@@ -684,12 +684,58 @@
   "cameraDenied": "Разрешите доступ к камере в настройках, чтобы делать фото.",
   "cameraFlash": "Вспышка",
   "chooseShop": "Рядом несколько магазинов — выберите тот, в котором вы находитесь",
-  "syncPending": "Не отправлено: {count} · Нажмите, чтобы отправить",
+  "syncPending": "Не отправлено: {count}",
   "@syncPending": {
     "placeholders": {
       "count": {
         "type": "int"
       }
     }
-  }
+  },
+  "syncTitle": "Синхронизация",
+  "syncNow": "Синхронизировать",
+  "syncEmpty": "Всё отправлено на сервер",
+  "syncAudit": "Аудит · {shop}",
+  "@syncAudit": {
+    "placeholders": {
+      "shop": {
+        "type": "String"
+      }
+    }
+  },
+  "syncNewShop": "Новый магазин · {name}",
+  "@syncNewShop": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "syncPhoto": "Фото {n}",
+  "@syncPhoto": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "syncWaiting": "Ожидает отправки",
+  "syncSending": "Отправка…",
+  "syncPaused": "Остановлено",
+  "syncNoConnection": "Нет связи с сервером",
+  "syncError": "Ошибка: {message}",
+  "@syncError": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "syncSent": "Отправлено",
+  "syncStop": "Остановить",
+  "syncResume": "Продолжить",
+  "syncRetry": "Отправить снова",
+  "sendingTitle": "Отправка на сервер",
+  "sendFailed": "Не удалось отправить сейчас. Данные сохранены на телефоне и отправятся автоматически.",
+  "sendInBackground": "Продолжить в фоне"
 }

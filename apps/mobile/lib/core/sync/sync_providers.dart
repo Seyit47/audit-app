@@ -8,6 +8,7 @@ import '../auth/session.dart';
 import '../auth/session_provider.dart';
 import '../db/database_provider.dart';
 import '../network/api_exception.dart';
+import 'outbox_groups.dart';
 import 'outbox_repository.dart';
 import 'pull_service.dart';
 import 'sync_api.dart';
@@ -16,11 +17,44 @@ import 'sync_status.dart';
 
 final outboxProvider = Provider<OutboxRepository>((ref) => OutboxRepository(ref.watch(databaseProvider)));
 
+/// Whether the phone has a network now (Wi-Fi or mobile data); decides whether saving sends at once.
+final isOnlineProvider = Provider<Future<bool> Function()>(
+  (ref) =>
+      () async => !(await Connectivity().checkConnectivity()).contains(ConnectivityResult.none),
+);
+
 final syncApiProvider = Provider<SyncApi>((ref) => HttpSyncApi(ref.watch(apiClientProvider)));
 
 final syncEngineProvider = Provider<SyncEngine>(
-  (ref) => SyncEngine(db: ref.watch(databaseProvider), api: ref.watch(syncApiProvider), outbox: ref.watch(outboxProvider)),
+  (ref) => SyncEngine(
+    db: ref.watch(databaseProvider),
+    api: ref.watch(syncApiProvider),
+    outbox: ref.watch(outboxProvider),
+    onProgress: (id, fraction) => ref.read(syncProgressProvider.notifier).set(id, fraction),
+  ),
 );
+
+/// Outbox items in flight → progress 0…1 (photos upload gradually; records jump from 0 to done).
+final syncProgressProvider = NotifierProvider<SyncProgress, Map<String, double>>(SyncProgress.new);
+
+class SyncProgress extends Notifier<Map<String, double>> {
+  @override
+  Map<String, double> build() => const {};
+
+  void set(String id, double? fraction) {
+    if (fraction == null) {
+      if (state.containsKey(id)) state = {...state}..remove(id);
+      return;
+    }
+    // Whole percents: the upload callback fires far more often than the bar can show.
+    final old = state[id];
+    if (old != null && (fraction - old).abs() < 0.01 && fraction < 1) return;
+    state = {...state, id: fraction};
+  }
+}
+
+/// The sync screen's list: audits and new shops with their photos, oldest first.
+final outboxGroupsProvider = StreamProvider<List<OutboxGroup>>((ref) => ref.watch(outboxProvider).watchOpen().map(groupOutbox));
 
 final pullServiceProvider = Provider<PullService>(
   (ref) => PullService(db: ref.watch(databaseProvider), api: ref.watch(syncApiProvider), outbox: ref.watch(outboxProvider)),
@@ -85,6 +119,19 @@ class SyncController extends Notifier<SyncState> {
         _current = null;
       }
     }();
+  }
+
+  /// "Остановить": the group's items wait, and an upload in flight is cancelled.
+  Future<void> stop(OutboxGroup group) async {
+    final ids = group.ids.toList();
+    await ref.read(outboxProvider).pause(ids);
+    ref.read(syncEngineProvider).cancel(ids);
+  }
+
+  /// "Продолжить" / "Отправить снова": due at once, and sent now.
+  Future<void> resume(OutboxGroup group) async {
+    await ref.read(outboxProvider).resume(group.ids);
+    unawaited(pushNow());
   }
 
   Future<void> _push() async {

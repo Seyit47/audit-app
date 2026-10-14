@@ -1031,6 +1031,68 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String syncPending(int count) {
-    return 'Iberilmedik: $count · Ibermek üçin basyň';
+    return 'Iberilmedik: $count';
   }
+
+  @override
+  String get syncTitle => 'Sinhronlamak';
+
+  @override
+  String get syncNow => 'Häzir sinhronla';
+
+  @override
+  String get syncEmpty => 'Hemmesi serwere iberildi';
+
+  @override
+  String syncAudit(String shop) {
+    return 'Audit · $shop';
+  }
+
+  @override
+  String syncNewShop(String name) {
+    return 'Täze dükan · $name';
+  }
+
+  @override
+  String syncPhoto(int n) {
+    return 'Surat $n';
+  }
+
+  @override
+  String get syncWaiting => 'Iberilmegine garaşýar';
+
+  @override
+  String get syncSending => 'Iberilýär…';
+
+  @override
+  String get syncPaused => 'Saklandy';
+
+  @override
+  String get syncNoConnection => 'Serwer bilen aragatnaşyk ýok';
+
+  @override
+  String syncError(String message) {
+    return 'Ýalňyşlyk: $message';
+  }
+
+  @override
+  String get syncSent => 'Iberildi';
+
+  @override
+  String get syncStop => 'Sakla';
+
+  @override
+  String get syncResume => 'Dowam et';
+
+  @override
+  String get syncRetry => 'Täzeden iber';
+
+  @override
+  String get sendingTitle => 'Serwere iberilýär';
+
+  @override
+  String get sendFailed => 'Häzir iberip bolmady. Maglumatlar telefonda saklandy we awtomatik iberiler.';
+
+  @override
+  String get sendInBackground => 'Fonda dowam et';
 }

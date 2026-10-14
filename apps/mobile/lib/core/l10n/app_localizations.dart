@@ -1926,8 +1926,116 @@ abstract class AppLocalizations {
   /// No description provided for @syncPending.
   ///
   /// In ru, this message translates to:
-  /// **'Не отправлено: {count} · Нажмите, чтобы отправить'**
+  /// **'Не отправлено: {count}'**
   String syncPending(int count);
+
+  /// No description provided for @syncTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Синхронизация'**
+  String get syncTitle;
+
+  /// No description provided for @syncNow.
+  ///
+  /// In ru, this message translates to:
+  /// **'Синхронизировать'**
+  String get syncNow;
+
+  /// No description provided for @syncEmpty.
+  ///
+  /// In ru, this message translates to:
+  /// **'Всё отправлено на сервер'**
+  String get syncEmpty;
+
+  /// No description provided for @syncAudit.
+  ///
+  /// In ru, this message translates to:
+  /// **'Аудит · {shop}'**
+  String syncAudit(String shop);
+
+  /// No description provided for @syncNewShop.
+  ///
+  /// In ru, this message translates to:
+  /// **'Новый магазин · {name}'**
+  String syncNewShop(String name);
+
+  /// No description provided for @syncPhoto.
+  ///
+  /// In ru, this message translates to:
+  /// **'Фото {n}'**
+  String syncPhoto(int n);
+
+  /// No description provided for @syncWaiting.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ожидает отправки'**
+  String get syncWaiting;
+
+  /// No description provided for @syncSending.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отправка…'**
+  String get syncSending;
+
+  /// No description provided for @syncPaused.
+  ///
+  /// In ru, this message translates to:
+  /// **'Остановлено'**
+  String get syncPaused;
+
+  /// No description provided for @syncNoConnection.
+  ///
+  /// In ru, this message translates to:
+  /// **'Нет связи с сервером'**
+  String get syncNoConnection;
+
+  /// No description provided for @syncError.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ошибка: {message}'**
+  String syncError(String message);
+
+  /// No description provided for @syncSent.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отправлено'**
+  String get syncSent;
+
+  /// No description provided for @syncStop.
+  ///
+  /// In ru, this message translates to:
+  /// **'Остановить'**
+  String get syncStop;
+
+  /// No description provided for @syncResume.
+  ///
+  /// In ru, this message translates to:
+  /// **'Продолжить'**
+  String get syncResume;
+
+  /// No description provided for @syncRetry.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отправить снова'**
+  String get syncRetry;
+
+  /// No description provided for @sendingTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отправка на сервер'**
+  String get sendingTitle;
+
+  /// No description provided for @sendFailed.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось отправить сейчас. Данные сохранены на телефоне и отправятся автоматически.'**
+  String get sendFailed;
+
+  /// No description provided for @sendInBackground.
+  ///
+  /// In ru, this message translates to:
+  /// **'Продолжить в фоне'**
+  String get sendInBackground;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

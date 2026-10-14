@@ -92,7 +92,8 @@ class AuditLocalRepository {
 
   /// One transaction: the local audit, PHOTO items, then AUDIT_CREATE depending on them, the stop
   /// and shop marked visited, and the draft removed (contracts/sync.md).
-  Future<void> finish(AuditDraft draft, FinishedAudit done) => _db.transaction(() async {
+  /// Returns the AUDIT_CREATE outbox item, so the sending sheet can follow it.
+  Future<String> finish(AuditDraft draft, FinishedAudit done) => _db.transaction(() async {
     final photos = await (_db.select(_db.photos)..where((p) => p.auditId.equals(draft.auditId))).get();
     final comment = draft.comment.trim();
     await _db
@@ -131,7 +132,7 @@ class AuditLocalRepository {
       );
     }
     await (_db.update(_db.photos)..where((p) => p.auditId.equals(draft.auditId))).write(const PhotosCompanion(status: Value('PENDING_UPLOAD')));
-    await _outbox.enqueue(OutboxKind.auditCreate, {
+    final auditItem = await _outbox.enqueue(OutboxKind.auditCreate, {
       'id': draft.auditId,
       'shopId': draft.shopId,
       'routeStopId': ?draft.routeStopId,
@@ -151,6 +152,7 @@ class AuditLocalRepository {
     }
     await (_db.update(_db.shops)..where((s) => s.id.equals(draft.shopId))).write(ShopsCompanion(lastVisitAt: Value(done.finishedAt)));
     await (_db.delete(_db.auditDrafts)..where((d) => d.shopId.equals(draft.shopId))).go();
+    return auditItem;
   });
 }
 

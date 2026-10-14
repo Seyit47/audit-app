@@ -1031,6 +1031,68 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String syncPending(int count) {
-    return 'Not sent: $count · Tap to send';
+    return 'Not sent: $count';
   }
+
+  @override
+  String get syncTitle => 'Sync';
+
+  @override
+  String get syncNow => 'Sync now';
+
+  @override
+  String get syncEmpty => 'Everything is on the server';
+
+  @override
+  String syncAudit(String shop) {
+    return 'Audit · $shop';
+  }
+
+  @override
+  String syncNewShop(String name) {
+    return 'New shop · $name';
+  }
+
+  @override
+  String syncPhoto(int n) {
+    return 'Photo $n';
+  }
+
+  @override
+  String get syncWaiting => 'Waiting to send';
+
+  @override
+  String get syncSending => 'Sending…';
+
+  @override
+  String get syncPaused => 'Stopped';
+
+  @override
+  String get syncNoConnection => 'Can\'t reach the server';
+
+  @override
+  String syncError(String message) {
+    return 'Error: $message';
+  }
+
+  @override
+  String get syncSent => 'Sent';
+
+  @override
+  String get syncStop => 'Stop';
+
+  @override
+  String get syncResume => 'Resume';
+
+  @override
+  String get syncRetry => 'Send again';
+
+  @override
+  String get sendingTitle => 'Sending to the server';
+
+  @override
+  String get sendFailed => 'Couldn\'t send right now. It\'s saved on the phone and will be sent automatically.';
+
+  @override
+  String get sendInBackground => 'Continue in background';
 }
