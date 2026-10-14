@@ -1025,4 +1025,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get cameraFlash => 'Вспышка';
+
+  @override
+  String get chooseShop => 'Рядом несколько магазинов — выберите тот, в котором вы находитесь';
 }

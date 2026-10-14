@@ -1916,6 +1916,12 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Вспышка'**
   String get cameraFlash;
+
+  /// No description provided for @chooseShop.
+  ///
+  /// In ru, this message translates to:
+  /// **'Рядом несколько магазинов — выберите тот, в котором вы находитесь'**
+  String get chooseShop;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

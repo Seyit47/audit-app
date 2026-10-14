@@ -29,30 +29,33 @@ void main() {
   late AppDatabase db;
 
   // Real async: drift doesn't finish its queries under the widget test's fake clock.
-  Future<void> seed(WidgetTester tester) => tester.runAsync(() async {
+  Future<void> seed(WidgetTester tester, {bool neighbour = false}) => tester.runAsync(() async {
     db = AppDatabase(NativeDatabase.memory());
-    await db
+    Future<void> shop(String id, String name, double lng) => db
         .into(db.shops)
         .insert(
           ShopsCompanion.insert(
-            id: 's1',
-            code: 'CL-1',
-            name: 'Bahar',
+            id: id,
+            code: 'CL-$id',
+            name: name,
             type: 'MARKET',
             address: 'Street',
             lat: shopLat,
-            lng: shopLng,
+            lng: lng,
             auditRadiusM: 100,
             status: 'ACTIVE',
             updatedAt: DateTime.utc(2026, 10, 7),
           ),
         );
+    await shop('s1', 'Bahar', shopLng);
+    // About 53 m east of Bahar: from between them both radii overlap.
+    if (neighbour) await shop('s2', 'Gunes', shopLng + 0.0006);
   });
 
   /// Opens the sheet from a button and returns what it popped with.
-  Future<String? Function()> open(WidgetTester tester, Fix? fix) async {
+  Future<String? Function()> open(WidgetTester tester, Fix? fix, {bool neighbour = false}) async {
     String? popped;
-    await seed(tester);
+    await seed(tester, neighbour: neighbour);
     addTearDown(() => tester.runAsync(db.close));
     await tester.pumpWidget(
       ProviderScope(
@@ -92,6 +95,16 @@ void main() {
     final popped = await open(tester, const Fix(lat: shopLat, lng: shopLng + 0.0005, accuracyM: 8));
     expect(find.text("You're within Bahar's radius"), findsOneWidget);
     await tester.tap(find.widgetWithText(PrimaryButton, 'Start audit'));
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(popped(), 's1');
+  });
+
+  testWidgets('inside two radii: lists both, nearest first, and pops with the one tapped', (tester) async {
+    final popped = await open(tester, const Fix(lat: shopLat, lng: shopLng + 0.0004, accuracyM: 8), neighbour: true);
+    expect(find.text("Several shops are within range — choose the one you're in"), findsOneWidget);
+    expect(find.widgetWithText(PrimaryButton, 'Start audit'), findsNothing);
+    expect(tester.getTopLeft(find.text('Gunes')).dy, lessThan(tester.getTopLeft(find.text('Bahar')).dy), reason: 'Gunes is nearer');
+    await tester.tap(find.text('Bahar'));
     await tester.pump(const Duration(milliseconds: 500));
     expect(popped(), 's1');
   });

@@ -57,3 +57,19 @@ NearestShop<T>? nearestShop<T>(
   }
   return best;
 }
+
+/// "Начать аудит" with shops close together: every shop whose audit radius the fix is inside, nearest first, so the
+/// agent can pick the one they're in when GPS can't tell them apart.
+List<NearestShop<T>> shopsInRange<T>(
+  Iterable<T> shops,
+  Fix fix, {
+  required double Function(T) lat,
+  required double Function(T) lng,
+  required int Function(T) radiusM,
+}) {
+  final inside = [
+    for (final s in shops)
+      if (distanceMeters(fix.lat, fix.lng, lat(s), lng(s)) case final d when d <= radiusM(s)) NearestShop(s, d, inside: true),
+  ]..sort((a, b) => a.meters.compareTo(b.meters));
+  return inside;
+}

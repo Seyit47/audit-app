@@ -1025,4 +1025,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cameraFlash => 'Flash';
+
+  @override
+  String get chooseShop => 'Several shops are within range — choose the one you\'re in';
 }

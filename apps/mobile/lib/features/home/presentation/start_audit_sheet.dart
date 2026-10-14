@@ -51,6 +51,9 @@ class _StartAuditSheetState extends ConsumerState<_StartAuditSheet> with TickerP
   Fix? _fix;
   NearestShop<Shop>? _hit;
 
+  /// Every shop whose radius the agent is in, nearest first; two or more let the agent pick.
+  List<NearestShop<Shop>> _inRange = const [];
+
   @override
   void initState() {
     super.initState();
@@ -77,9 +80,11 @@ class _StartAuditSheetState extends ConsumerState<_StartAuditSheet> with TickerP
     ).wait;
     if (!mounted) return;
     final hit = fix == null ? null : nearestShop(shops, fix, lat: (s) => s.lat, lng: (s) => s.lng, radiusM: (s) => s.auditRadiusM);
+    final inRange = fix == null ? <NearestShop<Shop>>[] : shopsInRange(shops, fix, lat: (s) => s.lat, lng: (s) => s.lng, radiusM: (s) => s.auditRadiusM);
     setState(() {
       _fix = fix;
       _hit = hit;
+      _inRange = inRange;
       _phase = switch (fix) {
         null => _Phase.unavailable,
         _ when fix.accuracyM > config.minGpsAccuracyM => _Phase.inaccurate,
@@ -97,6 +102,7 @@ class _StartAuditSheetState extends ConsumerState<_StartAuditSheet> with TickerP
     final hit = _hit;
     final (message, tone) = switch (_phase) {
       _Phase.locating => (l10n.geoLocating, c.textSecondary),
+      _Phase.inside when _inRange.length > 1 => (l10n.chooseShop, c.textPrimary),
       _Phase.inside => (l10n.insideShopRadius(hit!.shop.name), c.success),
       _Phase.outside => (l10n.notInShopRadius(hit!.shop.name, distance(context, hit.meters)), c.error),
       _Phase.inaccurate => (l10n.geoInaccurate(_fix!.accuracyM.round()), c.error),
@@ -144,7 +150,21 @@ class _StartAuditSheetState extends ConsumerState<_StartAuditSheet> with TickerP
             ),
           ),
           const SizedBox(height: 20),
-          if (_phase == _Phase.inside)
+          if (_phase == _Phase.inside && _inRange.length > 1)
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 232),
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: _inRange.length,
+                separatorBuilder: (_, _) => const SizedBox(height: 8),
+                itemBuilder: (context, i) => _ShopChoice(
+                  name: _inRange[i].shop.name,
+                  distance: distance(context, _inRange[i].meters),
+                  onTap: () => Navigator.pop(context, _inRange[i].shop.id),
+                ),
+              ),
+            )
+          else if (_phase == _Phase.inside)
             PrimaryButton(label: l10n.startAudit, onPressed: () => Navigator.pop(context, hit!.shop.id))
           else
             PrimaryButton(label: l10n.recheck, loading: _phase == _Phase.locating, onPressed: _phase == _Phase.locating ? null : _locate),
@@ -272,4 +292,48 @@ class _RadarPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_RadarPainter old) => old.fix != fix || old.shop != shop || old.accent != accent;
+}
+
+/// One shop to choose when several are in range: name, distance, and a chevron; tapping starts its audit.
+class _ShopChoice extends StatelessWidget {
+  const _ShopChoice({required this.name, required this.distance, required this.onTap});
+
+  final String name;
+  final String distance;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Material(
+      color: c.card,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: c.cardBorder),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.bodyMedium.copyWith(color: c.textPrimary),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(distance, style: AppTextStyles.caption.copyWith(color: c.textSecondary)),
+              const SizedBox(width: 4),
+              Icon(Icons.chevron_right, color: c.textSecondary, size: 20),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

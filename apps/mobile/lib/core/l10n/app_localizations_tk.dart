@@ -1025,4 +1025,7 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get cameraFlash => 'Ýalpyldawuk';
+
+  @override
+  String get chooseShop => 'Golaýda birnäçe dükan bar — içinde bolan dükanyňyzy saýlaň';
 }

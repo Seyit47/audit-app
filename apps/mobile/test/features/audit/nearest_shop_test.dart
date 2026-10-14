@@ -25,4 +25,14 @@ void main() {
   });
 
   test('no shops', () => expect(find(const [], here), isNull));
+
+  test('in range of several shops: all of them, nearest first; shops out of range left out', () {
+    final shops = <S>[
+      (id: 'next door', lat: 37.9503, lng: 58.38, r: 100),
+      (id: 'here', lat: 37.9501, lng: 58.38, r: 100),
+      (id: 'far', lat: 37.96, lng: 58.38, r: 100),
+    ];
+    final r = shopsInRange<S>(shops, here, lat: (s) => s.lat, lng: (s) => s.lng, radiusM: (s) => s.r);
+    expect(r.map((x) => x.shop.id), ['here', 'next door']);
+  });
 }
