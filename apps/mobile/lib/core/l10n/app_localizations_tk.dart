@@ -1095,4 +1095,25 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get sendInBackground => 'Fonda dowam et';
+
+  @override
+  String get loginByPhone => 'Telefon';
+
+  @override
+  String get loginByEmail => 'E-poçta';
+
+  @override
+  String get email => 'E-poçta';
+
+  @override
+  String get emailHint => 'name@company.com';
+
+  @override
+  String get emailInvalid => 'name@company.com ýaly e-poçta giriziň';
+
+  @override
+  String get showPassword => 'Açar sözi görkez';
+
+  @override
+  String get hidePassword => 'Açar sözi gizle';
 }

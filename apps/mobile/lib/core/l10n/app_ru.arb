@@ -737,5 +737,12 @@
   "syncRetry": "Отправить снова",
   "sendingTitle": "Отправка на сервер",
   "sendFailed": "Не удалось отправить сейчас. Данные сохранены на телефоне и отправятся автоматически.",
-  "sendInBackground": "Продолжить в фоне"
+  "sendInBackground": "Продолжить в фоне",
+  "loginByPhone": "Телефон",
+  "loginByEmail": "Эл. почта",
+  "email": "Эл. почта",
+  "emailHint": "name@company.com",
+  "emailInvalid": "Введите email, например name@company.com",
+  "showPassword": "Показать пароль",
+  "hidePassword": "Скрыть пароль"
 }

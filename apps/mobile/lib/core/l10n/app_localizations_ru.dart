@@ -1095,4 +1095,25 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get sendInBackground => 'Продолжить в фоне';
+
+  @override
+  String get loginByPhone => 'Телефон';
+
+  @override
+  String get loginByEmail => 'Эл. почта';
+
+  @override
+  String get email => 'Эл. почта';
+
+  @override
+  String get emailHint => 'name@company.com';
+
+  @override
+  String get emailInvalid => 'Введите email, например name@company.com';
+
+  @override
+  String get showPassword => 'Показать пароль';
+
+  @override
+  String get hidePassword => 'Скрыть пароль';
 }

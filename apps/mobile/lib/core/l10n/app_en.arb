@@ -323,5 +323,12 @@
   "syncRetry": "Send again",
   "sendingTitle": "Sending to the server",
   "sendFailed": "Couldn't send right now. It's saved on the phone and will be sent automatically.",
-  "sendInBackground": "Continue in background"
+  "sendInBackground": "Continue in background",
+  "loginByPhone": "Phone",
+  "loginByEmail": "Email",
+  "email": "Email",
+  "emailHint": "name@company.com",
+  "emailInvalid": "Enter an email like name@company.com",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password"
 }

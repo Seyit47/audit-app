@@ -2036,6 +2036,48 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Продолжить в фоне'**
   String get sendInBackground;
+
+  /// No description provided for @loginByPhone.
+  ///
+  /// In ru, this message translates to:
+  /// **'Телефон'**
+  String get loginByPhone;
+
+  /// No description provided for @loginByEmail.
+  ///
+  /// In ru, this message translates to:
+  /// **'Эл. почта'**
+  String get loginByEmail;
+
+  /// No description provided for @email.
+  ///
+  /// In ru, this message translates to:
+  /// **'Эл. почта'**
+  String get email;
+
+  /// No description provided for @emailHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'name@company.com'**
+  String get emailHint;
+
+  /// No description provided for @emailInvalid.
+  ///
+  /// In ru, this message translates to:
+  /// **'Введите email, например name@company.com'**
+  String get emailInvalid;
+
+  /// No description provided for @showPassword.
+  ///
+  /// In ru, this message translates to:
+  /// **'Показать пароль'**
+  String get showPassword;
+
+  /// No description provided for @hidePassword.
+  ///
+  /// In ru, this message translates to:
+  /// **'Скрыть пароль'**
+  String get hidePassword;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -323,5 +323,12 @@
   "syncRetry": "Täzeden iber",
   "sendingTitle": "Serwere iberilýär",
   "sendFailed": "Häzir iberip bolmady. Maglumatlar telefonda saklandy we awtomatik iberiler.",
-  "sendInBackground": "Fonda dowam et"
+  "sendInBackground": "Fonda dowam et",
+  "loginByPhone": "Telefon",
+  "loginByEmail": "E-poçta",
+  "email": "E-poçta",
+  "emailHint": "name@company.com",
+  "emailInvalid": "name@company.com ýaly e-poçta giriziň",
+  "showPassword": "Açar sözi görkez",
+  "hidePassword": "Açar sözi gizle"
 }

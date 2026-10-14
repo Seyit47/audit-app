@@ -1095,4 +1095,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sendInBackground => 'Continue in background';
+
+  @override
+  String get loginByPhone => 'Phone';
+
+  @override
+  String get loginByEmail => 'Email';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get emailHint => 'name@company.com';
+
+  @override
+  String get emailInvalid => 'Enter an email like name@company.com';
+
+  @override
+  String get showPassword => 'Show password';
+
+  @override
+  String get hidePassword => 'Hide password';
 }
