@@ -200,7 +200,7 @@ class _GalleryScreenState extends ConsumerState<GalleryScreen> {
 }
 
 /// Agent photo detail (`83:18045` / `106:6710`).
-class AgentPhotoDetailScreen extends ConsumerWidget {
+class AgentPhotoDetailScreen extends ConsumerStatefulWidget {
   const AgentPhotoDetailScreen({super.key, required this.photoId, this.sequence});
 
   final String photoId;
@@ -209,7 +209,27 @@ class AgentPhotoDetailScreen extends ConsumerWidget {
   final GallerySequence? sequence;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AgentPhotoDetailScreen> createState() => _AgentPhotoDetailScreenState();
+}
+
+class _AgentPhotoDetailScreenState extends ConsumerState<AgentPhotoDetailScreen> {
+  String get photoId => widget.photoId;
+  GallerySequence? get sequence => widget.sequence;
+
+  @override
+  void initState() {
+    super.initState();
+    // Fresh links: a synced photo's full size is a signed link valid for two hours, saved at the last sync.
+    Future(() async {
+      try {
+        await ref.read(pullServiceProvider).pullPhotos();
+        if (mounted) ref.invalidate(photoDetailsProvider(photoId));
+      } catch (_) {}
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final d = ref.watch(photoDetailsProvider(photoId)).value;
     if (d == null) {
       return Scaffold(

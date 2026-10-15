@@ -5,22 +5,24 @@ import 'app_image.dart';
 
 /// Full-screen photos over a black background: swipe between them, pinch or double-tap to zoom (the swipe
 /// pauses while zoomed in), "3 / 7" at the top and a close button. Not a Figma frame (approved exception).
-Future<void> showPhotoViewer(BuildContext context, List<String?> photos, {int initial = 0}) {
+/// [previews]: per photo, what to show when the full-size one can't be loaded.
+Future<void> showPhotoViewer(BuildContext context, List<String?> photos, {int initial = 0, List<String?>? previews}) {
   if (photos.isEmpty) return Future.value();
   return Navigator.of(context, rootNavigator: true).push(
     PageRouteBuilder<void>(
       opaque: false,
       barrierColor: Colors.black,
-      pageBuilder: (_, _, _) => PhotoViewer(photos: photos, initial: initial.clamp(0, photos.length - 1)),
+      pageBuilder: (_, _, _) => PhotoViewer(photos: photos, previews: previews, initial: initial.clamp(0, photos.length - 1)),
       transitionsBuilder: (_, animation, _, child) => FadeTransition(opacity: animation, child: child),
     ),
   );
 }
 
 class PhotoViewer extends StatefulWidget {
-  const PhotoViewer({super.key, required this.photos, this.initial = 0});
+  const PhotoViewer({super.key, required this.photos, this.initial = 0, this.previews});
 
   final List<String?> photos;
+  final List<String?>? previews;
   final int initial;
 
   @override
@@ -50,7 +52,8 @@ class _PhotoViewerState extends State<PhotoViewer> {
             physics: _zoomed ? const NeverScrollableScrollPhysics() : const PageScrollPhysics(),
             itemCount: count,
             onPageChanged: (i) => setState(() => _index = i),
-            itemBuilder: (_, i) => _ZoomablePhoto(url: widget.photos[i], onZoomed: (z) => setState(() => _zoomed = z)),
+            itemBuilder: (_, i) =>
+                _ZoomablePhoto(url: widget.photos[i], preview: widget.previews?.elementAtOrNull(i), onZoomed: (z) => setState(() => _zoomed = z)),
           ),
           SafeArea(
             child: Padding(
@@ -82,9 +85,10 @@ class _PhotoViewerState extends State<PhotoViewer> {
 }
 
 class _ZoomablePhoto extends StatefulWidget {
-  const _ZoomablePhoto({required this.url, required this.onZoomed});
+  const _ZoomablePhoto({required this.url, required this.onZoomed, this.preview});
 
   final String? url;
+  final String? preview;
   final ValueChanged<bool> onZoomed;
 
   @override
@@ -134,7 +138,9 @@ class _ZoomablePhotoState extends State<_ZoomablePhoto> {
         // Panning only when zoomed in, so a one-finger swipe goes to the next photo.
         panEnabled: _zoomed,
         onInteractionEnd: (_) => _changed(),
-        child: SizedBox.expand(child: AppImage(widget.url, radius: 0, fit: BoxFit.contain)),
+        child: SizedBox.expand(
+          child: AppImage(widget.url, fallback: widget.preview, radius: 0, fit: BoxFit.contain),
+        ),
       ),
     );
   }

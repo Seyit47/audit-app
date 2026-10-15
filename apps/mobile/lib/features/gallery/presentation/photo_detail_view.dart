@@ -81,8 +81,12 @@ class _PhotoDetailViewState extends State<PhotoDetailView> {
     _pages.animateToPage(_indexOf(id), duration: const Duration(milliseconds: 250), curve: Curves.easeOutCubic);
   }
 
-  void _fullScreen(BuildContext context, GridPhoto p) =>
-      showPhotoViewer(context, [for (final r in widget.related) r.full], initial: widget.related.indexWhere((r) => r.id == p.id));
+  void _fullScreen(BuildContext context, GridPhoto p) => showPhotoViewer(
+    context,
+    [for (final r in widget.related) r.full],
+    previews: [for (final r in widget.related) r.image],
+    initial: widget.related.indexWhere((r) => r.id == p.id),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -136,8 +140,10 @@ class _PhotoDetailViewState extends State<PhotoDetailView> {
                           controller: _pages,
                           itemCount: widget.related.length,
                           onPageChanged: (i) => setState(() => _selected = widget.related[i].id),
-                          itemBuilder: (context, i) =>
-                              InkOverlay(onTap: () => _fullScreen(context, widget.related[i]), child: AppImage(widget.related[i].full, radius: 0)),
+                          itemBuilder: (context, i) => InkOverlay(
+                            onTap: () => _fullScreen(context, widget.related[i]),
+                            child: AppImage(widget.related[i].full, fallback: widget.related[i].image, radius: 0),
+                          ),
                         ),
                         // Which of the audit's photos this is.
                         if (widget.related.length > 1)
