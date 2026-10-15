@@ -11,6 +11,7 @@ import '../../../../core/widgets/app_icon.dart';
 import '../../../../core/widgets/app_image.dart';
 import '../../../../core/widgets/audit_history_item.dart';
 import '../../../../core/widgets/map_view.dart';
+import '../../../../core/widgets/photo_viewer.dart';
 import '../../../../core/widgets/shop_card.dart';
 import '../../../shop_details/presentation/shop_details_screen.dart' show call, openInMaps;
 import '../../data/admin_api.dart';
@@ -119,6 +120,7 @@ class AdminShopDetailsScreen extends ConsumerWidget {
     final lastAudit = kpis['lastAuditAt'] as String?;
     final lat = (s['lat'] as num).toDouble();
     final lng = (s['lng'] as num).toDouble();
+    final facade = (s['facade'] as Map?)?.cast<String, dynamic>();
     final card = BoxDecoration(
       color: c.card,
       borderRadius: BorderRadius.circular(12),
@@ -182,6 +184,18 @@ class AdminShopDetailsScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                          // The storefront photo (not in 248:24541; asked for), tap for full screen.
+                          if (facade != null) ...[
+                            AspectRatio(
+                              aspectRatio: 16 / 9,
+                              child: InkOverlay(
+                                radius: 12,
+                                onTap: () => showPhotoViewer(context, [(facade['url'] ?? facade['previewUrl1200'] ?? facade['previewUrl400']) as String?]),
+                                child: AppImage((facade['previewUrl1200'] ?? facade['previewUrl400'] ?? facade['url']) as String?, radius: 12),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                          ],
                           Row(
                             children: [
                               Expanded(
