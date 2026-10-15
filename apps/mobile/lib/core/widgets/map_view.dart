@@ -12,7 +12,7 @@ import '../network/photo_cache.dart';
 
 /// A shop pin of `83:17636`: a colored ring with the facade photo and a pointer.
 class MapMarker {
-  const MapMarker({required this.id, required this.lat, required this.lng, required this.color, this.imageUrl});
+  const MapMarker({required this.id, required this.lat, required this.lng, required this.color, this.imageUrl, this.agent = false});
 
   final String id;
   final double lat;
@@ -20,7 +20,10 @@ class MapMarker {
   final Color color;
   final String? imageUrl;
 
-  String get imageKey => 'pin-${color.toARGB32()}-${imageUrl ?? ''}';
+  /// An agent's position: a round person marker, not a shop pin.
+  final bool agent;
+
+  String get imageKey => agent ? 'agent-${color.toARGB32()}' : 'pin-${color.toARGB32()}-${imageUrl ?? ''}';
 }
 
 /// Camera commands for the floating controls (zoom, recenter).
@@ -187,11 +190,16 @@ class _AppMapViewState extends State<AppMapView> {
     if (gone.isNotEmpty) await map.removeSymbols([for (final id in gone) _symbols.remove(id)!]);
     for (final m in widget.markers) {
       if (!_added.contains(m.imageKey)) {
-        await map.addImage(m.imageKey, await renderPin(m.color, await _photo(m.imageUrl)));
+        await map.addImage(m.imageKey, m.agent ? await renderAgentDot(m.color) : await renderPin(m.color, await _photo(m.imageUrl)));
         _added.add(m.imageKey);
       }
       // MapLibre sizes icons in physical pixels: the 3x pin at devicePixelRatio / 3 is 37 dp wide.
-      final options = SymbolOptions(geometry: LatLng(m.lat, m.lng), iconImage: m.imageKey, iconAnchor: 'bottom', iconSize: _dpr / _pinScale);
+      final options = SymbolOptions(
+        geometry: LatLng(m.lat, m.lng),
+        iconImage: m.imageKey,
+        iconAnchor: m.agent ? 'center' : 'bottom',
+        iconSize: _dpr / _pinScale,
+      );
       final existing = _symbols[m.id];
       if (existing == null) {
         _symbols[m.id] = await map.addSymbol(options, {'id': m.id});
@@ -246,6 +254,28 @@ class _AppMapViewState extends State<AppMapView> {
 }
 
 const _pinScale = 3.0;
+
+/// An agent on the admin map at 3x: a 28 px accent dot with a white ring and a person glyph, so it can't be
+/// taken for a shop pin.
+Future<Uint8List> renderAgentDot(Color color) async {
+  const s = _pinScale;
+  const size = 28 * s;
+  final recorder = ui.PictureRecorder();
+  final canvas = Canvas(recorder);
+  const center = Offset(size / 2, size / 2);
+  canvas.drawCircle(center, size / 2, Paint()..color = Colors.white);
+  canvas.drawCircle(center, size / 2 - 2.5 * s, Paint()..color = color);
+  final glyph = TextPainter(
+    text: TextSpan(
+      text: String.fromCharCode(Icons.person.codePoint),
+      style: TextStyle(fontFamily: Icons.person.fontFamily, package: Icons.person.fontPackage, fontSize: 16 * s, color: Colors.white),
+    ),
+    textDirection: TextDirection.ltr,
+  )..layout();
+  glyph.paint(canvas, center - Offset(glyph.width / 2, glyph.height / 2));
+  final image = await recorder.endRecording().toImage(size.ceil(), size.ceil());
+  return (await image.toByteData(format: ui.ImageByteFormat.png))!.buffer.asUint8List();
+}
 
 /// Draws the `83:17686` pin at 3x: 37 px ring, 30.7 px photo with a white edge, pointer.
 Future<Uint8List> renderPin(Color ring, ui.Image? photo) async {

@@ -88,6 +88,14 @@ class _AdminMapScreenState extends ConsumerState<AdminMapScreen> {
     } catch (_) {}
   }
 
+  /// The web admin's "no signal" limit (company settings, 45 min by default); both times are the phone's.
+  static const _lately = Duration(minutes: 45);
+
+  static bool _seenLately(Json p) {
+    final at = DateTime.tryParse(p['recordedAt'] as String? ?? '');
+    return at != null && DateTime.now().difference(at) <= _lately;
+  }
+
   Future<void> _select(String id) async {
     if (id.startsWith('agent:')) return;
     // The tapped pin moves to the middle of the map.
@@ -122,7 +130,7 @@ class _AdminMapScreenState extends ConsumerState<AdminMapScreen> {
       _Filter.recent => base.where(_recent).toList(),
     };
 
-    final key = '${shown.map((s) => '${s['id']}${s['visitState']}').join()}|$_selected|${_positions.length}|${c.accent}';
+    final key = '${shown.map((s) => '${s['id']}${s['visitState']}').join()}|$_selected|${_positions.where(_seenLately).length}|${c.accent}';
     if (key != _markersKey) {
       _markersKey = key;
       _markers = [
@@ -140,8 +148,10 @@ class _AdminMapScreenState extends ConsumerState<AdminMapScreen> {
                 ? c.textSecondary
                 : c.error,
           ),
+        // Agents seen lately only (a position from yesterday is no longer where they are).
         for (final p in _positions)
-          MapMarker(id: 'agent:${p['agentId']}', lat: (p['lat'] as num).toDouble(), lng: (p['lng'] as num).toDouble(), color: c.accent),
+          if (_seenLately(p))
+            MapMarker(id: 'agent:${p['agentId']}', lat: (p['lat'] as num).toDouble(), lng: (p['lng'] as num).toDouble(), color: c.accent, agent: true),
       ];
     }
 
