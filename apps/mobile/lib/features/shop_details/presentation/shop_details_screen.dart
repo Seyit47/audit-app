@@ -353,11 +353,11 @@ class _ShopDetailsScreenState extends ConsumerState<ShopDetailsScreen> {
     final meters = v.accuracyM?.round();
     return AuditHistoryItem(
       date: longDateTime(context, v.at),
-      coords: v.lat == null ? null : coords(v.lat!, v.lng!),
       status: v.pending ? l10n.pendingSync : null,
       statusColor: c.accent,
       note: v.comment.isEmpty ? null : ViolationNote(text: v.comment, violationLabel: v.hasViolation ? l10n.violationRecorded : null),
       photos: v.photoUrls,
+      fullPhotos: v.fullPhotoUrls,
       photoTotal: v.photoCount,
       photosLabel: l10n.photoMaterials(v.photoCount),
       moreLabel: (n) => l10n.morePhotos(n),

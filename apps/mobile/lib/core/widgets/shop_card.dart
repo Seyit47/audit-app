@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import 'app_icon.dart';
+import 'app_image.dart';
 import 'tap.dart';
 
 /// Small rounded tag of `246:23300` ("СУПЕРМАРКЕТ", "CL-102").
@@ -92,9 +93,13 @@ class ShopCard extends StatelessWidget {
     this.onNavigate,
     this.callLabel,
     this.navigateLabel,
+    this.image,
   });
 
   final Widget? header;
+
+  /// The storefront photo in front of the name and address (admin shop list).
+  final String? image;
   final String title;
   final Widget? titleTrailing;
   final Widget subtitle;
@@ -130,6 +135,22 @@ class ShopCard extends StatelessWidget {
         ),
       ),
     );
+    final titleRow = Padding(
+      padding: const EdgeInsets.only(top: 2.5),
+      child: Row(
+        children: [
+          Flexible(
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 16, height: 1.5, fontWeight: FontWeight.w700, color: c.textPrimary),
+            ),
+          ),
+          if (titleTrailing != null) ...[const SizedBox(width: 8), titleTrailing!],
+        ],
+      ),
+    );
     return Container(
       padding: const EdgeInsets.all(16),
       clipBehavior: Clip.antiAlias,
@@ -146,23 +167,23 @@ class ShopCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (header != null) ...[header!, const SizedBox(height: 1.5)],
-              Padding(
-                padding: const EdgeInsets.only(top: 2.5),
-                child: Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 16, height: 1.5, fontWeight: FontWeight.w700, color: c.textPrimary),
+              if (image != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Row(
+                    children: [
+                      AppImage(image, width: 56, height: 56, radius: 12),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [titleRow, subtitle]),
                       ),
-                    ),
-                    if (titleTrailing != null) ...[const SizedBox(width: 8), titleTrailing!],
-                  ],
-                ),
-              ),
-              subtitle,
+                    ],
+                  ),
+                )
+              else ...[
+                titleRow,
+                subtitle,
+              ],
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.only(top: 10),

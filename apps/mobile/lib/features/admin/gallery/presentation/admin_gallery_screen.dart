@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/l10n/app_localizations.dart';
+import '../../shops/shop_labels.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_icon.dart';
@@ -255,6 +256,10 @@ class AdminPhotoDetailScreen extends ConsumerWidget {
       lng: (shop?['lng'] as num?)?.toDouble(),
       comment: (audit?['comment'] as String?) ?? '',
       hasViolation: audit?['hasViolation'] == true,
+      shopType: shop == null ? null : shopTypeLabel(AppLocalizations.of(context), shop['type'] as String?),
+      shopCode: shop?['code'] as String?,
+      agentName: (p['responsible'] as Map?)?['fullName'] as String?,
+      agentAudits: (p['responsible'] as Map?)?['audits'] as int?,
     );
   }
 }

@@ -1164,4 +1164,10 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get updateFailed => 'Täzelenmäni ýükläp bolmady. Aragatnaşygy barlaň we täzeden synanyşyň.';
+
+  @override
+  String get approveShop => 'Tassykla';
+
+  @override
+  String get shopApproved => 'Dükan tassyklandy';
 }

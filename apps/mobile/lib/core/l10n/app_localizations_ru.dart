@@ -1166,4 +1166,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get updateFailed => 'Не удалось скачать обновление. Проверьте связь и попробуйте снова.';
+
+  @override
+  String get approveShop => 'Подтвердить';
+
+  @override
+  String get shopApproved => 'Магазин подтверждён';
 }

@@ -344,5 +344,7 @@
   "updatePermission": "Täzelenmäni gurmaga rugsat beriň: sazlamalarda «Bu çeşmeden rugsat ber» açyň, soň programma gaýdyp geliň.",
   "updateReady": "Açylan penjirede guramagy tassyklaň. Telefondaky maglumatlar saklanar.",
   "updateInstall": "Gur",
-  "updateFailed": "Täzelenmäni ýükläp bolmady. Aragatnaşygy barlaň we täzeden synanyşyň."
+  "updateFailed": "Täzelenmäni ýükläp bolmady. Aragatnaşygy barlaň we täzeden synanyşyň.",
+  "approveShop": "Tassykla",
+  "shopApproved": "Dükan tassyklandy"
 }

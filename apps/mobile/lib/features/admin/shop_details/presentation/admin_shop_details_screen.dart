@@ -213,6 +213,7 @@ class AdminShopDetailsScreen extends ConsumerWidget {
                               ),
                             ],
                           ),
+                          if (s['status'] == 'PENDING_REVIEW') ...[const SizedBox(height: 12), _ApproveButton(shopId: shopId, version: s['version'] as int)],
                           const SizedBox(height: 16),
                           Row(
                             children: [
@@ -462,12 +463,14 @@ class AdminShopDetailsScreen extends ConsumerWidget {
     // 248:24538: date and duration, the comment, photos (no coordinates, violation line or GPS footer).
     final minutes = v['durationMin'] as int?;
     final comment = (v['comment'] as String?) ?? '';
-    final photos = [for (final p in (v['photos'] as List? ?? const []).cast<Map>()) (p['previewUrl400'] ?? p['url']) as String];
+    final shown = (v['photos'] as List? ?? const []).cast<Map>();
+    final photos = [for (final p in shown) (p['previewUrl400'] ?? p['url']) as String];
     return AuditHistoryItem(
       date: longDateTime(context, at),
       duration: minutes == null ? null : l10n.visitDuration(minutes),
       note: comment.isEmpty ? null : ViolationNote(text: comment),
       photos: photos,
+      fullPhotos: [for (final p in shown) (p['url'] ?? p['previewUrl400']) as String?],
       photoTotal: (v['photoCount'] as int?) ?? photos.length,
       photosLabel: l10n.photoMaterials((v['photoCount'] as int?) ?? photos.length),
       moreLabel: l10n.morePhotos,
@@ -505,4 +508,64 @@ class AdminShopDetailsScreen extends ConsumerWidget {
   }
 
   void _share(Json s) => SharePlus.instance.share(ShareParams(text: '${s['name']}\n${s['address']}\nhttps://maps.google.com/?q=${s['lat']},${s['lng']}'));
+}
+
+/// "Подтвердить" under the name of a shop an agent added (На проверке): makes it active, as the web
+/// admin's approve does. Not a Figma frame (approved exception), in the app's button style.
+class _ApproveButton extends ConsumerStatefulWidget {
+  const _ApproveButton({required this.shopId, required this.version});
+
+  final String shopId;
+  final int version;
+
+  @override
+  ConsumerState<_ApproveButton> createState() => _ApproveButtonState();
+}
+
+class _ApproveButtonState extends ConsumerState<_ApproveButton> {
+  bool _busy = false;
+
+  Future<void> _approve() async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _busy = true);
+    try {
+      await ref.read(adminApiProvider).updateShop(widget.shopId, {'version': widget.version, 'status': 'ACTIVE'});
+      messenger.showSnackBar(SnackBar(content: Text(l10n.shopApproved)));
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.errorGeneric)));
+    } finally {
+      // Reloads either way: on a conflict (someone else changed it) the screen shows the current state.
+      ref.invalidate(_shopDataProvider(widget.shopId));
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Material(
+      color: c.success,
+      borderRadius: BorderRadius.circular(12),
+      child: Pressable(
+        borderRadius: BorderRadius.circular(12),
+        onTap: _busy ? null : _approve,
+        child: SizedBox(
+          height: 44,
+          child: Center(
+            child: _busy
+                ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const AppIcon('check-white', width: 12, height: 12),
+                      const SizedBox(width: 8),
+                      Text(AppLocalizations.of(context).approveShop, style: AppTextStyles.label.copyWith(color: Colors.white, fontSize: 14)),
+                    ],
+                  ),
+          ),
+        ),
+      ),
+    );
+  }
 }

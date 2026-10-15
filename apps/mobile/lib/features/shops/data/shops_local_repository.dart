@@ -21,6 +21,7 @@ class ShopVisit {
     this.lng,
     this.accuracyM,
     this.photoUrls = const [],
+    this.fullPhotoUrls = const [],
     this.photoCount = 0,
     this.pending = false,
   });
@@ -37,6 +38,9 @@ class ShopVisit {
 
   /// Network URLs or local file paths (`/…`) for unsynced photos.
   final List<String> photoUrls;
+
+  /// The same photos at full size, for the full-screen viewer.
+  final List<String> fullPhotoUrls;
   final int photoCount;
   final bool pending;
 }
@@ -105,6 +109,7 @@ class ShopsLocalRepository {
             lng: a.lng,
             accuracyM: a.gpsAccuracyM,
             photoUrls: [for (final p in photos) p.previewUrl ?? p.localPath ?? ''],
+            fullPhotoUrls: [for (final p in photos) p.localPath ?? p.url ?? p.previewUrl ?? ''],
             photoCount: photos.length,
             pending: !a.synced,
           ),
@@ -133,6 +138,7 @@ class ShopsLocalRepository {
           lng: (v['lng'] as num?)?.toDouble(),
           accuracyM: (v['gpsAccuracyM'] as num?)?.toDouble(),
           photoUrls: [for (final p in (v['photos'] as List? ?? const []).cast<Map>()) (p['previewUrl400'] ?? p['url']) as String],
+          fullPhotoUrls: [for (final p in (v['photos'] as List? ?? const []).cast<Map>()) (p['url'] ?? p['previewUrl400']) as String],
           photoCount: (v['photoCount'] as int?) ?? 0,
         ),
     ];

@@ -10,6 +10,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_icon.dart';
 import '../../../../core/widgets/app_image.dart';
+import '../../../../core/widgets/photo_viewer.dart';
 import '../../../../core/widgets/app_top_bar.dart';
 import '../../../../core/widgets/map_view.dart';
 import '../../../../core/widgets/shop_card.dart';
@@ -508,7 +509,10 @@ class _AgentDetailsScreenState extends ConsumerState<AgentDetailsScreen> {
     final shop = (v['shop'] as Map).cast<String, dynamic>();
     final at = DateTime.parse(v['at'] as String);
     final when = missed ? _day(context, l10n, at) : '${_day(context, l10n, DateTime.parse(v['startedAt'] as String))} — ${hhmm(at)}';
-    final photos = [for (final p in (v['photos'] as List? ?? const []).cast<Map>()) (p['previewUrl400'] ?? p['url']) as String];
+    final shown = (v['photos'] as List? ?? const []).cast<Map>();
+    final photos = [for (final p in shown) (p['previewUrl400'] ?? p['url']) as String];
+    final full = [for (final p in shown) p['url'] as String?];
+    final facade = (shop['facade'] as Map?)?.cast<String, dynamic>();
     final comment = (v['comment'] as String?) ?? '';
     return Container(
       padding: const EdgeInsets.all(16),
@@ -560,7 +564,7 @@ class _AgentDetailsScreenState extends ConsumerState<AgentDetailsScreen> {
           const SizedBox(height: 12),
           Row(
             children: [
-              AppImage(photos.firstOrNull, width: 48, height: 48),
+              AppImage((facade?['previewUrl400'] ?? facade?['url']) as String?, width: 48, height: 48),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -600,7 +604,16 @@ class _AgentDetailsScreenState extends ConsumerState<AgentDetailsScreen> {
               children: [
                 for (final (i, url) in photos.take(5).indexed) ...[
                   if (i > 0) const SizedBox(width: 8),
-                  Expanded(child: AspectRatio(aspectRatio: 1, child: AppImage(url))),
+                  Expanded(
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: InkOverlay(
+                        radius: 8,
+                        onTap: () => showPhotoViewer(context, full, initial: i),
+                        child: AppImage(url),
+                      ),
+                    ),
+                  ),
                 ],
                 for (var i = photos.length; i < 5; i++) ...[const SizedBox(width: 8), const Expanded(child: SizedBox())],
               ],

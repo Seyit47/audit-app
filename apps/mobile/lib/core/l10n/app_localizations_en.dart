@@ -1164,4 +1164,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updateFailed => 'Couldn\'t download the update. Check the connection and try again.';
+
+  @override
+  String get approveShop => 'Approve';
+
+  @override
+  String get shopApproved => 'Shop approved';
 }

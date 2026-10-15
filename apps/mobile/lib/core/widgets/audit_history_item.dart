@@ -4,6 +4,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import 'app_icon.dart';
 import 'app_image.dart';
+import 'photo_viewer.dart';
 import 'tap.dart';
 
 /// "Зафиксировано нарушение" note or a plain comment box of `83:17057` (83:17149).
@@ -66,7 +67,11 @@ class AuditHistoryItem extends StatelessWidget {
     this.status,
     this.statusColor,
     this.duration,
+    this.fullPhotos,
   });
+
+  /// Full-size photos for the full-screen viewer (tapping a tile opens it); null: tiles aren't tappable.
+  final List<String?>? fullPhotos;
 
   final String date;
   final String? coords;
@@ -157,7 +162,14 @@ class AuditHistoryItem extends StatelessWidget {
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
-                          AppImage(url),
+                          if (fullPhotos case final full?)
+                            InkOverlay(
+                              radius: 8,
+                              onTap: () => showPhotoViewer(context, full, initial: i),
+                              child: AppImage(url),
+                            )
+                          else
+                            AppImage(url),
                           if (i == 4 && hidden > 0)
                             DecoratedBox(
                               decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.4), borderRadius: BorderRadius.circular(8)),

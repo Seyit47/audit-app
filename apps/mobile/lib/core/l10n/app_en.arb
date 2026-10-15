@@ -344,5 +344,7 @@
   "updatePermission": "Allow installing the update: in settings turn on “Allow from this source”, then come back to the app.",
   "updateReady": "Confirm the installation in the window that opened. Data on the phone is kept.",
   "updateInstall": "Install",
-  "updateFailed": "Couldn't download the update. Check the connection and try again."
+  "updateFailed": "Couldn't download the update. Check the connection and try again.",
+  "approveShop": "Approve",
+  "shopApproved": "Shop approved"
 }

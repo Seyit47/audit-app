@@ -272,6 +272,7 @@ class _AdminShopsScreenState extends ConsumerState<AdminShopsScreen> {
         children: [Tag(shopTypeLabel(l10n, s['type'] as String?), strong: true), const SizedBox(width: 6), Tag(s['code'] as String), const Spacer(), right],
       ),
       title: s['name'] as String,
+      image: ((s['facade'] as Map?)?['previewUrl400'] ?? (s['facade'] as Map?)?['url']) as String?,
       subtitle: IconLine(icon: 'pin-small', text: s['address'] as String),
       footer: Row(
         children: [

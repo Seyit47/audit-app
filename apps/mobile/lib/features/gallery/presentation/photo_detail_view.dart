@@ -10,10 +10,14 @@ import '../../../core/widgets/app_image.dart';
 import '../../../core/widgets/app_top_bar.dart';
 import '../../../core/widgets/audit_history_item.dart';
 import '../../../core/widgets/photo_grid.dart';
+import '../../../core/widgets/photo_viewer.dart';
+import '../../../core/widgets/shop_card.dart';
 import '../../../core/widgets/tap.dart';
 
 /// Photo detail of `83:18045` / `248:24402`: date and time, the shop, the audit note and the
-/// related audit photos, under the selected photo shown full width. Tapping a photo opens it full screen.
+/// related audit photos, under the selected photo shown full width. Swipe the photo for the next one;
+/// tapping it opens them full screen. The admin's (248:24402) shows the shop's type and code and the
+/// responsible agent instead of the coordinates.
 class PhotoDetailView extends StatefulWidget {
   const PhotoDetailView({
     super.key,
@@ -27,6 +31,10 @@ class PhotoDetailView extends StatefulWidget {
     this.meters,
     this.comment = '',
     this.hasViolation = false,
+    this.shopType,
+    this.shopCode,
+    this.agentName,
+    this.agentAudits,
   });
 
   final String photoId;
@@ -40,12 +48,35 @@ class PhotoDetailView extends StatefulWidget {
   final String comment;
   final bool hasViolation;
 
+  /// Admin (248:24402): the type label and code badges, and "Агент: …" with their audits in total.
+  final String? shopType;
+  final String? shopCode;
+  final String? agentName;
+  final int? agentAudits;
+
   @override
   State<PhotoDetailView> createState() => _PhotoDetailViewState();
 }
 
 class _PhotoDetailViewState extends State<PhotoDetailView> {
   late String _selected = widget.photoId;
+  late final _pages = PageController(initialPage: _indexOf(widget.photoId));
+
+  int _indexOf(String id) => widget.related.indexWhere((p) => p.id == id).clamp(0, widget.related.length - 1);
+
+  @override
+  void dispose() {
+    _pages.dispose();
+    super.dispose();
+  }
+
+  void _select(String id) {
+    setState(() => _selected = id);
+    _pages.animateToPage(_indexOf(id), duration: const Duration(milliseconds: 250), curve: Curves.easeOutCubic);
+  }
+
+  void _fullScreen(BuildContext context, GridPhoto p) =>
+      showPhotoViewer(context, [for (final r in widget.related) r.full], initial: widget.related.indexWhere((r) => r.id == p.id));
 
   @override
   Widget build(BuildContext context) {
@@ -90,10 +121,16 @@ class _PhotoDetailViewState extends State<PhotoDetailView> {
               child: ListView(
                 padding: const EdgeInsets.only(bottom: 16),
                 children: [
-                  // 575:3676 / 248:24429: the selected photo, full width and square; tap for full screen.
+                  // 575:3676 / 248:24429: the selected photo, full width and square; swipe for the next, tap for full screen.
                   AspectRatio(
                     aspectRatio: 1,
-                    child: InkOverlay(onTap: () => _fullScreen(context, current), child: AppImage(current.full, radius: 0)),
+                    child: PageView.builder(
+                      controller: _pages,
+                      itemCount: widget.related.length,
+                      onPageChanged: (i) => setState(() => _selected = widget.related[i].id),
+                      itemBuilder: (context, i) =>
+                          InkOverlay(onTap: () => _fullScreen(context, widget.related[i]), child: AppImage(widget.related[i].full, radius: 0)),
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
@@ -122,7 +159,15 @@ class _PhotoDetailViewState extends State<PhotoDetailView> {
                                       overflow: TextOverflow.ellipsis,
                                       style: text.copyWith(fontWeight: FontWeight.w500),
                                     ),
-                                    if (widget.lat != null) ...[
+                                    if (widget.shopType != null || widget.shopCode != null) ...[
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          if (widget.shopType != null) ...[Tag(widget.shopType!, strong: true), const SizedBox(width: 8)],
+                                          if (widget.shopCode != null) Tag(widget.shopCode!),
+                                        ],
+                                      ),
+                                    ] else if (widget.lat != null) ...[
                                       const SizedBox(height: 4),
                                       Row(
                                         children: [
@@ -158,6 +203,25 @@ class _PhotoDetailViewState extends State<PhotoDetailView> {
                               ),
                             ],
                           ),
+                        if (widget.agentName != null) ...[
+                          const SizedBox(height: 12),
+                          // 248:24491: a hairline above "Агент: …" and the audits in total.
+                          Container(
+                            padding: const EdgeInsets.only(top: 10),
+                            decoration: BoxDecoration(
+                              border: Border(top: BorderSide(color: c.border)),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: IconLine(icon: 'person-small', iconSize: const Size(10, 10), text: l10n.agentLabel, bold: widget.agentName),
+                                ),
+                                if (widget.agentAudits != null)
+                                  IconLine(icon: 'history', iconSize: const Size(11.25, 11.25), text: l10n.auditsTotal(widget.agentAudits!)),
+                              ],
+                            ),
+                          ),
+                        ],
                         if (widget.comment.isNotEmpty) ...[
                           const SizedBox(height: 12),
                           ViolationNote(text: widget.comment, violationLabel: widget.hasViolation ? l10n.violationRecorded : null),
@@ -179,7 +243,7 @@ class _PhotoDetailViewState extends State<PhotoDetailView> {
                               final on = p.id == _selected;
                               return InkOverlay(
                                 radius: 8,
-                                onTap: () => on ? _fullScreen(context, p) : setState(() => _selected = p.id),
+                                onTap: () => on ? _fullScreen(context, p) : _select(p.id),
                                 child: Container(
                                   width: 60,
                                   height: 60,
@@ -205,15 +269,4 @@ class _PhotoDetailViewState extends State<PhotoDetailView> {
       ),
     );
   }
-
-  void _fullScreen(BuildContext context, GridPhoto p) => showDialog<void>(
-    context: context,
-    barrierColor: Colors.black,
-    builder: (context) => GestureDetector(
-      onTap: () => Navigator.pop(context),
-      child: InteractiveViewer(
-        child: Center(child: AppImage(p.full, radius: 0, fit: BoxFit.contain)),
-      ),
-    ),
-  );
 }

@@ -2162,6 +2162,18 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Не удалось скачать обновление. Проверьте связь и попробуйте снова.'**
   String get updateFailed;
+
+  /// No description provided for @approveShop.
+  ///
+  /// In ru, this message translates to:
+  /// **'Подтвердить'**
+  String get approveShop;
+
+  /// No description provided for @shopApproved.
+  ///
+  /// In ru, this message translates to:
+  /// **'Магазин подтверждён'**
+  String get shopApproved;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
