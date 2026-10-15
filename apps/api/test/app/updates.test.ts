@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import type { FastifyInstance } from 'fastify'
 import { build } from '../helper.js'
+import { byteRange } from '../../src/routes/v1/app/index.js'
 
 let app: FastifyInstance
 let dir: string
@@ -31,8 +32,28 @@ test('latest.json and the APK it names: public, with the download size; the APK 
 
   const apk = await app.inject({ url: res.json().url })
   assert.strictEqual(apk.statusCode, 200)
-  assert.strictEqual(apk.headers['content-type'], 'application/vnd.android.package-archive')
+  assert.strictEqual(apk.headers['content-type'], 'application/octet-stream')
+  assert.strictEqual(apk.headers['accept-ranges'], 'bytes')
   assert.strictEqual(apk.rawPayload.length, 1234)
+
+  // Pieces: the phone downloads in ranges.
+  const piece = await app.inject({ url: res.json().url, headers: { range: 'bytes=1000-' } })
+  assert.strictEqual(piece.statusCode, 206)
+  assert.strictEqual(piece.headers['content-range'], 'bytes 1000-1233/1234')
+  assert.strictEqual(piece.rawPayload.length, 234)
+  const first = await app.inject({ url: res.json().url, headers: { range: 'bytes=0-99' } })
+  assert.strictEqual(first.rawPayload.length, 100)
+  assert.strictEqual((await app.inject({ url: res.json().url, headers: { range: 'bytes=5000-' } })).statusCode, 416)
+})
+
+test('byte ranges', () => {
+  assert.deepStrictEqual(byteRange('bytes=0-9', 100), { start: 0, end: 9 })
+  assert.deepStrictEqual(byteRange('bytes=90-', 100), { start: 90, end: 99 })
+  assert.deepStrictEqual(byteRange('bytes=-10', 100), { start: 90, end: 99 })
+  assert.deepStrictEqual(byteRange('bytes=50-500', 100), { start: 50, end: 99 })
+  assert.strictEqual(byteRange(undefined, 100), null)
+  assert.strictEqual(byteRange('bytes=100-', 100), 'invalid')
+  assert.strictEqual(byteRange('items=0-1', 100), 'invalid')
 })
 
 test('a broken latest.json or a missing APK is a server error; file names cannot leave the folder', async () => {

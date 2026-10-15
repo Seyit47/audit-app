@@ -26,6 +26,16 @@ function parse (raw: string | null): unknown {
   }
 }
 
+/** `bytes=start-end` / `bytes=start-` / `bytes=-suffix` within [size]; null without a Range header. */
+export function byteRange (header: string | undefined, size: number): { start: number, end: number } | 'invalid' | null {
+  if (header == null) return null
+  const m = /^bytes=(\d*)-(\d*)$/.exec(header.trim())
+  if (m == null || (m[1] === '' && m[2] === '')) return 'invalid'
+  const start = m[1] === '' ? Math.max(0, size - Number(m[2])) : Number(m[1])
+  const end = m[1] === '' || m[2] === '' ? size - 1 : Math.min(Number(m[2]), size - 1)
+  return start > end || start >= size ? 'invalid' : { start, end }
+}
+
 const noUpdate = () => new AppError(404, 'NOT_FOUND', 'No app update published')
 
 /**
@@ -53,16 +63,23 @@ const app: FastifyPluginAsyncTypebox = async (fastify) => {
     }
   })
 
+  // Ranges, so the phone fetches the APK in pieces on fresh connections: the production network cuts
+  // connections ~2 MB into an APK download, and an interrupted download continues where it stopped.
+  // Sent as a plain binary file, which filters that block "Android app" downloads let through.
   fastify.get('/apk/:file', { schema: { params: File, tags: ['app'] } }, async (req, reply) => {
     if (dir() === '') throw noUpdate()
     const path = join(dir(), req.params.file)
     const size = await stat(path).then((s) => s.size, () => null)
     if (size == null) throw noUpdate()
+    reply.header('Content-Type', 'application/octet-stream').header('Accept-Ranges', 'bytes')
+    const range = byteRange(req.headers.range, size)
+    if (range === 'invalid') return reply.status(416).header('Content-Range', `bytes */${size}`).send()
+    if (range == null) return reply.header('Content-Length', size).send(createReadStream(path))
     return reply
-      .header('Content-Type', 'application/vnd.android.package-archive')
-      .header('Content-Length', size)
-      .header('Content-Disposition', `attachment; filename="${req.params.file}"`)
-      .send(createReadStream(path))
+      .status(206)
+      .header('Content-Range', `bytes ${range.start}-${range.end}/${size}`)
+      .header('Content-Length', range.end - range.start + 1)
+      .send(createReadStream(path, range))
   })
 }
 export default app

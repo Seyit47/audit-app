@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -56,10 +57,13 @@ final appVersionProvider = FutureProvider<(String, int)>((ref) async {
 
 /// Checks, downloads and installs updates (Android only: iOS apps update through the App Store or MDM).
 class UpdateService {
-  UpdateService(this._apiUrl);
+  UpdateService(this._apiUrl, {Dio? dio, Future<Directory> Function()? cacheDir})
+    : _dio = dio ?? Dio(BaseOptions(connectTimeout: const Duration(seconds: 15))),
+      _cacheDir = cacheDir ?? getTemporaryDirectory;
 
   final String Function() _apiUrl;
-  final _dio = Dio(BaseOptions(connectTimeout: const Duration(seconds: 15)));
+  final Dio _dio;
+  final Future<Directory> Function() _cacheDir;
   static const _installer = MethodChannel('audit/installer');
 
   /// The published update when it is newer than this app; null otherwise or when the server can't be reached.
@@ -81,28 +85,68 @@ class UpdateService {
     }
   }
 
-  /// Downloads the APK into the app's cache (reused when already complete) and returns its path.
+  /// Downloads the APK into the app's cache (kept when already complete) and returns its path.
+  ///
+  /// In [piece]-sized ranges, each on a new connection and retried a few times: the server's network cuts
+  /// a connection ~2 MB into an APK, and a weak mobile signal drops some. A part left by an interrupted
+  /// download is continued, not started over.
   Future<String> download(AppUpdate update, {required void Function(double fraction) onProgress, CancelToken? cancel}) async {
-    final dir = Directory(p.join((await getTemporaryDirectory()).path, 'updates'));
+    final dir = Directory(p.join((await _cacheDir()).path, 'updates'));
     await dir.create(recursive: true);
     final path = p.join(dir.path, 'audit-${update.build}.apk');
     final file = File(path);
-    if (await file.exists() && await file.length() == update.sizeBytes) return path;
     // Older downloads are of no use any more.
     await for (final old in dir.list()) {
       if (old.path != path) await old.delete();
     }
-    await _dio.download(
-      '${_apiUrl()}${update.url}',
-      path,
-      cancelToken: cancel,
-      onReceiveProgress: (received, total) => onProgress(received / (total > 0 ? total : update.sizeBytes)),
-    );
-    if (await file.length() != update.sizeBytes) {
+    var done = await file.exists() ? await file.length() : 0;
+    if (done > update.sizeBytes) {
       await file.delete();
-      throw const FileSystemException('The download is incomplete');
+      done = 0;
+    }
+    final out = file.openSync(mode: FileMode.append);
+    try {
+      while (done < update.sizeBytes) {
+        final end = (done + piece < update.sizeBytes ? done + piece : update.sizeBytes) - 1;
+        final bytes = await _piece(update.url, done, end, cancel);
+        out.writeFromSync(bytes);
+        done += bytes.length;
+        onProgress(done / update.sizeBytes);
+      }
+    } finally {
+      out.closeSync();
     }
     return path;
+  }
+
+  /// 1 MB: well under where the server's network cuts a connection.
+  static const piece = 1024 * 1024;
+
+  /// Wait before retrying a piece (times the attempt); tests shorten it.
+  @visibleForTesting
+  static Duration retryDelay = const Duration(seconds: 1);
+
+  Future<List<int>> _piece(String url, int start, int end, CancelToken? cancel) async {
+    for (var attempt = 1; ; attempt++) {
+      try {
+        final res = await _dio.get<List<int>>(
+          '${_apiUrl()}$url',
+          cancelToken: cancel,
+          options: Options(
+            responseType: ResponseType.bytes,
+            headers: {'Range': 'bytes=$start-$end', 'Connection': 'close'},
+            receiveTimeout: const Duration(seconds: 30),
+          ),
+        );
+        final bytes = res.data ?? const [];
+        // 206 with the asked range; a server without ranges (200) would resend the whole file.
+        if (res.statusCode != 206 || bytes.length != end - start + 1) throw const FileSystemException('Unexpected download range');
+        return bytes;
+      } on DioException catch (e) {
+        if (CancelToken.isCancel(e) || attempt >= 4) rethrow;
+        await Future<void>.delayed(retryDelay * attempt);
+      }
+    }
   }
 
   /// Whether Android lets this app install APKs ("Install unknown apps"), asked once per phone.
