@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/l10n/app_localizations.dart';
 import '../../shops/shop_labels.dart';
+import '../../../gallery/presentation/audit_sequence.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_icon.dart';
@@ -209,7 +210,14 @@ class _AdminGalleryScreenState extends ConsumerState<AdminGalleryScreen> {
                   ),
                 )
               else
-                PhotoDayGrid(photos: [for (final p in _items) _grid(p)], todayLabel: l10n.todayDate, onTap: (p) => context.push('/admin/gallery/${p.id}')),
+                PhotoDayGrid(
+                  photos: [for (final p in _items) _grid(p)],
+                  todayLabel: l10n.todayDate,
+                  onTap: (p) => context.push(
+                    '/admin/gallery/${p.id}',
+                    extra: <(String, String)>[for (final i in _items) (i['id'] as String, (i['auditId'] ?? i['id']) as String)],
+                  ),
+                ),
               if (_loading && _items.isNotEmpty)
                 const SliverToBoxAdapter(
                   child: Padding(
@@ -230,9 +238,12 @@ final _photoProvider = FutureProvider.autoDispose.family<Json, String>((ref, id)
 
 /// Admin mobile Photo detail (`248:24402`) from `GET /photos/:id`.
 class AdminPhotoDetailScreen extends ConsumerWidget {
-  const AdminPhotoDetailScreen({super.key, required this.photoId});
+  const AdminPhotoDetailScreen({super.key, required this.photoId, this.sequence});
 
   final String photoId;
+
+  /// The gallery's order, for swiping between audits (null when opened from elsewhere).
+  final GallerySequence? sequence;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -260,6 +271,10 @@ class AdminPhotoDetailScreen extends ConsumerWidget {
       shopCode: shop?['code'] as String?,
       agentName: (p['responsible'] as Map?)?['fullName'] as String?,
       agentAudits: (p['responsible'] as Map?)?['audits'] as int?,
+      onPrevAudit: _open(context, auditNeighbours(sequence, photoId).prev),
+      onNextAudit: _open(context, auditNeighbours(sequence, photoId).next),
     );
   }
+
+  VoidCallback? _open(BuildContext context, String? id) => id == null ? null : () => context.replace('/admin/gallery/$id', extra: sequence);
 }

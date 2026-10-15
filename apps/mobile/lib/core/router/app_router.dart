@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/gallery/presentation/audit_sequence.dart';
 import '../../features/sync/presentation/sync_screen.dart';
 import '../../features/update/updates_screen.dart';
 
@@ -65,7 +66,7 @@ final List<RouteBase> agentRoutes = [
     routes: [
       GoRoute(
         path: ':id',
-        builder: (_, state) => AgentPhotoDetailScreen(photoId: state.pathParameters['id']!),
+        builder: (_, state) => AgentPhotoDetailScreen(photoId: state.pathParameters['id']!, sequence: state.extra as GallerySequence?),
       ),
     ],
   ),
@@ -103,7 +104,7 @@ final List<RouteBase> adminRoutes = [
     routes: [
       GoRoute(
         path: ':id',
-        builder: (_, state) => AdminPhotoDetailScreen(photoId: state.pathParameters['id']!),
+        builder: (_, state) => AdminPhotoDetailScreen(photoId: state.pathParameters['id']!, sequence: state.extra as GallerySequence?),
       ),
     ],
   ),

@@ -14,6 +14,7 @@ import '../../../core/widgets/filter_chips.dart';
 import '../../../core/widgets/filter_sheet.dart';
 import '../../../core/widgets/photo_grid.dart';
 import '../data/gallery_repository.dart';
+import 'audit_sequence.dart';
 import 'photo_detail_view.dart';
 import '../../../core/widgets/form_field.dart';
 import '../../../core/widgets/tap.dart';
@@ -187,7 +188,8 @@ class _GalleryScreenState extends ConsumerState<GalleryScreen> {
               PhotoDayGrid(
                 photos: [for (final p in shown) GridPhoto(id: p.photo.id, image: p.image, full: p.full, takenAt: p.photo.takenAt)],
                 todayLabel: l10n.todayDate,
-                onTap: (p) => context.push('/agent/gallery/${p.id}'),
+                onTap: (p) =>
+                    context.push('/agent/gallery/${p.id}', extra: <(String, String)>[for (final g in shown) (g.photo.id, g.photo.auditId ?? g.photo.id)]),
               ),
             const SliverToBoxAdapter(child: SizedBox(height: 24)),
           ],
@@ -199,9 +201,12 @@ class _GalleryScreenState extends ConsumerState<GalleryScreen> {
 
 /// Agent photo detail (`83:18045` / `106:6710`).
 class AgentPhotoDetailScreen extends ConsumerWidget {
-  const AgentPhotoDetailScreen({super.key, required this.photoId});
+  const AgentPhotoDetailScreen({super.key, required this.photoId, this.sequence});
 
   final String photoId;
+
+  /// The gallery's order, for swiping between audits (null when opened from elsewhere).
+  final GallerySequence? sequence;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -224,6 +229,10 @@ class AgentPhotoDetailScreen extends ConsumerWidget {
       meters: shop == null ? null : distanceTo(ref.watch(positionProvider).value, shop.lat, shop.lng),
       comment: d.comment,
       hasViolation: d.hasViolation,
+      onPrevAudit: _open(context, auditNeighbours(sequence, photoId).prev),
+      onNextAudit: _open(context, auditNeighbours(sequence, photoId).next),
     );
   }
+
+  VoidCallback? _open(BuildContext context, String? id) => id == null ? null : () => context.replace('/agent/gallery/$id', extra: sequence);
 }
