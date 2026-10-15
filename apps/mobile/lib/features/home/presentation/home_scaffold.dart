@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/settings/app_settings.dart';
@@ -10,6 +11,7 @@ import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/home_header.dart';
 import '../../auth/data/sign_out_service.dart';
 import '../../auth/presentation/server_settings_sheet.dart';
+import '../../update/app_version_text.dart';
 import '../../../core/widgets/adaptive.dart';
 
 /// Layout shared by the agent and admin Home frames (`83:16786`, `101:1880`, `246:23129`):
@@ -50,8 +52,17 @@ class HomeScaffold extends ConsumerWidget {
                         AppMenuButton<String>(
                           tooltip: l10n.account,
                           header: profile == null ? null : _ProfileHeader(profile),
-                          choices: [if (serverSettings) MenuChoice('server', l10n.serverSettings), MenuChoice('signOut', l10n.signOut, destructive: true)],
-                          onSelected: (choice) => choice == 'server' ? openServerSettings(context, askPin: false) : ref.read(signOutServiceProvider).signOut(),
+                          choices: [
+                            MenuChoice('updates', l10n.updatesTitle),
+                            if (serverSettings) MenuChoice('server', l10n.serverSettings),
+                            MenuChoice('signOut', l10n.signOut, destructive: true),
+                          ],
+                          onSelected: (choice) => switch (choice) {
+                            // /agent/updates or /admin/updates
+                            'updates' => context.push('${GoRouterState.of(context).uri.path}/updates'),
+                            'server' => openServerSettings(context, askPin: false),
+                            _ => ref.read(signOutServiceProvider).signOut(),
+                          },
                           child: const AppIcon('avatar', width: 36, height: 36),
                         ),
                         const Spacer(),
@@ -90,6 +101,8 @@ class HomeScaffold extends ConsumerWidget {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  const AppVersionText(),
                 ],
               ),
             ),

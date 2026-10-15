@@ -58,18 +58,23 @@ class _UpdateGateState extends ConsumerState<UpdateGate> with WidgetsBindingObse
     final context = rootNavigatorKey.currentContext;
     if (context == null || !context.mounted || _showing) return;
     _showing = true;
-    final later = await showAdaptiveDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => _UpdateDialog(update: update, service: ref.read(updateServiceProvider)),
-    );
+    final later = await showUpdateDialog(context, update, ref.read(updateServiceProvider));
     _showing = false;
-    if (later ?? false) _postponed = update.build;
+    if (later) _postponed = update.build;
   }
 
   @override
   Widget build(BuildContext context) => widget.child;
 }
+
+/// The update dialog (also from the Updates screen); true when the agent chose "Later".
+Future<bool> showUpdateDialog(BuildContext context, AppUpdate update, UpdateService service) async =>
+    await showAdaptiveDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => _UpdateDialog(update: update, service: service),
+    ) ??
+    false;
 
 enum _Phase { offer, downloading, permission, ready, failed }
 

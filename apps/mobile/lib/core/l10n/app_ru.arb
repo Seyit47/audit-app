@@ -781,5 +781,28 @@
   "updateInstall": "Установить",
   "updateFailed": "Не удалось скачать обновление. Проверьте связь и попробуйте снова.",
   "approveShop": "Подтвердить",
-  "shopApproved": "Магазин подтверждён"
+  "shopApproved": "Магазин подтверждён",
+  "updatesTitle": "Обновления",
+  "versionLine": "Версия {version} ({build})",
+  "@versionLine": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "build": {
+        "type": "int"
+      }
+    }
+  },
+  "checkForUpdates": "Проверить обновления",
+  "updateUpToDate": "У вас последняя версия",
+  "updateAvailable": "Доступна версия {version}",
+  "@updateAvailable": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "updateUnreachable": "Не удалось связаться с сервером. Проверьте связь и попробуйте снова."
 }

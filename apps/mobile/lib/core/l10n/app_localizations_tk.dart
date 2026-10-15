@@ -1170,4 +1170,26 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get shopApproved => 'Dükan tassyklandy';
+
+  @override
+  String get updatesTitle => 'Täzelenmeler';
+
+  @override
+  String versionLine(String version, int build) {
+    return 'Wersiýa $version ($build)';
+  }
+
+  @override
+  String get checkForUpdates => 'Täzelenmäni barla';
+
+  @override
+  String get updateUpToDate => 'Siziň wersiýaňyz iň täze';
+
+  @override
+  String updateAvailable(String version) {
+    return '$version wersiýa elýeterli';
+  }
+
+  @override
+  String get updateUnreachable => 'Serwer bilen baglanyşyp bolmady. Aragatnaşygy barlaň we täzeden synanyşyň.';
 }

@@ -346,5 +346,11 @@
   "updateInstall": "Gur",
   "updateFailed": "Täzelenmäni ýükläp bolmady. Aragatnaşygy barlaň we täzeden synanyşyň.",
   "approveShop": "Tassykla",
-  "shopApproved": "Dükan tassyklandy"
+  "shopApproved": "Dükan tassyklandy",
+  "updatesTitle": "Täzelenmeler",
+  "versionLine": "Wersiýa {version} ({build})",
+  "checkForUpdates": "Täzelenmäni barla",
+  "updateUpToDate": "Siziň wersiýaňyz iň täze",
+  "updateAvailable": "{version} wersiýa elýeterli",
+  "updateUnreachable": "Serwer bilen baglanyşyp bolmady. Aragatnaşygy barlaň we täzeden synanyşyň."
 }

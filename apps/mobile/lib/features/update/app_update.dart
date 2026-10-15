@@ -38,6 +38,22 @@ class AppUpdate {
   bool newerThan(int installedBuild) => build > installedBuild;
 }
 
+enum UpdateCheckStatus { available, upToDate, unreachable }
+
+/// What a check found: the newer update, or why there is none.
+class UpdateCheck {
+  const UpdateCheck(this.status, [this.update]);
+
+  final UpdateCheckStatus status;
+  final AppUpdate? update;
+}
+
+/// The installed version, e.g. ("1.0.30", 31).
+final appVersionProvider = FutureProvider<(String, int)>((ref) async {
+  final info = await PackageInfo.fromPlatform();
+  return (info.version, int.tryParse(info.buildNumber) ?? 0);
+});
+
 /// Checks, downloads and installs updates (Android only: iOS apps update through the App Store or MDM).
 class UpdateService {
   UpdateService(this._apiUrl);
@@ -47,15 +63,21 @@ class UpdateService {
   static const _installer = MethodChannel('audit/installer');
 
   /// The published update when it is newer than this app; null otherwise or when the server can't be reached.
-  Future<AppUpdate?> check() async {
-    if (!Platform.isAndroid) return null;
+  Future<AppUpdate?> check() async => (await checkNow()).update;
+
+  /// Like [check], telling "up to date" (nothing newer, or nothing published) from "server unreachable".
+  Future<UpdateCheck> checkNow() async {
+    if (!Platform.isAndroid) return const UpdateCheck(UpdateCheckStatus.upToDate);
     try {
       final res = await _dio.get<Map<String, dynamic>>('${_apiUrl()}/v1/app/latest');
       final update = AppUpdate.fromJson(res.data!);
       final installed = int.tryParse((await PackageInfo.fromPlatform()).buildNumber) ?? 0;
-      return update.newerThan(installed) ? update : null;
+      return update.newerThan(installed) ? UpdateCheck(UpdateCheckStatus.available, update) : const UpdateCheck(UpdateCheckStatus.upToDate);
+    } on DioException catch (e) {
+      // 404: nothing published yet.
+      return UpdateCheck(e.response?.statusCode == 404 ? UpdateCheckStatus.upToDate : UpdateCheckStatus.unreachable);
     } catch (_) {
-      return null;
+      return const UpdateCheck(UpdateCheckStatus.unreachable);
     }
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/sync/presentation/sync_screen.dart';
+import '../../features/update/updates_screen.dart';
 
 import '../../features/activation/activation_provider.dart';
 import '../../features/activation/presentation/activation_screen.dart';
@@ -53,6 +54,7 @@ List<RouteBase> appRoutes() => [
 ];
 
 final List<RouteBase> agentRoutes = [
+  GoRoute(path: 'updates', builder: (_, _) => const UpdatesScreen()),
   GoRoute(
     path: 'map',
     builder: (_, state) => AgentMapScreen(focusShopId: state.uri.queryParameters['shop']),
@@ -85,6 +87,7 @@ final List<RouteBase> agentRoutes = [
   ),
 ];
 final List<RouteBase> adminRoutes = [
+  GoRoute(path: 'updates', builder: (_, _) => const UpdatesScreen()),
   GoRoute(
     path: 'map',
     builder: (_, state) => AdminMapScreen(focusShopId: state.uri.queryParameters['shop'], focusAgentId: state.uri.queryParameters['agent']),

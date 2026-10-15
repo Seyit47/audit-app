@@ -16,24 +16,46 @@ import '../domain/geofence.dart';
 /// The tracker keeps it current during working hours; a minute is at most ~80 m on foot.
 const lastKnownMaxAge = Duration(seconds: 60);
 
-bool freshEnough(DateTime at, DateTime now) => now.difference(at) <= lastKnownMaxAge;
+/// A position the system already has is used at once when this recent and precise: no waiting for GPS.
+const instantMaxAge = Duration(seconds: 15);
+const instantMaxAccuracyM = 30.0;
+
+bool freshEnough(DateTime at, DateTime now, {Duration maxAge = lastKnownMaxAge}) => now.difference(at) <= maxAge;
+
+/// Whether a known position can be used without asking GPS again.
+bool usableAtOnce({required DateTime at, required double accuracyM, required DateTime now}) =>
+    freshEnough(at, now, maxAge: instantMaxAge) && accuracyM <= instantMaxAccuracyM;
 
 class GeolocatorLocator implements Locator {
   @override
   Future<Fix?> current() async {
     try {
-      final p = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.best, timeLimit: Duration(seconds: 15)),
+      // Location off: say so at once instead of waiting for a timeout.
+      if (!await Geolocator.isLocationServiceEnabled()) return null;
+    } catch (_) {}
+    // 1. What the system already knows (the tracker keeps it warm during working hours): instant.
+    final known = await _lastKnown();
+    if (known != null && usableAtOnce(at: known.timestamp, accuracyM: known.accuracy, now: DateTime.now())) return _fix(known);
+    // 2. A fresh fix, at most 10 s.
+    try {
+      return _fix(
+        await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(accuracy: LocationAccuracy.best, timeLimit: Duration(seconds: 10)),
+        ),
       );
-      return Fix(lat: p.latitude, lng: p.longitude, accuracyM: p.accuracy);
     } catch (_) {
-      // Timed out or failed: fall back to a recent position from the system (fused/network or the tracker's).
-      try {
-        final last = await Geolocator.getLastKnownPosition();
-        if (last != null && freshEnough(last.timestamp, DateTime.now())) {
-          return Fix(lat: last.latitude, lng: last.longitude, accuracyM: last.accuracy);
-        }
-      } catch (_) {}
+      // 3. Timed out (indoors, weak GPS): a recent position from the system, the tracker's included.
+      final last = await _lastKnown();
+      return last != null && freshEnough(last.timestamp, DateTime.now()) ? _fix(last) : null;
+    }
+  }
+
+  static Fix _fix(Position p) => Fix(lat: p.latitude, lng: p.longitude, accuracyM: p.accuracy);
+
+  static Future<Position?> _lastKnown() async {
+    try {
+      return await Geolocator.getLastKnownPosition();
+    } catch (_) {
       return null;
     }
   }

@@ -14,6 +14,7 @@ import '../../../core/widgets/form_field.dart';
 import '../../../core/widgets/home_header.dart';
 import '../data/device_identity.dart';
 import '../domain/login_input.dart';
+import '../../update/app_version_text.dart';
 import 'server_settings_sheet.dart';
 
 /// Sign-in (approved exception G1): built only from the Figma form field, primary button, header
@@ -166,6 +167,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       const SizedBox(height: 24),
                       PrimaryButton(label: l10n.loginSubmit, loading: _busy, onPressed: _valid ? _submit : null),
+                      const SizedBox(height: 24),
+                      const Center(child: AppVersionText()),
                     ],
                   ),
                 ),

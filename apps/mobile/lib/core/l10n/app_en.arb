@@ -346,5 +346,11 @@
   "updateInstall": "Install",
   "updateFailed": "Couldn't download the update. Check the connection and try again.",
   "approveShop": "Approve",
-  "shopApproved": "Shop approved"
+  "shopApproved": "Shop approved",
+  "updatesTitle": "Updates",
+  "versionLine": "Version {version} ({build})",
+  "checkForUpdates": "Check for updates",
+  "updateUpToDate": "You have the latest version",
+  "updateAvailable": "Version {version} is available",
+  "updateUnreachable": "Couldn't reach the server. Check the connection and try again."
 }

@@ -1172,4 +1172,26 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get shopApproved => 'Магазин подтверждён';
+
+  @override
+  String get updatesTitle => 'Обновления';
+
+  @override
+  String versionLine(String version, int build) {
+    return 'Версия $version ($build)';
+  }
+
+  @override
+  String get checkForUpdates => 'Проверить обновления';
+
+  @override
+  String get updateUpToDate => 'У вас последняя версия';
+
+  @override
+  String updateAvailable(String version) {
+    return 'Доступна версия $version';
+  }
+
+  @override
+  String get updateUnreachable => 'Не удалось связаться с сервером. Проверьте связь и попробуйте снова.';
 }

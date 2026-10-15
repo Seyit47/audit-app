@@ -1170,4 +1170,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shopApproved => 'Shop approved';
+
+  @override
+  String get updatesTitle => 'Updates';
+
+  @override
+  String versionLine(String version, int build) {
+    return 'Version $version ($build)';
+  }
+
+  @override
+  String get checkForUpdates => 'Check for updates';
+
+  @override
+  String get updateUpToDate => 'You have the latest version';
+
+  @override
+  String updateAvailable(String version) {
+    return 'Version $version is available';
+  }
+
+  @override
+  String get updateUnreachable => 'Couldn\'t reach the server. Check the connection and try again.';
 }

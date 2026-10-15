@@ -2174,6 +2174,42 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Магазин подтверждён'**
   String get shopApproved;
+
+  /// No description provided for @updatesTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Обновления'**
+  String get updatesTitle;
+
+  /// No description provided for @versionLine.
+  ///
+  /// In ru, this message translates to:
+  /// **'Версия {version} ({build})'**
+  String versionLine(String version, int build);
+
+  /// No description provided for @checkForUpdates.
+  ///
+  /// In ru, this message translates to:
+  /// **'Проверить обновления'**
+  String get checkForUpdates;
+
+  /// No description provided for @updateUpToDate.
+  ///
+  /// In ru, this message translates to:
+  /// **'У вас последняя версия'**
+  String get updateUpToDate;
+
+  /// No description provided for @updateAvailable.
+  ///
+  /// In ru, this message translates to:
+  /// **'Доступна версия {version}'**
+  String updateAvailable(String version);
+
+  /// No description provided for @updateUnreachable.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось связаться с сервером. Проверьте связь и попробуйте снова.'**
+  String get updateUnreachable;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

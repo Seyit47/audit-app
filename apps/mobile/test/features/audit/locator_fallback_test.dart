@@ -8,4 +8,19 @@ void main() {
     expect(freshEnough(now.subtract(const Duration(seconds: 60)), now), isTrue);
     expect(freshEnough(now.subtract(const Duration(minutes: 5)), now), isFalse);
   });
+
+  test('a known position is used at once only when recent (15 s) and precise (30 m)', () {
+    final now = DateTime(2026, 10, 15, 12);
+    expect(usableAtOnce(at: now.subtract(const Duration(seconds: 5)), accuracyM: 12, now: now), isTrue);
+    expect(
+      usableAtOnce(at: now.subtract(const Duration(seconds: 40)), accuracyM: 12, now: now),
+      isFalse,
+      reason: 'too old',
+    );
+    expect(
+      usableAtOnce(at: now.subtract(const Duration(seconds: 5)), accuracyM: 60, now: now),
+      isFalse,
+      reason: 'too rough',
+    );
+  });
 }
