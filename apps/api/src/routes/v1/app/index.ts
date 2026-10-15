@@ -38,6 +38,7 @@ const app: FastifyPluginAsyncTypebox = async (fastify) => {
   fastify.get('/latest', { schema: { tags: ['app'] } }, async () => {
     if (dir() === '') throw noUpdate()
     const raw = await readFile(join(dir(), 'latest.json'), 'utf8').catch(() => null)
+    if (raw == null) throw noUpdate()
     const latest = parse(raw)
     if (!Latest.Check(latest)) throw new AppError(500, 'INTERNAL_ERROR', 'latest.json in the updates folder is not valid')
     const size = await stat(join(dir(), latest.file)).then((s) => s.size, () => null)

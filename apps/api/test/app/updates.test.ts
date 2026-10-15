@@ -18,7 +18,7 @@ test('no updates folder configured or nothing published: 404', async () => {
   app.config.updatesDir = ''
   assert.strictEqual((await app.inject({ url: '/v1/app/latest' })).statusCode, 404)
   app.config.updatesDir = dir
-  assert.strictEqual((await app.inject({ url: '/v1/app/latest' })).statusCode, 500, 'folder set but no latest.json')
+  assert.strictEqual((await app.inject({ url: '/v1/app/latest' })).statusCode, 404, 'folder set but no latest.json yet')
 })
 
 test('latest.json and the APK it names: public, with the download size; the APK streams', async () => {
