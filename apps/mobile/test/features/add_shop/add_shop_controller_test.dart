@@ -10,7 +10,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class _Locator implements Locator {
+class _Locator extends Locator {
   _Locator([this.accuracyM = 7]);
   final double accuracyM;
 

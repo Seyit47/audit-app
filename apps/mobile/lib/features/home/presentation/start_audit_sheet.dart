@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
@@ -62,37 +63,50 @@ class _StartAuditSheetState extends ConsumerState<_StartAuditSheet> with TickerP
 
   @override
   void dispose() {
+    _fixes?.cancel();
     _pulse.dispose();
     _reveal.dispose();
     super.dispose();
   }
 
+  StreamSubscription<Fix?>? _fixes;
+
   Future<void> _locate() async {
+    await _fixes?.cancel();
     setState(() => _phase = _Phase.locating);
     _reveal.reset();
     final db = ref.read(databaseProvider);
     final config = ref.read(remoteConfigProvider).value ?? const RemoteConfig();
-    // The radar shows for at least a moment, so a cached fix doesn't make the sheet flicker.
-    final (fix, shops, _) = await (
-      ref.read(locatorProvider).current(),
-      (db.select(db.shops)..where((s) => s.status.equals('ACTIVE'))).get(),
-      Future<void>.delayed(const Duration(milliseconds: 1200)),
-    ).wait;
+    final shops = await (db.select(db.shops)..where((s) => s.status.equals('ACTIVE'))).get();
+    // The radar shows for a moment at least, so an instant answer doesn't make the sheet flicker.
+    final shown = Future<void>.delayed(const Duration(milliseconds: 300));
     if (!mounted) return;
-    final hit = fix == null ? null : nearestShop(shops, fix, lat: (s) => s.lat, lng: (s) => s.lng, radiusM: (s) => s.auditRadiusM);
-    final inRange = fix == null ? <NearestShop<Shop>>[] : shopsInRange(shops, fix, lat: (s) => s.lat, lng: (s) => s.lng, radiusM: (s) => s.auditRadiusM);
-    setState(() {
-      _fix = fix;
-      _hit = hit;
-      _inRange = inRange;
-      _phase = switch (fix) {
-        null => _Phase.unavailable,
-        _ when fix.accuracyM > config.minGpsAccuracyM => _Phase.inaccurate,
-        _ when hit == null => _Phase.noShops,
-        _ => hit.inside ? _Phase.inside : _Phase.outside,
-      };
-    });
-    _reveal.forward();
+    // The last known position at once, then the GPS fix the moment it answers: each one updates the sheet.
+    _fixes = ref
+        .read(locatorProvider)
+        .watch()
+        .asyncMap((fix) async {
+          await shown;
+          return fix;
+        })
+        .listen((fix) {
+          if (!mounted) return;
+          final hit = fix == null ? null : nearestShop(shops, fix, lat: (s) => s.lat, lng: (s) => s.lng, radiusM: (s) => s.auditRadiusM);
+          final inRange = fix == null ? <NearestShop<Shop>>[] : shopsInRange(shops, fix, lat: (s) => s.lat, lng: (s) => s.lng, radiusM: (s) => s.auditRadiusM);
+          final first = _phase == _Phase.locating;
+          setState(() {
+            _fix = fix;
+            _hit = hit;
+            _inRange = inRange;
+            _phase = switch (fix) {
+              null => _Phase.unavailable,
+              _ when fix.accuracyM > config.minGpsAccuracyM => _Phase.inaccurate,
+              _ when hit == null => _Phase.noShops,
+              _ => hit.inside ? _Phase.inside : _Phase.outside,
+            };
+          });
+          if (first) _reveal.forward();
+        });
   }
 
   @override

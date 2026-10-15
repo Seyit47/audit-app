@@ -11,7 +11,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class FakeLocator implements Locator {
+class FakeLocator extends Locator {
   Fix? next;
 
   @override
@@ -184,6 +184,22 @@ void main() {
     expect(state().canFinish, isTrue);
     await ctrl().toggleViolation();
     expect(state().hasViolation, isFalse);
+  });
+
+  test('the instant (last known) position shows the shop but finishing waits for the GPS fix', () async {
+    container = await open(
+      fix: const Fix(lat: shopLat, lng: shopLng + 0.0005, accuracyM: 8, provisional: true),
+    );
+    await ctrl().takePhoto();
+    await ctrl().setComment('Выкладка в порядке');
+    await settle();
+    expect(state().geo, GeoStatus.inside);
+    expect(state().canFinish, isFalse, reason: 'provisional');
+    expect(await ctrl().finish(), isNull);
+
+    locator.next = inside; // GPS answered
+    await ctrl().locate();
+    expect(state().canFinish, isTrue);
   });
 
   test('Finish enqueues PHOTO items, then AUDIT_CREATE depending on them, and triggers a sync', () async {

@@ -45,6 +45,19 @@ class _ActivationScreenState extends ConsumerState<ActivationScreen> {
     final id = ref.watch(deviceIdProvider).value;
     final notifier = ref.read(activationProvider.notifier);
 
+    // Checked in the background: until the device turns out not to be active (or an active one has loaded
+    // its session and moves on), only a neutral loading screen.
+    if (state == Activation.checking || state == Activation.active) {
+      return const Scaffold(
+        body: Stack(
+          children: [
+            Positioned.fill(child: HomeGlow()),
+            Center(child: CircularProgressIndicator.adaptive()),
+          ],
+        ),
+      );
+    }
+
     final busy = state == Activation.checking || state == Activation.registering || state == Activation.active;
     final (icon, title, body) = switch (state) {
       Activation.unregistered => (Icons.phonelink_lock_outlined, l10n.activationRegisterTitle, l10n.activationRegisterBody),

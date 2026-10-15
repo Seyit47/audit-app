@@ -2,11 +2,14 @@ import 'dart:math' as math;
 
 /// A GPS fix for the audit start check.
 class Fix {
-  const Fix({required this.lat, required this.lng, required this.accuracyM});
+  const Fix({required this.lat, required this.lng, required this.accuracyM, this.provisional = false});
 
   final double lat;
   final double lng;
   final double accuracyM;
+
+  /// The phone's last known position, shown at once while GPS answers: never recorded or used to finish.
+  final bool provisional;
 }
 
 /// [notActive]: the shop is not ACTIVE (pending an admin's review, or archived), so it cannot be audited.

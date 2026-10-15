@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/l10n/app_localizations.dart';
 import '../../core/router/app_router.dart';
+import '../../core/router/redirect.dart';
+import '../activation/activation_provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/adaptive.dart';
@@ -30,15 +32,22 @@ class _UpdateGateState extends ConsumerState<UpdateGate> with WidgetsBindingObse
   /// "Later" for this build: not offered again until the app restarts.
   int? _postponed;
 
+  /// Found by the background check, shown once the app has settled on its screen.
+  AppUpdate? _pending;
+  late final _router = ref.read(appRouterProvider);
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // A screen change (activation → home) replaces the pages and would take an open dialog with it.
+    _router.routerDelegate.addListener(_maybeShow);
     WidgetsBinding.instance.addPostFrameCallback((_) => _check());
   }
 
   @override
   void dispose() {
+    _router.routerDelegate.removeListener(_maybeShow);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -55,12 +64,30 @@ class _UpdateGateState extends ConsumerState<UpdateGate> with WidgetsBindingObse
     final update = await ref.read(updateServiceProvider).check();
     _requiredPending = update?.required ?? false;
     if (update == null || (!update.required && update.build == _postponed)) return;
-    final context = rootNavigatorKey.currentContext;
-    if (context == null || !context.mounted || _showing) return;
+    _pending = update;
+    _maybeShow();
+  }
+
+  /// Offers [_pending] once the device is activated and the app has left the activation screen (still
+  /// checking, or not activated: the activation screen comes first and the update waits).
+  void _maybeShow() {
+    if (_pending == null || _showing || !mounted) return;
+    if (ref.read(activationProvider) != Activation.active) return;
+    if (_router.routerDelegate.currentConfiguration.uri.path == Paths.activation) return;
     _showing = true;
-    final later = await showUpdateDialog(context, update, ref.read(updateServiceProvider));
-    _showing = false;
-    if (later) _postponed = update.build;
+    // After the frame: the new screen is in place before the dialog opens on top of it.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final update = _pending;
+      final context = rootNavigatorKey.currentContext;
+      if (update == null || context == null || !context.mounted) {
+        _showing = false;
+        return;
+      }
+      _pending = null;
+      final later = await showUpdateDialog(context, update, ref.read(updateServiceProvider));
+      _showing = false;
+      if (later) _postponed = update.build;
+    });
   }
 
   @override

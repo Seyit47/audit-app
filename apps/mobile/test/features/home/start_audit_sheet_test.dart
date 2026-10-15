@@ -14,7 +14,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class _Locator implements Locator {
+class _Locator extends Locator {
   _Locator(this.fix);
   final Fix? fix;
 

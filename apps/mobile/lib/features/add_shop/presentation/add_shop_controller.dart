@@ -38,7 +38,7 @@ class AddShopState {
   /// The company's GPS accuracy limit: the server refuses an agent's shop located less precisely.
   final int maxAccuracyM;
 
-  bool get accurate => fix != null && fix!.accuracyM <= maxAccuracyM;
+  bool get accurate => fix != null && !fix!.provisional && fix!.accuracyM <= maxAccuracyM;
 
   bool get nameOk => name.trim().isNotEmpty;
   bool get addressOk => address.trim().isNotEmpty;
@@ -84,15 +84,21 @@ class AddShopController extends Notifier<AddShopState> {
   /// "Текущее местоположение" and "Проверить заново".
   Future<void> locate() async {
     state = state.copyWith(locating: true);
-    final fix = await ref.read(locatorProvider).current();
-    if (!ref.mounted) return;
+    // The last known position at once (shown as being refined), then the GPS fix when it answers.
+    await for (final fix in ref.read(locatorProvider).watch()) {
+      if (!ref.mounted) return;
+      _apply(fix);
+    }
+  }
+
+  void _apply(Fix? fix) {
     state = AddShopState(
       name: state.name,
       address: state.address,
       owner: state.owner,
       phone: state.phone,
       fix: fix,
-      locating: false,
+      locating: fix?.provisional ?? false,
       photo: state.photo,
       saving: state.saving,
       maxAccuracyM: (ref.read(remoteConfigProvider).value ?? const RemoteConfig()).minGpsAccuracyM,

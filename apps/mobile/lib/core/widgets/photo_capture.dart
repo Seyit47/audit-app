@@ -29,8 +29,15 @@ abstract interface class PhotoCapture {
 }
 
 /// Gets the current position for the audit and for photos.
-abstract interface class Locator {
+abstract class Locator {
+  /// The position to use (the last value of [watch]).
   Future<Fix?> current();
+
+  /// At once the phone's last known position ([Fix.provisional]) when there is a recent one, then the
+  /// GPS fix the moment it answers; null when there is none.
+  Stream<Fix?> watch() async* {
+    yield await current();
+  }
 }
 
 /// Photos from the in-app camera ([takePhoto]): always the back camera, whatever the phone's camera app last used.

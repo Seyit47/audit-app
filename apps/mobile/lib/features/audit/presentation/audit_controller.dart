@@ -26,31 +26,43 @@ bool freshEnough(DateTime at, DateTime now, {Duration maxAge = lastKnownMaxAge})
 bool usableAtOnce({required DateTime at, required double accuracyM, required DateTime now}) =>
     freshEnough(at, now, maxAge: instantMaxAge) && accuracyM <= instantMaxAccuracyM;
 
-class GeolocatorLocator implements Locator {
+class GeolocatorLocator extends Locator {
   @override
-  Future<Fix?> current() async {
+  Future<Fix?> current() => watch().last;
+
+  @override
+  Stream<Fix?> watch() async* {
     try {
       // Location off: say so at once instead of waiting for a timeout.
-      if (!await Geolocator.isLocationServiceEnabled()) return null;
+      if (!await Geolocator.isLocationServiceEnabled()) {
+        yield null;
+        return;
+      }
     } catch (_) {}
-    // 1. What the system already knows (the tracker keeps it warm during working hours): instant.
     final known = await _lastKnown();
-    if (known != null && usableAtOnce(at: known.timestamp, accuracyM: known.accuracy, now: DateTime.now())) return _fix(known);
-    // 2. A fresh fix, at most 10 s.
+    final now = DateTime.now();
+    // 1. Recent and precise (the tracker keeps it warm during working hours): that's the answer.
+    if (known != null && usableAtOnce(at: known.timestamp, accuracyM: known.accuracy, now: now)) {
+      yield _fix(known);
+      return;
+    }
+    // 2. Otherwise shown at once while GPS answers, if under a minute old.
+    if (known != null && freshEnough(known.timestamp, now)) yield _fix(known, provisional: true);
+    // 3. The GPS fix the moment it arrives (at most 10 s).
     try {
-      return _fix(
+      yield _fix(
         await Geolocator.getCurrentPosition(
           locationSettings: const LocationSettings(accuracy: LocationAccuracy.best, timeLimit: Duration(seconds: 10)),
         ),
       );
     } catch (_) {
-      // 3. Timed out (indoors, weak GPS): a recent position from the system, the tracker's included.
+      // Timed out (indoors, weak GPS): a recent position from the system, the tracker's included.
       final last = await _lastKnown();
-      return last != null && freshEnough(last.timestamp, DateTime.now()) ? _fix(last) : null;
+      yield last != null && freshEnough(last.timestamp, DateTime.now()) ? _fix(last) : null;
     }
   }
 
-  static Fix _fix(Position p) => Fix(lat: p.latitude, lng: p.longitude, accuracyM: p.accuracy);
+  static Fix _fix(Position p, {bool provisional = false}) => Fix(lat: p.latitude, lng: p.longitude, accuracyM: p.accuracy, provisional: provisional);
 
   static Future<Position?> _lastKnown() async {
     try {
@@ -88,7 +100,7 @@ class AuditState {
 
   /// "Завершить аудит": inside the shop radius, at least one photo and a comment
   /// (a recorded violation still needs the comment).
-  bool get canFinish => geo == GeoStatus.inside && photos.isNotEmpty && comment.trim().isNotEmpty && !finishing && !finished;
+  bool get canFinish => geo == GeoStatus.inside && !(fix?.provisional ?? true) && photos.isNotEmpty && comment.trim().isNotEmpty && !finishing && !finished;
 
   AuditState copyWith({Shop? shop, AuditDraft? draft, List<Photo>? photos, Fix? fix, GeoStatus? geo, bool? finishing, bool? finished}) => AuditState(
     shop: shop ?? this.shop,
@@ -133,8 +145,14 @@ class AuditController extends Notifier<AuditState> {
   /// The "Проверить заново" button and the first check on open.
   Future<void> locate() async {
     state = state.copyWith(geo: GeoStatus.locating);
-    final fix = await ref.read(locatorProvider).current();
-    if (!ref.mounted) return;
+    // The last known position at once, then the GPS fix when it answers.
+    await for (final fix in ref.read(locatorProvider).watch()) {
+      if (!ref.mounted) return;
+      _apply(fix);
+    }
+  }
+
+  void _apply(Fix? fix) {
     final shop = state.shop;
     final config = ref.read(remoteConfigProvider).value ?? const RemoteConfig();
     final geo = shop == null
