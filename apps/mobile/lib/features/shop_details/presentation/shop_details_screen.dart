@@ -355,6 +355,7 @@ class _ShopDetailsScreenState extends ConsumerState<ShopDetailsScreen> {
       date: longDateTime(context, v.at),
       status: v.pending ? l10n.pendingSync : null,
       statusColor: c.accent,
+      duration: v.durationMin == null ? null : l10n.visitDuration(v.durationMin!),
       note: v.comment.isEmpty ? null : ViolationNote(text: v.comment, violationLabel: v.hasViolation ? l10n.violationRecorded : null),
       photos: v.photoUrls,
       fullPhotos: v.fullPhotoUrls,

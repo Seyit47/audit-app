@@ -14,7 +14,7 @@ import '../../../../core/widgets/filter_chips.dart';
 import '../../../../core/widgets/filter_sheet.dart';
 import '../../../../core/widgets/search_field.dart';
 import '../../../../core/widgets/shop_card.dart';
-import '../../../shop_details/presentation/shop_details_screen.dart' show call, openInMaps;
+import '../../../shop_details/presentation/shop_details_screen.dart' show call;
 import '../../data/admin_api.dart';
 import '../shop_labels.dart';
 import '../../../../core/widgets/tap.dart';
@@ -289,7 +289,8 @@ class _AdminShopsScreenState extends ConsumerState<AdminShopsScreen> {
       callLabel: l10n.callShop,
       onCall: phone == null ? null : () => call(phone),
       navigateLabel: l10n.navigate,
-      onNavigate: () => openInMaps((s['lat'] as num).toDouble(), (s['lng'] as num).toDouble(), s['name'] as String),
+      // Our map, on this shop (not Yandex / Google).
+      onNavigate: () => context.push('/admin/map?shop=${s['id']}'),
     );
   }
 

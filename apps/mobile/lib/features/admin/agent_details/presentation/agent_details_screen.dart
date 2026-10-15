@@ -280,6 +280,12 @@ class _AgentDetailsScreenState extends ConsumerState<AgentDetailsScreen> {
                 child: AppMapView(
                   controller: _map,
                   fitPadding: const EdgeInsets.all(32),
+                  // The full map: on the tapped shop, or on the agent.
+                  onMapTap: () => context.push('/admin/map?agent=${widget.agentId}'),
+                  onMarkerTap: (id) {
+                    final shop = checkpoints.where((p) => p['id'] == id).firstOrNull?['shopId'];
+                    context.push(shop == null ? '/admin/map?agent=${widget.agentId}' : '/admin/map?shop=$shop');
+                  },
                   // Today's track under the pins.
                   line: route,
                   lineColor: c.accent,
@@ -457,59 +463,64 @@ class _AgentDetailsScreenState extends ConsumerState<AgentDetailsScreen> {
         ? l10n.syncingData
         : l10n.plannedVisit;
     final active = status == 'IN_PROGRESS';
-    return Container(
-      margin: const EdgeInsets.only(top: 8),
-      padding: active ? const EdgeInsets.all(8) : EdgeInsets.zero,
-      decoration: active ? BoxDecoration(color: c.accent6, borderRadius: BorderRadius.circular(8)) : null,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 5),
-            child: Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+    final shopId = (st['shop'] as Map?)?['id'] as String?;
+    return InkOverlay(
+      radius: 8,
+      onTap: shopId == null ? null : () => context.push('/admin/shops/$shopId'),
+      child: Container(
+        margin: const EdgeInsets.only(top: 8),
+        padding: active ? const EdgeInsets.all(8) : EdgeInsets.zero,
+        decoration: active ? BoxDecoration(color: c.accent6, borderRadius: BorderRadius.circular(8)) : null,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 5),
+              child: Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              ),
             ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${hhmm(DateTime.parse(st['plannedAt'] as String))} — ${(st['shop'] as Map)['name']}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontFamily: AppTextStyles.family,
-                    fontSize: 13,
-                    height: 1.4,
-                    fontWeight: FontWeight.w600,
-                    color: active ? c.accent : c.textPrimary,
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${hhmm(DateTime.parse(st['plannedAt'] as String))} — ${(st['shop'] as Map)['name']}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: AppTextStyles.family,
+                      fontSize: 13,
+                      height: 1.4,
+                      fontWeight: FontWeight.w600,
+                      color: active ? c.accent : c.textPrimary,
+                    ),
                   ),
-                ),
-                Text(
-                  detail,
-                  style: TextStyle(
-                    fontFamily: AppTextStyles.family,
-                    fontSize: 11,
-                    height: 1.5,
-                    color: status == 'MISSED'
-                        ? c.error
-                        : active
-                        ? c.accent
-                        : c.textSecondary,
+                  Text(
+                    detail,
+                    style: TextStyle(
+                      fontFamily: AppTextStyles.family,
+                      fontSize: 11,
+                      height: 1.5,
+                      color: status == 'MISSED'
+                          ? c.error
+                          : active
+                          ? c.accent
+                          : c.textSecondary,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Text(
-            label,
-            style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 11, height: 1.5, fontWeight: FontWeight.w600, color: color),
-          ),
-        ],
+            Text(
+              label,
+              style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 11, height: 1.5, fontWeight: FontWeight.w600, color: color),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -573,30 +584,35 @@ class _AgentDetailsScreenState extends ConsumerState<AgentDetailsScreen> {
             ],
           ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              AppImage((facade?['previewUrl400'] ?? facade?['url']) as String?, width: 48, height: 48),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      shop['name'] as String,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 15, height: 1.4, fontWeight: FontWeight.w700, color: c.textPrimary),
-                    ),
-                    Text(
-                      '${shop['address']} • ${shop['code']}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 1.4, color: c.textSecondary),
-                    ),
-                  ],
+          // The shop: its profile on tap.
+          InkOverlay(
+            radius: 8,
+            onTap: () => context.push('/admin/shops/${shop['id']}'),
+            child: Row(
+              children: [
+                AppImage((facade?['previewUrl400'] ?? facade?['url']) as String?, width: 48, height: 48),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        shop['name'] as String,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 15, height: 1.4, fontWeight: FontWeight.w700, color: c.textPrimary),
+                      ),
+                      Text(
+                        '${shop['address']} • ${shop['code']}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 1.4, color: c.textSecondary),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           if (comment.isNotEmpty) ...[
             const SizedBox(height: 12),

@@ -47,8 +47,19 @@ class AdminApi {
   Future<Json> updateShop(String id, Json body) => _api.patch<Json>('/shops/$id', body: body);
   Future<void> setContacts(String id, List<Json> contacts) => _api.put<void>('/shops/$id/contacts', body: {'contacts': contacts});
 
-  Future<PageOf> agents({int page = 1, String? q, String? status, String? regionId}) =>
-      _page('/agents', {'page': page, 'size': 50, 'q': q, 'status': status, 'regionId': regionId, 'sort': 'fullName', 'dir': 'asc'});
+  /// The cards' visits and photos are totals: the server counts within a period (today by default), so
+  /// the period is all time.
+  Future<PageOf> agents({int page = 1, String? q, String? status, String? regionId}) => _page('/agents', {
+    'page': page,
+    'size': 50,
+    'q': q,
+    'status': status,
+    'regionId': regionId,
+    'sort': 'fullName',
+    'dir': 'asc',
+    'from': '2020-01-01',
+    'to': DateTime.now().add(const Duration(days: 1)).toIso8601String().substring(0, 10),
+  });
   Future<Json> agentsSummary() => _api.get<Json>('/agents/summary');
   Future<Json> agent(String id) => _api.get<Json>('/agents/$id');
   Future<List<Json>> timeline(String id) async => [for (final i in await _api.get<List<dynamic>>('/agents/$id/timeline')) (i as Map).cast<String, dynamic>()];

@@ -24,6 +24,7 @@ class ShopVisit {
     this.fullPhotoUrls = const [],
     this.photoCount = 0,
     this.pending = false,
+    this.durationMin,
   });
 
   final String id;
@@ -43,6 +44,9 @@ class ShopVisit {
   final List<String> fullPhotoUrls;
   final int photoCount;
   final bool pending;
+
+  /// How long the audit took (start to finish).
+  final int? durationMin;
 }
 
 class ShopItem {
@@ -112,6 +116,7 @@ class ShopsLocalRepository {
             fullPhotoUrls: [for (final p in photos) p.localPath ?? p.url ?? p.previewUrl ?? ''],
             photoCount: photos.length,
             pending: !a.synced,
+            durationMin: a.finishedAtDevice.difference(a.startedAtDevice).inMinutes,
           ),
         );
       }
@@ -140,6 +145,7 @@ class ShopsLocalRepository {
           photoUrls: [for (final p in (v['photos'] as List? ?? const []).cast<Map>()) (p['previewUrl400'] ?? p['url']) as String],
           fullPhotoUrls: [for (final p in (v['photos'] as List? ?? const []).cast<Map>()) (p['url'] ?? p['previewUrl400']) as String],
           photoCount: (v['photoCount'] as int?) ?? 0,
+          durationMin: v['durationMin'] as int?,
         ),
     ];
   }

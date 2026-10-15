@@ -18,6 +18,8 @@ import '../../shops/data/shops_local_repository.dart';
 import '../../shops/domain/visit_state.dart';
 import '../../../core/widgets/tap.dart';
 
+bool _due(ShopItem s) => s.visit.state == VisitState.overdue || s.visit.state == VisitState.scheduled;
+
 enum _MapFilter { all, notVisited, visited, recent }
 
 /// Agent Map (`83:17636`, `83:17775` / `106:5485`, `106:5609`): the day's shops from the local
@@ -70,7 +72,8 @@ class _AgentMapScreenState extends ConsumerState<AgentMapScreen> {
         .toList();
     final shown = switch (_filter) {
       _MapFilter.all => base,
-      _MapFilter.notVisited => base.where((s) => s.visit.state != VisitState.visited).toList(),
+      // The red pins: due or overdue (not the grey ones, not due yet).
+      _MapFilter.notVisited => base.where(_due).toList(),
       _MapFilter.visited => base.where((s) => s.visit.state == VisitState.visited).toList(),
       _MapFilter.recent => base.where(_recent).toList(),
     };
@@ -160,7 +163,7 @@ class _AgentMapScreenState extends ConsumerState<AgentMapScreen> {
                       children: [
                         MapChip(label: l10n.mapAll, selected: _filter == _MapFilter.all, onTap: () => setState(() => _filter = _MapFilter.all)),
                         MapChip(
-                          label: l10n.mapNotVisited(base.where((s) => s.visit.state != VisitState.visited).length),
+                          label: l10n.mapNotVisited(base.where(_due).length),
                           dot: c.error,
                           selected: _filter == _MapFilter.notVisited,
                           onTap: () => setState(() => _filter = _MapFilter.notVisited),

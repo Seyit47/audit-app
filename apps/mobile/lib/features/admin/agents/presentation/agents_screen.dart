@@ -15,7 +15,7 @@ import '../../../../core/widgets/filter_sheet.dart';
 import '../../../../core/widgets/search_field.dart';
 import '../../../../core/widgets/shop_card.dart';
 import '../../../../core/widgets/stat_tile.dart';
-import '../../../shop_details/presentation/shop_details_screen.dart' show call, openInMaps;
+import '../../../shop_details/presentation/shop_details_screen.dart' show call;
 import '../../data/admin_api.dart';
 import '../../../../core/widgets/skeleton.dart';
 
@@ -260,7 +260,8 @@ class _AgentsScreenState extends ConsumerState<AgentsScreen> {
       callLabel: l10n.callAgent,
       onCall: () => call(a['phone'] as String),
       navigateLabel: l10n.navigate,
-      onNavigate: position == null ? null : () => openInMaps((position['lat'] as num).toDouble(), (position['lng'] as num).toDouble(), a['fullName'] as String),
+      // Our map, on the agent's position (not Yandex / Google).
+      onNavigate: position == null ? null : () => context.push('/admin/map?agent=${a['id']}'),
     );
   }
 

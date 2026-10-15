@@ -111,10 +111,12 @@ test('summary, detail KPIs, timeline, track and reports', async () => {
   const positions = (await app.inject({ url: '/v1/agents/positions', headers: admin })).json()
   assert.strictEqual(positions.length, 1)
 
-  const facade = await app.prisma.photo.create({ data: { id: newId(), kind: 'FACADE', shopId: s1.id, uploadedById: adminId, storageKey: 'f/1.jpg', mime: 'image/jpeg', sizeBytes: 1, sha256: 'b'.repeat(64), takenAt: at, status: 'READY' } })
+  const facade = await app.prisma.photo.create({ data: { id: newId(), kind: 'FACADE', shopId: s1.id, uploadedById: g.userId, storageKey: 'f/1.jpg', mime: 'image/jpeg', sizeBytes: 1, sha256: 'b'.repeat(64), takenAt: at, status: 'READY' } })
   await app.prisma.shop.update({ where: { id: s1.id }, data: { facadePhotoId: facade.id } })
   const visits = (await app.inject({ url: `/v1/agents/${g.userId}/visits`, headers: admin })).json()
   assert.strictEqual(visits.totals.completed, 1)
+  const row = (await app.inject({ url: `/v1/agents?from=${day}&to=${day}`, headers: admin })).json().items.find((x: { id: string }) => x.id === g.userId)
+  assert.strictEqual(row.photos, 1, 'the audit photo, not the storefront')
   const tracked = (await app.inject({ url: `/v1/agents/${g.userId}/track?date=${day}`, headers: admin })).json()
   assert.ok(tracked.checkpoints.find((cp: { name: string, thumbUrl: string | null }) => cp.thumbUrl != null), 'the checkpoint pin shows the storefront')
   const visit = visits.items.find((v: { type: string }) => v.type === 'AUDIT')

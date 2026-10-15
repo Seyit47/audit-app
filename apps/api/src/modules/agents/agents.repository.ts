@@ -57,7 +57,8 @@ export class AgentsRepository {
     const [shops, audits, photos] = await Promise.all([
       this.prisma.shop.groupBy({ by: ['assignedAgentId'], where: { assignedAgentId: { in: agentIds }, deletedAt: null }, _count: true }),
       this.prisma.audit.groupBy({ by: ['agentId'], where: { agentId: { in: agentIds }, finishedAtDevice: { gte: from, lt: to } }, _count: true }),
-      this.prisma.photo.groupBy({ by: ['uploadedById'], where: { uploadedById: { in: agentIds }, takenAt: { gte: from, lt: to } }, _count: true })
+      // Audit photos only, as the gallery and the agent's KPIs count them (no storefronts).
+      this.prisma.photo.groupBy({ by: ['uploadedById'], where: { uploadedById: { in: agentIds }, kind: 'AUDIT', status: 'READY', takenAt: { gte: from, lt: to } }, _count: true })
     ])
     return {
       shops: new Map(shops.map((r) => [r.assignedAgentId!, r._count])),

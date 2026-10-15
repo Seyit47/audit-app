@@ -142,6 +142,7 @@ export class AgentInsights {
       points: points.map((x) => ({ lat: x.lat, lng: x.lng, recordedAt: x.recordedAt.toISOString(), trigger: x.trigger })),
       checkpoints: stops.map((st) => ({
         id: st.id,
+        shopId: st.shop.id,
         status: st.status,
         lat: st.shop.lat,
         lng: st.shop.lng,
