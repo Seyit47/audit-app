@@ -262,7 +262,8 @@ class AdminPhotoDetailScreen extends ConsumerWidget {
       final others = [for (final r in (p['related'] as List? ?? const []).cast<Map>()) _grid(r.cast<String, dynamic>())];
       final related = others.any((r) => r.id == id) ? others : [_grid(p), ...others];
       return PhotoDetailView(
-        photoId: first ? related.first.id : id,
+        photoId: id,
+        openOnFirst: first,
         related: related,
         shopName: shop?['name'] as String?,
         shopAddress: shop?['address'] as String?,

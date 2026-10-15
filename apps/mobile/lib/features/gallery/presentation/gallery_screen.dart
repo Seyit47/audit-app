@@ -243,7 +243,8 @@ class _AgentPhotoDetailScreenState extends ConsumerState<AgentPhotoDetailScreen>
       final shop = d.shop;
       final related = [for (final p in d.related) GridPhoto(id: p.photo.id, image: p.image, full: p.full, takenAt: p.photo.takenAt)];
       return PhotoDetailView(
-        photoId: first && related.isNotEmpty ? related.first.id : id,
+        photoId: id,
+        openOnFirst: first,
         related: related,
         shopName: shop?.name,
         shopAddress: shop?.address,

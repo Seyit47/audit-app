@@ -115,6 +115,8 @@ test('summary, detail KPIs, timeline, track and reports', async () => {
   await app.prisma.shop.update({ where: { id: s1.id }, data: { facadePhotoId: facade.id } })
   const visits = (await app.inject({ url: `/v1/agents/${g.userId}/visits`, headers: admin })).json()
   assert.strictEqual(visits.totals.completed, 1)
+  const tracked = (await app.inject({ url: `/v1/agents/${g.userId}/track?date=${day}`, headers: admin })).json()
+  assert.ok(tracked.checkpoints.find((cp: { name: string, thumbUrl: string | null }) => cp.thumbUrl != null), 'the checkpoint pin shows the storefront')
   const visit = visits.items.find((v: { type: string }) => v.type === 'AUDIT')
   assert.strictEqual(visit.shop.facade.id, facade.id, 'the shop thumbnail is its storefront, not the audit photo')
   assert.notStrictEqual(visit.photos[0].id, facade.id)

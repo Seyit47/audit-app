@@ -20,7 +20,7 @@ void main() {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
-    // Audit A: photos a1, a2 (opened on a2); audit B: b1, b2.
+    // Audit A: a1 then a2 (opened on a1, the older); audit B: b1 then b2. The detail shows them newest first.
     final audits = {
       'A': ['a1', 'a2'],
       'B': ['b1', 'b2'],
@@ -33,11 +33,11 @@ void main() {
         localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
         supportedLocales: const [Locale('en')],
         home: AuditPager(
-          photoId: 'a2',
+          photoId: 'a1',
           sequence: const [('a2', 'A'), ('a1', 'A'), ('b2', 'B'), ('b1', 'B')],
           page: (context, id, first) {
-            final related = [for (final p in audits[auditOf(id)]!) GridPhoto(id: p, image: null, takenAt: DateTime(2026, 10, 15))];
-            return PhotoDetailView(photoId: first ? related.first.id : id, related: related, comment: 'Audit ${auditOf(id)}');
+            final related = [for (final (i, p) in audits[auditOf(id)]!.indexed) GridPhoto(id: p, image: null, takenAt: DateTime(2026, 10, 15, 10, i))];
+            return PhotoDetailView(photoId: id, openOnFirst: first, related: related, comment: 'Audit ${auditOf(id)}');
           },
         ),
       ),
@@ -45,9 +45,9 @@ void main() {
     await tester.pumpAndSettle();
     PageController photos() => tester.widget<PageView>(find.byType(PageView).last).controller!;
     expect(find.text('Audit A'), findsOneWidget);
-    expect(photos().page, 1, reason: 'opened on a2');
+    expect(photos().page, 1, reason: 'opened on a1, second in newest-first order');
 
-    await tester.fling(find.byType(PageView).last, const Offset(-300, 0), 1500);
+    await tester.fling(find.byType(PageView).last, const Offset(300, 0), 1500);
     await tester.pumpAndSettle();
     expect(find.text('Audit A'), findsOneWidget, reason: 'a swipe on the photo stays in the audit');
 
@@ -55,5 +55,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Audit B'), findsOneWidget);
     expect(photos().page, 0, reason: 'the next audit opens on its first photo');
+    expect(find.text('Related audit photos (2)'), findsOneWidget);
   });
 }

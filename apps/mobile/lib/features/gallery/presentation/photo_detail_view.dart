@@ -23,6 +23,7 @@ class PhotoDetailView extends StatefulWidget {
     super.key,
     required this.photoId,
     required this.related,
+    this.openOnFirst = false,
     this.shopName,
     this.shopAddress,
     this.shopImage,
@@ -39,6 +40,9 @@ class PhotoDetailView extends StatefulWidget {
 
   final String photoId;
   final List<GridPhoto> related;
+
+  /// Select the audit's first photo (in the gallery's order) instead of [photoId]: another audit swiped to.
+  final bool openOnFirst;
   final String? shopName;
   final String? shopAddress;
   final String? shopImage;
@@ -59,10 +63,17 @@ class PhotoDetailView extends StatefulWidget {
 }
 
 class _PhotoDetailViewState extends State<PhotoDetailView> {
-  late String _selected = widget.photoId;
-  late final _pages = PageController(initialPage: _indexOf(widget.photoId));
+  /// The audit's photos in the gallery's order: newest first.
+  List<GridPhoto> get _photos => [...widget.related]
+    ..sort((a, b) {
+      final t = b.takenAt.compareTo(a.takenAt);
+      return t != 0 ? t : b.id.compareTo(a.id);
+    });
 
-  int _indexOf(String id) => widget.related.indexWhere((p) => p.id == id).clamp(0, widget.related.length - 1);
+  late String _selected = widget.openOnFirst && widget.related.isNotEmpty ? _photos.first.id : widget.photoId;
+  late final _pages = PageController(initialPage: _indexOf(_selected));
+
+  int _indexOf(String id) => _photos.indexWhere((p) => p.id == id).clamp(0, _photos.length - 1);
 
   @override
   void dispose() {
@@ -77,9 +88,9 @@ class _PhotoDetailViewState extends State<PhotoDetailView> {
 
   void _fullScreen(BuildContext context, GridPhoto p) => showPhotoViewer(
     context,
-    [for (final r in widget.related) r.full],
-    previews: [for (final r in widget.related) r.image],
-    initial: widget.related.indexWhere((r) => r.id == p.id),
+    [for (final r in _photos) r.full],
+    previews: [for (final r in _photos) r.image],
+    initial: _photos.indexWhere((r) => r.id == p.id),
   );
 
   @override
@@ -87,7 +98,7 @@ class _PhotoDetailViewState extends State<PhotoDetailView> {
     final l10n = AppLocalizations.of(context);
     final c = context.colors;
     final lang = Localizations.localeOf(context).languageCode;
-    final current = widget.related.firstWhere((p) => p.id == _selected, orElse: () => widget.related.first);
+    final current = _photos.firstWhere((p) => p.id == _selected, orElse: () => _photos.first);
     final t = current.takenAt.toLocal();
     final day = DateFormat('d MMMM', lang).format(t);
     final text = TextStyle(fontFamily: AppTextStyles.family, fontSize: 14, height: 1.5, color: c.textPrimary);
@@ -132,21 +143,21 @@ class _PhotoDetailViewState extends State<PhotoDetailView> {
                       children: [
                         PageView.builder(
                           controller: _pages,
-                          itemCount: widget.related.length,
-                          onPageChanged: (i) => setState(() => _selected = widget.related[i].id),
+                          itemCount: _photos.length,
+                          onPageChanged: (i) => setState(() => _selected = _photos[i].id),
                           itemBuilder: (context, i) => InkOverlay(
-                            onTap: () => _fullScreen(context, widget.related[i]),
-                            child: AppImage(widget.related[i].full, fallback: widget.related[i].image, radius: 0),
+                            onTap: () => _fullScreen(context, _photos[i]),
+                            child: AppImage(_photos[i].full, fallback: _photos[i].image, radius: 0),
                           ),
                         ),
                         // Which of the audit's photos this is.
-                        if (widget.related.length > 1)
+                        if (_photos.length > 1)
                           Positioned(
                             left: 0,
                             right: 0,
                             bottom: 12,
                             child: IgnorePointer(
-                              child: _Dots(count: widget.related.length, index: _indexOf(_selected)),
+                              child: _Dots(count: _photos.length, index: _indexOf(_selected)),
                             ),
                           ),
                       ],
@@ -248,7 +259,7 @@ class _PhotoDetailViewState extends State<PhotoDetailView> {
                         ],
                         const SizedBox(height: 12),
                         Text(
-                          l10n.relatedPhotos(widget.related.length),
+                          l10n.relatedPhotos(_photos.length),
                           style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 14, height: 16 / 14, fontWeight: FontWeight.w700, color: c.textPrimary),
                         ),
                         const SizedBox(height: 12),
@@ -256,10 +267,10 @@ class _PhotoDetailViewState extends State<PhotoDetailView> {
                           height: 60,
                           child: ListView.separated(
                             scrollDirection: Axis.horizontal,
-                            itemCount: widget.related.length,
+                            itemCount: _photos.length,
                             separatorBuilder: (_, _) => const SizedBox(width: 6),
                             itemBuilder: (context, i) {
-                              final p = widget.related[i];
+                              final p = _photos[i];
                               final on = p.id == _selected;
                               return InkOverlay(
                                 radius: 8,

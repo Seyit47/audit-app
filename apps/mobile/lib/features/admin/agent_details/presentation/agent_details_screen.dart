@@ -292,6 +292,8 @@ class _AgentDetailsScreenState extends ConsumerState<AgentDetailsScreen> {
                         id: p['id'] as String,
                         lat: (p['lat'] as num).toDouble(),
                         lng: (p['lng'] as num).toDouble(),
+                        // The shop's storefront in the pin, as on the map.
+                        imageUrl: p['thumbUrl'] as String?,
                         color: switch (p['status']) {
                           'DONE' => c.success,
                           'MISSED' => c.error,

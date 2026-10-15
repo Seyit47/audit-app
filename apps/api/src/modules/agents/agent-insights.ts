@@ -87,7 +87,7 @@ export class AgentInsights {
     const tz = (await this.settings.get()).timezone
     const day = date ?? localDate(new Date(), tz)
     const start = startOfLocalDay(day, tz)
-    const shop = { select: { id: true, name: true, code: true, lat: true, lng: true } } as const
+    const shop = { select: { id: true, name: true, code: true, lat: true, lng: true, facadePhotoId: true } } as const
     const withPhotos = { _count: { select: { photos: true } } } as const
     const [route, audits] = await Promise.all([
       this.prisma.route.findUnique({
@@ -134,9 +134,21 @@ export class AgentInsights {
       this.timeline(agentId, day),
       this.prisma.agentPosition.findUnique({ where: { agentId } })
     ])
+    // Each checkpoint's pin shows the shop's storefront, as on the map.
+    const facadeIds = [...new Set(stops.map((st) => st.shop.facadePhotoId).filter((id): id is string => id != null))]
+    const thumbs = new Map(await Promise.all((await this.prisma.photo.findMany({ where: { id: { in: facadeIds }, status: 'READY' } }))
+      .map(async (f) => [f.id, (await photoView(this.storage, f)).previewUrl400] as const)))
     return {
       points: points.map((x) => ({ lat: x.lat, lng: x.lng, recordedAt: x.recordedAt.toISOString(), trigger: x.trigger })),
-      checkpoints: stops.map((st) => ({ id: st.id, status: st.status, lat: st.shop.lat, lng: st.shop.lng, name: st.shop.name, at: st.audit?.startedAt ?? st.plannedAt })),
+      checkpoints: stops.map((st) => ({
+        id: st.id,
+        status: st.status,
+        lat: st.shop.lat,
+        lng: st.shop.lng,
+        name: st.shop.name,
+        at: st.audit?.startedAt ?? st.plannedAt,
+        thumbUrl: st.shop.facadePhotoId == null ? null : thumbs.get(st.shop.facadePhotoId) ?? null
+      })),
       current: current == null ? null : { lat: current.lat, lng: current.lng, accuracyM: current.accuracyM, recordedAt: current.recordedAt.toISOString() }
     }
   }
