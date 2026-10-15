@@ -155,7 +155,7 @@ export class AgentInsights {
         where: { status: 'MISSED', route: { agentId }, ...(before ? { plannedAt: { lt: before } } : {}) },
         orderBy: { plannedAt: 'desc' },
         take: limit + 1,
-        include: { shop: { select: { id: true, name: true, code: true, address: true } } }
+        include: { shop: { select: { id: true, name: true, code: true, address: true, facadePhotoId: true } } }
       }),
       this.prisma.audit.count({ where: { agentId } }),
       this.prisma.routeStop.count({ where: { status: 'MISSED', route: { agentId } } })
@@ -163,13 +163,19 @@ export class AgentInsights {
     const merged = [...audits.map((a) => ({ at: a.finishedAtDevice, id: a.id, a })), ...missed.map((m) => ({ at: m.plannedAt, id: m.id, m }))]
       .sort((x, y) => y.at.getTime() - x.at.getTime())
     const page = merged.slice(0, limit)
+    // The shop's storefront photo as its thumbnail (not the audit's first photo).
+    const facadeIds = [...new Set(page.map((v) => ('a' in v ? v.a.shop : v.m.shop).facadePhotoId).filter((id): id is string => id != null))]
+    const facades = new Map(await Promise.all((await this.prisma.photo.findMany({ where: { id: { in: facadeIds }, status: 'READY' } }))
+      .map(async (f) => [f.id, await photoView(this.storage, f)] as const)))
+    const shopOf = ({ facadePhotoId, ...shop }: { id: string, name: string, code: string, address: string, facadePhotoId: string | null }) =>
+      ({ ...shop, facade: facadePhotoId == null ? null : facades.get(facadePhotoId) ?? null })
     const items = await Promise.all(page.map(async (v) => 'a' in v
       ? {
           type: 'AUDIT' as const, id: v.a.id, at: v.a.finishedAtDevice.toISOString(), startedAt: v.a.startedAtDevice.toISOString(), durationMin: v.a.durationMin,
-          shop: v.a.shop, comment: v.a.comment, hasViolation: v.a.hasViolation, photoCount: v.a.photos.length,
+          shop: shopOf(v.a.shop), comment: v.a.comment, hasViolation: v.a.hasViolation, photoCount: v.a.photos.length,
           photos: await Promise.all(v.a.photos.slice(0, 8).map((ph) => photoView(this.storage, ph)))
         }
-      : { type: 'MISSED' as const, id: v.m.id, at: v.m.plannedAt.toISOString(), shop: v.m.shop }))
+      : { type: 'MISSED' as const, id: v.m.id, at: v.m.plannedAt.toISOString(), shop: shopOf(v.m.shop) }))
     const last = page.at(-1)
     return { items, nextCursor: merged.length > limit && last ? encodeCursor(last.at, last.id) : null, totals: { all: completed + missedCount, completed, missed: missedCount } }
   }

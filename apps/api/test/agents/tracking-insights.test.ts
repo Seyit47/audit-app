@@ -111,8 +111,13 @@ test('summary, detail KPIs, timeline, track and reports', async () => {
   const positions = (await app.inject({ url: '/v1/agents/positions', headers: admin })).json()
   assert.strictEqual(positions.length, 1)
 
+  const facade = await app.prisma.photo.create({ data: { id: newId(), kind: 'FACADE', shopId: s1.id, uploadedById: adminId, storageKey: 'f/1.jpg', mime: 'image/jpeg', sizeBytes: 1, sha256: 'b'.repeat(64), takenAt: at, status: 'READY' } })
+  await app.prisma.shop.update({ where: { id: s1.id }, data: { facadePhotoId: facade.id } })
   const visits = (await app.inject({ url: `/v1/agents/${g.userId}/visits`, headers: admin })).json()
   assert.strictEqual(visits.totals.completed, 1)
+  const visit = visits.items.find((v: { type: string }) => v.type === 'AUDIT')
+  assert.strictEqual(visit.shop.facade.id, facade.id, 'the shop thumbnail is its storefront, not the audit photo')
+  assert.notStrictEqual(visit.photos[0].id, facade.id)
 
   for (const type of ['AGENT_REPORT_XLSX', 'AGENT_REPORT_PDF']) {
     const job = (await app.inject({ method: 'POST', url: '/v1/exports', headers: admin, payload: { type, params: { agentId: g.userId, from: day, to: day } } })).json()
