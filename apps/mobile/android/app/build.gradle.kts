@@ -64,3 +64,8 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // FileProvider for in-app updates (MainActivity); already used by the camera plugins.
+    implementation("androidx.core:core:1.13.1")
+}

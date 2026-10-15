@@ -10,6 +10,7 @@ import 'core/router/app_router.dart';
 import 'core/settings/app_settings.dart';
 import 'core/sync/sync_providers.dart';
 import 'core/theme/app_theme.dart';
+import 'features/update/update_gate.dart';
 
 class AuditApp extends ConsumerWidget {
   const AuditApp({super.key});
@@ -52,7 +53,7 @@ class AuditApp extends ConsumerWidget {
             systemNavigationBarIconBrightness: dark ? Brightness.light : Brightness.dark,
             systemNavigationBarContrastEnforced: false,
           ),
-          child: child!,
+          child: UpdateGate(child: child!),
         );
       },
     );

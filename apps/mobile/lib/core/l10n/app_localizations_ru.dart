@@ -1126,4 +1126,44 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get syncDeleteBody =>
       'Сервер не принимает эту запись, повторная отправка не поможет. Она и её фото будут удалены с телефона без возможности восстановления.';
+
+  @override
+  String updateTitle(String version) {
+    return 'Новая версия $version';
+  }
+
+  @override
+  String get updateOptional => 'Доступно обновление приложения.';
+
+  @override
+  String get updateRequired => 'Чтобы продолжить работу, установите обновление.';
+
+  @override
+  String updateSize(String mb) {
+    return 'Размер: $mb МБ';
+  }
+
+  @override
+  String get updateNow => 'Обновить';
+
+  @override
+  String get updateLater => 'Позже';
+
+  @override
+  String updateDownloading(int percent) {
+    return 'Загрузка… $percent%';
+  }
+
+  @override
+  String get updatePermission =>
+      'Разрешите установку обновлений: в настройках включите «Разрешить установку из этого источника», затем вернитесь в приложение.';
+
+  @override
+  String get updateReady => 'Подтвердите установку в открывшемся окне. Данные на телефоне сохранятся.';
+
+  @override
+  String get updateInstall => 'Установить';
+
+  @override
+  String get updateFailed => 'Не удалось скачать обновление. Проверьте связь и попробуйте снова.';
 }

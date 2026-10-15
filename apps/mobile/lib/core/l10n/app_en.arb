@@ -333,5 +333,16 @@
   "hidePassword": "Hide password",
   "syncDelete": "Delete",
   "syncDeleteTitle": "Delete from the phone?",
-  "syncDeleteBody": "The server refuses this, so sending it again won't help. It and its photos will be deleted from the phone for good."
+  "syncDeleteBody": "The server refuses this, so sending it again won't help. It and its photos will be deleted from the phone for good.",
+  "updateTitle": "New version {version}",
+  "updateOptional": "An app update is available.",
+  "updateRequired": "Install this update to keep working.",
+  "updateSize": "Size: {mb} MB",
+  "updateNow": "Update",
+  "updateLater": "Later",
+  "updateDownloading": "Downloading… {percent}%",
+  "updatePermission": "Allow installing the update: in settings turn on “Allow from this source”, then come back to the app.",
+  "updateReady": "Confirm the installation in the window that opened. Data on the phone is kept.",
+  "updateInstall": "Install",
+  "updateFailed": "Couldn't download the update. Check the connection and try again."
 }

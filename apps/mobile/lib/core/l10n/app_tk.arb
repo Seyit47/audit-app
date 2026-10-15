@@ -333,5 +333,16 @@
   "hidePassword": "Açar sözi gizle",
   "syncDelete": "Poz",
   "syncDeleteTitle": "Telefondan pozmalymy?",
-  "syncDeleteBody": "Serwer muny kabul etmeýär, täzeden ibermek kömek etmez. Ol we onuň suratlary telefondan doly pozular."
+  "syncDeleteBody": "Serwer muny kabul etmeýär, täzeden ibermek kömek etmez. Ol we onuň suratlary telefondan doly pozular.",
+  "updateTitle": "Täze wersiýa {version}",
+  "updateOptional": "Programmanyň täzelenmesi bar.",
+  "updateRequired": "Işi dowam etmek üçin täzelenmäni guruň.",
+  "updateSize": "Göwrümi: {mb} MB",
+  "updateNow": "Täzele",
+  "updateLater": "Soňra",
+  "updateDownloading": "Ýüklenýär… {percent}%",
+  "updatePermission": "Täzelenmäni gurmaga rugsat beriň: sazlamalarda «Bu çeşmeden rugsat ber» açyň, soň programma gaýdyp geliň.",
+  "updateReady": "Açylan penjirede guramagy tassyklaň. Telefondaky maglumatlar saklanar.",
+  "updateInstall": "Gur",
+  "updateFailed": "Täzelenmäni ýükläp bolmady. Aragatnaşygy barlaň we täzeden synanyşyň."
 }

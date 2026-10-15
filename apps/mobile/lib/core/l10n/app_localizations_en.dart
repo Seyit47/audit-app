@@ -1125,4 +1125,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get syncDeleteBody => 'The server refuses this, so sending it again won\'t help. It and its photos will be deleted from the phone for good.';
+
+  @override
+  String updateTitle(String version) {
+    return 'New version $version';
+  }
+
+  @override
+  String get updateOptional => 'An app update is available.';
+
+  @override
+  String get updateRequired => 'Install this update to keep working.';
+
+  @override
+  String updateSize(String mb) {
+    return 'Size: $mb MB';
+  }
+
+  @override
+  String get updateNow => 'Update';
+
+  @override
+  String get updateLater => 'Later';
+
+  @override
+  String updateDownloading(int percent) {
+    return 'Downloading… $percent%';
+  }
+
+  @override
+  String get updatePermission => 'Allow installing the update: in settings turn on “Allow from this source”, then come back to the app.';
+
+  @override
+  String get updateReady => 'Confirm the installation in the window that opened. Data on the phone is kept.';
+
+  @override
+  String get updateInstall => 'Install';
+
+  @override
+  String get updateFailed => 'Couldn\'t download the update. Check the connection and try again.';
 }

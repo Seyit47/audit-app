@@ -2096,6 +2096,72 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Сервер не принимает эту запись, повторная отправка не поможет. Она и её фото будут удалены с телефона без возможности восстановления.'**
   String get syncDeleteBody;
+
+  /// No description provided for @updateTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Новая версия {version}'**
+  String updateTitle(String version);
+
+  /// No description provided for @updateOptional.
+  ///
+  /// In ru, this message translates to:
+  /// **'Доступно обновление приложения.'**
+  String get updateOptional;
+
+  /// No description provided for @updateRequired.
+  ///
+  /// In ru, this message translates to:
+  /// **'Чтобы продолжить работу, установите обновление.'**
+  String get updateRequired;
+
+  /// No description provided for @updateSize.
+  ///
+  /// In ru, this message translates to:
+  /// **'Размер: {mb} МБ'**
+  String updateSize(String mb);
+
+  /// No description provided for @updateNow.
+  ///
+  /// In ru, this message translates to:
+  /// **'Обновить'**
+  String get updateNow;
+
+  /// No description provided for @updateLater.
+  ///
+  /// In ru, this message translates to:
+  /// **'Позже'**
+  String get updateLater;
+
+  /// No description provided for @updateDownloading.
+  ///
+  /// In ru, this message translates to:
+  /// **'Загрузка… {percent}%'**
+  String updateDownloading(int percent);
+
+  /// No description provided for @updatePermission.
+  ///
+  /// In ru, this message translates to:
+  /// **'Разрешите установку обновлений: в настройках включите «Разрешить установку из этого источника», затем вернитесь в приложение.'**
+  String get updatePermission;
+
+  /// No description provided for @updateReady.
+  ///
+  /// In ru, this message translates to:
+  /// **'Подтвердите установку в открывшемся окне. Данные на телефоне сохранятся.'**
+  String get updateReady;
+
+  /// No description provided for @updateInstall.
+  ///
+  /// In ru, this message translates to:
+  /// **'Установить'**
+  String get updateInstall;
+
+  /// No description provided for @updateFailed.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось скачать обновление. Проверьте связь и попробуйте снова.'**
+  String get updateFailed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

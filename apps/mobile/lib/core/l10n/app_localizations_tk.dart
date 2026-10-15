@@ -1125,4 +1125,43 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get syncDeleteBody => 'Serwer muny kabul etmeýär, täzeden ibermek kömek etmez. Ol we onuň suratlary telefondan doly pozular.';
+
+  @override
+  String updateTitle(String version) {
+    return 'Täze wersiýa $version';
+  }
+
+  @override
+  String get updateOptional => 'Programmanyň täzelenmesi bar.';
+
+  @override
+  String get updateRequired => 'Işi dowam etmek üçin täzelenmäni guruň.';
+
+  @override
+  String updateSize(String mb) {
+    return 'Göwrümi: $mb MB';
+  }
+
+  @override
+  String get updateNow => 'Täzele';
+
+  @override
+  String get updateLater => 'Soňra';
+
+  @override
+  String updateDownloading(int percent) {
+    return 'Ýüklenýär… $percent%';
+  }
+
+  @override
+  String get updatePermission => 'Täzelenmäni gurmaga rugsat beriň: sazlamalarda «Bu çeşmeden rugsat ber» açyň, soň programma gaýdyp geliň.';
+
+  @override
+  String get updateReady => 'Açylan penjirede guramagy tassyklaň. Telefondaky maglumatlar saklanar.';
+
+  @override
+  String get updateInstall => 'Gur';
+
+  @override
+  String get updateFailed => 'Täzelenmäni ýükläp bolmady. Aragatnaşygy barlaň we täzeden synanyşyň.';
 }
