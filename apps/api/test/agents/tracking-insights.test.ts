@@ -95,6 +95,7 @@ test('summary, detail KPIs, timeline, track and reports', async () => {
   const detail = (await app.inject({ url: `/v1/agents/${g.userId}?from=${day}&to=${day}`, headers: admin })).json()
   assert.deepStrictEqual(detail.kpis, { audits: 1, assignedShops: 2, visitedShops: 1, photos: 1 })
   assert.strictEqual(detail.online, true)
+  assert.ok(Date.now() - Date.parse(detail.createdAt) < 60_000, 'when the salesman was added')
 
   const timeline = (await app.inject({ url: `/v1/agents/${g.userId}/timeline?date=${day}`, headers: admin })).json()
   assert.strictEqual(timeline.length, 2)

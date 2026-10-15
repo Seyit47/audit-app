@@ -74,7 +74,11 @@ test('detail has shop, agent, audit comment, violation and related photos', asyn
   assert.strictEqual(d.audit.hasViolation, true)
   assert.strictEqual(d.audit.comment, 'Нет ценников')
   assert.ok(d.shop.name)
+  assert.ok(d.shop.type)
   assert.strictEqual(d.related.length, 2)
+  // 248:24402: the responsible agent and their audits in total.
+  assert.strictEqual(d.responsible.id, g.userId)
+  assert.strictEqual(d.responsible.audits, await app.prisma.audit.count({ where: { agentId: g.userId } }))
 })
 
 test('an agent sees own photos only', async () => {

@@ -134,15 +134,21 @@ export class GalleryService {
     const shop = shopId == null
       ? null
       : await this.prisma.shop.findUnique({ where: { id: shopId }, include: { assignedAgent: { select: { userId: true, fullName: true, phone: true } }, contacts: { orderBy: { position: 'asc' }, take: 1 } } })
+    // Who answers for the photo (mobile admin 248:24402 "Агент: …, N аудитов всего"): the agent who took
+    // it, else the shop's agent (a storefront photo an admin uploaded).
+    const responsible = p.uploadedBy.agent != null
+      ? { id: p.uploadedBy.id, fullName: p.uploadedBy.agent.fullName }
+      : shop?.assignedAgent == null ? null : { id: shop.assignedAgent.userId, fullName: shop.assignedAgent.fullName }
     return {
       ...await this.item(p),
+      responsible: responsible == null ? null : { ...responsible, audits: await this.prisma.audit.count({ where: { agentId: responsible.id } }) },
       lat: p.lat,
       lng: p.lng,
       accuracyM: p.accuracyM,
       shop: shop == null
         ? null
         : {
-            id: shop.id, name: shop.name, code: shop.code, address: shop.address, status: shop.status, lat: shop.lat, lng: shop.lng,
+            id: shop.id, name: shop.name, code: shop.code, type: shop.type, address: shop.address, status: shop.status, lat: shop.lat, lng: shop.lng,
             facade: shop.facadePhotoId == null ? null : await this.facade(shop.facadePhotoId),
             phone: shop.contacts[0]?.phone ?? null,
             agent: shop.assignedAgent == null ? null : { id: shop.assignedAgent.userId, fullName: shop.assignedAgent.fullName, phone: shop.assignedAgent.phone }

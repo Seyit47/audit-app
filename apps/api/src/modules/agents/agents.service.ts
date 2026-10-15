@@ -166,6 +166,8 @@ export class AgentsService {
       workStatus: a.workStatus,
       active: a.user.status === 'ACTIVE',
       version: a.version,
+      /** When the salesman was added: how long they have been working. */
+      createdAt: a.createdAt.toISOString(),
       device: a.device == null ? null : { model: a.device.model, imeiLabel: a.device.imeiLabel, boundAt: a.device.boundAt?.toISOString() ?? null },
       position: a.position == null
         ? null

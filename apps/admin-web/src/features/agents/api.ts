@@ -37,6 +37,7 @@ export interface Agent {
   workStatus: WorkStatus
   active: boolean
   version: number
+  createdAt: string
   device: { model: string | null, imeiLabel: string | null, boundAt: string | null } | null
   position: { lat: number, lng: number, accuracyM: number, speedKmh: number | null, batteryPct: number | null, recordedAt: string } | null
 }

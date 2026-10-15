@@ -40,7 +40,7 @@ export const agentsCopy = defineCopy({
     changePassword: 'Change password',
     pagination: { showing: 'Showing', of: 'of', show: 'Show:', perPage: 'per page', previous: 'Previous page', next: 'Next page', noun: 'salesmen' },
     details: {
-      title: 'Activity history', live: 'Live audit', sector: 'Sector: {n}',
+      title: 'Activity history', live: 'Live audit', sector: 'Sector: {n}', since: 'In the system since {n}',
       online: 'Online (GPS active, accuracy {n} m)', offline: 'Offline (last signal: {n})', noSignal: 'Offline (no signal yet)',
       export: 'Export report (PDF/XLS)', exportPdf: 'PDF report', exportXls: 'Excel report',
       audits: 'All-time audits', checklists: ['checklist', 'checklists'],
@@ -116,7 +116,7 @@ export const agentsCopy = defineCopy({
     changePassword: 'Изменить пароль',
     pagination: { showing: 'Показано', of: 'из', show: 'Показывать:', perPage: 'на странице', previous: 'Предыдущая страница', next: 'Следующая страница', noun: 'агентов' },
     details: {
-      title: 'История активности', live: 'Аудит в реальном времени', sector: 'Сектор: {n}',
+      title: 'История активности', live: 'Аудит в реальном времени', sector: 'Сектор: {n}', since: 'В системе с {n}',
       online: 'В сети (GPS активен, точность {n}м)', offline: 'Не в сети (последний сигнал: {n})', noSignal: 'Не в сети (сигнала ещё не было)',
       export: 'Экспорт отчёта (PDF/XLS)', exportPdf: 'Отчёт PDF', exportXls: 'Отчёт Excel',
       audits: 'Аудиты за все время', checklists: ['чек-лист', 'чек-листа', 'чек-листов'],
@@ -192,7 +192,7 @@ export const agentsCopy = defineCopy({
     changePassword: 'Açar sözi üýtget',
     pagination: { showing: 'Görkezilýär', of: '/', show: 'Görkez:', perPage: 'sahypada', previous: 'Öňki sahypa', next: 'Indiki sahypa', noun: 'agent' },
     details: {
-      title: 'Işjeňlik taryhy', live: 'Hakyky wagtda audit', sector: 'Sektor: {n}',
+      title: 'Işjeňlik taryhy', live: 'Hakyky wagtda audit', sector: 'Sektor: {n}', since: 'Ulgamda {n} bäri',
       online: 'Ulgamda (GPS işjeň, takyklygy {n} m)', offline: 'Ulgamda däl (soňky signal: {n})', noSignal: 'Ulgamda däl (entek signal ýok)',
       export: 'Hasabaty eksport et (PDF/XLS)', exportPdf: 'PDF hasabat', exportXls: 'Excel hasabat',
       audits: 'Ähli wagtdaky auditler', checklists: ['çek-list'],
