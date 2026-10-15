@@ -229,30 +229,31 @@ class _AgentPhotoDetailScreenState extends ConsumerState<AgentPhotoDetailScreen>
   }
 
   @override
-  Widget build(BuildContext context) {
-    final d = ref.watch(photoDetailsProvider(photoId)).value;
-    if (d == null) {
-      return Scaffold(
-        backgroundColor: context.colors.card,
-        body: const SafeArea(child: AppTopBar()),
-      );
-    }
-    final shop = d.shop;
-    return PhotoDetailView(
-      photoId: photoId,
-      related: [for (final p in d.related) GridPhoto(id: p.photo.id, image: p.image, full: p.full, takenAt: p.photo.takenAt)],
-      shopName: shop?.name,
-      shopAddress: shop?.address,
-      shopImage: shop?.facadeUrl,
-      lat: shop?.lat,
-      lng: shop?.lng,
-      meters: shop == null ? null : distanceTo(ref.watch(positionProvider).value, shop.lat, shop.lng),
-      comment: d.comment,
-      hasViolation: d.hasViolation,
-      onPrevAudit: _open(context, auditNeighbours(sequence, photoId).prev),
-      onNextAudit: _open(context, auditNeighbours(sequence, photoId).next),
-    );
-  }
+  Widget build(BuildContext context) => AuditPager(photoId: photoId, sequence: sequence, page: _page);
 
-  VoidCallback? _open(BuildContext context, String? id) => id == null ? null : () => context.replace('/agent/gallery/$id', extra: sequence);
+  Widget _page(BuildContext context, String id, bool first) => Consumer(
+    builder: (context, ref, _) {
+      final d = ref.watch(photoDetailsProvider(id)).value;
+      if (d == null) {
+        return Scaffold(
+          backgroundColor: context.colors.card,
+          body: const SafeArea(child: AppTopBar()),
+        );
+      }
+      final shop = d.shop;
+      final related = [for (final p in d.related) GridPhoto(id: p.photo.id, image: p.image, full: p.full, takenAt: p.photo.takenAt)];
+      return PhotoDetailView(
+        photoId: first && related.isNotEmpty ? related.first.id : id,
+        related: related,
+        shopName: shop?.name,
+        shopAddress: shop?.address,
+        shopImage: shop?.facadeUrl,
+        lat: shop?.lat,
+        lng: shop?.lng,
+        meters: shop == null ? null : distanceTo(ref.watch(positionProvider).value, shop.lat, shop.lng),
+        comment: d.comment,
+        hasViolation: d.hasViolation,
+      );
+    },
+  );
 }

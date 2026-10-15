@@ -35,8 +35,6 @@ class PhotoDetailView extends StatefulWidget {
     this.shopCode,
     this.agentName,
     this.agentAudits,
-    this.onPrevAudit,
-    this.onNextAudit,
   });
 
   final String photoId;
@@ -55,10 +53,6 @@ class PhotoDetailView extends StatefulWidget {
   final String? shopCode;
   final String? agentName;
   final int? agentAudits;
-
-  /// Swiping the details area (below the photo) right / left: the gallery's previous / next audit.
-  final VoidCallback? onPrevAudit;
-  final VoidCallback? onNextAudit;
 
   @override
   State<PhotoDetailView> createState() => _PhotoDetailViewState();
@@ -158,148 +152,133 @@ class _PhotoDetailViewState extends State<PhotoDetailView> {
                       ],
                     ),
                   ),
-                  // Swiping here (not on the photo) moves to the previous / next audit.
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onHorizontalDragEnd: (d) {
-                      final v = d.primaryVelocity ?? 0;
-                      if (v < -300) widget.onNextAudit?.call();
-                      if (v > 300) widget.onPrevAudit?.call();
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (widget.shopName != null)
-                            Row(
-                              children: [
-                                AppImage(widget.shopImage, width: 70, height: 70, radius: 12),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        widget.shopName!,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: text.copyWith(fontWeight: FontWeight.w600),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (widget.shopName != null)
+                          Row(
+                            children: [
+                              AppImage(widget.shopImage, width: 70, height: 70, radius: 12),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      widget.shopName!,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: text.copyWith(fontWeight: FontWeight.w600),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      widget.shopAddress ?? '',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: text.copyWith(fontWeight: FontWeight.w500),
+                                    ),
+                                    if (widget.shopType != null || widget.shopCode != null) ...[
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          if (widget.shopType != null) ...[Tag(widget.shopType!, strong: true), const SizedBox(width: 8)],
+                                          if (widget.shopCode != null) Tag(widget.shopCode!),
+                                        ],
                                       ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        widget.shopAddress ?? '',
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: text.copyWith(fontWeight: FontWeight.w500),
-                                      ),
-                                      if (widget.shopType != null || widget.shopCode != null) ...[
-                                        const SizedBox(height: 4),
-                                        Row(
-                                          children: [
-                                            if (widget.shopType != null) ...[Tag(widget.shopType!, strong: true), const SizedBox(width: 8)],
-                                            if (widget.shopCode != null) Tag(widget.shopCode!),
-                                          ],
-                                        ),
-                                      ] else if (widget.lat != null) ...[
-                                        const SizedBox(height: 4),
-                                        Row(
-                                          children: [
-                                            AppIcon('geo-target', width: 13.69, height: 13.69, color: c.success),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              coords(widget.lat!, widget.lng!),
-                                              style: TextStyle(
-                                                fontFamily: AppTextStyles.family,
-                                                fontSize: 12,
-                                                height: 1.5,
-                                                fontWeight: FontWeight.w500,
-                                                color: c.success,
+                                    ] else if (widget.lat != null) ...[
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          AppIcon('geo-target', width: 13.69, height: 13.69, color: c.success),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            coords(widget.lat!, widget.lng!),
+                                            style: TextStyle(
+                                              fontFamily: AppTextStyles.family,
+                                              fontSize: 12,
+                                              height: 1.5,
+                                              fontWeight: FontWeight.w500,
+                                              color: c.success,
+                                            ),
+                                          ),
+                                          if (widget.meters != null) ...[
+                                            const SizedBox(width: 8),
+                                            const Text('•', style: TextStyle(fontSize: 12, color: Color(0xFFC7C4D8))),
+                                            const SizedBox(width: 8),
+                                            Flexible(
+                                              child: Text(
+                                                l10n.fromYou(distance(context, widget.meters!)),
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 1.5, color: c.textSecondary),
                                               ),
                                             ),
-                                            if (widget.meters != null) ...[
-                                              const SizedBox(width: 8),
-                                              const Text('•', style: TextStyle(fontSize: 12, color: Color(0xFFC7C4D8))),
-                                              const SizedBox(width: 8),
-                                              Flexible(
-                                                child: Text(
-                                                  l10n.fromYou(distance(context, widget.meters!)),
-                                                  overflow: TextOverflow.ellipsis,
-                                                  style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 1.5, color: c.textSecondary),
-                                                ),
-                                              ),
-                                            ],
                                           ],
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ],
-                                  ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          if (widget.agentName != null) ...[
-                            const SizedBox(height: 12),
-                            // 248:24491: a hairline above "Агент: …" and the audits in total.
-                            Container(
-                              padding: const EdgeInsets.only(top: 10),
-                              decoration: BoxDecoration(
-                                border: Border(top: BorderSide(color: c.border)),
                               ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: IconLine(icon: 'person-small', iconSize: const Size(10, 10), text: l10n.agentLabel, bold: widget.agentName),
-                                  ),
-                                  if (widget.agentAudits != null)
-                                    IconLine(icon: 'history', iconSize: const Size(11.25, 11.25), text: l10n.auditsTotal(widget.agentAudits!)),
-                                ],
-                              ),
-                            ),
-                          ],
-                          if (widget.comment.isNotEmpty) ...[
-                            const SizedBox(height: 12),
-                            ViolationNote(text: widget.comment, violationLabel: widget.hasViolation ? l10n.violationRecorded : null),
-                          ],
-                          const SizedBox(height: 12),
-                          Text(
-                            l10n.relatedPhotos(widget.related.length),
-                            style: TextStyle(
-                              fontFamily: AppTextStyles.family,
-                              fontSize: 14,
-                              height: 16 / 14,
-                              fontWeight: FontWeight.w700,
-                              color: c.textPrimary,
-                            ),
+                            ],
                           ),
+                        if (widget.agentName != null) ...[
                           const SizedBox(height: 12),
-                          SizedBox(
-                            height: 60,
-                            child: ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: widget.related.length,
-                              separatorBuilder: (_, _) => const SizedBox(width: 6),
-                              itemBuilder: (context, i) {
-                                final p = widget.related[i];
-                                final on = p.id == _selected;
-                                return InkOverlay(
-                                  radius: 8,
-                                  onTap: () => on ? _fullScreen(context, p) : _select(p.id),
-                                  child: Container(
-                                    width: 60,
-                                    height: 60,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(color: on ? c.accent : Colors.transparent),
-                                      boxShadow: const [BoxShadow(color: Color(0x0D000000), offset: Offset(0, 1), blurRadius: 2)],
-                                    ),
-                                    child: AppImage(p.image, radius: 8),
-                                  ),
-                                );
-                              },
+                          // 248:24491: a hairline above "Агент: …" and the audits in total.
+                          Container(
+                            padding: const EdgeInsets.only(top: 10),
+                            decoration: BoxDecoration(
+                              border: Border(top: BorderSide(color: c.border)),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: IconLine(icon: 'person-small', iconSize: const Size(10, 10), text: l10n.agentLabel, bold: widget.agentName),
+                                ),
+                                if (widget.agentAudits != null)
+                                  IconLine(icon: 'history', iconSize: const Size(11.25, 11.25), text: l10n.auditsTotal(widget.agentAudits!)),
+                              ],
                             ),
                           ),
                         ],
-                      ),
+                        if (widget.comment.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          ViolationNote(text: widget.comment, violationLabel: widget.hasViolation ? l10n.violationRecorded : null),
+                        ],
+                        const SizedBox(height: 12),
+                        Text(
+                          l10n.relatedPhotos(widget.related.length),
+                          style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 14, height: 16 / 14, fontWeight: FontWeight.w700, color: c.textPrimary),
+                        ),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          height: 60,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: widget.related.length,
+                            separatorBuilder: (_, _) => const SizedBox(width: 6),
+                            itemBuilder: (context, i) {
+                              final p = widget.related[i];
+                              final on = p.id == _selected;
+                              return InkOverlay(
+                                radius: 8,
+                                onTap: () => on ? _fullScreen(context, p) : _select(p.id),
+                                child: Container(
+                                  width: 60,
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: on ? c.accent : Colors.transparent),
+                                    boxShadow: const [BoxShadow(color: Color(0x0D000000), offset: Offset(0, 1), blurRadius: 2)],
+                                  ),
+                                  child: AppImage(p.image, radius: 8),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],

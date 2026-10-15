@@ -8,47 +8,52 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('neighbouring audits in grid order; a photo without an audit is its own', () {
+  test('audits in grid order, as their first photo; a photo without an audit is its own', () {
     final seq = [('a1', 'A'), ('a2', 'A'), ('x', 'x'), ('b1', 'B'), ('b2', 'B')];
-    expect(auditNeighbours(seq, 'a2'), (prev: null, next: 'x'));
-    expect(auditNeighbours(seq, 'x'), (prev: 'a1', next: 'b1'));
-    expect(auditNeighbours(seq, 'b2'), (prev: 'x', next: null));
-    expect(auditNeighbours(null, 'a1'), (prev: null, next: null));
+    expect(auditPages(seq, 'a2').audits, ['a1', 'x', 'b1']);
+    expect(auditPages(seq, 'a2').index, 0);
+    expect(auditPages(seq, 'b2').index, 2);
+    expect(auditPages(null, 'a1').index, -1);
   });
 
-  testWidgets('swiping the details changes the audit; swiping the photo changes the photo', (tester) async {
+  testWidgets('swiping the details pages to the next audit on its first photo; swiping the photo stays', (tester) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
-    final opened = <String>[];
+    // Audit A: photos a1, a2 (opened on a2); audit B: b1, b2.
+    final audits = {
+      'A': ['a1', 'a2'],
+      'B': ['b1', 'b2'],
+    };
+    String auditOf(String id) => id.startsWith('a') ? 'A' : 'B';
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.light(),
         locale: const Locale('en'),
         localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
         supportedLocales: const [Locale('en')],
-        home: PhotoDetailView(
-          photoId: 'p1',
-          related: [
-            for (final id in ['p1', 'p2']) GridPhoto(id: id, image: null, takenAt: DateTime(2026, 10, 15, 10)),
-          ],
-          comment: 'Выкладка в порядке',
-          onPrevAudit: () => opened.add('prev'),
-          onNextAudit: () => opened.add('next'),
+        home: AuditPager(
+          photoId: 'a2',
+          sequence: const [('a2', 'A'), ('a1', 'A'), ('b2', 'B'), ('b1', 'B')],
+          page: (context, id, first) {
+            final related = [for (final p in audits[auditOf(id)]!) GridPhoto(id: p, image: null, takenAt: DateTime(2026, 10, 15))];
+            return PhotoDetailView(photoId: first ? related.first.id : id, related: related, comment: 'Audit ${auditOf(id)}');
+          },
         ),
       ),
     );
     await tester.pumpAndSettle();
+    PageController photos() => tester.widget<PageView>(find.byType(PageView).last).controller!;
+    expect(find.text('Audit A'), findsOneWidget);
+    expect(photos().page, 1, reason: 'opened on a2');
 
-    await tester.fling(find.byType(PageView), const Offset(-300, 0), 1500);
+    await tester.fling(find.byType(PageView).last, const Offset(-300, 0), 1500);
     await tester.pumpAndSettle();
-    expect(opened, isEmpty, reason: 'the photo swipe stays in the audit');
-    expect(find.text('Related audit photos (2)'), findsOneWidget);
+    expect(find.text('Audit A'), findsOneWidget, reason: 'a swipe on the photo stays in the audit');
 
-    await tester.fling(find.text('Выкладка в порядке'), const Offset(-300, 0), 1500);
+    await tester.fling(find.text('Audit A'), const Offset(-300, 0), 1500);
     await tester.pumpAndSettle();
-    expect(opened, ['next']);
-    await tester.fling(find.text('Выкладка в порядке'), const Offset(300, 0), 1500);
-    expect(opened, ['next', 'prev']);
+    expect(find.text('Audit B'), findsOneWidget);
+    expect(photos().page, 0, reason: 'the next audit opens on its first photo');
   });
 }

@@ -246,35 +246,36 @@ class AdminPhotoDetailScreen extends ConsumerWidget {
   final GallerySequence? sequence;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final p = ref.watch(_photoProvider(photoId)).value;
-    if (p == null) {
-      return Scaffold(
-        backgroundColor: context.colors.card,
-        body: const SafeArea(child: AppTopBar()),
-      );
-    }
-    final shop = (p['shop'] as Map?)?.cast<String, dynamic>();
-    final audit = (p['audit'] as Map?)?.cast<String, dynamic>();
-    final related = [for (final r in (p['related'] as List? ?? const []).cast<Map>()) _grid(r.cast<String, dynamic>())];
-    return PhotoDetailView(
-      photoId: photoId,
-      related: related.any((r) => r.id == photoId) ? related : [_grid(p), ...related],
-      shopName: shop?['name'] as String?,
-      shopAddress: shop?['address'] as String?,
-      shopImage: ((shop?['facade'] as Map?)?['previewUrl400']) as String?,
-      lat: (shop?['lat'] as num?)?.toDouble(),
-      lng: (shop?['lng'] as num?)?.toDouble(),
-      comment: (audit?['comment'] as String?) ?? '',
-      hasViolation: audit?['hasViolation'] == true,
-      shopType: shop == null ? null : shopTypeLabel(AppLocalizations.of(context), shop['type'] as String?),
-      shopCode: shop?['code'] as String?,
-      agentName: (p['responsible'] as Map?)?['fullName'] as String?,
-      agentAudits: (p['responsible'] as Map?)?['audits'] as int?,
-      onPrevAudit: _open(context, auditNeighbours(sequence, photoId).prev),
-      onNextAudit: _open(context, auditNeighbours(sequence, photoId).next),
-    );
-  }
+  Widget build(BuildContext context, WidgetRef ref) => AuditPager(photoId: photoId, sequence: sequence, page: _page);
 
-  VoidCallback? _open(BuildContext context, String? id) => id == null ? null : () => context.replace('/admin/gallery/$id', extra: sequence);
+  Widget _page(BuildContext context, String id, bool first) => Consumer(
+    builder: (context, ref, _) {
+      final p = ref.watch(_photoProvider(id)).value;
+      if (p == null) {
+        return Scaffold(
+          backgroundColor: context.colors.card,
+          body: const SafeArea(child: AppTopBar()),
+        );
+      }
+      final shop = (p['shop'] as Map?)?.cast<String, dynamic>();
+      final audit = (p['audit'] as Map?)?.cast<String, dynamic>();
+      final others = [for (final r in (p['related'] as List? ?? const []).cast<Map>()) _grid(r.cast<String, dynamic>())];
+      final related = others.any((r) => r.id == id) ? others : [_grid(p), ...others];
+      return PhotoDetailView(
+        photoId: first ? related.first.id : id,
+        related: related,
+        shopName: shop?['name'] as String?,
+        shopAddress: shop?['address'] as String?,
+        shopImage: ((shop?['facade'] as Map?)?['previewUrl400']) as String?,
+        lat: (shop?['lat'] as num?)?.toDouble(),
+        lng: (shop?['lng'] as num?)?.toDouble(),
+        comment: (audit?['comment'] as String?) ?? '',
+        hasViolation: audit?['hasViolation'] == true,
+        shopType: shop == null ? null : shopTypeLabel(AppLocalizations.of(context), shop['type'] as String?),
+        shopCode: shop?['code'] as String?,
+        agentName: (p['responsible'] as Map?)?['fullName'] as String?,
+        agentAudits: (p['responsible'] as Map?)?['audits'] as int?,
+      );
+    },
+  );
 }
