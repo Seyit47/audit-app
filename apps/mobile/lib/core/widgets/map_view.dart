@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
@@ -86,7 +87,13 @@ class AppMapView extends StatefulWidget {
     this.initialZoom = 13,
     this.onCameraIdle,
     this.fitPadding = fullScreenPadding,
+    this.line = const [],
+    this.lineColor,
   });
+
+  /// A route drawn under the pins (an agent's track today); part of the first fit.
+  final List<(double, double)> line;
+  final Color? lineColor;
 
   /// Screen renders in widget tests have no native map view: they turn this off and get a plain box.
   @visibleForTesting
@@ -123,6 +130,7 @@ class _AppMapViewState extends State<AppMapView> {
   Brightness? _brightness;
   bool _ready = false;
   final _symbols = <String, Symbol>{};
+  Line? _line;
   final _added = <String>{};
   double _dpr = 3;
 
@@ -154,6 +162,8 @@ class _AppMapViewState extends State<AppMapView> {
   void didUpdateWidget(AppMapView old) {
     super.didUpdateWidget(old);
     if (_ready && !identical(old.markers, widget.markers)) _syncMarkers().then((_) => _fitOnce());
+    // By content: screens rebuild the list on every frame they redraw.
+    if (_ready && !listEquals(old.line, widget.line)) _syncLine();
   }
 
   Future<void> _onStyleLoaded() async {
@@ -161,7 +171,9 @@ class _AppMapViewState extends State<AppMapView> {
     await map.setSymbolIconAllowOverlap(true);
     _symbols.clear();
     _added.clear();
+    _line = null;
     _ready = true;
+    await _syncLine();
     await _syncMarkers();
     final ctrl = widget.controller;
     final focus = ctrl._focus;
@@ -179,7 +191,21 @@ class _AppMapViewState extends State<AppMapView> {
     final ctrl = widget.controller;
     if (!_ready || ctrl._fitted || ctrl._focus != null || widget.initial != null || widget.markers.isEmpty) return;
     ctrl._fitted = true;
-    await ctrl.fit([for (final m in widget.markers) (m.lat, m.lng)]);
+    await ctrl.fit([for (final m in widget.markers) (m.lat, m.lng), ...widget.line]);
+  }
+
+  Future<void> _syncLine() async {
+    final map = widget.controller._map;
+    if (map == null) return;
+    final c = widget.lineColor ?? Theme.of(context).colorScheme.primary;
+    final hex = '#${(c.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}';
+    final old = _line;
+    _line = null;
+    if (old != null) await map.removeLine(old);
+    if (widget.line.length < 2) return;
+    _line = await map.addLine(
+      LineOptions(geometry: [for (final p in widget.line) LatLng(p.$1, p.$2)], lineColor: hex, lineWidth: 3, lineOpacity: 0.8, lineJoin: 'round'),
+    );
   }
 
   Future<void> _syncMarkers() async {

@@ -143,7 +143,12 @@ class _AgentDetailsScreenState extends ConsumerState<AgentDetailsScreen> {
     final totalPhotos = (kpis['photos'] as int?) ?? photos.length;
     final visits = [for (final v in (d.visits['items'] as List? ?? const []).cast<Map>()) v.cast<String, dynamic>()];
     final checkpoints = [for (final p in (d.track['checkpoints'] as List? ?? const []).cast<Map>()) p.cast<String, dynamic>()];
-    final current = (d.track['current'] as Map?)?.cast<String, dynamic>();
+    // The last position only while it is current (45 min, the web's "no signal" limit): a day-old one covered
+    // today's checkpoints and looked like a stray shop.
+    final last = (d.track['current'] as Map?)?.cast<String, dynamic>();
+    final lastAt = DateTime.tryParse(last?['recordedAt'] as String? ?? '');
+    final current = lastAt != null && DateTime.now().difference(lastAt) <= const Duration(minutes: 45) ? last : null;
+    final route = [for (final p in (d.track['points'] as List? ?? const []).cast<Map>()) ((p['lat'] as num).toDouble(), (p['lng'] as num).toDouble())];
 
     return [
       Container(
@@ -275,7 +280,13 @@ class _AgentDetailsScreenState extends ConsumerState<AgentDetailsScreen> {
                 child: AppMapView(
                   controller: _map,
                   fitPadding: const EdgeInsets.all(32),
+                  // Today's track under the pins.
+                  line: route,
+                  lineColor: c.accent,
                   markers: [
+                    // The agent first, so the checkpoints are drawn over it.
+                    if (current != null)
+                      MapMarker(id: 'current', lat: (current['lat'] as num).toDouble(), lng: (current['lng'] as num).toDouble(), color: c.accent, agent: true),
                     for (final p in checkpoints)
                       MapMarker(
                         id: p['id'] as String,
@@ -288,8 +299,6 @@ class _AgentDetailsScreenState extends ConsumerState<AgentDetailsScreen> {
                           _ => c.textSecondary,
                         },
                       ),
-                    if (current != null)
-                      MapMarker(id: 'current', lat: (current['lat'] as num).toDouble(), lng: (current['lng'] as num).toDouble(), color: c.accent),
                   ],
                 ),
               ),
