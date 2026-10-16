@@ -43,6 +43,16 @@ test('agent create requires a facade photo and GPS accuracy within the limit', a
   assert.strictEqual(far.json().error.code, 'GPS_ACCURACY')
 })
 
+test('agent create: address, owner and phone are optional (only the name, location and photo are required)', async () => {
+  const g = await f.agent(app)
+  const photo = await facade(g.userId)
+  const res = await app.inject({ method: 'POST', url: '/v1/shops', headers: bearer(app, { id: g.userId, role: 'AGENT' }), payload: { name: 'Bare', lat: 37.95, lng: 58.38, accuracyM: 8, facadePhotoId: photo.id } })
+  assert.strictEqual(res.statusCode, 201, res.body)
+  assert.strictEqual(res.json().address, '')
+  assert.strictEqual(res.json().ownerName, null)
+  assert.deepStrictEqual(res.json().contacts, [])
+})
+
 test('an admin approves a pending shop with the status toggle', async () => {
   const a = await f.admin(app)
   const g = await f.agent(app)

@@ -353,5 +353,6 @@
   "updateUpToDate": "Siziň wersiýaňyz iň täze",
   "updateAvailable": "{version} wersiýa elýeterli",
   "updateUnreachable": "Serwer bilen baglanyşyp bolmady. Aragatnaşygy barlaň we täzeden synanyşyň.",
-  "permissionPrecise": "Diňe takmynan ýerleşiş rugsat berildi. Auditler üçin takyk ýerleşiş gerek: programmanyň sazlamalarynda «Rugsatlar» → «Ýerleşiş» açyň we «Takyk ýerleşiş» ýakyň."
+  "permissionPrecise": "Diňe takmynan ýerleşiş rugsat berildi. Auditler üçin takyk ýerleşiş gerek: programmanyň sazlamalarynda «Rugsatlar» → «Ýerleşiş» açyň we «Takyk ýerleşiş» ýakyň.",
+  "shopExtraInfo": "Goşmaça maglumat (hökmany däl)"
 }

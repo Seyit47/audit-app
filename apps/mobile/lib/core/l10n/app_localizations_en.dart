@@ -1196,4 +1196,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get permissionPrecise =>
       'Only approximate location is allowed. Audits need precise location: in the app\'s settings open Permissions → Location and turn on “Use precise location”.';
+
+  @override
+  String get shopExtraInfo => 'Additional info (optional)';
 }

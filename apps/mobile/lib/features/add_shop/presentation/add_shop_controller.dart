@@ -41,12 +41,12 @@ class AddShopState {
   bool get accurate => fix != null && !fix!.provisional && fix!.accuracyM <= maxAccuracyM;
 
   bool get nameOk => name.trim().isNotEmpty;
-  bool get addressOk => address.trim().isNotEmpty;
-  bool get ownerOk => owner.trim().isNotEmpty;
-  bool get phoneOk => tmPhone(phone) != null;
+
+  /// Address, owner and phone are optional extra info; a phone, when given, must be a Turkmen number.
+  bool get phoneOk => phone.trim().isEmpty || tmPhone(phone) != null;
 
   /// "Сохранить" (`252:26487` disabled, `252:26607` enabled): every field, a location and the photo.
-  bool get canSave => nameOk && addressOk && ownerOk && phoneOk && accurate && photo != null && !saving;
+  bool get canSave => nameOk && phoneOk && accurate && photo != null && !saving;
 
   AddShopState copyWith({
     String? name,
@@ -129,6 +129,7 @@ class AddShopController extends Notifier<AddShopState> {
     final id = const Uuid().v7();
     final photo = s.photo!;
     final fix = s.fix!;
+    final phone = tmPhone(s.phone);
     late String shopItem;
     await db.transaction(() async {
       await db
@@ -166,13 +167,13 @@ class AddShopController extends Notifier<AddShopState> {
           'id': id,
           'name': s.name.trim(),
           'address': s.address.trim(),
-          'ownerName': s.owner.trim(),
+          'ownerName': s.owner.trim().isEmpty ? null : s.owner.trim(),
           'lat': fix.lat,
           'lng': fix.lng,
           'accuracyM': fix.accuracyM,
           'facadePhotoId': photo.id,
           'contacts': [
-            {'phone': tmPhone(s.phone)!},
+            if (phone != null) {'phone': phone},
           ],
         },
         dependsOn: [photoItem],
@@ -190,13 +191,13 @@ class AddShopController extends Notifier<AddShopState> {
               lat: fix.lat,
               lng: fix.lng,
               auditRadiusM: config.defaultAuditRadiusM,
-              ownerName: Value(s.owner.trim()),
+              ownerName: Value(s.owner.trim().isEmpty ? null : s.owner.trim()),
               facadeUrl: Value(photo.path),
               status: 'PENDING_REVIEW',
               updatedAt: now,
             ),
           );
-      await db.into(db.shopContacts).insert(ShopContactsCompanion.insert(id: const Uuid().v7(), shopId: id, phone: tmPhone(s.phone)!, position: 0));
+      if (phone != null) await db.into(db.shopContacts).insert(ShopContactsCompanion.insert(id: const Uuid().v7(), shopId: id, phone: phone, position: 0));
     });
     ref.read(syncTriggerProvider)();
     return shopItem;

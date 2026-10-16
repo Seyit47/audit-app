@@ -13,7 +13,8 @@ export const Contact = Type.Object({
 const Editable = {
   name: Type.String({ minLength: 1, maxLength: 160 }),
   type: Type.Optional(Type.Union([Type.Literal('HYPERMARKET'), Type.Literal('SUPERMARKET'), Type.Literal('MARKET'), Type.Literal('MINIMARKET'), Type.Literal('OTHER')])),
-  address: Type.String({ minLength: 1, maxLength: 300 }),
+  /** Optional for an agent's new shop (extra info); the admin forms still ask for it. */
+  address: Type.Optional(Type.String({ maxLength: 300 })),
   addressDetail: Type.Optional(Nullable(Type.String({ maxLength: 300 }))),
   regionId: Type.Optional(Nullable(Uuid)),
   lat: Type.Number({ minimum: -90, maximum: 90 }),

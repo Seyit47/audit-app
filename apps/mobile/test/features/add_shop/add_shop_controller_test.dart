@@ -93,4 +93,38 @@ void main() {
     expect(s.canSave, isFalse);
     expect(await ctrl.save(), isNull);
   });
+
+  test('address, owner and phone are optional; a phone given must be valid', () async {
+    final db = AppDatabase(NativeDatabase.memory());
+    final c = ProviderContainer(
+      overrides: [
+        databaseProvider.overrideWithValue(db),
+        locatorProvider.overrideWithValue(_Locator()),
+        photoCaptureProvider.overrideWithValue(_Capture()),
+        syncTriggerProvider.overrideWithValue(() {}),
+      ],
+    );
+    addTearDown(() async {
+      c.dispose();
+      await db.close();
+    });
+    c.listen(addShopControllerProvider, (_, _) {});
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    final ctrl = c.read(addShopControllerProvider.notifier);
+    ctrl.edit(name: 'Bare shop');
+    await ctrl.takePhoto();
+    expect(c.read(addShopControllerProvider).canSave, isTrue);
+
+    ctrl.edit(phone: '12');
+    expect(c.read(addShopControllerProvider).canSave, isFalse, reason: 'a phone given must be a Turkmen number');
+    ctrl.edit(phone: '');
+
+    expect(await ctrl.save(), isNotNull);
+    final shop = (await db.select(db.outbox).get()).singleWhere((o) => o.kind == OutboxKind.shopCreate);
+    final body = jsonDecode(shop.payloadJson) as Map<String, dynamic>;
+    expect(body['address'], '');
+    expect(body['ownerName'], isNull);
+    expect(body['contacts'], isEmpty);
+    expect(await db.select(db.shopContacts).get(), isEmpty);
+  });
 }

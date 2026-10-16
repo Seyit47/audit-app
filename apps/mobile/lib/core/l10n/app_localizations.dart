@@ -2216,6 +2216,12 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Включено только приблизительное местоположение. Для аудитов нужно точное: в настройках приложения откройте «Разрешения» → «Местоположение» и включите «Точное местоположение».'**
   String get permissionPrecise;
+
+  /// No description provided for @shopExtraInfo.
+  ///
+  /// In ru, this message translates to:
+  /// **'Дополнительная информация (необязательно)'**
+  String get shopExtraInfo;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

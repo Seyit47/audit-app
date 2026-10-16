@@ -1198,4 +1198,7 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get permissionPrecise =>
       'Включено только приблизительное местоположение. Для аудитов нужно точное: в настройках приложения откройте «Разрешения» → «Местоположение» и включите «Точное местоположение».';
+
+  @override
+  String get shopExtraInfo => 'Дополнительная информация (необязательно)';
 }

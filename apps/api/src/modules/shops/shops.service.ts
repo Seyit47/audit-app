@@ -116,6 +116,7 @@ export class ShopsService {
     try {
       const shop = await this.repo.create({
         ...fields,
+        address: fields.address?.trim() ?? '',
         type: fields.type ?? 'OTHER',
         regionId: fields.regionId === undefined ? await this.repo.nearestRegion(fields.lat, fields.lng) : fields.regionId,
         auditRadiusM: fields.auditRadiusM ?? settings.defaultAuditRadiusM,

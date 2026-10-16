@@ -1196,4 +1196,7 @@ class AppLocalizationsTk extends AppLocalizations {
   @override
   String get permissionPrecise =>
       'Diňe takmynan ýerleşiş rugsat berildi. Auditler üçin takyk ýerleşiş gerek: programmanyň sazlamalarynda «Rugsatlar» → «Ýerleşiş» açyň we «Takyk ýerleşiş» ýakyň.';
+
+  @override
+  String get shopExtraInfo => 'Goşmaça maglumat (hökmany däl)';
 }

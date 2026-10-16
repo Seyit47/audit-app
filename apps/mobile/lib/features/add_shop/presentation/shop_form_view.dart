@@ -26,6 +26,7 @@ class ShopFormView extends StatefulWidget {
     required this.fix,
     required this.locating,
     required this.onRecheck,
+    this.detailsOptional = false,
     this.maxAccuracyM,
     this.picked,
     this.onPickOnMap,
@@ -51,6 +52,9 @@ class ShopFormView extends StatefulWidget {
   final Fix? fix;
   final bool locating;
   final VoidCallback onRecheck;
+
+  /// Agents: address, owner and phone are optional extra info under their own heading.
+  final bool detailsOptional;
 
   /// Agents: a fix less precise than this can't be saved (the server would refuse it); admins have none.
   final int? maxAccuracyM;
@@ -110,6 +114,7 @@ class _ShopFormViewState extends State<ShopFormView> {
     final fix = w.fix;
     // Each field reports what is wrong once the user has changed it (Flutter's Form, onUserInteraction).
     String? required(String v) => v.trim().isEmpty ? l10n.fieldRequired : null;
+    final optional = w.detailsOptional;
     String? phone(String v) => required(v) ?? (tmPhone(v) == null ? l10n.phoneInvalid : null);
     final picked = w.picked;
     final at = picked ?? (fix == null ? null : (fix.lat, fix.lng));
@@ -147,11 +152,12 @@ class _ShopFormViewState extends State<ShopFormView> {
                             ),
                     ),
                     const SizedBox(height: 22),
+                    if (optional) ...[Text(l10n.shopExtraInfo, style: label), const SizedBox(height: 12)],
                     AppTextFormField(
                       label: l10n.address,
-                      required: true,
+                      required: !optional,
                       controller: _address,
-                      validator: required,
+                      validator: optional ? null : required,
                       hint: l10n.addressHint,
                       textInputAction: TextInputAction.next,
                       onChanged: (v) => w.onChanged(address: v),
@@ -159,9 +165,9 @@ class _ShopFormViewState extends State<ShopFormView> {
                     const SizedBox(height: 22),
                     AppTextFormField(
                       label: l10n.owner,
-                      required: true,
+                      required: !optional,
                       controller: _owner,
-                      validator: required,
+                      validator: optional ? null : required,
                       hint: l10n.ownerHint,
                       textInputAction: TextInputAction.next,
                       onChanged: (v) => w.onChanged(owner: v),
@@ -169,9 +175,9 @@ class _ShopFormViewState extends State<ShopFormView> {
                     const SizedBox(height: 22),
                     AppTextFormField(
                       label: l10n.phoneNumber,
-                      required: true,
+                      required: !optional,
                       controller: _phone,
-                      validator: phone,
+                      validator: optional ? (v) => v.trim().isEmpty ? null : phone(v) : phone,
                       hint: l10n.phoneHint,
                       keyboardType: TextInputType.phone,
                       inputFormatters: const [TmPhoneFormatter()],
