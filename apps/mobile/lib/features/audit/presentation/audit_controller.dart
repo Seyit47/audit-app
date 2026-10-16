@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 
+import '../../../core/location/location_hub.dart';
+
 import '../../../core/router/app_router.dart';
 import '../../../core/db/app_database.dart';
 import '../../../core/db/database_provider.dart';
@@ -12,21 +14,35 @@ import '../../../core/widgets/photo_capture.dart';
 import '../data/audit_local_repository.dart';
 import '../domain/geofence.dart';
 
-/// How old the phone's last known position may be when a fresh fix can't be had (indoors, weak GPS).
+/// How old the phone's last known position may be when no fresh reading comes (indoors, weak GPS).
 /// The tracker keeps it current during working hours; a minute is at most ~80 m on foot.
 const lastKnownMaxAge = Duration(seconds: 60);
 
-/// A position the system already has is used at once when this recent and precise: no waiting for GPS.
+/// A reading this recent is current: no need to wait for the next one.
 const instantMaxAge = Duration(seconds: 15);
-const instantMaxAccuracyM = 30.0;
+
+/// Precise enough to stop refining: GPS outdoors reaches 3–10 m within seconds.
+const goodAccuracyM = 15.0;
+
+/// How long a check keeps refining before it settles on the best reading it got.
+const refineFor = Duration(seconds: 12);
 
 bool freshEnough(DateTime at, DateTime now, {Duration maxAge = lastKnownMaxAge}) => now.difference(at) <= maxAge;
 
 /// Whether a known position can be used without asking GPS again.
 bool usableAtOnce({required DateTime at, required double accuracyM, required DateTime now}) =>
-    freshEnough(at, now, maxAge: instantMaxAge) && accuracyM <= instantMaxAccuracyM;
+    freshEnough(at, now, maxAge: instantMaxAge) && accuracyM <= goodAccuracyM;
 
+/// Location for the audit and new-shop checks, from the app's shared stream ([LocationHub]): the best
+/// position so far at once, then each more precise reading as GPS sharpens, until one is within
+/// [goodAccuracyM] or [refineFor] has passed. A reading counts once it is within the company limit (the
+/// screens check that); a position older than [instantMaxAge] is shown as provisional only.
 class GeolocatorLocator extends Locator {
+  GeolocatorLocator(this._hub, {this.refine = refineFor});
+
+  final LocationHub _hub;
+  final Duration refine;
+
   @override
   Future<Fix?> current() => watch().last;
 
@@ -39,26 +55,41 @@ class GeolocatorLocator extends Locator {
         return;
       }
     } catch (_) {}
-    final known = await _lastKnown();
-    final now = DateTime.now();
-    // 1. Recent and precise (the tracker keeps it warm during working hours): that's the answer.
-    if (known != null && usableAtOnce(at: known.timestamp, accuracyM: known.accuracy, now: now)) {
-      yield _fix(known);
-      return;
-    }
-    // 2. Otherwise shown at once while GPS answers, if under a minute old.
-    if (known != null && freshEnough(known.timestamp, now)) yield _fix(known, provisional: true);
-    // 3. The GPS fix the moment it arrives (at most 10 s).
+    _hub.acquire();
     try {
-      yield _fix(
-        await Geolocator.getCurrentPosition(
-          locationSettings: const LocationSettings(accuracy: LocationAccuracy.best, timeLimit: Duration(seconds: 10)),
-        ),
-      );
-    } catch (_) {
-      // Timed out (indoors, weak GPS): a recent position from the system, the tracker's included.
+      final now = DateTime.now();
+      final known = _hub.latest ?? await _lastKnown();
+      Fix? best;
+      if (known != null && freshEnough(known.timestamp, now, maxAge: instantMaxAge)) {
+        yield best = _fix(known);
+        if (known.accuracy <= goodAccuracyM) return;
+      } else if (known != null && freshEnough(known.timestamp, now)) {
+        yield best = _fix(known, provisional: true);
+      }
+      // Each sharper reading as it arrives.
+      final end = DateTime.now().add(refine);
+      final readings = StreamIterator(_hub.positions);
+      try {
+        while (true) {
+          final left = end.difference(DateTime.now());
+          if (left <= Duration.zero || !await readings.moveNext().timeout(left, onTimeout: () => false)) break;
+          final p = readings.current;
+          if (best == null || best.provisional || p.accuracy < best.accuracyM) yield best = _fix(p);
+          if (p.accuracy <= goodAccuracyM) return;
+        }
+      } finally {
+        await readings.cancel();
+      }
+      if (best != null && !best.provisional) return;
+      // No reading at all (indoors, no signal): a recent position from the system counts.
       final last = await _lastKnown();
-      yield last != null && freshEnough(last.timestamp, DateTime.now()) ? _fix(last) : null;
+      if (last != null && freshEnough(last.timestamp, DateTime.now())) {
+        yield _fix(last);
+      } else if (best == null) {
+        yield null;
+      }
+    } finally {
+      _hub.release();
     }
   }
 
@@ -74,7 +105,7 @@ class GeolocatorLocator extends Locator {
 }
 
 final photoCaptureProvider = Provider<PhotoCapture>((ref) => CameraPhotoCapture(() => rootNavigatorKey.currentState));
-final locatorProvider = Provider<Locator>((ref) => GeolocatorLocator());
+final locatorProvider = Provider<Locator>((ref) => GeolocatorLocator(ref.watch(locationHubProvider)));
 
 /// Sends the outbox right after "Завершить аудит" (T092) or a new shop; tests replace it.
 /// Only a push: the full pull runs on app start, resume, reconnect and the 15-minute timer.

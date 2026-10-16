@@ -2210,6 +2210,12 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Не удалось связаться с сервером. Проверьте связь и попробуйте снова.'**
   String get updateUnreachable;
+
+  /// No description provided for @permissionPrecise.
+  ///
+  /// In ru, this message translates to:
+  /// **'Включено только приблизительное местоположение. Для аудитов нужно точное: в настройках приложения откройте «Разрешения» → «Местоположение» и включите «Точное местоположение».'**
+  String get permissionPrecise;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

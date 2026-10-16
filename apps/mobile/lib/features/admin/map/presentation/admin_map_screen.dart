@@ -121,6 +121,8 @@ class _AdminMapScreenState extends ConsumerState<AdminMapScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final c = context.colors;
+    // Keeps the position current while the map is open, for "my location" and the distances.
+    ref.listen(positionProvider, (_, _) {});
     final needle = _q.trim().toLowerCase();
     final base = _shops.where((s) => needle.isEmpty || '${s['name']} ${s['code']} ${s['address']}'.toLowerCase().contains(needle)).toList();
     final shown = switch (_filter) {

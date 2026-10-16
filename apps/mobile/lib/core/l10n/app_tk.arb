@@ -352,5 +352,6 @@
   "checkForUpdates": "Täzelenmäni barla",
   "updateUpToDate": "Siziň wersiýaňyz iň täze",
   "updateAvailable": "{version} wersiýa elýeterli",
-  "updateUnreachable": "Serwer bilen baglanyşyp bolmady. Aragatnaşygy barlaň we täzeden synanyşyň."
+  "updateUnreachable": "Serwer bilen baglanyşyp bolmady. Aragatnaşygy barlaň we täzeden synanyşyň.",
+  "permissionPrecise": "Diňe takmynan ýerleşiş rugsat berildi. Auditler üçin takyk ýerleşiş gerek: programmanyň sazlamalarynda «Rugsatlar» → «Ýerleşiş» açyň we «Takyk ýerleşiş» ýakyň."
 }

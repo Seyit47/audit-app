@@ -2,16 +2,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../router/app_router.dart';
+import 'location_hub.dart';
 
-/// The device position for distances and the map (foreground only; tracking is `tracker.dart`).
-/// Emits the last known fix first, then updates every 10 m.
-final positionProvider = StreamProvider<Position?>((ref) async* {
+/// The device's position for "N m from you": from the shared stream while a screen shows it.
+final positionProvider = StreamProvider.autoDispose<Position?>((ref) async* {
   if (!ref.watch(locationGrantedProvider)) {
     yield null;
     return;
   }
-  yield await Geolocator.getLastKnownPosition();
-  yield* Geolocator.getPositionStream(locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, distanceFilter: 10));
+  final hub = ref.watch(locationHubProvider);
+  hub.acquire();
+  ref.onDispose(hub.release);
+  Position? known = hub.latest;
+  if (known == null) {
+    try {
+      known = await Geolocator.getLastKnownPosition();
+    } catch (_) {}
+  }
+  yield known;
+  yield* hub.positions;
 });
 
 /// Meters from the device to a point, or null without a fix.

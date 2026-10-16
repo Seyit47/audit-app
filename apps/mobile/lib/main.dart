@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app.dart';
+import 'features/permission/presentation/permission_screen.dart' show isApproximate;
 import 'core/router/app_router.dart';
 import 'core/settings/app_settings.dart';
 import 'core/sync/background_sync.dart';
@@ -24,12 +25,14 @@ Future<void> main() async {
   };
   final prefs = await SharedPreferences.getInstance();
   final permission = await Geolocator.checkPermission();
+  final granted = (permission == LocationPermission.always || permission == LocationPermission.whileInUse) && !await isApproximate();
   await registerBackgroundSync();
   runApp(
     ProviderScope(
       overrides: [
         sharedPreferencesProvider.overrideWithValue(prefs),
-        initialLocationGrantedProvider.overrideWithValue(permission == LocationPermission.always || permission == LocationPermission.whileInUse),
+        // Approximate location (Android 12+) counts as not granted: the permission screen asks for precise.
+        initialLocationGrantedProvider.overrideWithValue(granted),
       ],
       child: const AuditApp(),
     ),

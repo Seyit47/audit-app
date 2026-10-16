@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/location/position_provider.dart';
+
 import 'package:go_router/go_router.dart';
 
 import '../../../core/format/formatters.dart';
@@ -29,6 +32,7 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final position = ref.watch(positionProvider).value;
     final l10n = AppLocalizations.of(context);
     final c = context.colors;
     final all = ref.watch(shopsProvider).value ?? const <ShopItem>[];
@@ -115,8 +119,10 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
                           final s = shown[i].shop;
                           // A shop the agent added waits for an admin's approval before it can be audited.
                           final pending = s.status != 'ACTIVE';
+                          final meters = distanceTo(position, s.lat, s.lng);
                           return ShopListTile(
                             name: s.name,
+                            distance: meters == null ? null : distance(context, meters),
                             address: s.address,
                             imageUrl: s.facadeUrl,
                             footerLabel: pending ? l10n.statusPENDING_REVIEW : l10n.lastVisit,

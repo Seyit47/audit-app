@@ -1194,4 +1194,8 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get updateUnreachable => 'Не удалось связаться с сервером. Проверьте связь и попробуйте снова.';
+
+  @override
+  String get permissionPrecise =>
+      'Включено только приблизительное местоположение. Для аудитов нужно точное: в настройках приложения откройте «Разрешения» → «Местоположение» и включите «Точное местоположение».';
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
+import 'app_icon.dart';
 import 'app_image.dart';
 import 'tap.dart';
 
@@ -16,6 +17,7 @@ class ShopListTile extends StatelessWidget {
     required this.footerValue,
     required this.onTap,
     this.footerColor,
+    this.distance,
   });
 
   final String name;
@@ -25,6 +27,9 @@ class ShopListTile extends StatelessWidget {
   final String footerValue;
   final Color? footerColor;
   final VoidCallback onTap;
+
+  /// "350 м" from the agent, next to the name (not in the Figma frame; asked for).
+  final String? distance;
 
   @override
   Widget build(BuildContext context) {
@@ -54,11 +59,38 @@ class ShopListTile extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 15, height: 1.25, fontWeight: FontWeight.w600, color: c.textPrimary),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontFamily: AppTextStyles.family,
+                                  fontSize: 15,
+                                  height: 1.25,
+                                  fontWeight: FontWeight.w600,
+                                  color: c.textPrimary,
+                                ),
+                              ),
+                            ),
+                            if (distance != null) ...[
+                              const SizedBox(width: 8),
+                              AppIcon('pin-small', width: 8, height: 10, color: c.textSecondary),
+                              const SizedBox(width: 3),
+                              Text(
+                                distance!,
+                                style: TextStyle(
+                                  fontFamily: AppTextStyles.family,
+                                  fontSize: 11,
+                                  height: 1.5,
+                                  fontWeight: FontWeight.w500,
+                                  color: c.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                         const SizedBox(height: 2),
                         Text(

@@ -1192,4 +1192,8 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get updateUnreachable => 'Serwer bilen baglanyşyp bolmady. Aragatnaşygy barlaň we täzeden synanyşyň.';
+
+  @override
+  String get permissionPrecise =>
+      'Diňe takmynan ýerleşiş rugsat berildi. Auditler üçin takyk ýerleşiş gerek: programmanyň sazlamalarynda «Rugsatlar» → «Ýerleşiş» açyň we «Takyk ýerleşiş» ýakyň.';
 }

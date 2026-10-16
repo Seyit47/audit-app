@@ -352,5 +352,6 @@
   "checkForUpdates": "Check for updates",
   "updateUpToDate": "You have the latest version",
   "updateAvailable": "Version {version} is available",
-  "updateUnreachable": "Couldn't reach the server. Check the connection and try again."
+  "updateUnreachable": "Couldn't reach the server. Check the connection and try again.",
+  "permissionPrecise": "Only approximate location is allowed. Audits need precise location: in the app's settings open Permissions → Location and turn on “Use precise location”."
 }

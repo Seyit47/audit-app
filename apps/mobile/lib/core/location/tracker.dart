@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:battery_plus/battery_plus.dart';
 import 'package:drift/drift.dart';
@@ -16,6 +15,7 @@ import '../router/app_router.dart';
 import '../settings/remote_config.dart';
 import '../sync/outbox_repository.dart';
 import '../sync/sync_providers.dart';
+import 'location_hub.dart';
 
 /// Tracking (FR-017, research R-11): only while signed in as an ACTIVE agent within working hours.
 /// Working hours are compared in the device's local time, which is the company time zone in the
@@ -179,7 +179,11 @@ class Tracker {
       return;
     }
     await _updateZones();
-    _positions ??= Geolocator.getPositionStream(locationSettings: _settings()).listen(_onPosition, onError: (_) => _stopStream());
+    if (_positions == null) {
+      final hub = _ref.read(locationHubProvider);
+      hub.acquire(background: true);
+      _positions = hub.positions.listen(_onPosition);
+    }
     // Heartbeat while standing still: the stream only fires on movement.
     final last = _lastPosition;
     if (last != null) await _onPosition(last, at: DateTime.now());
@@ -196,7 +200,12 @@ class Tracker {
     ];
   }
 
+  /// Readings worse than this are cell-tower or Wi-Fi guesses (indoors): kept out of the route, which
+  /// they would zigzag.
+  static const maxAccuracyM = 100.0;
+
   Future<void> _onPosition(Position p, {DateTime? at}) async {
+    if (p.accuracy > maxAccuracyM) return;
     _lastPosition = p;
     int? battery;
     try {
@@ -228,30 +237,10 @@ class Tracker {
   }
 
   void _stopStream() {
+    if (_positions != null) _ref.read(locationHubProvider).release(background: true);
     _positions?.cancel();
     _positions = null;
     _sentFirst = false;
-  }
-
-  LocationSettings _settings() {
-    if (Platform.isAndroid) {
-      return AndroidSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: PingDecider.minMove.toInt(),
-        intervalDuration: const Duration(seconds: 30),
-        foregroundNotificationConfig: const ForegroundNotificationConfig(
-          notificationTitle: 'Аудит',
-          notificationText: 'Рабочее время: отслеживание маршрута',
-          enableWakeLock: true,
-        ),
-      );
-    }
-    return AppleSettings(
-      accuracy: LocationAccuracy.high,
-      distanceFilter: PingDecider.minMove.toInt(),
-      showBackgroundLocationIndicator: true,
-      pauseLocationUpdatesAutomatically: false,
-    );
   }
 }
 

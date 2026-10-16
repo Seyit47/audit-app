@@ -22,6 +22,9 @@ class PermissionScreen extends ConsumerStatefulWidget {
 class _PermissionScreenState extends ConsumerState<PermissionScreen> {
   bool _denied = false;
 
+  /// Granted, but only "approximate" (Android 12+): ~1–3 km, useless for audits.
+  bool _approximate = false;
+
   Future<void> _request() async {
     if (!await Geolocator.isLocationServiceEnabled()) {
       await Geolocator.openLocationSettings();
@@ -36,8 +39,17 @@ class _PermissionScreenState extends ConsumerState<PermissionScreen> {
       await Geolocator.openAppSettings();
       return;
     }
-    final granted = permission == LocationPermission.always || permission == LocationPermission.whileInUse;
-    setState(() => _denied = !granted);
+    var granted = permission == LocationPermission.always || permission == LocationPermission.whileInUse;
+    final approximate = granted && await isApproximate();
+    if (approximate) {
+      // Precise location is a switch in the app's permission settings.
+      if (_approximate) await Geolocator.openAppSettings();
+      granted = false;
+    }
+    setState(() {
+      _denied = !granted && !approximate;
+      _approximate = approximate;
+    });
     ref.read(locationGrantedProvider.notifier).set(granted);
   }
 
@@ -81,6 +93,14 @@ class _PermissionScreenState extends ConsumerState<PermissionScreen> {
                     textAlign: TextAlign.center,
                     style: AppTextStyles.caption.copyWith(color: c.textSecondary, fontWeight: FontWeight.w500, height: 1.5),
                   ),
+                  if (_approximate) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      l10n.permissionPrecise,
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.caption.copyWith(color: c.error),
+                    ),
+                  ],
                   if (_denied) ...[
                     const SizedBox(height: 12),
                     Text(
@@ -90,7 +110,7 @@ class _PermissionScreenState extends ConsumerState<PermissionScreen> {
                     ),
                   ],
                   const Spacer(),
-                  PrimaryButton(label: _denied ? l10n.permissionSettings : l10n.permissionAllow, onPressed: _request),
+                  PrimaryButton(label: _denied || _approximate ? l10n.permissionSettings : l10n.permissionAllow, onPressed: _request),
                 ],
               ),
             ),
@@ -98,5 +118,14 @@ class _PermissionScreenState extends ConsumerState<PermissionScreen> {
         ],
       ),
     );
+  }
+}
+
+/// Whether location is granted only approximately (Android 12+ "Approximate"): audits need precise.
+Future<bool> isApproximate() async {
+  try {
+    return await Geolocator.getLocationAccuracy() == LocationAccuracyStatus.reduced;
+  } catch (_) {
+    return false;
   }
 }
