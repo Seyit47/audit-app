@@ -2222,6 +2222,30 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Дополнительная информация (необязательно)'**
   String get shopExtraInfo;
+
+  /// No description provided for @locServiceOff.
+  ///
+  /// In ru, this message translates to:
+  /// **'Геолокация на телефоне выключена. Включите «Местоположение» в шторке уведомлений и нажмите «Проверить заново».'**
+  String get locServiceOff;
+
+  /// No description provided for @locDenied.
+  ///
+  /// In ru, this message translates to:
+  /// **'Нет доступа к местоположению. Разрешите его в настройках приложения: «Разрешения» → «Местоположение».'**
+  String get locDenied;
+
+  /// No description provided for @locApproximate.
+  ///
+  /// In ru, this message translates to:
+  /// **'Разрешено только приблизительное местоположение. Включите «Точное местоположение» в настройках приложения.'**
+  String get locApproximate;
+
+  /// No description provided for @locNoSignal.
+  ///
+  /// In ru, this message translates to:
+  /// **'Нет сигнала GPS. Подойдите к окну или выйдите на улицу и нажмите «Проверить заново».'**
+  String get locNoSignal;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

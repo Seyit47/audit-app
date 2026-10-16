@@ -120,7 +120,7 @@ class _StartAuditSheetState extends ConsumerState<_StartAuditSheet> with TickerP
       _Phase.inside => (l10n.insideShopRadius(hit!.shop.name), c.success),
       _Phase.outside => (l10n.notInShopRadius(hit!.shop.name, distance(context, hit.meters)), c.error),
       _Phase.inaccurate => (l10n.geoInaccurate(_fix!.accuracyM.round()), c.error),
-      _Phase.unavailable => (l10n.geoUnavailable, c.error),
+      _Phase.unavailable => (locationProblemText(l10n, ref.watch(locationProblemProvider).value), c.error),
       _Phase.noShops => (l10n.shopsEmpty, c.textSecondary),
     };
     return BottomSheetCard(

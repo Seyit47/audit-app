@@ -354,5 +354,9 @@
   "updateAvailable": "{version} wersiýa elýeterli",
   "updateUnreachable": "Serwer bilen baglanyşyp bolmady. Aragatnaşygy barlaň we täzeden synanyşyň.",
   "permissionPrecise": "Diňe takmynan ýerleşiş rugsat berildi. Auditler üçin takyk ýerleşiş gerek: programmanyň sazlamalarynda «Rugsatlar» → «Ýerleşiş» açyň we «Takyk ýerleşiş» ýakyň.",
-  "shopExtraInfo": "Goşmaça maglumat (hökmany däl)"
+  "shopExtraInfo": "Goşmaça maglumat (hökmany däl)",
+  "locServiceOff": "Telefonda ýerleşiş öçük. Bildiriş panelinde «Ýerleşiş» açyň we «Täzeden barla» basyň.",
+  "locDenied": "Ýerleşişe rugsat ýok. Programmanyň sazlamalarynda rugsat beriň: «Rugsatlar» → «Ýerleşiş».",
+  "locApproximate": "Diňe takmynan ýerleşiş rugsat berildi. Programmanyň sazlamalarynda «Takyk ýerleşiş» ýakyň.",
+  "locNoSignal": "GPS signaly ýok. Penjirä golaý geliň ýa-da daşaryk çykyň we «Täzeden barla» basyň."
 }

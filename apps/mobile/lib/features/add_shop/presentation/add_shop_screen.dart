@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/app_localizations.dart';
 import '../../sync/presentation/sync_screen.dart';
+import '../../audit/presentation/audit_controller.dart';
 import 'add_shop_controller.dart';
 import 'shop_form_view.dart';
 
@@ -27,6 +28,7 @@ class AddShopScreen extends ConsumerWidget {
       locating: s.locating,
       onRecheck: ctrl.locate,
       detailsOptional: true,
+      unavailableText: s.fix == null && !s.locating ? locationProblemText(l10n, ref.watch(locationProblemProvider).value) : null,
       maxAccuracyM: s.maxAccuracyM,
       photo: s.photo?.path,
       photoSizeBytes: s.photo?.sizeBytes,

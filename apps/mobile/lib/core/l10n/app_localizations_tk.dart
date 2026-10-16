@@ -1199,4 +1199,16 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get shopExtraInfo => 'Goşmaça maglumat (hökmany däl)';
+
+  @override
+  String get locServiceOff => 'Telefonda ýerleşiş öçük. Bildiriş panelinde «Ýerleşiş» açyň we «Täzeden barla» basyň.';
+
+  @override
+  String get locDenied => 'Ýerleşişe rugsat ýok. Programmanyň sazlamalarynda rugsat beriň: «Rugsatlar» → «Ýerleşiş».';
+
+  @override
+  String get locApproximate => 'Diňe takmynan ýerleşiş rugsat berildi. Programmanyň sazlamalarynda «Takyk ýerleşiş» ýakyň.';
+
+  @override
+  String get locNoSignal => 'GPS signaly ýok. Penjirä golaý geliň ýa-da daşaryk çykyň we «Täzeden barla» basyň.';
 }

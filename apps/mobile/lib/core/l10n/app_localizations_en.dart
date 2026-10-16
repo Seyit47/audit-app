@@ -1199,4 +1199,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shopExtraInfo => 'Additional info (optional)';
+
+  @override
+  String get locServiceOff => 'Location is off on the phone. Turn on Location in the quick settings and tap Check again.';
+
+  @override
+  String get locDenied => 'No access to location. Allow it in the app\'s settings: Permissions → Location.';
+
+  @override
+  String get locApproximate => 'Only approximate location is allowed. Turn on “Use precise location” in the app\'s settings.';
+
+  @override
+  String get locNoSignal => 'No GPS signal. Move to a window or step outside and tap Check again.';
 }

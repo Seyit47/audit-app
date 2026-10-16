@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 
+import '../../../core/l10n/app_localizations.dart';
 import '../../../core/location/location_hub.dart';
 
 import '../../../core/router/app_router.dart';
@@ -66,9 +67,17 @@ class GeolocatorLocator extends Locator {
       } else if (known != null && freshEnough(known.timestamp, now)) {
         yield best = _fix(known, provisional: true);
       }
-      // Each sharper reading as it arrives.
+      // Each sharper reading as it arrives: from the shared stream, and from a one-off request to Android
+      // alongside it, so a stream that is slow to start (or stuck on a device) doesn't leave the check empty.
       final end = DateTime.now().add(refine);
-      final readings = StreamIterator(_hub.positions);
+      final merged = StreamController<Position>();
+      final shared = _hub.positions.listen(merged.add);
+      unawaited(
+        oneShot().then((p) {
+          if (p != null && !merged.isClosed) merged.add(p);
+        }),
+      );
+      final readings = StreamIterator(merged.stream);
       try {
         while (true) {
           final left = end.difference(DateTime.now());
@@ -79,6 +88,8 @@ class GeolocatorLocator extends Locator {
         }
       } finally {
         await readings.cancel();
+        await shared.cancel();
+        await merged.close();
       }
       if (best != null && !best.provisional) return;
       // No reading at all (indoors, no signal): a recent position from the system counts.
@@ -90,6 +101,17 @@ class GeolocatorLocator extends Locator {
       }
     } finally {
       _hub.release();
+    }
+  }
+
+  /// A single fresh reading straight from Android (fused provider), independent of the shared stream.
+  Future<Position?> oneShot() async {
+    try {
+      return await Geolocator.getCurrentPosition(
+        locationSettings: LocationSettings(accuracy: LocationAccuracy.best, timeLimit: refine),
+      );
+    } catch (_) {
+      return null;
     }
   }
 
@@ -105,6 +127,30 @@ class GeolocatorLocator extends Locator {
 }
 
 final photoCaptureProvider = Provider<PhotoCapture>((ref) => CameraPhotoCapture(() => rootNavigatorKey.currentState));
+
+/// Why there is no position: the screens say what to do instead of only "location unavailable".
+enum LocationProblem { serviceOff, denied, approximate, noSignal }
+
+Future<LocationProblem> diagnoseLocation() async {
+  try {
+    if (!await Geolocator.isLocationServiceEnabled()) return LocationProblem.serviceOff;
+    final permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) return LocationProblem.denied;
+    if (await Geolocator.getLocationAccuracy() == LocationAccuracyStatus.reduced) return LocationProblem.approximate;
+  } catch (_) {}
+  return LocationProblem.noSignal;
+}
+
+/// Checked when a screen has no position (and again when it re-renders after "Проверить заново").
+final locationProblemProvider = FutureProvider.autoDispose<LocationProblem>((ref) => diagnoseLocation());
+
+String locationProblemText(AppLocalizations l10n, LocationProblem? problem) => switch (problem) {
+  LocationProblem.serviceOff => l10n.locServiceOff,
+  LocationProblem.denied => l10n.locDenied,
+  LocationProblem.approximate => l10n.locApproximate,
+  _ => l10n.locNoSignal,
+};
+
 final locatorProvider = Provider<Locator>((ref) => GeolocatorLocator(ref.watch(locationHubProvider)));
 
 /// Sends the outbox right after "Завершить аудит" (T092) or a new shop; tests replace it.

@@ -27,6 +27,7 @@ class ShopFormView extends StatefulWidget {
     required this.locating,
     required this.onRecheck,
     this.detailsOptional = false,
+    this.unavailableText,
     this.maxAccuracyM,
     this.picked,
     this.onPickOnMap,
@@ -55,6 +56,9 @@ class ShopFormView extends StatefulWidget {
 
   /// Agents: address, owner and phone are optional extra info under their own heading.
   final bool detailsOptional;
+
+  /// Why there is no position (location off, no permission, no signal); "unavailable" otherwise.
+  final String? unavailableText;
 
   /// Agents: a fix less precise than this can't be saved (the server would refuse it); admins have none.
   final int? maxAccuracyM;
@@ -214,7 +218,7 @@ class _ShopFormViewState extends State<ShopFormView> {
                                       : picked != null
                                       ? l10n.pickedOnMap
                                       : fix == null
-                                      ? l10n.geoUnavailable
+                                      ? w.unavailableText ?? l10n.geoUnavailable
                                       : inaccurate
                                       ? l10n.geoInaccurate(fix.accuracyM.round())
                                       : l10n.accuracyLine(fix.accuracyM.round()),

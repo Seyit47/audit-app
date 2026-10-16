@@ -354,5 +354,9 @@
   "updateAvailable": "Version {version} is available",
   "updateUnreachable": "Couldn't reach the server. Check the connection and try again.",
   "permissionPrecise": "Only approximate location is allowed. Audits need precise location: in the app's settings open Permissions → Location and turn on “Use precise location”.",
-  "shopExtraInfo": "Additional info (optional)"
+  "shopExtraInfo": "Additional info (optional)",
+  "locServiceOff": "Location is off on the phone. Turn on Location in the quick settings and tap Check again.",
+  "locDenied": "No access to location. Allow it in the app's settings: Permissions → Location.",
+  "locApproximate": "Only approximate location is allowed. Turn on “Use precise location” in the app's settings.",
+  "locNoSignal": "No GPS signal. Move to a window or step outside and tap Check again."
 }

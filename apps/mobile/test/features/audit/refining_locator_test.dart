@@ -34,8 +34,24 @@ Position _at(double accuracy) => Position(
   speedAccuracy: 0,
 );
 
+/// The one-off request answers; the shared stream stays silent (stuck on the device).
+class _OneShotOnly extends GeolocatorLocator {
+  _OneShotOnly(super.hub, this.answer) : super(refine: const Duration(seconds: 2));
+  final Position answer;
+
+  @override
+  Future<Position?> oneShot() async => answer;
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  test('a stuck shared stream does not leave the check empty: the one-off request answers', () async {
+    final hub = _Hub();
+    final fixes = await _OneShotOnly(hub, _at(7)).watch().toList();
+    expect(fixes.map((f) => f!.accuracyM), [7]);
+    expect(hub.users, 0);
+  });
 
   test('each sharper reading as it comes; stops at a precise one and lets the GPS go', () async {
     final hub = _Hub();

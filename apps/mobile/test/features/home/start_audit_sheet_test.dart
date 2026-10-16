@@ -118,8 +118,10 @@ void main() {
     expect(popped(), isNull);
   });
 
-  testWidgets('no fix: location unavailable', (tester) async {
+  testWidgets('no fix: says why (here, with no location service to ask: no GPS signal)', (tester) async {
     await open(tester, null);
-    expect(find.text('Location unavailable'), findsOneWidget);
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+    await tester.pump();
+    expect(find.textContaining('No GPS signal'), findsOneWidget);
   });
 }

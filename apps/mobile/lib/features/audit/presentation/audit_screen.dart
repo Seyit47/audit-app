@@ -183,14 +183,14 @@ class _AuditScreenState extends ConsumerState<AuditScreen> {
 }
 
 /// "Progress Header Banner": the shop (or the location state) and Проверить заново.
-class _LocationBar extends StatelessWidget {
+class _LocationBar extends ConsumerWidget {
   const _LocationBar({required this.state, required this.onRecheck});
 
   final AuditState state;
   final Future<void> Function() onRecheck;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final c = context.colors;
     final shop = state.shop;
@@ -204,7 +204,7 @@ class _LocationBar extends StatelessWidget {
       case GeoStatus.inaccurate:
         problem = l10n.geoInaccurate(fix?.accuracyM.round() ?? 0);
       case GeoStatus.unavailable:
-        problem = l10n.geoUnavailable;
+        problem = locationProblemText(l10n, ref.watch(locationProblemProvider).value);
       case GeoStatus.notActive:
         problem = l10n.shopNotActive;
       case GeoStatus.inside:
