@@ -16,12 +16,16 @@ const Editable = {
   /** Optional for an agent's new shop (extra info); the admin forms still ask for it. */
   address: Type.Optional(Type.String({ maxLength: 300 })),
   addressDetail: Type.Optional(Nullable(Type.String({ maxLength: 300 }))),
-  regionId: Type.Optional(Nullable(Uuid)),
+  /** Required by the forms for a new shop; shops from before districts have none. */
+  districtId: Type.Optional(Nullable(Uuid)),
   lat: Type.Number({ minimum: -90, maximum: 90 }),
   lng: Type.Number({ minimum: -180, maximum: 180 }),
   auditRadiusM: Type.Optional(Type.Integer({ minimum: 10, maximum: 1000 })),
   ownerName: Type.Optional(Nullable(Type.String({ maxLength: 120 }))),
   facadePhotoId: Type.Optional(Nullable(Uuid)),
+  /** The shop's agents (several). */
+  agentIds: Type.Optional(Type.Array(Uuid, { maxItems: 50 })),
+  /** One agent, from apps before several agents per shop. */
   assignedAgentId: Type.Optional(Nullable(Uuid))
 }
 
@@ -53,6 +57,9 @@ export const ListShopsQuery = Type.Object({
   size: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
   q: Type.Optional(Type.String({ maxLength: 100 })),
   status: Type.Optional(ShopStatus),
+  /** 'none': shops without a district. */
+  districtId: Type.Optional(Type.Union([Uuid, Type.Literal('none')])),
+  /** Sent by apps from before districts; ignored. */
   regionId: Type.Optional(Uuid),
   agentId: Type.Optional(Uuid),
   sort: Type.Optional(Type.Union([Type.Literal('name'), Type.Literal('code'), Type.Literal('lastVisitAt'), Type.Literal('createdAt')])),
@@ -71,6 +78,8 @@ export const IdParams = Type.Object({ id: Uuid })
 
 export const MapQuery = Type.Object({
   agentIds: Type.Optional(Type.Array(Uuid)),
+  districtIds: Type.Optional(Type.Array(Uuid)),
+  /** Sent by apps from before districts; ignored. */
   regionIds: Type.Optional(Type.Array(Uuid)),
   ids: Type.Optional(Type.Array(Uuid)),
   status: Type.Optional(ShopStatus)

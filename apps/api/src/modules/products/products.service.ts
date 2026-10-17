@@ -23,7 +23,7 @@ export class ProductsService {
     return {
       ...(q.status ? { status: q.status } : {}),
       ...(q.categoryId ? { categoryId: q.categoryId } : {}),
-      ...(q.regionId ? { shops: { some: { shop: { regionId: q.regionId, deletedAt: null } } } } : {}),
+      ...(q.districtId ? { shops: { some: { shop: { districtId: q.districtId, deletedAt: null } } } } : {}),
       ...(q.q ? { OR: [{ name: { contains: q.q, mode: 'insensitive' } }, { sku: { contains: q.q, mode: 'insensitive' } }, { brand: { contains: q.q, mode: 'insensitive' } }] } : {})
     }
   }
@@ -46,7 +46,7 @@ export class ProductsService {
   }
 
   private async row (p: Prisma.ProductGetPayload<{ include: { category: true } }>, activeShops: number) {
-    const shops = await this.prisma.shop.findMany({ where: { deletedAt: null, products: { some: { productId: p.id } } }, select: { id: true, region: { select: { name: true } } } })
+    const shops = await this.prisma.shop.findMany({ where: { deletedAt: null, products: { some: { productId: p.id } } }, select: { id: true, district: { select: { name: true } } } })
     const ids = shops.map((s) => s.id)
     const [audits, clean, last] = ids.length === 0
       ? [0, 0, null]
@@ -71,7 +71,7 @@ export class ProductsService {
       minStockAlert: p.minStockAlert,
       locations: shops.length,
       coveragePct: pct(shops.length, activeShops),
-      regions: [...new Set(shops.map((s) => s.region?.name).filter((n): n is string => n != null))].sort(),
+      districts: [...new Set(shops.map((s) => s.district?.name).filter((n): n is string => n != null))].sort(),
       compliancePct: pct(clean, audits),
       lastActivityAt: last?.finishedAtDevice.toISOString() ?? null,
       updatedAt: p.updatedAt.toISOString()

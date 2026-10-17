@@ -34,7 +34,7 @@ export class AuditsService {
 
   async checkStart (user: AuthUser, body: CheckStartBody) {
     const shop = await this.repo.shop(body.shopId)
-    if (shop == null || shop.deletedAt != null || shop.assignedAgentId !== user.id) throw notFound('Shop')
+    if (shop == null || shop.deletedAt != null || !shop.assignments.some((a) => a.agentId === user.id)) throw notFound('Shop')
     assertActive(shop)
     const s = await this.settings.get()
     if (body.accuracyM > s.minGpsAccuracyM) {
@@ -60,7 +60,7 @@ export class AuditsService {
     // The agent's shop now, or theirs when the audit started (an offline audit made before a reassignment).
     // `startedAt` is the phone's clock and assignments use the server's, so the current assignment alone is
     // enough: a few minutes of skew between them must not reject the audit of a shop assigned just before.
-    if (shop == null || (shop.assignedAgentId !== user.id && !await this.repo.wasAssigned(shop.id, user.id, started))) throw notFound('Shop')
+    if (shop == null || (!shop.assignments.some((a) => a.agentId === user.id) && !await this.repo.wasAssigned(shop.id, user.id, started))) throw notFound('Shop')
     assertActive(shop)
 
     const photos = await this.repo.photos(body.photoIds)

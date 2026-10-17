@@ -1,14 +1,21 @@
 import { Prisma, type PrismaClient } from '../../generated/prisma/client.js'
 import { newId } from '../../lib/ids.js'
 
+/** The shop's agents: its open assignment rows (a shop can have several). */
+export const currentAgents = { where: { to: null, agentId: { not: null } }, orderBy: { from: 'asc' } } as const
+
+/** Shops the agent is assigned to now. */
+export const assignedTo = (agentId: string): Prisma.ShopWhereInput => ({ assignments: { some: { agentId, to: null } } })
+
 export const shopInclude = {
-  region: true,
-  assignedAgent: { select: { userId: true, fullName: true, code: true, phone: true } },
+  district: true,
+  assignments: { ...currentAgents, include: { agent: { select: { userId: true, fullName: true, code: true, phone: true } } } },
   contacts: { orderBy: { position: 'asc' } }
 } as const
 export type ShopRow = Prisma.ShopGetPayload<{ include: typeof shopInclude }>
 
-export interface ShopFilter { q?: string, status?: 'PENDING_REVIEW' | 'ACTIVE' | 'INACTIVE', regionId?: string, agentId?: string }
+/** [districtId] 'none': shops without a district (from before districts). */
+export interface ShopFilter { q?: string, status?: 'PENDING_REVIEW' | 'ACTIVE' | 'INACTIVE', districtId?: string, agentId?: string }
 
 /** The storefront photo belongs to its shop, so the gallery files it there (an upload has no shop yet). */
 const linkPhoto = (tx: Prisma.TransactionClient, photoId: string, shopId: string) =>
@@ -21,8 +28,8 @@ export class ShopsRepository {
   where (f: ShopFilter): Prisma.ShopWhereInput {
     const where: Prisma.ShopWhereInput = { deletedAt: null }
     if (f.status) where.status = f.status
-    if (f.regionId) where.regionId = f.regionId
-    if (f.agentId) where.assignedAgentId = f.agentId
+    if (f.districtId) where.districtId = f.districtId === 'none' ? null : f.districtId
+    if (f.agentId) Object.assign(where, assignedTo(f.agentId))
     if (f.q) {
       // Trigram-indexed ILIKE (migration: gin_trgm_ops on name, code, ownerName, address).
       where.OR = ['name', 'code', 'ownerName', 'address'].map((k) => ({ [k]: { contains: f.q, mode: 'insensitive' } }))
@@ -62,23 +69,12 @@ export class ShopsRepository {
     return new Map(rows.map((r) => [r.shopId, { at: r.at, agentName: r.agentName }]))
   }
 
-  /** The region whose centroid is closest to a point (the edit dialog has no region field). */
-  async nearestRegion (lat: number, lng: number): Promise<string | null> {
-    const regions = await this.prisma.region.findMany({ where: { centroidLat: { not: null }, centroidLng: { not: null } } })
-    let best: { id: string, d: number } | null = null
-    for (const r of regions) {
-      const d = (r.centroidLat! - lat) ** 2 + ((r.centroidLng! - lng) * Math.cos(lat * Math.PI / 180)) ** 2
-      if (best == null || d < best.d) best = { id: r.id, d }
-    }
-    return best?.id ?? null
-  }
-
   async nextCode (): Promise<string> {
     const [row] = await this.prisma.$queryRaw<Array<{ n: bigint }>>`SELECT nextval('shop_code_seq') AS n`
     return `CL-${row!.n}`
   }
 
-  create (data: Omit<Prisma.ShopUncheckedCreateInput, 'code' | 'id'> & { id?: string }, contacts: Array<{ phone: string, label?: string | null }>) {
+  create (data: Omit<Prisma.ShopUncheckedCreateInput, 'code' | 'id'> & { id?: string }, contacts: Array<{ phone: string, label?: string | null }>, agentIds: string[]) {
     return this.prisma.$transaction(async (tx) => {
       const [row] = await tx.$queryRaw<Array<{ n: bigint }>>`SELECT nextval('shop_code_seq') AS n`
       const id = data.id ?? newId()
@@ -90,31 +86,42 @@ export class ShopsRepository {
           contacts: { create: contacts.map((c, position) => ({ id: newId(), phone: c.phone, label: c.label ?? null, position })) }
         }
       })
-      if (data.assignedAgentId) await tx.shopAssignment.create({ data: { id: newId(), shopId: id, agentId: data.assignedAgentId, from: new Date() } })
+      if (agentIds.length > 0) await tx.shopAssignment.createMany({ data: agentIds.map((agentId) => ({ id: newId(), shopId: id, agentId, from: new Date() })) })
       if (data.facadePhotoId) await linkPhoto(tx, data.facadePhotoId, id)
       return tx.shop.findUniqueOrThrow({ where: { id }, include: shopInclude })
     })
   }
 
-  /** Optimistic update; reassignment closes the open assignment row and opens a new one. */
-  async update (id: string, version: number, data: Prisma.ShopUncheckedUpdateManyInput, reassignTo?: string | null): Promise<boolean> {
+  /** Optimistic update; [agentIds] (when given) become the shop's agents. */
+  async update (id: string, version: number, data: Prisma.ShopUncheckedUpdateManyInput, agentIds?: string[]): Promise<boolean> {
     return this.prisma.$transaction(async (tx) => {
       const { count } = await tx.shop.updateMany({ where: { id, version, deletedAt: null }, data: { ...data, version: { increment: 1 } } })
-      if (count === 1 && reassignTo !== undefined) await this.reassign(tx, [id], reassignTo)
+      if (count === 1 && agentIds !== undefined) await this.setAgents(tx, [id], agentIds)
       if (count === 1 && typeof data.facadePhotoId === 'string') await linkPhoto(tx, data.facadePhotoId, id)
       return count === 1
     })
   }
 
-  private async reassign (tx: Prisma.TransactionClient, shopIds: string[], agentId: string | null) {
+  /**
+   * Makes [agentIds] the shops' agents: assignments of others end now, new ones start now (the history stays,
+   * for offline audits made before a change). The shops' updatedAt moves, so the agents' phones pick it up.
+   */
+  private async setAgents (tx: Prisma.TransactionClient, shopIds: string[], agentIds: string[]) {
     const now = new Date()
-    await tx.shopAssignment.updateMany({ where: { shopId: { in: shopIds }, to: null }, data: { to: now } })
-    await tx.shopAssignment.createMany({ data: shopIds.map((shopId) => ({ id: newId(), shopId, agentId, from: now })) })
-    await tx.shop.updateMany({ where: { id: { in: shopIds } }, data: { assignedAgentId: agentId } })
+    await tx.shopAssignment.updateMany({
+      where: { shopId: { in: shopIds }, to: null, OR: [{ agentId: null }, { agentId: { notIn: agentIds } }] },
+      data: { to: now }
+    })
+    const open = await tx.shopAssignment.findMany({ where: { shopId: { in: shopIds }, to: null }, select: { shopId: true, agentId: true } })
+    const have = new Set(open.map((a) => `${a.shopId}/${a.agentId}`))
+    const add = shopIds.flatMap((shopId) => agentIds.filter((agentId) => !have.has(`${shopId}/${agentId}`)).map((agentId) => ({ id: newId(), shopId, agentId, from: now })))
+    if (add.length > 0) await tx.shopAssignment.createMany({ data: add })
+    await tx.shop.updateMany({ where: { id: { in: shopIds } }, data: { updatedAt: now } })
   }
 
+  /** Bulk "Назначить": the agent becomes the selected shops' only agent (null: none). */
   bulkAssign (shopIds: string[], agentId: string | null) {
-    return this.prisma.$transaction((tx) => this.reassign(tx, shopIds, agentId))
+    return this.prisma.$transaction((tx) => this.setAgents(tx, shopIds, agentId == null ? [] : [agentId]))
   }
 
   /** Soft delete; audits and photos stay. Removes the shops from today's and future planned stops. */
@@ -137,7 +144,7 @@ export class ShopsRepository {
   /** Agent sync: own changed shops and ids that left the agent's set since `after`. */
   async syncChanges (agentId: string, after: Date) {
     const items = await this.prisma.shop.findMany({
-      where: { assignedAgentId: agentId, deletedAt: null, status: { not: 'INACTIVE' }, updatedAt: { gt: after } },
+      where: { ...assignedTo(agentId), deletedAt: null, status: { not: 'INACTIVE' }, updatedAt: { gt: after } },
       include: shopInclude,
       orderBy: { updatedAt: 'asc' }
     })
@@ -145,8 +152,8 @@ export class ShopsRepository {
       where: {
         updatedAt: { gt: after },
         OR: [
-          { assignedAgentId: agentId, OR: [{ deletedAt: { not: null } }, { status: 'INACTIVE' }] },
-          { assignments: { some: { agentId, to: { gt: after } } }, NOT: { assignedAgentId: agentId } }
+          { ...assignedTo(agentId), OR: [{ deletedAt: { not: null } }, { status: 'INACTIVE' }] },
+          { assignments: { some: { agentId, to: { gt: after } } }, NOT: assignedTo(agentId) }
         ]
       },
       select: { id: true }
@@ -201,7 +208,7 @@ export class ShopsRepository {
   mapShops (where: Prisma.ShopWhereInput) {
     return this.prisma.shop.findMany({
       where: { deletedAt: null, ...where },
-      select: { id: true, code: true, name: true, address: true, lat: true, lng: true, auditRadiusM: true, status: true, assignedAgentId: true, regionId: true, facadePhotoId: true, lastVisitAt: true, nextDueAt: true },
+      select: { id: true, code: true, name: true, address: true, lat: true, lng: true, auditRadiusM: true, status: true, districtId: true, facadePhotoId: true, lastVisitAt: true, nextDueAt: true, assignments: { ...currentAgents, select: { agentId: true } } },
       orderBy: { code: 'asc' }
     })
   }
@@ -216,7 +223,7 @@ export class ShopsRepository {
   }
 
   isAssigned (shopId: string, agentId: string) {
-    return this.prisma.shop.count({ where: { id: shopId, assignedAgentId: agentId, deletedAt: null } }).then((n) => n > 0)
+    return this.prisma.shop.count({ where: { id: shopId, deletedAt: null, ...assignedTo(agentId) } }).then((n) => n > 0)
   }
 }
 

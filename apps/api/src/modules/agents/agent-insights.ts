@@ -72,7 +72,7 @@ export class AgentInsights {
     const p = await this.period(from, to)
     const [audits, assigned, visited, photos] = await Promise.all([
       this.prisma.audit.count({ where: { agentId, finishedAtDevice: { gte: p.start, lt: p.end } } }),
-      this.prisma.shop.count({ where: { assignedAgentId: agentId, deletedAt: null } }),
+      this.prisma.shop.count({ where: { deletedAt: null, assignments: { some: { agentId, to: null } } } }),
       this.prisma.audit.findMany({ where: { agentId, finishedAtDevice: { gte: p.start, lt: p.end } }, distinct: ['shopId'], select: { shopId: true } }),
       this.prisma.photo.count({ where: { uploadedById: agentId, kind: 'AUDIT', status: 'READY', takenAt: { gte: p.start, lt: p.end } } })
     ])

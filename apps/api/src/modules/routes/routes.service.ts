@@ -3,6 +3,7 @@ import { newId } from '../../lib/ids.js'
 import { localDate, startOfLocalDay } from '../../lib/time.js'
 import type { SettingsService } from '../settings/settings.service.js'
 import { orderStops, type Point } from './route-generator.js'
+import { assignedTo } from '../shops/shops.repository.js'
 
 const toMinutes = (hhmm: string) => { const [h, m] = hhmm.split(':').map(Number); return h! * 60 + m! }
 const dateOnly = (day: string) => new Date(`${day}T00:00:00Z`)
@@ -20,20 +21,21 @@ export class RoutesService {
   async generate (agentId: string, day: string) {
     const existing = await this.prisma.route.findUnique({ where: { agentId_date: { agentId, date: dateOnly(day) } } })
     if (existing != null) return existing
-    const agent = await this.prisma.agent.findUnique({ where: { userId: agentId }, include: { user: true, position: true, region: true } })
+    const agent = await this.prisma.agent.findUnique({ where: { userId: agentId }, include: { user: true, position: true } })
     if (agent == null || agent.user.status !== 'ACTIVE' || agent.workStatus !== 'ACTIVE') return null
 
     const s = await this.settings.get()
     const dayStart = startOfLocalDay(day, s.timezone)
     const dayEnd = new Date(dayStart.getTime() + 86_400_000)
     const due = await this.prisma.shop.findMany({
-      where: { assignedAgentId: agentId, deletedAt: null, status: 'ACTIVE', OR: [{ nextDueAt: null }, { nextDueAt: { lt: dayEnd } }] },
+      // The agent's shops (a shop with several agents is on each one's route until audited).
+      where: { ...assignedTo(agentId), deletedAt: null, status: 'ACTIVE', OR: [{ nextDueAt: null }, { nextDueAt: { lt: dayEnd } }] },
       orderBy: [{ nextDueAt: { sort: 'asc', nulls: 'first' } }, { code: 'asc' }],
       take: agent.dailyVisitPlan
     })
     if (due.length === 0) return null
 
-    const start: Point = agent.position ?? (agent.region.centroidLat != null ? { lat: agent.region.centroidLat, lng: agent.region.centroidLng! } : due[0]!)
+    const start: Point = agent.position ?? due[0]!
     const ordered = orderStops(start, due)
     const from = toMinutes(s.workStart)
     const slot = Math.max(1, Math.floor((toMinutes(s.workEnd) - from) / ordered.length))

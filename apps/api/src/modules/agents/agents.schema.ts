@@ -5,7 +5,8 @@ const Fields = {
   fullName: Type.String({ minLength: 1, maxLength: 120 }),
   phone: Type.String({ pattern: '^\\+?[0-9 ()-]{6,20}$' }),
   whatsappPhone: Type.Optional(Type.Union([Type.String({ pattern: '^\\+?[0-9 ()-]{6,20}$' }), Type.Null()])),
-  regionId: Type.String({ format: 'uuid' }),
+  /** Sent by apps from before districts (agents no longer have a region); ignored. */
+  regionId: Type.Optional(Type.String({ format: 'uuid' })),
   photoId: Type.Optional(Type.Union([Type.String({ format: 'uuid' }), Type.Null()])),
   routeNotes: Type.Optional(Type.Union([Type.String({ maxLength: 2000 }), Type.Null()])),
   dailyVisitPlan: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
@@ -46,6 +47,7 @@ export const ListAgentsQuery = Type.Object({
   size: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
   q: Type.Optional(Type.String({ maxLength: 100 })),
   status: Type.Optional(Type.Union([Type.Literal('ACTIVE'), Type.Literal('ON_LEAVE'), Type.Literal('INACTIVE')])),
+  /** Sent by apps from before districts; ignored. */
   regionId: Type.Optional(Type.String({ format: 'uuid' })),
   from: Type.Optional(Day),
   to: Type.Optional(Day),

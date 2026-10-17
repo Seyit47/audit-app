@@ -39,11 +39,11 @@ test('create validation: SKU unique; name, category and price required; image mu
 
 test('list filters, distribution, compliance, shop products carried, export', async () => {
   const c = await f.productCategory(app)
-  const r = await f.region(app)
+  const r = await f.district(app)
   const g = await f.agent(app)
   const p1 = (await create({ sku: 'SKU-1', name: 'Shampoo', categoryId: c.id, retailPrice: 10 })).json()
   await create({ sku: 'SKU-2', name: 'Spray', categoryId: c.id, retailPrice: 12, status: 'INACTIVE' })
-  const s1 = await f.shop(app, { createdById: adminId, agentId: g.userId, regionId: r.id })
+  const s1 = await f.shop(app, { createdById: adminId, agentId: g.userId, districtId: r.id })
   await f.shop(app, { createdById: adminId })
   const put = await app.inject({ method: 'PUT', url: `/v1/shops/${s1.id}/products`, headers: admin, payload: { productIds: [p1.id] } })
   assert.strictEqual(put.statusCode, 200, put.body)
@@ -57,7 +57,7 @@ test('list filters, distribution, compliance, shop products carried, export', as
   const row = list.items[0]
   assert.strictEqual(row.locations, 1)
   assert.strictEqual(row.coveragePct, 50)
-  assert.deepStrictEqual(row.regions, [r.name])
+  assert.deepStrictEqual(row.districts, [r.name])
   assert.strictEqual(row.compliancePct, 50)
   assert.ok(row.lastActivityAt)
   assert.strictEqual((await app.inject({ url: '/v1/products?status=INACTIVE', headers: admin })).json().total, 1)

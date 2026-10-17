@@ -30,6 +30,8 @@ export const ListProductsQuery = Type.Object({
   q: Type.Optional(Type.String({ maxLength: 100 })),
   status: Type.Optional(Status),
   categoryId: Type.Optional(Uuid),
+  districtId: Type.Optional(Uuid),
+  /** Sent by apps from before districts; ignored. */
   regionId: Type.Optional(Uuid)
 }, { additionalProperties: false })
 export type ListProductsQuery = Static<typeof ListProductsQuery>

@@ -5,7 +5,7 @@ import { decodeCursor, encodeCursor, pageArgs } from '../../lib/pagination.js'
 import type { PhotosRepository } from '../photos/photos.repository.js'
 import { photoView } from '../photos/photo.view.js'
 import type { SettingsService } from '../settings/settings.service.js'
-import { isUniqueViolation, type ShopsRepository } from './shops.repository.js'
+import { assignedTo, isUniqueViolation, type ShopsRepository } from './shops.repository.js'
 import type { ContactsBody, CreateShopBody, ListShopsQuery, MapQuery, PatchShopBody } from './shops.schema.js'
 import { localDate, startOfLocalDay } from '../../lib/time.js'
 import { facadeView, shopView } from './shop.view.js'
@@ -28,6 +28,13 @@ export function visitState (s: { lastVisitAt: Date | null, nextDueAt: Date | nul
 }
 
 /** Shops (US4, US5): admin management, agent scope and sync, visit history. */
+/** The agents a form sends: the list, or the one agent of apps from before several agents per shop; undefined: unchanged. */
+function agentsOf (agentIds?: string[], assignedAgentId?: string | null): string[] | undefined {
+  if (agentIds !== undefined) return [...new Set(agentIds)]
+  if (assignedAgentId !== undefined) return assignedAgentId == null ? [] : [assignedAgentId]
+  return undefined
+}
+
 export class ShopsService {
   private readonly repo: ShopsRepository
   private readonly photos: PhotosRepository
@@ -77,7 +84,7 @@ export class ShopsService {
 
   async get (user: AuthUser, id: string) {
     const s = await this.repo.get(id)
-    if (s == null || (user.role === 'AGENT' && s.assignedAgentId !== user.id)) throw notFound('Shop')
+    if (s == null || (user.role === 'AGENT' && !s.assignments.some((a) => a.agentId === user.id))) throw notFound('Shop')
     const [audits, lastAudit, products, recent, recentClean, photos, geotagged] = await this.repo.kpis(id)
     return {
       ...await this.view(s),
@@ -109,22 +116,20 @@ export class ShopsService {
         throw new AppError(422, 'GPS_ACCURACY', `GPS accuracy must be at most ${settings.minGpsAccuracyM} m`)
       }
     }
-    const { contacts: raw = [], ...rest } = body
-    const contacts = canonicalContacts(raw)
-    // accuracyM is checked above; it is not stored on the shop.
+    // accuracyM is checked above and not stored; the agents are assignment rows.
+    const { contacts: raw = [], agentIds, assignedAgentId, ...rest } = body
     const fields = Object.fromEntries(Object.entries(rest).filter(([k]) => k !== 'accuracyM')) as Omit<typeof rest, 'accuracyM'>
+    const contacts = canonicalContacts(raw)
     try {
       const shop = await this.repo.create({
         ...fields,
         address: fields.address?.trim() ?? '',
         type: fields.type ?? 'OTHER',
-        regionId: fields.regionId === undefined ? await this.repo.nearestRegion(fields.lat, fields.lng) : fields.regionId,
         auditRadiusM: fields.auditRadiusM ?? settings.defaultAuditRadiusM,
         status: agent ? 'PENDING_REVIEW' : 'ACTIVE',
-        assignedAgentId: agent ? user.id : (fields.assignedAgentId ?? null),
         createdById: user.id,
         nextDueAt: new Date()
-      }, contacts)
+      }, contacts, agent ? [user.id] : agentsOf(agentIds, assignedAgentId) ?? [])
       return { status: 201, shop: await this.view(shop) }
     } catch (e) {
       if (isUniqueViolation(e)) throw conflict('Shop already exists')
@@ -135,9 +140,8 @@ export class ShopsService {
   async patch (id: string, body: PatchShopBody) {
     const current = await this.repo.get(id)
     if (current == null) throw notFound('Shop')
-    const { version, assignedAgentId, ...data } = body
-    const reassign = assignedAgentId !== undefined && assignedAgentId !== current.assignedAgentId ? assignedAgentId : undefined
-    if (!await this.repo.update(id, version, data, reassign)) throw conflict('The shop was changed by someone else; reload and try again')
+    const { version, agentIds, assignedAgentId, ...data } = body
+    if (!await this.repo.update(id, version, data, agentsOf(agentIds, assignedAgentId))) throw conflict('The shop was changed by someone else; reload and try again')
     return this.get({ id: 'admin', role: 'ADMIN' }, id)
   }
 
@@ -211,7 +215,7 @@ export class ShopsService {
   async counts (agentId: string) {
     const { dayStart, date } = await this.today()
     const [shops, planned] = await Promise.all([
-      this.repo.mapShops({ assignedAgentId: agentId, status: { not: 'INACTIVE' } }),
+      this.repo.mapShops({ ...assignedTo(agentId), status: { not: 'INACTIVE' } }),
       this.repo.plannedToday(agentId, date)
     ])
     const c = { all: shops.length, scheduled: 0, overdue: 0, visited: 0, assigned: 0 }
@@ -226,10 +230,10 @@ export class ShopsService {
   async map (user: AuthUser, q: MapQuery) {
     const { dayStart, date } = await this.today()
     const where = user.role === 'AGENT'
-      ? { assignedAgentId: user.id, status: { not: 'INACTIVE' as const } }
+      ? { ...assignedTo(user.id), status: { not: 'INACTIVE' as const } }
       : {
-          ...(q.agentIds?.length ? { assignedAgentId: { in: q.agentIds } } : {}),
-          ...(q.regionIds?.length ? { regionId: { in: q.regionIds } } : {}),
+          ...(q.agentIds?.length ? { assignments: { some: { agentId: { in: q.agentIds }, to: null } } } : {}),
+          ...(q.districtIds?.length ? { districtId: { in: q.districtIds } } : {}),
           ...(q.ids?.length ? { id: { in: q.ids } } : {}),
           ...(q.status ? { status: q.status } : {})
         }
@@ -243,8 +247,10 @@ export class ShopsService {
       lng: s.lng,
       auditRadiusM: s.auditRadiusM,
       status: s.status,
-      agentId: s.assignedAgentId,
-      regionId: s.regionId,
+      agentIds: s.assignments.map((a) => a.agentId!),
+      /** The first agent, for apps from before several agents per shop. */
+      agentId: s.assignments[0]?.agentId ?? null,
+      districtId: s.districtId,
       visitState: visitState(s, dayStart, planned),
       lastVisitAt: s.lastVisitAt?.toISOString() ?? null,
       thumbUrl: (await this.facade(s.facadePhotoId))?.previewUrl400 ?? null

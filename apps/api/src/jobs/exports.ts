@@ -20,15 +20,15 @@ const SHOP_STATUS: Record<Locale, Record<string, string>> = {
 }
 
 const SHOP_HEADERS: Record<Locale, string[]> = {
-  ru: ['Код', 'Название', 'Владелец', 'Телефон', 'Адрес', 'Регион', 'Агент', 'Статус', 'Последний визит'],
-  en: ['Code', 'Shop', 'Owner', 'Phone', 'Address', 'Region', 'Assigned salesman', 'Status', 'Last visit'],
-  tk: ['Kod', 'Ady', 'Eýesi', 'Telefon', 'Salgy', 'Sebit', 'Agent', 'Ýagdaý', 'Soňky sapar']
+  ru: ['Код', 'Название', 'Владелец', 'Телефон', 'Адрес', 'Район', 'Агенты', 'Статус', 'Последний визит'],
+  en: ['Code', 'Shop', 'Owner', 'Phone', 'Address', 'District', 'Salesmen', 'Status', 'Last visit'],
+  tk: ['Kod', 'Ady', 'Eýesi', 'Telefon', 'Salgy', 'Etrap', 'Agentler', 'Ýagdaý', 'Soňky sapar']
 }
 
 const AGENT_HEADERS: Record<Locale, string[]> = {
-  ru: ['Код', 'ФИО', 'Телефон', 'Регион', 'Статус', 'Точки', 'Визиты', 'Фото', 'Последняя активность'],
-  en: ['Code', 'Salesman', 'Phone', 'Region', 'Status', 'Locations', 'Visits', 'Photos', 'Last activity'],
-  tk: ['Kod', 'F.A.A.', 'Telefon', 'Sebit', 'Ýagdaý', 'Nokatlar', 'Saparlar', 'Surat', 'Soňky işjeňlik']
+  ru: ['Код', 'ФИО', 'Телефон', 'Статус', 'Точки', 'Визиты', 'Фото', 'Последняя активность'],
+  en: ['Code', 'Salesman', 'Phone', 'Status', 'Locations', 'Visits', 'Photos', 'Last activity'],
+  tk: ['Kod', 'F.A.A.', 'Telefon', 'Ýagdaý', 'Nokatlar', 'Saparlar', 'Surat', 'Soňky işjeňlik']
 }
 
 const AGENT_STATUS: Record<Locale, { inactive: string, leave: string, active: string }> = {
@@ -39,10 +39,10 @@ const AGENT_STATUS: Record<Locale, { inactive: string, leave: string, active: st
 
 async function shopsSheet (app: FastifyInstance, p: Params, l: Locale): Promise<Sheet> {
   const repo = app.services.repositories.shops
-  const shops = await repo.all({ q: str(p.q), status: str(p.status) as never, regionId: str(p.regionId), agentId: str(p.agentId) })
+  const shops = await repo.all({ q: str(p.q), status: str(p.status) as never, districtId: str(p.districtId), agentId: str(p.agentId) })
   const last = await repo.lastVisits(shops.map((s) => s.id))
   const h = SHOP_HEADERS[l]
-  const keys = ['code', 'name', 'owner', 'phone', 'address', 'region', 'agent', 'status', 'lastVisit']
+  const keys = ['code', 'name', 'owner', 'phone', 'address', 'district', 'agent', 'status', 'lastVisit']
   const widths = [12, 32, 22, 18, 40, 20, 24, 16, 20]
   return {
     columns: keys.map((key, i) => ({ header: h[i]!, key, width: widths[i]! })),
@@ -52,8 +52,8 @@ async function shopsSheet (app: FastifyInstance, p: Params, l: Locale): Promise<
       owner: s.ownerName ?? '',
       phone: s.contacts[0]?.phone ?? '',
       address: s.address,
-      region: s.region?.name ?? '',
-      agent: s.assignedAgent?.fullName ?? '',
+      district: s.district?.name ?? '',
+      agent: s.assignments.map((a) => a.agent?.fullName).filter((n) => n != null).join(', '),
       status: SHOP_STATUS[l][s.status],
       lastVisit: last.get(s.id)?.at ?? null
     }))
@@ -62,17 +62,17 @@ async function shopsSheet (app: FastifyInstance, p: Params, l: Locale): Promise<
 
 async function agentsSheet (app: FastifyInstance, p: Params, l: Locale): Promise<Sheet> {
   const page = await app.services.agents.list({
-    page: 1, size: 100_000, q: str(p.q), status: str(p.status) as never, regionId: str(p.regionId), from: str(p.from), to: str(p.to)
+    page: 1, size: 100_000, q: str(p.q), status: str(p.status) as never, from: str(p.from), to: str(p.to)
   })
   const h = AGENT_HEADERS[l]
-  const keys = ['code', 'name', 'phone', 'region', 'status', 'locations', 'visits', 'photos', 'last']
+  const keys = ['code', 'name', 'phone', 'status', 'locations', 'visits', 'photos', 'last']
   const widths = [12, 28, 18, 22, 14, 10, 10, 10, 22]
   const t = AGENT_STATUS[l]
   const status = (a: { active: boolean, workStatus: string }) => !a.active ? t.inactive : a.workStatus === 'ON_LEAVE' ? t.leave : t.active
   return {
     columns: keys.map((key, i) => ({ header: h[i]!, key, width: widths[i]! })),
     rows: page.items.map((a) => ({
-      code: a.code, name: a.fullName, phone: a.phone, region: a.region.name, status: status(a),
+      code: a.code, name: a.fullName, phone: a.phone, status: status(a),
       locations: a.locations, visits: a.visits, photos: a.photos, last: a.lastActivityAt != null ? new Date(a.lastActivityAt) : null
     }))
   }
@@ -82,7 +82,7 @@ async function agentsSheet (app: FastifyInstance, p: Params, l: Locale): Promise
 async function agentReportRows (app: FastifyInstance, p: Params, l: Locale) {
   const agentId = str(p.agentId)
   if (agentId == null) throw new Error('agentId is required')
-  const agent = await app.prisma.agent.findUniqueOrThrow({ where: { userId: agentId }, include: { region: true } })
+  const agent = await app.prisma.agent.findUniqueOrThrow({ where: { userId: agentId } })
   const period = await app.services.agentInsights.period(str(p.from), str(p.to))
   const kpis = await app.services.agentInsights.kpis(agentId, str(p.from), str(p.to))
   const [audits, missed] = await Promise.all([
@@ -140,7 +140,7 @@ async function agentReportPdf (app: FastifyInstance, p: Params, l: Locale): Prom
     defaultStyle: { font: 'Roboto', fontSize: 9 },
     content: [
       { text: `${agent.fullName} (${agent.code})`, fontSize: 16, bold: true },
-      { text: `${agent.region.name} · ${from ?? ''}${to != null && to !== from ? ` — ${to}` : ''}`, margin: [0, 2, 0, 8], color: '#464555' },
+      { text: `${agent.code} · ${from ?? ''}${to != null && to !== from ? ` — ${to}` : ''}`, margin: [0, 2, 0, 8], color: '#464555' },
       { text: k.join('   ·   '), margin: [0, 0, 0, 12] },
       {
         table: {
@@ -156,9 +156,9 @@ async function agentReportPdf (app: FastifyInstance, p: Params, l: Locale): Prom
 }
 
 const PRODUCT_HEADERS: Record<Locale, string[]> = {
-  ru: ['Артикул', 'Название', 'Категория', 'Бренд', 'Цена', 'Статус', 'Точки', 'Покрытие, %', 'Регионы', 'Соответствие, %', 'Остаток'],
-  en: ['SKU', 'Product', 'Category', 'Brand', 'Price', 'Status', 'Locations', 'Coverage, %', 'Regions', 'Compliance, %', 'Stock'],
-  tk: ['Artikul', 'Ady', 'Kategoriýa', 'Brend', 'Bahasy', 'Ýagdaý', 'Nokatlar', 'Gurşaw, %', 'Sebitler', 'Laýyklyk, %', 'Galyndy']
+  ru: ['Артикул', 'Название', 'Категория', 'Бренд', 'Цена', 'Статус', 'Точки', 'Покрытие, %', 'Районы', 'Соответствие, %', 'Остаток'],
+  en: ['SKU', 'Product', 'Category', 'Brand', 'Price', 'Status', 'Locations', 'Coverage, %', 'Districts', 'Compliance, %', 'Stock'],
+  tk: ['Artikul', 'Ady', 'Kategoriýa', 'Brend', 'Bahasy', 'Ýagdaý', 'Nokatlar', 'Gurşaw, %', 'Etraplar', 'Laýyklyk, %', 'Galyndy']
 }
 const PRODUCT_STATUS: Record<Locale, Record<string, string>> = {
   ru: { ACTIVE: 'Активен', INACTIVE: 'Архив', DRAFT: 'Черновик' },
@@ -167,16 +167,16 @@ const PRODUCT_STATUS: Record<Locale, Record<string, string>> = {
 }
 
 async function productsSheet (app: FastifyInstance, p: Params, l: Locale): Promise<Sheet> {
-  const rows = await app.services.products.all({ q: str(p.q), status: str(p.status) as never, categoryId: str(p.categoryId), regionId: str(p.regionId) })
+  const rows = await app.services.products.all({ q: str(p.q), status: str(p.status) as never, categoryId: str(p.categoryId), districtId: str(p.districtId) })
   const h = PRODUCT_HEADERS[l]
-  const keys = ['sku', 'name', 'category', 'brand', 'price', 'status', 'locations', 'coverage', 'regions', 'compliance', 'stock']
+  const keys = ['sku', 'name', 'category', 'brand', 'price', 'status', 'locations', 'coverage', 'districts', 'compliance', 'stock']
   const widths = [12, 36, 18, 16, 10, 12, 10, 12, 30, 14, 10]
   const status = PRODUCT_STATUS[l]
   return {
     columns: keys.map((key, i) => ({ header: h[i]!, key, width: widths[i]! })),
     rows: rows.map((r) => ({
       sku: r.sku, name: r.name, category: r.category.name, brand: r.brand ?? '', price: r.retailPrice, status: status[r.status],
-      locations: r.locations, coverage: r.coveragePct ?? '', regions: r.regions.join(', '), compliance: r.compliancePct ?? '', stock: r.stockTracked ? r.stockQty : ''
+      locations: r.locations, coverage: r.coveragePct ?? '', districts: r.districts.join(', '), compliance: r.compliancePct ?? '', stock: r.stockTracked ? r.stockQty : ''
     }))
   }
 }

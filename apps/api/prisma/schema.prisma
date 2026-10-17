@@ -69,8 +69,6 @@ model Agent {
   phone          String
   whatsappPhone  String?
   photoId        String?          @db.Uuid
-  regionId       String           @db.Uuid
-  region         Region           @relation(fields: [regionId], references: [id])
   routeNotes     String?
   dailyVisitPlan Int              @default(25)
   dailyAuditPlan Int              @default(20)
@@ -79,7 +77,6 @@ model Agent {
   createdAt      DateTime         @default(now()) @db.Timestamptz
   updatedAt      DateTime         @updatedAt @db.Timestamptz
   device         Device?
-  shops          Shop[]
   assignments    ShopAssignment[]
   routes         Route[]
   audits         Audit[]
@@ -112,13 +109,12 @@ model CompanySettings {
   updatedById         String?  @db.Uuid
 }
 
-model Region {
-  id          String  @id @db.Uuid
-  name        String  @unique
-  centroidLat Float?
-  centroidLng Float?
-  agents      Agent[]
-  shops       Shop[]
+/// Where a shop is: the shop lists start with districts. Admins manage them.
+model District {
+  id        String   @id @db.Uuid
+  name      String   @unique
+  createdAt DateTime @default(now()) @db.Timestamptz
+  shops     Shop[]
 }
 
 // ---------- Shops & products ----------
@@ -144,15 +140,14 @@ model Shop {
   type            ShopType         @default(OTHER)
   address         String
   addressDetail   String?
-  regionId        String?          @db.Uuid
-  region          Region?          @relation(fields: [regionId], references: [id])
+  /// Required for new shops; shops from before districts have none until an admin sets it.
+  districtId      String?          @db.Uuid
+  district        District?        @relation(fields: [districtId], references: [id])
   lat             Float
   lng             Float
   auditRadiusM    Int
   ownerName       String?
   facadePhotoId   String?          @db.Uuid
-  assignedAgentId String?          @db.Uuid
-  assignedAgent   Agent?           @relation(fields: [assignedAgentId], references: [userId])
   status          ShopStatus
   deletedAt       DateTime?        @db.Timestamptz
   lastVisitAt     DateTime?        @db.Timestamptz
@@ -162,14 +157,14 @@ model Shop {
   createdAt       DateTime         @default(now()) @db.Timestamptz
   updatedAt       DateTime         @updatedAt @db.Timestamptz
   contacts        ShopContact[]
+  /// The shop's agents (several): the rows still open (`to` null). Closed rows are the history.
   assignments     ShopAssignment[]
   products        ShopProduct[]
   stops           RouteStop[]
   audits          Audit[]
   photos          Photo[]
 
-  @@index([assignedAgentId, status])
-  @@index([regionId])
+  @@index([districtId])
   @@index([nextDueAt])
 }
 
@@ -194,7 +189,7 @@ model ShopAssignment {
   to      DateTime? @db.Timestamptz
 
   @@index([shopId, from])
-  @@index([agentId])
+  @@index([agentId, to])
 }
 
 model ProductCategory {

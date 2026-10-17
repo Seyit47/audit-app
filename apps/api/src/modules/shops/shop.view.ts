@@ -11,6 +11,7 @@ export async function facadeView (photos: PhotosRepository, storage: Storage, id
 
 /** Shop as the screens use it (3:407, 47:7387, 83:17057, 246:23300). */
 export async function shopView (s: ShopRow, photos: PhotosRepository, storage: Storage) {
+  const agents = s.assignments.flatMap((a) => (a.agent == null ? [] : [a.agent]))
   return {
     id: s.id,
     code: s.code,
@@ -18,7 +19,7 @@ export async function shopView (s: ShopRow, photos: PhotosRepository, storage: S
     type: s.type,
     address: s.address,
     addressDetail: s.addressDetail,
-    region: s.region == null ? null : { id: s.region.id, name: s.region.name },
+    district: s.district == null ? null : { id: s.district.id, name: s.district.name },
     lat: s.lat,
     lng: s.lng,
     auditRadiusM: s.auditRadiusM,
@@ -26,7 +27,9 @@ export async function shopView (s: ShopRow, photos: PhotosRepository, storage: S
     status: s.status,
     version: s.version,
     facade: await facadeView(photos, storage, s.facadePhotoId),
-    agent: s.assignedAgent == null ? null : { id: s.assignedAgent.userId, fullName: s.assignedAgent.fullName, code: s.assignedAgent.code, phone: s.assignedAgent.phone },
+    agents: agents.map((a) => ({ id: a.userId, fullName: a.fullName, code: a.code, phone: a.phone })),
+    /** The first agent, for apps from before several agents per shop. */
+    agent: agents[0] == null ? null : { id: agents[0].userId, fullName: agents[0].fullName, code: agents[0].code, phone: agents[0].phone },
     contacts: s.contacts.map((c) => ({ id: c.id, phone: c.phone, label: c.label, position: c.position })),
     lastVisitAt: s.lastVisitAt?.toISOString() ?? null,
     nextDueAt: s.nextDueAt?.toISOString() ?? null,

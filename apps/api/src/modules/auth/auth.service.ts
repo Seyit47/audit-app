@@ -107,7 +107,6 @@ export class AuthService {
             code: me.agent.code,
             fullName: me.agent.fullName,
             phone: me.agent.phone,
-            region: { id: me.agent.region.id, name: me.agent.region.name },
             dailyVisitPlan: me.agent.dailyVisitPlan,
             dailyAuditPlan: me.agent.dailyAuditPlan,
             workStatus: me.agent.workStatus

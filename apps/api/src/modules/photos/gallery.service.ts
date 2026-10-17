@@ -7,12 +7,15 @@ import { decodeCursor, encodeCursor } from '../../lib/pagination.js'
 import { localDate, startOfLocalDay } from '../../lib/time.js'
 import type { SettingsService } from '../settings/settings.service.js'
 import { photoView } from './photo.view.js'
+import { currentAgents } from '../shops/shops.repository.js'
 
 const Uuid = Type.String({ format: 'uuid' })
 export const GalleryQuery = Type.Object({
   type: Type.Optional(Type.Union([Type.Literal('AUDIT'), Type.Literal('FACADE'), Type.Literal('ADMIN_UPLOAD')])),
   shopId: Type.Optional(Uuid),
   agentId: Type.Optional(Uuid),
+  districtId: Type.Optional(Uuid),
+  /** Sent by apps from before districts; ignored. */
   regionId: Type.Optional(Uuid),
   verified: Type.Optional(Type.Boolean()),
   from: Type.Optional(Type.String({ format: 'date-time' })),
@@ -53,7 +56,7 @@ export class GalleryService {
     if (user.role === 'AGENT') and.push({ uploadedById: user.id })
     else if (q.agentId) and.push({ uploadedById: q.agentId })
     if (q.shopId) and.push({ OR: [{ shopId: q.shopId }, { audit: { shopId: q.shopId } }] })
-    if (q.regionId) and.push({ OR: [{ shop: { regionId: q.regionId } }, { audit: { shop: { regionId: q.regionId } } }] })
+    if (q.districtId) and.push({ OR: [{ shop: { districtId: q.districtId } }, { audit: { shop: { districtId: q.districtId } } }] })
     if (q.verified !== undefined) and.push({ verifiedAt: q.verified ? { not: null } : null })
     if (q.from || q.to) and.push({ takenAt: { ...(q.from ? { gte: new Date(q.from) } : {}), ...(q.to ? { lt: new Date(q.to) } : {}) } })
     if (q.q) {
@@ -89,7 +92,7 @@ export class GalleryService {
     const uploader = user.role === 'AGENT' ? user.id : q.agentId
     if (uploader) cond.push(Prisma.sql`p."uploadedById" = ${uploader}::uuid`)
     if (q.shopId) cond.push(Prisma.sql`(p."shopId" = ${q.shopId}::uuid OR a."shopId" = ${q.shopId}::uuid)`)
-    if (q.regionId) cond.push(Prisma.sql`(s."regionId" = ${q.regionId}::uuid OR sa."regionId" = ${q.regionId}::uuid)`)
+    if (q.districtId) cond.push(Prisma.sql`(s."districtId" = ${q.districtId}::uuid OR sa."districtId" = ${q.districtId}::uuid)`)
     if (q.verified !== undefined) cond.push(q.verified ? Prisma.sql`p."verifiedAt" IS NOT NULL` : Prisma.sql`p."verifiedAt" IS NULL`)
     if (q.from) cond.push(Prisma.sql`p."takenAt" >= ${new Date(q.from)}`)
     if (q.to) cond.push(Prisma.sql`p."takenAt" < ${new Date(q.to)}`)
@@ -133,12 +136,14 @@ export class GalleryService {
       })
     const shop = shopId == null
       ? null
-      : await this.prisma.shop.findUnique({ where: { id: shopId }, include: { assignedAgent: { select: { userId: true, fullName: true, phone: true } }, contacts: { orderBy: { position: 'asc' }, take: 1 } } })
+      : await this.prisma.shop.findUnique({ where: { id: shopId }, include: { assignments: { ...currentAgents, include: { agent: { select: { userId: true, fullName: true, phone: true } } } }, contacts: { orderBy: { position: 'asc' }, take: 1 } } })
     // Who answers for the photo (mobile admin 248:24402 "Агент: …, N аудитов всего"): the agent who took
-    // it, else the shop's agent (a storefront photo an admin uploaded).
+    // it, else the shop's (first) agent (a storefront photo an admin uploaded).
+    const shopAgents = shop?.assignments.flatMap((a) => (a.agent == null ? [] : [a.agent])) ?? []
+    const first = shopAgents[0]
     const responsible = p.uploadedBy.agent != null
       ? { id: p.uploadedBy.id, fullName: p.uploadedBy.agent.fullName }
-      : shop?.assignedAgent == null ? null : { id: shop.assignedAgent.userId, fullName: shop.assignedAgent.fullName }
+      : first == null ? null : { id: first.userId, fullName: first.fullName }
     return {
       ...await this.item(p),
       responsible: responsible == null ? null : { ...responsible, audits: await this.prisma.audit.count({ where: { agentId: responsible.id } }) },
@@ -151,7 +156,8 @@ export class GalleryService {
             id: shop.id, name: shop.name, code: shop.code, type: shop.type, address: shop.address, status: shop.status, lat: shop.lat, lng: shop.lng,
             facade: shop.facadePhotoId == null ? null : await this.facade(shop.facadePhotoId),
             phone: shop.contacts[0]?.phone ?? null,
-            agent: shop.assignedAgent == null ? null : { id: shop.assignedAgent.userId, fullName: shop.assignedAgent.fullName, phone: shop.assignedAgent.phone }
+            agents: shopAgents.map((a) => ({ id: a.userId, fullName: a.fullName, phone: a.phone })),
+            agent: first == null ? null : { id: first.userId, fullName: first.fullName, phone: first.phone }
           },
       audit: p.audit == null
         ? null

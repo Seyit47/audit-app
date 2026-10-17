@@ -51,10 +51,10 @@ export class TrackingService {
   async positions () {
     const rows = await this.prisma.agentPosition.findMany({
       where: { agent: { workStatus: 'ACTIVE', user: { status: 'ACTIVE' } } },
-      include: { agent: { select: { userId: true, fullName: true, code: true, regionId: true } } }
+      include: { agent: { select: { userId: true, fullName: true, code: true } } }
     })
     return rows.map((p) => ({
-      agentId: p.agentId, fullName: p.agent.fullName, code: p.agent.code, regionId: p.agent.regionId,
+      agentId: p.agentId, fullName: p.agent.fullName, code: p.agent.code,
       lat: p.lat, lng: p.lng, accuracyM: p.accuracyM, speedKmh: p.speedKmh, batteryPct: p.batteryPct, recordedAt: p.recordedAt.toISOString()
     }))
   }

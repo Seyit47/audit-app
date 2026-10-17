@@ -18,12 +18,12 @@ beforeEach(async () => {
 })
 
 async function seed () {
-  const r1 = await f.region(app)
-  const r2 = await f.region(app)
-  const g = await f.agent(app, { regionId: r1.id })
-  const other = await f.agent(app, { regionId: r2.id })
-  const s1 = await f.shop(app, { createdById: adminId, agentId: g.userId, regionId: r1.id })
-  const s2 = await f.shop(app, { createdById: adminId, agentId: other.userId, regionId: r2.id })
+  const r1 = await f.district(app)
+  const r2 = await f.district(app)
+  const g = await f.agent(app)
+  const other = await f.agent(app)
+  const s1 = await f.shop(app, { createdById: adminId, agentId: g.userId, districtId: r1.id })
+  const s2 = await f.shop(app, { createdById: adminId, agentId: other.userId, districtId: r2.id })
   const audit = async (agentId: string, shopId: string, hasViolation: boolean, daysAgo: number, n: number, verified: boolean) => {
     const id = newId()
     const at = new Date(Date.now() - daysAgo * 86_400_000)
@@ -46,7 +46,7 @@ test('list filters with cursor and day counts', async () => {
   assert.strictEqual((await list('type=ADMIN_UPLOAD')).items.length, 1)
   assert.strictEqual((await list(`shopId=${s2.id}`)).items.length, 3)
   assert.strictEqual((await list(`agentId=${g.userId}`)).items.length, 3)
-  assert.strictEqual((await list(`regionId=${r1.id}`)).items.length, 3)
+  assert.strictEqual((await list(`districtId=${r1.id}`)).items.length, 3)
   assert.strictEqual((await list('verified=true')).items.length, 3)
   const from = new Date(Date.now() - 86_400_000).toISOString()
   assert.strictEqual((await list(`from=${encodeURIComponent(from)}`)).items.length, 4)

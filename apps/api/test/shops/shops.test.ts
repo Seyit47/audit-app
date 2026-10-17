@@ -35,17 +35,18 @@ test('admin create → ACTIVE with a CL- code and an assignment row', async () =
   assert.strictEqual(rows[0]!.agentId, g.userId)
 })
 
-test('list filters with totals: q, status, regionId, agentId', async () => {
-  const r = await f.region(app)
+test('list filters with totals: q, status, districtId (or none), agentId', async () => {
+  const r = await f.district(app)
   const g = await f.agent(app)
-  await f.shop(app, { createdById: adminId, regionId: r.id, agentId: g.userId })
+  await f.shop(app, { createdById: adminId, districtId: r.id, agentId: g.userId })
   await f.shop(app, { createdById: adminId, status: 'INACTIVE' })
-  const named = await post(shopBody({ name: 'Bahar Market', regionId: null }))
+  const named = await post(shopBody({ name: 'Bahar Market', districtId: null }))
   assert.strictEqual(named.statusCode, 201)
   const list = async (qs: string) => (await app.inject({ url: `/v1/shops?${qs}`, headers: admin })).json()
   assert.strictEqual((await list('')).total, 3)
   assert.strictEqual((await list('status=INACTIVE')).total, 1)
-  assert.strictEqual((await list(`regionId=${r.id}`)).total, 1)
+  assert.strictEqual((await list(`districtId=${r.id}`)).total, 1)
+  assert.strictEqual((await list('districtId=none')).total, 2)
   assert.strictEqual((await list(`agentId=${g.userId}`)).total, 1)
   const found = await list('q=bahar')
   assert.strictEqual(found.total, 1)
@@ -70,7 +71,7 @@ test('contacts: at most 5', async () => {
   assert.strictEqual((await app.prisma.shopContact.count({ where: { shopId: s.id } })), 5)
 })
 
-test('bulk assign closes and opens assignment rows', async () => {
+test('bulk assign: the agent becomes the selected shops\' only agent (assignment rows closed and opened)', async () => {
   const a = await f.agent(app)
   const b = await f.agent(app)
   const s1 = await f.shop(app, { createdById: adminId, agentId: a.userId })
@@ -80,7 +81,35 @@ test('bulk assign closes and opens assignment rows', async () => {
   const rows = await app.prisma.shopAssignment.findMany({ where: { shopId: s1.id }, orderBy: { from: 'asc' } })
   assert.ok(rows[0]!.to, 'previous assignment closed')
   assert.strictEqual(rows.at(-1)!.agentId, b.userId)
-  assert.strictEqual((await app.prisma.shop.findUniqueOrThrow({ where: { id: s2.id } })).assignedAgentId, b.userId)
+  const open = async (shopId: string) => (await app.prisma.shopAssignment.findMany({ where: { shopId, to: null } })).map((r) => r.agentId)
+  assert.deepStrictEqual(await open(s1.id), [b.userId])
+  assert.deepStrictEqual(await open(s2.id), [b.userId])
+})
+
+test('several agents per shop: each sees it, may audit it, and loses it when taken off', async () => {
+  const a = await f.agent(app)
+  const b = await f.agent(app)
+  const d = await f.district(app)
+  const created = await post(shopBody({ districtId: d.id, agentIds: [a.userId, b.userId] }))
+  assert.strictEqual(created.statusCode, 201, created.body)
+  const shop = created.json()
+  assert.deepStrictEqual(shop.agents.map((x: { id: string }) => x.id).sort(), [a.userId, b.userId].sort())
+  assert.strictEqual(shop.district.id, d.id)
+
+  const sync = async (agentId: string, after?: string) =>
+    (await app.inject({ url: `/v1/shops${after ? `?updatedAfter=${encodeURIComponent(after)}` : ''}`, headers: bearer(app, { id: agentId, role: 'AGENT' }) })).json()
+  const before = await sync(b.userId)
+  assert.deepStrictEqual(before.items.map((s: { id: string }) => s.id), [shop.id])
+  assert.deepStrictEqual((await sync(a.userId)).items.map((s: { id: string }) => s.id), [shop.id])
+  const map = (await app.inject({ url: `/v1/shops/map?agentIds=${b.userId}`, headers: admin })).json()
+  assert.deepStrictEqual(map[0].agentIds.sort(), [a.userId, b.userId].sort())
+
+  // Only a now: b's phone gets a tombstone.
+  const patched = await app.inject({ method: 'PATCH', url: `/v1/shops/${shop.id}`, headers: admin, payload: { version: shop.version, agentIds: [a.userId] } })
+  assert.strictEqual(patched.statusCode, 200, patched.body)
+  assert.deepStrictEqual(patched.json().agents.map((x: { id: string }) => x.id), [a.userId])
+  assert.deepStrictEqual((await sync(b.userId, before.cursor)).tombstones, [shop.id])
+  assert.strictEqual((await app.inject({ url: `/v1/shops/${shop.id}`, headers: bearer(app, { id: b.userId, role: 'AGENT' }) })).statusCode, 404)
 })
 
 test('bulk delete soft-deletes, keeps audits, and hides the shop from lists and the map', async () => {

@@ -52,7 +52,7 @@ export class AuthRepository {
   me (userId: string) {
     return this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
-      select: { id: true, role: true, email: true, phone: true, agent: { include: { region: true } } }
+      select: { id: true, role: true, email: true, phone: true, agent: true }
     })
   }
 }

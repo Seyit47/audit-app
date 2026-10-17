@@ -3,7 +3,7 @@ import type { FastifyInstance } from 'fastify'
 const TABLES = [
   'LocationPing', 'AgentPosition', 'Export', 'Photo', 'RouteStop', 'Route', 'Audit', 'ShopProduct',
   'ShopAssignment', 'ShopContact', 'Shop', 'Product', 'ProductCategory', 'Device', 'RefreshToken',
-  'Agent', 'User', 'Region'
+  'Agent', 'User', 'District'
 ]
 
 /** Empties all domain tables (keeps migrations and the pg-boss schema). Resets settings to defaults. */

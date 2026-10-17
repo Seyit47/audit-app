@@ -77,7 +77,6 @@ export class AgentsService {
         fullName: body.fullName.trim(),
         phone: normalizePhone(body.phone),
         whatsappPhone: body.whatsappPhone != null ? normalizePhone(body.whatsappPhone, 'whatsappPhone') : null,
-        regionId: body.regionId,
         photoId: body.photoId ?? null,
         routeNotes: body.routeNotes ?? null,
         dailyVisitPlan,
@@ -104,7 +103,9 @@ export class AgentsService {
     const audit = body.dailyAuditPlan ?? current.dailyAuditPlan
     if (audit > visit) throw invalid('dailyAuditPlan must not exceed dailyVisitPlan')
 
-    const { version, active, imeiLabel, phone, whatsappPhone, code, ...fields } = body
+    const { version, active, imeiLabel, phone, whatsappPhone, code, ...rest } = body
+    // regionId: sent by apps from before districts; agents no longer have one.
+    const fields = Object.fromEntries(Object.entries(rest).filter(([k]) => k !== 'regionId')) as Omit<typeof rest, 'regionId'>
     const data = {
       ...fields,
       ...(code !== undefined ? { code: code.toUpperCase() } : {}),
@@ -159,7 +160,6 @@ export class AgentsService {
       phone: a.phone,
       whatsappPhone: a.whatsappPhone,
       photo: await this.photo(a.photoId),
-      region: { id: a.region.id, name: a.region.name },
       routeNotes: a.routeNotes,
       dailyVisitPlan: a.dailyVisitPlan,
       dailyAuditPlan: a.dailyAuditPlan,
@@ -195,7 +195,6 @@ export class AgentsService {
       fullName: a.fullName,
       phone: a.phone,
       photo: await this.photo(a.photoId),
-      region: { id: a.region.id, name: a.region.name },
       locations: counts.shops.get(a.userId) ?? 0,
       visits,
       photos: counts.photos.get(a.userId) ?? 0,

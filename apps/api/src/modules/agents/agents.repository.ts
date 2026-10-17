@@ -1,7 +1,7 @@
 import { Prisma, type PrismaClient } from '../../generated/prisma/client.js'
 import { newId } from '../../lib/ids.js'
 
-const detail = { user: { select: { status: true, deactivatedAt: true, lastActiveAt: true } }, region: true, device: true, position: true } as const
+const detail = { user: { select: { status: true, deactivatedAt: true, lastActiveAt: true } }, device: true, position: true } as const
 export type AgentDetail = Prisma.AgentGetPayload<{ include: typeof detail }>
 
 /**
@@ -20,7 +20,7 @@ export async function lastSignalAt (prisma: PrismaClient, agentIds: string[]): P
   return new Map(rows.map((r) => [r.agentId, r.receivedAt]))
 }
 
-export interface AgentFilter { q?: string, status?: 'ACTIVE' | 'ON_LEAVE' | 'INACTIVE', regionId?: string }
+export interface AgentFilter { q?: string, status?: 'ACTIVE' | 'ON_LEAVE' | 'INACTIVE' }
 
 export class AgentsRepository {
   private readonly prisma: PrismaClient
@@ -30,7 +30,6 @@ export class AgentsRepository {
 
   private where (f: AgentFilter): Prisma.AgentWhereInput {
     const where: Prisma.AgentWhereInput = {}
-    if (f.regionId) where.regionId = f.regionId
     if (f.q) {
       where.OR = [
         { fullName: { contains: f.q, mode: 'insensitive' } },
@@ -55,13 +54,14 @@ export class AgentsRepository {
   /** Per-agent counts for list rows: assigned shops, audits and photos in the period. */
   async counts (agentIds: string[], from: Date, to: Date) {
     const [shops, audits, photos] = await Promise.all([
-      this.prisma.shop.groupBy({ by: ['assignedAgentId'], where: { assignedAgentId: { in: agentIds }, deletedAt: null }, _count: true }),
+      // A shop counts for each of its agents.
+      this.prisma.shopAssignment.groupBy({ by: ['agentId'], where: { agentId: { in: agentIds }, to: null, shop: { deletedAt: null } }, _count: true }),
       this.prisma.audit.groupBy({ by: ['agentId'], where: { agentId: { in: agentIds }, finishedAtDevice: { gte: from, lt: to } }, _count: true }),
       // Audit photos only, as the gallery and the agent's KPIs count them (no storefronts).
       this.prisma.photo.groupBy({ by: ['uploadedById'], where: { uploadedById: { in: agentIds }, kind: 'AUDIT', status: 'READY', takenAt: { gte: from, lt: to } }, _count: true })
     ])
     return {
-      shops: new Map(shops.map((r) => [r.assignedAgentId!, r._count])),
+      shops: new Map(shops.map((r) => [r.agentId!, r._count])),
       audits: new Map(audits.map((r) => [r.agentId, r._count])),
       photos: new Map(photos.map((r) => [r.uploadedById, r._count]))
     }
@@ -96,7 +96,7 @@ export class AgentsRepository {
     return `SL-${row!.n}`
   }
 
-  create (data: { code: string, passwordHash: string, fullName: string, phone: string, whatsappPhone: string | null, regionId: string, photoId: string | null, routeNotes: string | null, dailyVisitPlan: number, dailyAuditPlan: number, workStatus: 'ACTIVE' | 'ON_LEAVE', imeiLabel: string | null }) {
+  create (data: { code: string, passwordHash: string, fullName: string, phone: string, whatsappPhone: string | null, photoId: string | null, routeNotes: string | null, dailyVisitPlan: number, dailyAuditPlan: number, workStatus: 'ACTIVE' | 'ON_LEAVE', imeiLabel: string | null }) {
     const id = newId()
     const { passwordHash, imeiLabel, ...agent } = data
     return this.prisma.$transaction(async (tx) => {
@@ -122,18 +122,16 @@ export class AgentsRepository {
   }
 
   /**
-   * Deactivates the account and unassigns its shops (closing assignment history). Sessions are kept:
+   * Deactivates the account and takes it off its shops (closing its assignments; other agents stay). Sessions are kept:
    * for 72 h they may only submit data recorded before deactivation (auth guard + grace routes).
    */
   deactivate (id: string) {
     const now = new Date()
     return this.prisma.$transaction(async (tx) => {
       await tx.user.update({ where: { id }, data: { status: 'DEACTIVATED', deactivatedAt: now } })
-      const shops = await tx.shop.findMany({ where: { assignedAgentId: id }, select: { id: true } })
-      const shopIds = shops.map((s) => s.id)
-      await tx.shopAssignment.updateMany({ where: { shopId: { in: shopIds }, to: null }, data: { to: now } })
-      await tx.shopAssignment.createMany({ data: shopIds.map((shopId) => ({ id: newId(), shopId, agentId: null, from: now })) })
-      await tx.shop.updateMany({ where: { id: { in: shopIds } }, data: { assignedAgentId: null } })
+      const open = await tx.shopAssignment.findMany({ where: { agentId: id, to: null }, select: { shopId: true } })
+      await tx.shopAssignment.updateMany({ where: { agentId: id, to: null }, data: { to: now } })
+      await tx.shop.updateMany({ where: { id: { in: open.map((a) => a.shopId) } }, data: { updatedAt: now } })
     })
   }
 

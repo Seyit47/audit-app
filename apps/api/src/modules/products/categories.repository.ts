@@ -2,7 +2,7 @@ import type { PrismaClient } from '../../lib/prisma.js'
 import { newId } from '../../lib/ids.js'
 import { conflict, notFound } from '../../lib/app-error.js'
 
-/** Product categories, managed in Settings like regions. A category with products cannot be deleted. */
+/** Product categories, managed in Settings. A category with products cannot be deleted. */
 export class CategoriesRepository {
   private readonly prisma: PrismaClient
   constructor (prisma: PrismaClient) { this.prisma = prisma }

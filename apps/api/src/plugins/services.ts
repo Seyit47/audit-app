@@ -2,7 +2,7 @@ import fp from 'fastify-plugin'
 import { PhotosRepository } from '../modules/photos/photos.repository.js'
 import { UploadsService } from '../modules/photos/uploads.service.js'
 import { SettingsService } from '../modules/settings/settings.service.js'
-import { RegionsRepository } from '../modules/regions/regions.repository.js'
+import { DistrictsRepository } from '../modules/districts/districts.repository.js'
 import { CategoriesRepository } from '../modules/products/categories.repository.js'
 import { AuthRepository } from '../modules/auth/auth.repository.js'
 import { AuthService } from '../modules/auth/auth.service.js'
@@ -29,7 +29,7 @@ export function buildServices (app: import('fastify').FastifyInstance) {
   const agents = new AgentsService(new AgentsRepository(app.prisma), settings, photos, app.storage, agentInsights)
   const sign = (payload: { sub: string, role: 'ADMIN' | 'AGENT', agentId?: string }) => app.jwt.sign(payload, { expiresIn: '15m' })
   return {
-    repositories: { photos, shops: shopsRepo, regions: new RegionsRepository(app.prisma), categories: new CategoriesRepository(app.prisma) },
+    repositories: { photos, shops: shopsRepo, districts: new DistrictsRepository(app.prisma), categories: new CategoriesRepository(app.prisma) },
     settings,
     auth: new AuthService(new AuthRepository(app.prisma), sign, settings, photos, app.storage),
     agents,

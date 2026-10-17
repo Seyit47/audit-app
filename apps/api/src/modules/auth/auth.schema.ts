@@ -46,7 +46,6 @@ export const MeResponse = Type.Object({
     code: Type.String(),
     fullName: Type.String(),
     phone: Type.String(),
-    region: Type.Object({ id: Type.String(), name: Type.String() }),
     dailyVisitPlan: Type.Integer(),
     dailyAuditPlan: Type.Integer(),
     workStatus: Type.Union([Type.Literal('ACTIVE'), Type.Literal('ON_LEAVE')])

@@ -14,17 +14,17 @@ beforeEach(async () => { await resetDb(app) })
 
 async function world () {
   const adminId = (await f.admin(app)).id
-  const region = await f.region(app)
-  const mine = await f.agent(app, { regionId: region.id })
-  const other = await f.agent(app, { regionId: region.id })
-  const myShop = await f.shop(app, { createdById: adminId, agentId: mine.userId, regionId: region.id })
-  const theirShop = await f.shop(app, { createdById: adminId, agentId: other.userId, regionId: region.id })
+  const district = await f.district(app)
+  const mine = await f.agent(app)
+  const other = await f.agent(app)
+  const myShop = await f.shop(app, { createdById: adminId, agentId: mine.userId, districtId: district.id })
+  const theirShop = await f.shop(app, { createdById: adminId, agentId: other.userId, districtId: district.id })
   const at = new Date()
   const theirAudit = newId()
   await app.prisma.audit.create({ data: { id: theirAudit, shopId: theirShop.id, agentId: other.userId, startedAtDevice: at, finishedAtDevice: at, durationMin: 5, lat: 37.95, lng: 58.38, gpsAccuracyM: 5, distanceM: 5, withinRadius: true, comment: 'ok' } })
   const theirPhoto = newId()
   await app.prisma.photo.create({ data: { id: theirPhoto, kind: 'AUDIT', auditId: theirAudit, shopId: theirShop.id, uploadedById: other.userId, storageKey: `audit/${theirPhoto}.jpg`, mime: 'image/jpeg', sizeBytes: 1, sha256: 'a'.repeat(64), takenAt: at, status: 'READY' } })
-  return { adminId, region, mine, other, myShop, theirShop, theirAudit, theirPhoto, h: bearer(app, { id: mine.userId, role: 'AGENT' }) }
+  return { adminId, district, mine, other, myShop, theirShop, theirAudit, theirPhoto, h: bearer(app, { id: mine.userId, role: 'AGENT' }) }
 }
 
 test("an agent cannot read another agent's shop, visits, audit or photo", async () => {
@@ -68,7 +68,7 @@ test('admin endpoints answer 403 to an agent', async () => {
   const calls: Array<[string, string, object?]> = [
     ['GET', '/v1/agents'], ['GET', '/v1/agents/summary'], ['GET', '/v1/agents/positions'], ['GET', `/v1/agents/${w.other.userId}`],
     ['GET', `/v1/agents/${w.other.userId}/track`], ['POST', '/v1/agents', {}], ['GET', '/v1/settings'], ['PATCH', '/v1/settings', {}],
-    ['POST', '/v1/regions', { name: 'X' }], ['GET', '/v1/feed'], ['POST', '/v1/exports', { type: 'SHOPS_XLSX' }],
+    ['POST', '/v1/districts', { name: 'X' }], ['GET', '/v1/feed'], ['POST', '/v1/exports', { type: 'SHOPS_XLSX' }],
     ['PATCH', `/v1/shops/${id}`, { version: 1 }], ['PUT', `/v1/shops/${id}/contacts`, { contacts: [] }], ['POST', '/v1/shops/bulk/delete', { shopIds: [id] }], ['POST', '/v1/shops/bulk/assign', { shopIds: [id], agentId: null }],
     ['POST', '/v1/products', {}], ['GET', '/v1/routes', undefined]
   ]
