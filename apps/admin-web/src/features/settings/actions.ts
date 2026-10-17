@@ -23,19 +23,7 @@ export async function saveSettings (input: SettingsInput) {
   })
 }
 
-export async function addRegion (name: string) {
-  return run(async () => { await api('/v1/regions', { method: 'POST', body: { name } }); revalidatePath('/settings') })
-}
-
-export async function renameRegion (id: string, name: string) {
-  return run(async () => { await api(`/v1/regions/${id}`, { method: 'PATCH', body: { name } }); revalidatePath('/settings') })
-}
-
-export async function deleteRegion (id: string) {
-  return run(async () => { await api(`/v1/regions/${id}`, { method: 'DELETE' }); revalidatePath('/settings') })
-}
-
-// Product categories, managed next to regions (products need one; there is no other place to create them).
+// Product categories (products need one; there is no other place to create them).
 const revalidateCategories = () => { revalidatePath('/settings'); revalidatePath('/products') }
 
 export async function addCategory (name: string) {

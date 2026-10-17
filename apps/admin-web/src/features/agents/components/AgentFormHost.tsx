@@ -2,11 +2,11 @@
 
 import { FormLoadingDialog } from '@/components/ui/FormLoadingDialog'
 import { useUrlForm } from '@/lib/use-url-form'
-import type { Agent, Region } from '../api'
+import type { Agent } from '../api'
 import type { AgentsCopy } from '../copy'
 import { AgentFormDialog } from './AgentFormDialog'
 
-interface AgentFormData { agent: Agent | null, regions: Region[], nextCode: string }
+interface AgentFormData { agent: Agent | null, nextCode: string }
 
 /**
  * Add / edit salesman dialog of 495:3932, opened from `?add=1` or `?edit=<id>` (or `?edit=1` on a salesman's page,
@@ -27,5 +27,5 @@ export function AgentFormHost ({ copy, agentId }: { copy: AgentsCopy, agentId?: 
     )
   }
   const d = form.data
-  return <AgentFormDialog key={form.key} agent={d.agent} regions={d.regions} nextCode={d.nextCode} copy={copy} closeHref={form.closeHref} enterStartedAt={form.enterStartedAt} />
+  return <AgentFormDialog key={form.key} agent={d.agent} nextCode={d.nextCode} copy={copy} closeHref={form.closeHref} enterStartedAt={form.enterStartedAt} />
 }

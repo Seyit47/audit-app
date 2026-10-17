@@ -12,7 +12,7 @@ export const helpCopy = defineCopy({
         title: 'Shops',
         tips: [
           'Search by name, code or address — matches appear as you type; Enter filters the list.',
-          'Filter by status and region with the selects in the toolbar.',
+          'Pick a district on the left to list its shops; filter by status in the toolbar.',
           'Tick rows to assign a salesman, view them on the map or delete them together.',
           'Use ⋯ on a row to view, edit, show on the map, assign or delete a shop.',
           '“Add Shop” creates a shop; “Export Shops” downloads the current list as Excel.'
@@ -40,7 +40,7 @@ export const helpCopy = defineCopy({
         tips: [
           'The cards sum up today’s field activity.',
           'Choose a date range or a preset (Today, Yesterday, This week) — the table counts visits and photos for it.',
-          'Filter by status and region; click a column header to sort.',
+          'Filter by status; click a column header to sort.',
           'Open a salesman for their route, timeline and photo reports, or edit them from ⋯.',
           '“Add Salesman” creates an account with the password you set; “Change password” in ⋯ sets a new one; “Export Roster” downloads the list as Excel.'
         ]
@@ -81,7 +81,7 @@ export const helpCopy = defineCopy({
         title: 'Клиенты',
         tips: [
           'Ищите по названию, коду или адресу — совпадения появляются при вводе; Enter фильтрует список.',
-          'Фильтруйте по статусу и региону в панели над таблицей.',
+          'Выберите район слева, чтобы увидеть его магазины; фильтр по статусу — в панели над таблицей.',
           'Отметьте строки, чтобы назначить агента, показать их на карте или удалить сразу несколько.',
           'Меню ⋯ в строке: подробнее, редактировать, на карте, назначить агента, удалить.',
           '«Добавить клиента» создаёт точку; «Экспорт клиентов» скачивает текущий список в Excel.'
@@ -109,7 +109,7 @@ export const helpCopy = defineCopy({
         tips: [
           'Карточки сверху — сводка полевой работы за сегодня.',
           'Выберите период или быстрый фильтр (Сегодня, Вчера, Текущая неделя) — таблица посчитает визиты и фото за него.',
-          'Фильтруйте по статусу и региону; нажмите на заголовок столбца для сортировки.',
+          'Фильтруйте по статусу; нажмите на заголовок столбца для сортировки.',
           'Откройте агента, чтобы увидеть маршрут, хронологию и фотоотчёты, или измените его через ⋯.',
           '«Добавить агента» создаёт аккаунт с заданным вами паролем; «Изменить пароль» в ⋯ задаёт новый; «Экспорт списка» выгружает список в Excel.'
         ]
@@ -150,7 +150,7 @@ export const helpCopy = defineCopy({
         title: 'Müşderiler',
         tips: [
           'Ady, kody ýa-da salgysy boýunça gözläň — gabat gelýänler ýazan wagtyňyz görünýär; Enter sanawy süzýär.',
-          'Tablisanyň üstündäki panelde ýagdaý we sebit boýunça süzüň.',
+          'Dükanlaryny görmek üçin çepde etraby saýlaň; ýagdaý boýunça tablisanyň üstündäki panelde süzüň.',
           'Agent bellemek, kartada görkezmek ýa-da birnäçesini birden pozmak üçin setirleri belläň.',
           'Setirdäki ⋯ menýusy: jikme-jik, üýtgetmek, kartada, agent bellemek, pozmak.',
           '«Müşderi goş» täze nokat döredýär; «Müşderileri eksport et» häzirki sanawy Excel görnüşinde göçürýär.'
@@ -178,7 +178,7 @@ export const helpCopy = defineCopy({
         tips: [
           'Ýokardaky kartoçkalar — şu günki meýdan işiniň jemi.',
           'Döwri ýa-da çalt süzgüji (Şu gün, Düýn, Şu hepde) saýlaň — tablisa şol döwür üçin saparlary we suratlary hasaplar.',
-          'Ýagdaý we sebit boýunça süzüň; tertiplemek üçin sütüniň adyna basyň.',
+          'Ýagdaý boýunça süzüň; tertiplemek üçin sütüniň adyna basyň.',
           'Ugruny, wakalaryň yzygiderliligini we surat hasabatlaryny görmek üçin agenti açyň ýa-da ⋯ arkaly üýtgediň.',
           '«Agent goş» siziň beren açar sözüňiz bilen hasap döredýär; ⋯ içindäki «Açar sözi üýtget» täzesini bellär; «Sanawy eksport et» sanawy Excel görnüşinde göçürýär.'
         ]

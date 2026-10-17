@@ -7,7 +7,8 @@ export function shopSchema (copy: ShopFormCopy) {
   return z.object({
     name: required(copy.errors.field),
     address: required(copy.errors.field),
-    agentId: z.string().transform((v) => v || null),
+    districtId: required(copy.errors.field),
+    agentIds: z.array(z.string()),
     point: z.object({ lat: z.number(), lng: z.number() }).nullable().refine((v) => v != null, copy.errors.location),
     productIds: z.array(z.string()),
     facadePhotoId: z.string().nullable(),

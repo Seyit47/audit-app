@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { getAgent, listRegions } from '@/features/agents/api'
+import { getAgent } from '@/features/agents/api'
+import { districtOptions } from '@/features/districts/api'
 import { getProduct, listCategories } from '@/features/products/api'
 import { getShop, getShopProducts, listAgentOptions, listProductOptions } from '@/features/shops/api'
 import { api, ApiError } from '@/lib/api'
@@ -17,16 +18,16 @@ export async function GET (request: Request, ctx: RouteContext<'/data/forms/[kin
         id == null ? null : getShop(id),
         listAgentOptions().then((p) => p.items.filter((a) => a.active)),
         listProductOptions().then((p) => p.items),
-        id == null ? [] : getShopProducts(id).then((c) => c.productIds)
-      ]).then(([shop, agents, products, productIds]) => ({ shop, agents, products, productIds }))
+        id == null ? [] : getShopProducts(id).then((c) => c.productIds),
+        districtOptions()
+      ]).then(([shop, agents, products, productIds, districts]) => ({ shop, agents, products, productIds, districts }))
       : kind === 'product'
         ? await Promise.all([id == null ? null : getProduct(id), listCategories()]).then(([product, categories]) => ({ product, categories }))
         : kind === 'agent'
           ? await Promise.all([
             id == null ? null : getAgent(id),
-            listRegions(),
             id == null ? api<{ code: string }>('/v1/agents/next-code').then((n) => n.code) : ''
-          ]).then(([agent, regions, nextCode]) => ({ agent, regions, nextCode }))
+          ]).then(([agent, nextCode]) => ({ agent, nextCode }))
           : null
     if (body == null) return NextResponse.json(null, { status: 404 })
     return NextResponse.json(body, { headers: { 'cache-control': 'private, no-store' } })

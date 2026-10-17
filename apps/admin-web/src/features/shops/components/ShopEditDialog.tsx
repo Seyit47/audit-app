@@ -26,10 +26,11 @@ const ShopMarker = dynamic(() => import('@/components/ui/MapView').then((m) => m
 const MAX_PHONES = 4
 
 /** Edit / add shop dialog of Figma 162:20071, with exactly the frame's fields. */
-export function ShopEditDialog ({ shop, agents, products, productIds, copy, closeHref, enterStartedAt }: {
+export function ShopEditDialog ({ shop, agents, products, districts, productIds, copy, closeHref, enterStartedAt }: {
   shop: Shop | null
   agents: Array<{ id: string, fullName: string, code: string }>
   products: Array<{ id: string, name: string, sku: string }>
+  districts: Array<{ id: string, name: string }>
   productIds: string[]
   copy: ShopFormCopy
   closeHref: string
@@ -47,7 +48,8 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
     defaultValues: {
       name: shop?.name ?? '',
       address: shop?.address ?? '',
-      agentId: shop?.agent?.id ?? '',
+      districtId: shop?.district?.id ?? '',
+      agentIds: shop?.agents.map((a) => a.id) ?? [],
       point: shop != null ? { lat: shop.lat, lng: shop.lng } : null,
       productIds,
       facadePhotoId: shop?.facade?.id ?? null,
@@ -76,7 +78,8 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
       lat: v.point!.lat,
       lng: v.point!.lng,
       facadePhotoId: v.facadePhotoId,
-      assignedAgentId: v.agentId,
+      districtId: v.districtId,
+      agentIds: v.agentIds,
       // Contacts are sent in the stored form +993XXXXXXXX; empty rows are dropped.
       contacts: v.phones.filter((p) => p.phone != null).map((p) => ({ phone: p.phone!, label: p.label })),
       productIds: v.productIds
@@ -133,15 +136,30 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
         <FormField label={copy.name} required hint={copy.nameHint} htmlFor='shop-name' error={errors.name?.message}>
           <TextInput id='shop-name' {...register('name')} />
         </FormField>
-        <FormField label={copy.agent} hint={copy.agentHint} htmlFor='shop-agent'>
+        <FormField label={copy.district} required htmlFor='shop-district' error={errors.districtId?.message}>
           <div className='pt-0.5'>
-            <SelectInput id='shop-agent' {...register('agentId')}>
-              <option value=''>{copy.noAgent}</option>
-              {agents.map((a) => <option key={a.id} value={a.id}>{a.fullName} {a.code}</option>)}
+            <SelectInput id='shop-district' {...register('districtId')}>
+              <option value=''>{copy.districtPlaceholder}</option>
+              {districts.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
             </SelectInput>
           </div>
         </FormField>
       </div>
+
+      {/* Several agents may share a shop. */}
+      <FormField label={copy.agent} hint={copy.agentHint} htmlFor='shop-agents'>
+        <Controller
+          control={control} name='agentIds'
+          render={({ field }) => (
+            <MultiSelect
+              id='shop-agents' value={field.value} onChange={field.onChange}
+              options={agents.map((a) => ({ value: a.id, label: a.fullName, hint: a.code }))}
+              placeholder={copy.noAgent} searchPlaceholder={copy.agentsSearch}
+              summary={(n) => copy.agentsSelected.replace('{n}', String(n))}
+            />
+          )}
+        />
+      </FormField>
 
       <FormField label={copy.products} htmlFor='shop-products'>
         <Controller
@@ -186,7 +204,7 @@ export function ShopEditDialog ({ shop, agents, products, productIds, copy, clos
         <div className='flex items-center justify-between gap-4 rounded-lg border border-border bg-main-bg px-3.5 py-2'>
           <span className='font-mono text-xs leading-4 text-default-black'>
             {point != null
-              ? <>{copy.coords}: <b>{point.lat.toFixed(6)}° N, {point.lng.toFixed(6)}° E</b>{shop?.region != null && ` (${copy.zone}: ${shop.region.name})`}</>
+              ? <>{copy.coords}: <b>{point.lat.toFixed(6)}° N, {point.lng.toFixed(6)}° E</b>{shop?.district != null && ` (${copy.district}: ${shop.district.name})`}</>
               : copy.mapHint}
           </span>
           <button data-ripple type='button' onClick={() => setPicking(true)} className='-mx-1.5 -my-1 rounded-md px-1.5 py-1 shrink-0 text-[11px] font-medium leading-4 text-accent'>{copy.calibrate}</button>

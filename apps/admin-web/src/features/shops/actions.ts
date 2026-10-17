@@ -10,7 +10,8 @@ export interface ShopInput {
   lat: number
   lng: number
   facadePhotoId: string | null
-  assignedAgentId: string | null
+  districtId: string
+  agentIds: string[]
   contacts: Array<{ phone: string, label: string | null }>
   /** Products carried (gap A11). */
   productIds: string[]

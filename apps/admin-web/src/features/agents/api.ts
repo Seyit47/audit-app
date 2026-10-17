@@ -2,7 +2,6 @@ import 'server-only'
 import { api, type Page } from '@/lib/api'
 
 export interface Image { id: string, url: string, previewUrl400: string, previewUrl1200: string, width: number | null, height: number | null, takenAt: string }
-export interface Region { id: string, name: string }
 export type WorkStatus = 'ACTIVE' | 'ON_LEAVE'
 
 export interface AgentRow {
@@ -11,7 +10,6 @@ export interface AgentRow {
   fullName: string
   phone: string
   photo: Image | null
-  region: Region
   locations: number
   visits: number
   photos: number
@@ -30,7 +28,6 @@ export interface Agent {
   phone: string
   whatsappPhone: string | null
   photo: Image | null
-  region: Region
   routeNotes: string | null
   dailyVisitPlan: number
   dailyAuditPlan: number
@@ -47,7 +44,6 @@ export interface AgentListQuery {
   size?: number
   q?: string
   status?: 'ACTIVE' | 'ON_LEAVE' | 'INACTIVE'
-  regionId?: string
   from?: string
   to?: string
   sort?: string
@@ -56,7 +52,6 @@ export interface AgentListQuery {
 
 export const listAgents = (query: AgentListQuery) => api<Page<AgentRow>>('/v1/agents', { query: { ...query } })
 export const getAgent = (id: string) => api<Agent>(`/v1/agents/${id}`)
-export const listRegions = () => api<Region[]>('/v1/regions')
 
 export interface AgentsSummary {
   totalStaff: number

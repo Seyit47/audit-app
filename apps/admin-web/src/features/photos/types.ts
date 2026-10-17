@@ -19,7 +19,7 @@ export interface PhotoDetail extends GalleryPhoto {
 
 export interface GalleryQuery {
   type?: string
-  regionId?: string
+  districtId?: string
   verified?: string
   from?: string
   agentId?: string

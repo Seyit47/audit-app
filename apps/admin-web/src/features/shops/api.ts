@@ -1,6 +1,6 @@
 import 'server-only'
 import { api, type CursorPage, type Page } from '@/lib/api'
-import type { Image, Region } from '@/features/agents/api'
+import type { Image } from '@/features/agents/api'
 
 export type ShopStatus = 'PENDING_REVIEW' | 'ACTIVE' | 'INACTIVE'
 
@@ -11,7 +11,7 @@ export interface Shop {
   type: string
   address: string
   addressDetail: string | null
-  region: Region | null
+  district: { id: string, name: string } | null
   lat: number
   lng: number
   auditRadiusM: number
@@ -19,7 +19,8 @@ export interface Shop {
   status: ShopStatus
   version: number
   facade: Image | null
-  agent: { id: string, fullName: string, code: string, phone: string } | null
+  /** The shop's agents (several). */
+  agents: Array<{ id: string, fullName: string, code: string, phone: string }>
   contacts: Array<{ id: string, phone: string, label: string | null, position: number }>
   lastVisitAt: string | null
   nextDueAt: string | null
@@ -37,7 +38,7 @@ export type Visit =
   | { type: 'AUDIT', id: string, at: string, startedAt: string, durationMin: number, agent: { id: string, fullName: string }, comment: string, hasViolation: boolean, withinRadius: boolean, photoCount: number, photos: Image[] }
   | { type: 'MISSED', id: string, at: string, agent: { id: string, fullName: string } }
 
-export interface ShopListQuery { page?: number, size?: number, q?: string, status?: ShopStatus, regionId?: string, agentId?: string, sort?: string, dir?: 'asc' | 'desc' }
+export interface ShopListQuery { page?: number, size?: number, q?: string, status?: ShopStatus, districtId?: string, agentId?: string, sort?: string, dir?: 'asc' | 'desc' }
 
 export const listShops = (query: ShopListQuery) => api<Page<ShopRow>>('/v1/shops', { query: { ...query } })
 export const getShop = (id: string) => api<ShopDetails>(`/v1/shops/${id}`)

@@ -40,8 +40,8 @@ export function ShopHeader ({ shop, copy }: { shop: ShopDetails, copy: ShopsCopy
               {shop.contacts[0] != null && <span className='flex items-center gap-1.5'><FigmaIcon name='detail-phone' width={12} height={12} />{formatPhone(shop.contacts[0].phone)}</span>}
               <span className='flex items-center gap-1.5'><FigmaIcon name='pin-accent-small' width={10.67} height={13.33} />{shop.address}</span>
             </div>
-            {shop.agent != null && (
-              <span className='flex items-center gap-1.5'><FigmaIcon name='assigned-agent' width={13.33} height={13.33} />{d.assigned} <span className='text-ink'>{shop.agent.fullName}</span> ({shop.agent.code})</span>
+            {shop.agents.length > 0 && (
+              <span className='flex items-center gap-1.5'><FigmaIcon name='assigned-agent' width={13.33} height={13.33} />{d.assigned} <span className='text-ink'>{shop.agents.map((a) => `${a.fullName} (${a.code})`).join(', ')}</span></span>
             )}
           </div>
         </div>

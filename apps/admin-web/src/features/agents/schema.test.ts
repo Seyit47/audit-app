@@ -7,7 +7,7 @@ import { shopFormCopy } from '../shops/copy'
 const f = agentsCopy.ru.form
 const valid = {
   fullName: 'Ахмед', code: 'SL-101', phone: '+993 65 123456', whatsappPhone: '', routeNotes: '',
-  dailyVisitPlan: '25', dailyAuditPlan: '20', regionId: 'r1', device: 'keep' as const, status: 'ACTIVE' as const,
+  dailyVisitPlan: '25', dailyAuditPlan: '20', device: 'keep' as const, status: 'ACTIVE' as const,
   password: 'Kamil2026', confirmPassword: 'Kamil2026'
 }
 const messages = (r: { success: boolean, error?: { issues: Array<{ path: PropertyKey[], message: string }> } }) =>
@@ -41,11 +41,12 @@ describe('passwordSchema', () => {
 
 describe('shopSchema', () => {
   const c = shopFormCopy.ru
-  it('keeps landlines, drops empty phone rows and needs a map point', () => {
-    const base = { name: 'Shop', address: 'Street', agentId: '', point: { lat: 37.95, lng: 58.38 }, productIds: [], facadePhotoId: null }
+  it('keeps landlines, drops empty phone rows, needs a map point and a district', () => {
+    const base = { name: 'Shop', address: 'Street', districtId: 'd1', agentIds: ['a1', 'a2'], point: { lat: 37.95, lng: 58.38 }, productIds: [], facadePhotoId: null }
     const r = shopSchema(c).parse({ ...base, phones: [{ phone: '+993 12 345678', label: '' }, { phone: '', label: '' }] })
     expect(r.phones.map((p) => p.phone)).toEqual(['+99312345678', null])
-    expect(r.agentId).toBeNull()
+    expect(r.agentIds).toEqual(['a1', 'a2'])
+    expect(messages(shopSchema(c).safeParse({ ...base, districtId: '', phones: [] })).districtId).toBe(c.errors.field)
     expect(messages(shopSchema(c).safeParse({ ...base, point: null, phones: [] })).point).toBe(c.errors.location)
   })
 })

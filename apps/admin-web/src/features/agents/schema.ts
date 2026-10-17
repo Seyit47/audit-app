@@ -34,7 +34,6 @@ export function agentSchema (f: FormCopy, adding: boolean) {
     routeNotes: z.string().trim().transform((v) => v || null),
     dailyVisitPlan: int(1, 100, f.errors.visitPlan),
     dailyAuditPlan: int(0, 100, f.errors.visitPlan),
-    regionId: required(f.errors.field),
     device: z.enum(['keep', 'reset']),
     status: z.enum(['ACTIVE', 'ON_LEAVE', 'ARCHIVED']),
     // Set only when adding; an edit leaves them empty and unchecked.

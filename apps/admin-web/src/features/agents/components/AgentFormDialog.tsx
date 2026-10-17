@@ -13,15 +13,14 @@ import { FormField, SelectInput, StatusSwitch, TextArea, TextInput } from '@/com
 import { phoneField } from '@/lib/form'
 import { displayPhone } from '@/lib/phone'
 import { createAgent, rebindAgentDevice, updateAgent } from '../actions'
-import type { Agent, Region } from '../api'
+import type { Agent } from '../api'
 import type { AgentsCopy } from '../copy'
 import { agentSchema, type AgentValues } from '../schema'
 import { PasswordFields } from './PasswordInput'
 
 /** Add / edit salesman dialog of Figma 495:3932, with exactly the frame's fields. */
-export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref, enterStartedAt }: {
+export function AgentFormDialog ({ agent, nextCode, copy, closeHref, enterStartedAt }: {
   agent: Agent | null
-  regions: Region[]
   nextCode: string
   copy: AgentsCopy
   closeHref: string
@@ -44,7 +43,6 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref, en
       routeNotes: agent?.routeNotes ?? '',
       dailyVisitPlan: String(agent?.dailyVisitPlan ?? 25),
       dailyAuditPlan: String(agent?.dailyAuditPlan ?? 20),
-      regionId: agent?.region.id ?? '',
       device: 'keep',
       status: agent == null ? 'ACTIVE' : !agent.active ? 'ARCHIVED' : agent.workStatus,
       password: '',
@@ -128,12 +126,6 @@ export function AgentFormDialog ({ agent, regions, nextCode, copy, closeHref, en
             <TextInput variant='form' id='dailyAuditPlan' type='number' min={0} max={100} suffix={f.auditSuffix} {...register('dailyAuditPlan')} />
           </FormField>
         </div>
-        <FormField variant='form' label={f.region} required htmlFor='regionId' error={errors.regionId?.message}>
-          <SelectInput variant='form' id='regionId' {...register('regionId')}>
-            <option value='' disabled>{f.regionPlaceholder}</option>
-            {regions.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
-          </SelectInput>
-        </FormField>
         <div className='grid grid-cols-2 gap-x-6'>
           <FormField variant='form' label={f.device} htmlFor='device'>
             <SelectInput variant='form' id='device' disabled={deviceLabel == null} icon={<FigmaIcon name='device-phone' width={14} height={14} />} className='text-xs' {...register('device')}>

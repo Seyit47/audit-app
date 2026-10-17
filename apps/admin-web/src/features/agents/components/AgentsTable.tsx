@@ -19,7 +19,7 @@ export function AgentsTable ({ page, copy, locale, sort }: { page: Page<AgentRow
       key: 'salesman', header: copy.columns.salesman, width: 216, sortKey: 'fullName', className: 'pl-4 pr-0',
       render: (a) => {
         const working = a.active && a.workStatus === 'ACTIVE'
-        const sub = a.topPerformer ? copy.topPerformer : a.workStatus === 'ON_LEAVE' ? copy.onLeave : a.region.name
+        const sub = a.topPerformer ? copy.topPerformer : a.workStatus === 'ON_LEAVE' ? copy.onLeave : a.code
         return (
           <Link href={`/salesmen/${a.id}`} className='flex items-center gap-3'>
             <span className={`flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold leading-4 ${working ? 'bg-accent/20 text-accent' : 'bg-line text-muted'}`}>{initials(a.fullName)}</span>

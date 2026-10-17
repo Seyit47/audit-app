@@ -50,11 +50,11 @@ function viewOf (points: Array<{ lng: number, lat: number }>): InitialView {
 }
 
 
-/** Admin Map of 21:2 / 3:2: clustered shops, agent positions, region zones, search, filters and controls (B2). */
-export default function AdminMapCanvas ({ shops, positions, regions, agents, filters, initialCard, history, copy, locale, satelliteTiles }: {
+/** Admin Map of 21:2 / 3:2: clustered shops, agent positions, district zones, search, filters and controls (B2). */
+export default function AdminMapCanvas ({ shops, positions, districts, agents, filters, initialCard, history, copy, locale, satelliteTiles }: {
   shops: MapShop[]
   positions: AgentPosition[]
-  regions: Array<{ id: string, name: string }>
+  districts: Array<{ id: string, name: string }>
   agents: Array<{ id: string, fullName: string }>
   filters: MapFilterState & { ids: string[] }
   /** The card for a link that opened with `?shop=`. */
@@ -121,10 +121,10 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
     type: 'FeatureCollection' as const,
     features: visible.map((s) => ({ type: 'Feature' as const, properties: { id: s.id }, geometry: { type: 'Point' as const, coordinates: [s.lng, s.lat] } }))
   }), [visible])
-  const zones = useMemo(() => filters.regionIds.flatMap((id) => {
-    const ring = hullRing(shops.filter((s) => s.regionId === id).map((s) => [s.lng, s.lat]))
+  const zones = useMemo(() => filters.districtIds.flatMap((id) => {
+    const ring = hullRing(shops.filter((s) => s.districtId === id).map((s) => [s.lng, s.lat]))
     return ring == null ? [] : [{ id, polygon: { type: 'Polygon' as const, coordinates: [ring] } }]
-  }), [filters.regionIds, shops])
+  }), [filters.districtIds, shops])
   // Opens with every shop and agent in view.
   // Opened from Shops "View on map" (`ids`), the view frames just those shops; otherwise shops and agents.
   const focusShops = filters.show === 'shops' || filters.ids.length > 0
@@ -162,12 +162,12 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
   }
   const search = () => { if (visible.length > 0) recenter() }
 
-  const activeFilters = filters.agentIds.length + filters.regionIds.length + (filters.show !== 'both' ? 1 : 0) + (filters.status !== 'all' ? 1 : 0)
+  const activeFilters = filters.agentIds.length + filters.districtIds.length + (filters.show !== 'both' ? 1 : 0) + (filters.status !== 'all' ? 1 : 0)
   const filtered = activeFilters > 0 || filters.ids.length > 0 || q.trim() !== ''
   const banner = [
     `${visible.length} ${plural(locale, visible.length, copy.locations)}`,
     filters.agentIds.length > 0 ? `${filters.agentIds.length} ${plural(locale, filters.agentIds.length, copy.salesmen)}` : null,
-    filters.regionIds.length > 0 ? `${filters.regionIds.length} ${plural(locale, filters.regionIds.length, copy.regions)}` : null
+    filters.districtIds.length > 0 ? `${filters.districtIds.length} ${plural(locale, filters.districtIds.length, copy.districts)}` : null
   ].filter(Boolean).join(' • ')
 
   return (
@@ -258,8 +258,8 @@ export default function AdminMapCanvas ({ shops, positions, regions, agents, fil
       )}
       {panel && (
         <MapFilters
-          agents={agents} regions={regions} value={filters} copy={copy} onClose={() => setPanel(false)}
-          onApply={(next) => { setPanel(false); set({ agents: next.agentIds, regions: next.regionIds, show: next.show, status: next.status, ids: null, shop: null }) }}
+          agents={agents} districts={districts} value={filters} copy={copy} onClose={() => setPanel(false)}
+          onApply={(next) => { setPanel(false); set({ agents: next.agentIds, districts: next.districtIds, show: next.show, status: next.status, ids: null, shop: null }) }}
         />
       )}
     </div>

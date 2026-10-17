@@ -15,7 +15,7 @@ function Check ({ on }: { on: boolean }) {
     : <span className='size-[13px] shrink-0 rounded-[2.5px] border border-[#767676] bg-white' />
 }
 
-/** A collapsible single-choice list (788:2352 Users/Shops, 791:2406 Status), styled like the region list. */
+/** A collapsible single-choice list (788:2352 Users/Shops, 791:2406 Status), styled like the district list. */
 function ChoiceSection<T extends string> ({ title, options, value, onChange }: {
   title: string
   options: Array<{ value: T, label: string }>
@@ -48,11 +48,11 @@ function ChoiceSection<T extends string> ({ title, options, value, onChange }: {
 
 /**
  * "Floating / collapsible filter panel" of 3:2 (3:257, 574:3450): what to show (agents / shops), visit status,
- * salesmen and region zones, Apply / Clear.
+ * salesmen and district zones, Apply / Clear.
  */
-export function MapFilters ({ agents, regions, value, copy, onApply, onClose }: {
+export function MapFilters ({ agents, districts, value, copy, onApply, onClose }: {
   agents: Array<{ id: string, fullName: string }>
-  regions: Array<{ id: string, name: string }>
+  districts: Array<{ id: string, name: string }>
   value: MapFilterState
   copy: MapCopy
   onApply: (next: MapFilterState) => void
@@ -60,17 +60,17 @@ export function MapFilters ({ agents, regions, value, copy, onApply, onClose }: 
 }) {
   const p = copy.panel
   const [agentIds, setAgentIds] = useState(value.agentIds)
-  const [regionIds, setRegionIds] = useState(value.regionIds)
+  const [districtIds, setDistrictIds] = useState(value.districtIds)
   const [show, setShow] = useState<MapShow>(value.show)
   const [status, setStatus] = useState<MapVisitStatus>(value.status)
-  const count = agentIds.length + regionIds.length + (show !== 'both' ? 1 : 0) + (status !== 'all' ? 1 : 0)
+  const count = agentIds.length + districtIds.length + (show !== 'both' ? 1 : 0) + (status !== 'all' ? 1 : 0)
   const [q, setQ] = useState('')
-  const [regionsOpen, setRegionsOpen] = useState(true)
+  const [districtsOpen, setDistrictsOpen] = useState(true)
   const body = useRef<HTMLDivElement>(null)
   const matches = q.trim() === ''
     ? []
     : agents.filter((a) => !agentIds.includes(a.id) && a.fullName.toLowerCase().includes(q.trim().toLowerCase())).slice(0, 6)
-  const toggleRegion = (id: string) => setRegionIds((ids) => ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id])
+  const toggleDistrict = (id: string) => setDistrictIds((ids) => ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id])
 
   return (
     <aside className={`anim-menu-in origin-top-right absolute right-[13px] top-[68px] z-20 flex max-h-[calc(100%-84px)] w-80 flex-col overflow-hidden rounded-2xl bg-pure-white ${shadowXl}`}>
@@ -129,20 +129,20 @@ export function MapFilters ({ agents, regions, value, copy, onApply, onClose }: 
         </div>
 
         <div className='flex flex-col gap-1.5 border-b border-secondary-bg pb-3'>
-          <button data-ripple data-disclosure type='button' onClick={() => setRegionsOpen((o) => !o)} aria-expanded={regionsOpen} className='flex h-6 items-center justify-between'>
-            <span className='text-xs font-semibold leading-4 text-ink'>{p.region}</span>
-            <span className={`flex size-6 items-center justify-center transition-transform ${regionsOpen ? '' : '-rotate-90'}`}><FigmaIcon name='map-chevron' width={7} height={3.5} /></span>
+          <button data-ripple data-disclosure type='button' onClick={() => setDistrictsOpen((o) => !o)} aria-expanded={districtsOpen} className='flex h-6 items-center justify-between'>
+            <span className='text-xs font-semibold leading-4 text-ink'>{p.district}</span>
+            <span className={`flex size-6 items-center justify-center transition-transform ${districtsOpen ? '' : '-rotate-90'}`}><FigmaIcon name='map-chevron' width={7} height={3.5} /></span>
           </button>
-          {regionsOpen && (
+          {districtsOpen && (
             <div className='flex flex-col gap-1 rounded-xl bg-secondary-bg p-1.5'>
-              <button data-ripple type='button' onClick={() => setRegionIds([])} className='flex items-center justify-between rounded-lg px-2.5 py-1.5'>
-                <span className={`text-xs leading-4 ${regionIds.length === 0 ? 'font-semibold text-accent' : 'text-muted'}`}>{sub(p.allRegions, regions.length)}</span>
-                <Check on={regionIds.length === 0} />
+              <button data-ripple type='button' onClick={() => setDistrictIds([])} className='flex items-center justify-between rounded-lg px-2.5 py-1.5'>
+                <span className={`text-xs leading-4 ${districtIds.length === 0 ? 'font-semibold text-accent' : 'text-muted'}`}>{sub(p.allDistricts, districts.length)}</span>
+                <Check on={districtIds.length === 0} />
               </button>
-              {regions.map((r) => {
-                const on = regionIds.includes(r.id)
+              {districts.map((r) => {
+                const on = districtIds.includes(r.id)
                 return (
-                  <button data-ripple key={r.id} type='button' onClick={() => toggleRegion(r.id)} aria-pressed={on} className={`flex ${on ? 'bg-accent/5' : ''} items-center justify-between rounded-lg px-2.5 py-1.5`}>
+                  <button data-ripple key={r.id} type='button' onClick={() => toggleDistrict(r.id)} aria-pressed={on} className={`flex ${on ? 'bg-accent/5' : ''} items-center justify-between rounded-lg px-2.5 py-1.5`}>
                     <span className={`text-left text-xs leading-4 ${on ? 'font-semibold text-accent' : 'text-muted'}`}>{r.name}</span>
                     <Check on={on} />
                   </button>
@@ -155,12 +155,12 @@ export function MapFilters ({ agents, regions, value, copy, onApply, onClose }: 
 
       <div className='flex items-center gap-2 p-3'>
         <button data-ripple
-          type='button' onClick={() => onApply({ agentIds, regionIds, show, status })}
+          type='button' onClick={() => onApply({ agentIds, districtIds, show, status })}
           className='flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-accent text-xs font-semibold leading-4 text-white shadow-[0px_1px_2px_rgba(0,0,0,0.05)]'
         >
           <FigmaIcon name='map-apply-check' width={10.87} height={8.02} />{p.apply}
         </button>
-        <button data-ripple type='button' onClick={() => { setAgentIds([]); setRegionIds([]); setShow('both'); setStatus('all'); onApply({ agentIds: [], regionIds: [], show: 'both', status: 'all' }) }} className='h-9 rounded-lg bg-secondary-bg px-3 text-xs font-semibold leading-4 text-ink'>{p.clear}</button>
+        <button data-ripple type='button' onClick={() => { setAgentIds([]); setDistrictIds([]); setShow('both'); setStatus('all'); onApply({ agentIds: [], districtIds: [], show: 'both', status: 'all' }) }} className='h-9 rounded-lg bg-secondary-bg px-3 text-xs font-semibold leading-4 text-ink'>{p.clear}</button>
       </div>
     </aside>
   )

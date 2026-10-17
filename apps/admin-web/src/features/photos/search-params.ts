@@ -3,7 +3,7 @@ import { literal, parseAsText, parseAsUuid } from '@/lib/search-params'
 
 /** /pictures URL params. */
 export const picturesParams = {
-  regionId: parseAsUuid,
+  districtId: parseAsUuid,
   verified: literal(['true', 'false'] as const),
   date: literal(['today', '7', '30', 'all'] as const).withDefault('7'),
   shopId: parseAsUuid,

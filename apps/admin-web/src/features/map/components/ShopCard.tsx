@@ -66,12 +66,16 @@ export function ShopCard ({ shop, visits, totals, photos, onClose, copy, history
       <div ref={body} className='scrollbar-none flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-2'>
         <FloatingScrollbar target={body} />
         <div className='flex flex-col gap-1.5 rounded-xl bg-secondary-bg p-3'>
-          <Info label={c.region}>{shop.region?.name ?? c.none}</Info>
+          <Info label={c.district}>{shop.district?.name ?? c.none}</Info>
           <Info label={c.address}><span className='font-medium'>{shop.address}{shop.addressDetail != null ? `, ${shop.addressDetail}` : ''}</span></Info>
           <Info label={c.lastAudit}>{shop.kpis.lastAuditAt != null ? formatDate(locale, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }, new Date(shop.kpis.lastAuditAt)) : c.none}</Info>
           <Info label={c.agent}>
-            {shop.agent != null
-              ? <Link href={`/salesmen/${shop.agent.id}`} className='flex items-center gap-1 text-accent'><FigmaIcon name='map-agent' width={8.67} height={8.67} />{shop.agent.fullName}</Link>
+            {shop.agents.length > 0
+              ? (
+                <span className='flex flex-col items-end gap-0.5'>
+                  {shop.agents.map((a) => <Link key={a.id} href={`/salesmen/${a.id}`} className='flex items-center gap-1 text-accent'><FigmaIcon name='map-agent' width={8.67} height={8.67} />{a.fullName}</Link>)}
+                </span>
+                )
               : c.unassigned}
           </Info>
           <Info label={c.audits}>{shop.kpis.totalAudits}</Info>

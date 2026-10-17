@@ -10,6 +10,7 @@ interface ShopFormData {
   shop: ShopDetails | null
   agents: Array<{ id: string, fullName: string, code: string }>
   products: Array<{ id: string, name: string, sku: string }>
+  districts: Array<{ id: string, name: string }>
   productIds: string[]
 }
 
@@ -28,5 +29,5 @@ export function ShopFormHost ({ copy, shopId }: { copy: ShopFormCopy, shopId?: s
     )
   }
   const d = form.data
-  return <ShopEditDialog key={form.key} shop={d.shop} agents={d.agents} products={d.products} productIds={d.productIds} copy={copy} closeHref={form.closeHref} enterStartedAt={form.enterStartedAt} />
+  return <ShopEditDialog key={form.key} shop={d.shop} agents={d.agents} products={d.products} districts={d.districts} productIds={d.productIds} copy={copy} closeHref={form.closeHref} enterStartedAt={form.enterStartedAt} />
 }

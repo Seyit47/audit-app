@@ -34,7 +34,6 @@ export function AgentHeader ({ agent, copy, locale, exportHref }: {
           <span className='flex items-center gap-1 font-medium text-ink'><FigmaIcon name='agent-person' width={10} height={10} />{agent.fullName}</span>
           <span className='rounded bg-dark-accent px-2 py-0.5 font-display text-muted'>{agent.code}</span>
           <a href={`tel:${agent.phone}`} className='flex items-center gap-1 text-muted'><FigmaIcon name='agent-phone' width={11.25} height={11.25} />{formatPhone(agent.phone)}</a>
-          <span className='flex items-center gap-1 text-muted'><FigmaIcon name='agent-sector' width={8.75} height={12.5} />{sub(d.sector, agent.region.name)}</span>
           <span className='flex items-center gap-1 text-muted'>
             <FigmaIcon name='calendar' width={10.5} height={11.667} />{sub(d.since, formatDate(locale, { day: 'numeric', month: 'long', year: 'numeric' }, agent.createdAt))}
           </span>

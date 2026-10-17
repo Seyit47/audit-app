@@ -7,25 +7,18 @@ import { Card } from '@/components/ui/Card'
 import { DataTable } from '@/components/ui/DataTable'
 import { TextInput } from '@/components/ui/FormField'
 import type { ActionResult } from '@/lib/action-result'
-import { addCategory, addRegion, deleteCategory, deleteRegion, renameCategory, renameRegion } from '../actions'
+import { addCategory, deleteCategory, renameCategory } from '../actions'
 import type { SettingsCopy } from '../copy'
 
 type Item = { id: string, name: string }
 
-const actions = {
-  regions: { add: addRegion, rename: renameRegion, remove: deleteRegion },
-  categories: { add: addCategory, rename: renameCategory, remove: deleteCategory }
-}
-
 /**
- * A named list managed in Settings (A4): regions (sales territories) and product categories. Built from the
+ * A named list managed in Settings (A4): product categories. Built from the
  * 3:407 table and 162:20071 inputs: add by name, rename in place, delete (refused while still in use).
  */
-export function NameListCard ({ kind, items, copy }: { kind: keyof typeof actions, items: Item[], copy: SettingsCopy }) {
-  const { add, rename, remove } = actions[kind]
-  const labels = kind === 'regions'
-    ? { title: copy.regions, name: copy.regionName, add: copy.addRegion, empty: copy.noRegions, inUse: copy.regionInUse }
-    : { title: copy.categories, name: copy.categoryName, add: copy.addCategory, empty: copy.noCategories, inUse: copy.categoryInUse }
+export function NameListCard ({ items, copy }: { items: Item[], copy: SettingsCopy }) {
+  const [add, rename, remove] = [addCategory, renameCategory, deleteCategory]
+  const labels = { title: copy.categories, name: copy.categoryName, add: copy.addCategory, empty: copy.noCategories, inUse: copy.categoryInUse }
   const [name, setName] = useState('')
   const [editing, setEditing] = useState<{ id: string, name: string } | null>(null)
   const [error, setError] = useState<string | null>(null)

@@ -79,7 +79,7 @@ export default async function ShopDetailsPage ({ params, searchParams }: PagePro
           <ShopMiniMap
             lat={shop.lat} lng={shop.lng} name={shop.name} imageUrl={shop.facade?.previewUrl400} radiusM={shop.auditRadiusM}
             lastVisitAt={shop.lastVisitAt} nextDueAt={shop.nextDueAt}
-            labels={{ title: d.geo, region: shop.region?.name ?? d.noRegion, gps: d.gpsValid, recenter: d.recenter, fullscreen: d.fullscreen, zoomIn: d.zoomIn, zoomOut: d.zoomOut }}
+            labels={{ title: d.geo, region: shop.district?.name ?? d.noDistrict, gps: d.gpsValid, recenter: d.recenter, fullscreen: d.fullscreen, zoomIn: d.zoomIn, zoomOut: d.zoomOut }}
           />
         </div>
 

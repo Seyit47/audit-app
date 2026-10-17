@@ -99,9 +99,15 @@ export function ShopsView ({ page, copy, locale, agents, exportHref, children }:
     },
     {
       key: 'agent', header: copy.columns.agent, width: 168, className: 'pl-3 pr-0',
-      render: (s) => s.agent == null
+      // Several agents: the first with an avatar, the rest by name.
+      render: (s) => s.agents.length === 0
         ? <span className='text-subtle'>{copy.unassigned}</span>
-        : <span className='flex items-center gap-2'><Avatar name={s.agent.fullName} /><span className='truncate font-medium'>{s.agent.fullName}</span></span>
+        : (
+          <span className='flex items-center gap-2' title={s.agents.map((a) => a.fullName).join(', ')}>
+            <Avatar name={s.agents[0]!.fullName} />
+            <span className='truncate font-medium'>{s.agents.map((a) => a.fullName).join(', ')}</span>
+          </span>
+          )
     },
     {
       key: 'status', header: copy.columns.status, width: 148, className: 'pl-6 pr-3',

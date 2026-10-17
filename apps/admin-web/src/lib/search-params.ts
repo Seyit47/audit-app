@@ -10,6 +10,9 @@ const string = (parse: (v: string) => string | null) => createParser({ parse, se
 
 export const parseAsUuid = string((v) => (UUID.test(v) ? v : null))
 
+/** A district id, or 'none' for the shops without one. */
+export const parseAsDistrict = string((v) => (v === 'none' || UUID.test(v) ? v : null))
+
 /** Comma-separated ids (`?agents=a,b`); invalid entries are dropped. */
 export const parseAsUuids = parseAsArrayOf(parseAsUuid, ',')
 

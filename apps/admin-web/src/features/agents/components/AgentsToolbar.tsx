@@ -8,7 +8,6 @@ import { SegmentedControl } from '@/components/ui/SegmentedControl'
 import { isoDay } from '@/lib/format'
 import { useListParams } from '@/lib/use-list-params'
 import { agentsParams, periodParams } from '../search-params'
-import type { Region } from '../api'
 import type { AgentsCopy } from '../copy'
 
 type Preset = 'today' | 'yesterday' | 'week'
@@ -46,12 +45,10 @@ export function PeriodFilter ({ copy }: { copy: AgentsCopy }) {
   )
 }
 
-/** "Search & Filters Toolbar" of 31:2307 (31:2430): dates, presets, status, region, applied chips. */
-export function AgentsToolbar ({ copy, regions }: { copy: AgentsCopy, regions: Region[] }) {
+/** "Search & Filters Toolbar" of 31:2307 (31:2430): dates, presets, status, applied chips. */
+export function AgentsToolbar ({ copy }: { copy: AgentsCopy }) {
   const { values, set } = useListParams(agentsParams)
   const status = values.status ?? ''
-  const regionId = values.regionId ?? ''
-  const regionName = regions.find((r) => r.id === regionId)?.name
 
   return (
     <Card className='flex flex-col gap-3 p-4'>
@@ -63,17 +60,10 @@ export function AgentsToolbar ({ copy, regions }: { copy: AgentsCopy, regions: R
           options={[{ value: '', label: copy.allStatus }, ...(['ACTIVE', 'ON_LEAVE', 'INACTIVE'] as const).map((s) => ({ value: s, label: copy.statuses[s] }))]}
           onChange={(v) => set({ status: (v || null) as typeof values.status })}
         />
-        <FilterSelect
-          label={copy.region}
-          value={regionId}
-          options={[{ value: '', label: copy.allRegions }, ...regions.map((r) => ({ value: r.id, label: r.name }))]}
-          onChange={(v) => set({ regionId: v || null })}
-        />
       </div>
-      {(status !== '' || regionName != null) && (
+      {status !== '' && (
         <AppliedFilters label={copy.applied}>
-          {regionName != null && <FilterChip label={`${copy.region}: ${regionName}`} removeLabel={copy.remove} onRemove={() => set({ regionId: null })} />}
-          {status !== '' && <FilterChip label={`${copy.status}: ${copy.statuses[status as keyof AgentsCopy['statuses']]}`} removeLabel={copy.remove} onRemove={() => set({ status: null })} />}
+          <FilterChip label={`${copy.status}: ${copy.statuses[status]}`} removeLabel={copy.remove} onRemove={() => set({ status: null })} />
         </AppliedFilters>
       )}
     </Card>

@@ -19,7 +19,7 @@ export interface Product {
   minStockAlert: number
   locations: number
   coveragePct: number | null
-  regions: string[]
+  districts: string[]
   compliancePct: number | null
   lastActivityAt: string | null
 }

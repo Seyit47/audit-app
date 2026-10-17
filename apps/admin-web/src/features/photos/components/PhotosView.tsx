@@ -27,11 +27,11 @@ function stamp (iso: string, l: Locale) {
 }
 
 /** Pictures of 53:1375 (grid) and 138:11987 (detail panel). */
-export function PhotosView ({ first, query, summary, regions, copy, locale, initialDetail = null }: {
+export function PhotosView ({ first, query, summary, districts, copy, locale, initialDetail = null }: {
   first: GalleryPage
   query: GalleryQuery
   summary: { total: number, today: number }
-  regions: Array<{ id: string, name: string }>
+  districts: Array<{ id: string, name: string }>
   copy: PhotosCopy
   locale: Locale
   /** Opened from `?photo=<id>` (e.g. a Salesman details photo report). */
@@ -94,7 +94,7 @@ export function PhotosView ({ first, query, summary, regions, copy, locale, init
     }, () => { if (latest.current === p.id) setOpening(null) }).finally(() => clearTimeout(slow))
     if (!split) setOpening(p) // the first open needs the panel at once to start the layout change
   }
-  const activeFilters = [values.regionId, values.verified, values.date !== '7' ? values.date : null].filter((v) => v != null).length
+  const activeFilters = [values.districtId, values.verified, values.date !== '7' ? values.date : null].filter((v) => v != null).length
 
   const tile = (p: GalleryPhoto) => (
     <PhotoTile
@@ -144,8 +144,8 @@ export function PhotosView ({ first, query, summary, regions, copy, locale, init
       >
         <div className='-mx-1 -mb-1 min-h-0 overflow-hidden'>
           <div className='flex flex-wrap items-center gap-3 px-1 pb-1 pt-2.5'>
-          <FilterSelect size='lg' label={copy.location} value={values.regionId ?? ''} onChange={(v) => set({ regionId: v || null })}
-            options={[{ value: '', label: copy.allLocations }, ...regions.map((r) => ({ value: r.id, label: r.name }))]} />
+          <FilterSelect size='lg' label={copy.location} value={values.districtId ?? ''} onChange={(v) => set({ districtId: v || null })}
+            options={[{ value: '', label: copy.allLocations }, ...districts.map((r) => ({ value: r.id, label: r.name }))]} />
           <FilterSelect size='lg' label={copy.status} value={values.verified ?? ''} onChange={(v) => set({ verified: (v || null) as typeof values.verified })}
             options={[{ value: '', label: copy.allStatus }, { value: 'true', label: copy.statuses.true }, { value: 'false', label: copy.statuses.false }]} />
           <FilterSelect size='lg' label={copy.date} value={values.date} onChange={(v) => set({ date: v as typeof values.date })}

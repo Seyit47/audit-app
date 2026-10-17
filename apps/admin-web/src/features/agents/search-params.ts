@@ -1,5 +1,5 @@
 import { createLoader } from 'nuqs/server'
-import { literal, pageParams, parseAsDay, parseAsText, parseAsUuid } from '@/lib/search-params'
+import { literal, pageParams, parseAsDay, parseAsText } from '@/lib/search-params'
 
 /** The salesman period (Дата от / Дата до and presets), on /salesmen and a salesman's page. */
 export const periodParams = {
@@ -15,7 +15,6 @@ export const agentsParams = {
   ...periodParams,
   q: parseAsText,
   status: literal(['ACTIVE', 'ON_LEAVE', 'INACTIVE'] as const),
-  regionId: parseAsUuid,
   sort: literal(['fullName', 'code', 'locations', 'visits', 'photos', 'lastActivityAt'] as const).withDefault('code'),
   dir: literal(['asc', 'desc'] as const).withDefault('asc')
 }

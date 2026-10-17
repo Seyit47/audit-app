@@ -3,8 +3,8 @@ type Point = [number, number]
 const cross = (o: Point, a: Point, b: Point) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
 
 /**
- * Convex hull (Andrew's monotone chain) as a closed GeoJSON ring. Regions have no stored polygon,
- * so a "region zone" is drawn around its shops. Fewer than 3 distinct points give no ring.
+ * Convex hull (Andrew's monotone chain) as a closed GeoJSON ring. Districts have no stored polygon,
+ * so a "district zone" is drawn around its shops. Fewer than 3 distinct points give no ring.
  */
 export function hullRing (points: Point[]): Point[] | null {
   const pts = [...new Map(points.map((p) => [`${p[0]},${p[1]}`, p])).values()].sort((a, b) => a[0] - b[0] || a[1] - b[1])

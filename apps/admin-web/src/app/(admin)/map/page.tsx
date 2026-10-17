@@ -1,6 +1,6 @@
 import { AutoRefresh } from '@/components/ui/AutoRefresh'
 import { listAgentOptions } from '@/features/shops/api'
-import { listRegions } from '@/features/agents/api'
+import { listDistricts } from '@/features/districts/api'
 import { AdminMap } from '@/features/map/components/AdminMap'
 import { loadShopCard } from '@/features/map/card'
 import { mapCopy } from '@/features/map/copy'
@@ -23,20 +23,20 @@ function matchesStatus (s: MapShop, status: MapVisitStatus, now: number): boolea
 }
 
 /**
- * Map of 21:2 / 3:2. Filters live in the URL (`agents`, `regions`, `show`, `status`, `ids` from Shops "View on Map",
+ * Map of 21:2 / 3:2. Filters live in the URL (`agents`, `districts`, `show`, `status`, `ids` from Shops "View on Map",
  * `shop`).
  */
 export default async function MapPage ({ searchParams }: PageProps<'/map'>) {
   const locale = await getLocale()
   const copy = mapCopy[locale]
   const p = await loadMapParams(searchParams)
-  const filters = { agentIds: p.agents, regionIds: p.regions, show: p.show, status: p.status, ids: p.ids }
+  const filters = { agentIds: p.agents, districtIds: p.districts, show: p.show, status: p.status, ids: p.ids }
   // "View on map" for one shop opens it selected, its card showing, as if its pin were clicked.
   const shopId = p.shop ?? (p.ids.length === 1 ? p.ids[0] : null)
-  const [shops, positions, regions, agents, selected] = await Promise.all([
-    api<MapShop[]>('/v1/shops/map', { query: { agentIds: filters.agentIds, regionIds: filters.regionIds, ids: filters.ids } }),
+  const [shops, positions, districts, agents, selected] = await Promise.all([
+    api<MapShop[]>('/v1/shops/map', { query: { agentIds: filters.agentIds, districtIds: filters.districtIds, ids: filters.ids } }),
     api<AgentPosition[]>('/v1/agents/positions'),
-    listRegions(),
+    listDistricts().then((ds) => ds.flatMap((d) => d.id == null || d.name == null ? [] : [{ id: d.id, name: d.name }])),
     listAgentOptions(),
     // Only for a link that opens with a shop selected; later selections load on the client.
     shopId != null ? loadShopCard(shopId) : Promise.resolve(null)
@@ -50,7 +50,7 @@ export default async function MapPage ({ searchParams }: PageProps<'/map'>) {
       {/* Agent positions poll every 30 s in the map itself; the whole page (shop visit colors) every 5 min. */}
       <AutoRefresh seconds={300} />
       <AdminMap
-        shops={shownShops} positions={positions} regions={regions} agents={agents.items.filter((a) => a.active)}
+        shops={shownShops} positions={positions} districts={districts} agents={agents.items.filter((a) => a.active)}
         filters={filters} initialCard={selected} copy={copy} locale={locale} satelliteTiles={SATELLITE}
         history={{ title: d.history, updatedAt: d.updatedAt, total: d.total, completed: d.completed, missed: d.missed, duration: d.duration, comment: d.comment, violation: d.violation, missedStatus: d.missedStatus, noVisits: d.noVisits }}
       />
