@@ -358,5 +358,6 @@
   "locServiceOff": "Telefonda ýerleşiş öçük. Bildiriş panelinde «Ýerleşiş» açyň we «Täzeden barla» basyň.",
   "locDenied": "Ýerleşişe rugsat ýok. Programmanyň sazlamalarynda rugsat beriň: «Rugsatlar» → «Ýerleşiş».",
   "locApproximate": "Diňe takmynan ýerleşiş rugsat berildi. Programmanyň sazlamalarynda «Takyk ýerleşiş» ýakyň.",
-  "locNoSignal": "GPS signaly ýok. Penjirä golaý geliň ýa-da daşaryk çykyň we «Täzeden barla» basyň."
+  "locNoSignal": "GPS signaly ýok. Penjirä golaý geliň ýa-da daşaryk çykyň we «Täzeden barla» basyň.",
+  "auditOnlyInRadius": "Audit diňe dükandan {radius} m aralykda mümkin"
 }

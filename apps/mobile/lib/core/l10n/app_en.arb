@@ -358,5 +358,6 @@
   "locServiceOff": "Location is off on the phone. Turn on Location in the quick settings and tap Check again.",
   "locDenied": "No access to location. Allow it in the app's settings: Permissions → Location.",
   "locApproximate": "Only approximate location is allowed. Turn on “Use precise location” in the app's settings.",
-  "locNoSignal": "No GPS signal. Move to a window or step outside and tap Check again."
+  "locNoSignal": "No GPS signal. Move to a window or step outside and tap Check again.",
+  "auditOnlyInRadius": "An audit is possible only within {radius} m of the shop"
 }

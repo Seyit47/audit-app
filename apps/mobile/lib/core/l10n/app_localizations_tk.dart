@@ -1211,4 +1211,9 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get locNoSignal => 'GPS signaly ýok. Penjirä golaý geliň ýa-da daşaryk çykyň we «Täzeden barla» basyň.';
+
+  @override
+  String auditOnlyInRadius(int radius) {
+    return 'Audit diňe dükandan $radius m aralykda mümkin';
+  }
 }

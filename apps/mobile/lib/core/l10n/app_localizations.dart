@@ -2246,6 +2246,12 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Нет сигнала GPS. Подойдите к окну или выйдите на улицу и нажмите «Проверить заново».'**
   String get locNoSignal;
+
+  /// No description provided for @auditOnlyInRadius.
+  ///
+  /// In ru, this message translates to:
+  /// **'Аудит возможен только в радиусе {radius} м от магазина'**
+  String auditOnlyInRadius(int radius);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

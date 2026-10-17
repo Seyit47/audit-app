@@ -1213,4 +1213,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get locNoSignal => 'Нет сигнала GPS. Подойдите к окну или выйдите на улицу и нажмите «Проверить заново».';
+
+  @override
+  String auditOnlyInRadius(int radius) {
+    return 'Аудит возможен только в радиусе $radius м от магазина';
+  }
 }

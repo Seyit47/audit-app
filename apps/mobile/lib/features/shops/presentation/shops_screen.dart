@@ -122,7 +122,7 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
                           final meters = distanceTo(position, s.lat, s.lng);
                           return ShopListTile(
                             name: s.name,
-                            distance: meters == null ? null : distance(context, meters),
+                            distance: meters == null ? null : l10n.fromYou(distance(context, meters)),
                             address: s.address,
                             imageUrl: s.facadeUrl,
                             footerLabel: pending ? l10n.statusPENDING_REVIEW : l10n.lastVisit,

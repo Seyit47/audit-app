@@ -28,7 +28,7 @@ class ShopListTile extends StatelessWidget {
   final Color? footerColor;
   final VoidCallback onTap;
 
-  /// "350 м" from the agent, next to the name (not in the Figma frame; asked for).
+  /// "350 м от вас", as on the shop's details, next to the name (not in the Figma frame; asked for).
   final String? distance;
 
   @override

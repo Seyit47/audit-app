@@ -1211,4 +1211,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get locNoSignal => 'No GPS signal. Move to a window or step outside and tap Check again.';
+
+  @override
+  String auditOnlyInRadius(int radius) {
+    return 'An audit is possible only within $radius m of the shop';
+  }
 }
