@@ -10,7 +10,10 @@ import { AppError } from '../../../lib/app-error.js'
 const Latest = TypeCompiler.Compile(Type.Object({
   version: Type.String({ minLength: 1 }),
   build: Type.Integer({ minimum: 1 }),
-  file: Type.String({ pattern: '^[A-Za-z0-9._-]+\\.apk$' }),
+  /** One APK for every phone (older app versions download this one). */
+  file: Type.Optional(Type.String({ pattern: '^[A-Za-z0-9._-]+\\.apk$' })),
+  /** Smaller APKs per CPU type ("arm64-v8a", "armeabi-v7a"), for apps that say which they are. */
+  files: Type.Optional(Type.Record(Type.String({ pattern: '^[a-z0-9_-]+$' }), Type.String({ pattern: '^[A-Za-z0-9._-]+\\.apk$' }))),
   notes: Type.Optional(Type.String()),
   required: Type.Optional(Type.Boolean())
 }))
@@ -45,20 +48,23 @@ const noUpdate = () => new AppError(404, 'NOT_FOUND', 'No app update published')
 const app: FastifyPluginAsyncTypebox = async (fastify) => {
   const dir = () => fastify.config.updatesDir
 
-  fastify.get('/latest', { schema: { tags: ['app'] } }, async () => {
+  fastify.get('/latest', { schema: { querystring: Type.Object({ abi: Type.Optional(Type.String({ maxLength: 20 })) }), tags: ['app'] } }, async (req) => {
     if (dir() === '') throw noUpdate()
     const raw = await readFile(join(dir(), 'latest.json'), 'utf8').catch(() => null)
     if (raw == null) throw noUpdate()
     const latest = parse(raw)
     if (!Latest.Check(latest)) throw new AppError(500, 'INTERNAL_ERROR', 'latest.json in the updates folder is not valid')
-    const size = await stat(join(dir(), latest.file)).then((s) => s.size, () => null)
-    if (size == null) throw new AppError(500, 'INTERNAL_ERROR', `${latest.file} named in latest.json is not in the updates folder`)
+    // The phone's own CPU type when published, else the APK for every phone.
+    const file = (req.query.abi != null ? latest.files?.[req.query.abi] : undefined) ?? latest.file
+    if (file == null) throw noUpdate()
+    const size = await stat(join(dir(), file)).then((s) => s.size, () => null)
+    if (size == null) throw new AppError(500, 'INTERNAL_ERROR', `${file} named in latest.json is not in the updates folder`)
     return {
       version: latest.version,
       build: latest.build,
       notes: latest.notes ?? '',
       required: latest.required ?? false,
-      url: `/v1/app/apk/${latest.file}`,
+      url: `/v1/app/apk/${file}`,
       sizeBytes: size
     }
   })

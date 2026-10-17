@@ -1,3 +1,5 @@
+import 'dart:ffi' show Abi;
+
 import 'package:audit_mobile/features/update/app_update.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -21,5 +23,11 @@ void main() {
     final u = AppUpdate.fromJson({'version': '1.0.29', 'build': 30, 'url': '/v1/app/apk/a.apk', 'sizeBytes': 1});
     expect(u.notes, '');
     expect(u.required, isFalse);
+  });
+
+  test('the CPU type the server picks the APK by', () {
+    expect(androidAbi(Abi.androidArm64), 'arm64-v8a');
+    expect(androidAbi(Abi.androidArm), 'armeabi-v7a');
+    expect(androidAbi(Abi.linuxX64), isNull);
   });
 }

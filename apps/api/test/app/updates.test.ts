@@ -56,6 +56,22 @@ test('byte ranges', () => {
   assert.strictEqual(byteRange('items=0-1', 100), 'invalid')
 })
 
+test('per CPU type: the phone gets its own APK; an app that does not say gets the one for every phone', async () => {
+  await writeFile(join(dir, 'all.apk'), Buffer.alloc(300))
+  await writeFile(join(dir, 'arm64.apk'), Buffer.alloc(100))
+  await writeFile(join(dir, 'arm32.apk'), Buffer.alloc(90))
+  await writeFile(join(dir, 'latest.json'), JSON.stringify({ version: '1.0.43', build: 44, file: 'all.apk', files: { 'arm64-v8a': 'arm64.apk', 'armeabi-v7a': 'arm32.apk' } }))
+  const latest = async (qs = '') => (await app.inject({ url: `/v1/app/latest${qs}` })).json()
+  assert.deepStrictEqual([(await latest('?abi=arm64-v8a')).url, (await latest('?abi=arm64-v8a')).sizeBytes], ['/v1/app/apk/arm64.apk', 100])
+  assert.strictEqual((await latest('?abi=armeabi-v7a')).url, '/v1/app/apk/arm32.apk')
+  assert.strictEqual((await latest('?abi=x86_64')).url, '/v1/app/apk/all.apk')
+  assert.strictEqual((await latest()).url, '/v1/app/apk/all.apk')
+
+  // Only split APKs published: an app that does not say its CPU type gets no update.
+  await writeFile(join(dir, 'latest.json'), JSON.stringify({ version: '1.0.43', build: 44, files: { 'arm64-v8a': 'arm64.apk' } }))
+  assert.strictEqual((await app.inject({ url: '/v1/app/latest' })).statusCode, 404)
+})
+
 test('a broken latest.json or a missing APK is a server error; file names cannot leave the folder', async () => {
   await writeFile(join(dir, 'latest.json'), '{"version": "1.0.29"')
   assert.strictEqual((await app.inject({ url: '/v1/app/latest' })).statusCode, 500)

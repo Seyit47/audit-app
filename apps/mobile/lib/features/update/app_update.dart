@@ -1,3 +1,4 @@
+import 'dart:ffi' show Abi;
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -55,6 +56,16 @@ final appVersionProvider = FutureProvider<(String, int)>((ref) async {
   return (info.version, int.tryParse(info.buildNumber) ?? 0);
 });
 
+/// The Android name of this phone's CPU type, as the split APKs are named: the server then hands out the
+/// smaller APK built for it.
+String? androidAbi(Abi abi) => switch (abi) {
+  Abi.androidArm64 => 'arm64-v8a',
+  Abi.androidArm => 'armeabi-v7a',
+  Abi.androidX64 => 'x86_64',
+  Abi.androidIA32 => 'x86',
+  _ => null,
+};
+
 /// Checks, downloads and installs updates (Android only: iOS apps update through the App Store or MDM).
 class UpdateService {
   UpdateService(this._apiUrl, {Dio? dio, Future<Directory> Function()? cacheDir})
@@ -73,7 +84,7 @@ class UpdateService {
   Future<UpdateCheck> checkNow() async {
     if (!Platform.isAndroid) return const UpdateCheck(UpdateCheckStatus.upToDate);
     try {
-      final res = await _dio.get<Map<String, dynamic>>('${_apiUrl()}/v1/app/latest');
+      final res = await _dio.get<Map<String, dynamic>>('${_apiUrl()}/v1/app/latest', queryParameters: {'abi': ?androidAbi(Abi.current())});
       final update = AppUpdate.fromJson(res.data!);
       final installed = int.tryParse((await PackageInfo.fromPlatform()).buildNumber) ?? 0;
       return update.newerThan(installed) ? UpdateCheck(UpdateCheckStatus.available, update) : const UpdateCheck(UpdateCheckStatus.upToDate);

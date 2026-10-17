@@ -40,7 +40,13 @@ android {
     // travels as plain bytes, and a network filter on the production server's route cuts any download that
     // contains one of them ("Rebuild…Stack trace:" in libapp.so): in-app updates failed at ~2 MB. Also a
     // much smaller download.
-    packaging { jniLibs { useLegacyPackaging = true } }
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+            // Emulator CPUs: plugins (MapLibre) ship x86 / x86_64 libraries no phone uses (11 MB).
+            excludes += listOf("lib/x86/**", "lib/x86_64/**")
+        }
+    }
 
     signingConfigs {
         if (keystore.containsKey("storeFile")) {
