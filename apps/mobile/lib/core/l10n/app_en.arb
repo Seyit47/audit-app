@@ -368,5 +368,11 @@
   "allDistrictShops": "All shops",
   "agentsField": "Salesmen",
   "selectAgents": "Select salesmen",
-  "addressDistrict": "Address & district"
+  "addressDistrict": "Address & district",
+  "routeGo": "Go",
+  "routeStop": "End",
+  "routeBuilding": "Finding a route…",
+  "routeStraight": "No road route — showing the direction",
+  "routeArrived": "You have arrived",
+  "routeMinutes": "{minutes} min"
 }

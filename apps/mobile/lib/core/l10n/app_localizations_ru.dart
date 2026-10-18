@@ -1245,4 +1245,24 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get addressDistrict => 'Адрес и район';
+
+  @override
+  String get routeGo => 'Поехали';
+
+  @override
+  String get routeStop => 'Завершить';
+
+  @override
+  String get routeBuilding => 'Строим маршрут…';
+
+  @override
+  String get routeStraight => 'Нет маршрута по дорогам — показано направление';
+
+  @override
+  String get routeArrived => 'Вы на месте';
+
+  @override
+  String routeMinutes(int minutes) {
+    return '$minutes мин';
+  }
 }

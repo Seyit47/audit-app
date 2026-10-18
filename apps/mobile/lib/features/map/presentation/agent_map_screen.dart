@@ -16,6 +16,7 @@ import '../../../core/widgets/map_view.dart';
 import '../../../core/widgets/search_field.dart';
 import '../../shops/data/shops_local_repository.dart';
 import '../../shops/domain/visit_state.dart';
+import 'navigation_controller.dart';
 import '../../../core/widgets/tap.dart';
 
 bool _due(ShopItem s) => s.visit.state == VisitState.overdue || s.visit.state == VisitState.scheduled;
@@ -23,7 +24,8 @@ bool _due(ShopItem s) => s.visit.state == VisitState.overdue || s.visit.state ==
 enum _MapFilter { all, notVisited, visited, recent }
 
 /// Agent Map (`83:17636`, `83:17775` / `106:5485`, `106:5609`): the day's shops from the local
-/// mirror, pins by state, and the shop sheet with the geofence check before "Начать Аудит".
+/// mirror, pins by state, and the shop sheet with the geofence check before "Начать Аудит". A chosen shop
+/// gets directions along the roads from the agent's position; "Поехали" makes the map follow the agent.
 class AgentMapScreen extends ConsumerStatefulWidget {
   const AgentMapScreen({super.key, this.focusShopId});
 
@@ -78,6 +80,25 @@ class _AgentMapScreenState extends ConsumerState<AgentMapScreen> {
       _MapFilter.recent => base.where(_recent).toList(),
     };
     final selected = all.where((s) => s.shop.id == _selected).firstOrNull;
+    final nav = ref.watch(navigationProvider);
+    final navigation = ref.read(navigationProvider.notifier);
+    // Directions to the chosen shop (after this frame: providers can't change while building).
+    if (selected != null && nav?.shopId != selected.shop.id) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final at = ref.read(positionProvider).value;
+        navigation.start(selected.shop.id, (selected.shop.lat, selected.shop.lng), selected.shop.auditRadiusM, at == null ? null : (at.latitude, at.longitude));
+      });
+    }
+    ref.listen(positionProvider, (_, next) {
+      final p = next.value;
+      if (p != null) navigation.moved((p.latitude, p.longitude), accuracyM: p.accuracy);
+    });
+    ref.listen(navigationProvider, (prev, next) {
+      if (next?.following != prev?.following) next?.following == true ? _map.follow() : _map.unfollow();
+      // The first route of a shop: show all of it (unless the map already follows the agent).
+      if (next != null && next.following != true && next.route != null && (prev?.route == null || prev?.shopId != next.shopId)) _map.fit(next.line);
+    });
 
     // Rebuild the pin list only when what it shows changes, so the map keeps its symbols.
     final key = [for (final s in shown) '${s.shop.id}:${s.visit.state}:${s.shop.facadeUrl}', _selected, c.accent];
@@ -109,13 +130,22 @@ class _AgentMapScreenState extends ConsumerState<AgentMapScreen> {
             child: AppMapView(
               markers: _markers,
               controller: _map,
+              line: nav?.line ?? const [],
+              lineColor: nav?.straight == true ? c.textSecondary : c.accent,
+              lineWidth: 5,
+              onFollowDismissed: () => navigation.follow(false),
               onMarkerTap: (id) {
                 // The tapped pin moves to the middle of the map.
                 final pin = _markers.where((m) => m.id == id).firstOrNull;
                 if (pin != null) _map.panTo(pin.lat, pin.lng);
                 setState(() => _selected = id);
               },
-              onMapTap: () => setState(() => _selected = null),
+              onMapTap: () {
+                // While following the agent a tap on the map keeps the directions.
+                if (nav?.following == true) return;
+                navigation.stop();
+                setState(() => _selected = null);
+              },
             ),
           ),
           SafeArea(
@@ -183,13 +213,24 @@ class _AgentMapScreenState extends ConsumerState<AgentMapScreen> {
                       ],
                     ),
                   ),
+                  if (nav != null && selected != null) ...[
+                    const SizedBox(height: 10),
+                    _RouteBanner(
+                      nav: nav,
+                      onGo: () => navigation.follow(true),
+                      onClose: () {
+                        navigation.stop();
+                        setState(() => _selected = null);
+                      },
+                    ),
+                  ],
                 ],
               ),
             ),
           ),
           Positioned(
             right: 16,
-            bottom: selected == null ? 120 : 300,
+            bottom: selected == null || (nav?.following == true && !nav!.arrived) ? 120 : 300,
             child: Column(
               children: [
                 MapRoundButton(
@@ -197,6 +238,8 @@ class _AgentMapScreenState extends ConsumerState<AgentMapScreen> {
                   size: 40,
                   radius: 999,
                   onTap: () {
+                    // With directions: follow the agent again; otherwise just centre on them.
+                    if (nav != null) return navigation.follow(true);
                     if (position != null) _map.moveTo(position.latitude, position.longitude);
                   },
                   child: AppIcon('map-locate', width: 20, height: 20, color: c.textSecondary),
@@ -219,7 +262,8 @@ class _AgentMapScreenState extends ConsumerState<AgentMapScreen> {
               ],
             ),
           ),
-          if (selected != null)
+          // While following, the map has the screen until the agent arrives.
+          if (selected != null && !(nav?.following == true && !nav!.arrived))
             Positioned(
               left: 0,
               right: 0,
@@ -237,6 +281,80 @@ class _AgentMapScreenState extends ConsumerState<AgentMapScreen> {
       if (a[i] != b[i]) return false;
     }
     return true;
+  }
+}
+
+/// Directions to the chosen shop under the map's top bar: what is left and how long it takes, "Поехали",
+/// and closing them.
+class _RouteBanner extends StatelessWidget {
+  const _RouteBanner({required this.nav, required this.onGo, required this.onClose});
+
+  final NavigationState nav;
+  final VoidCallback onGo;
+  final VoidCallback onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final c = context.colors;
+    final left = nav.remainingM;
+    final seconds = nav.remainingS;
+    final status = nav.arrived
+        ? l10n.routeArrived
+        : nav.loading && nav.route == null
+        ? l10n.routeBuilding
+        : nav.straight
+        ? l10n.routeStraight
+        : null;
+    final strong = TextStyle(fontFamily: AppTextStyles.family, fontSize: 16, height: 1.4, fontWeight: FontWeight.w700, color: c.textPrimary);
+    final muted = TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 1.4, fontWeight: FontWeight.w500, color: c.textSecondary);
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 10, 6, 10),
+      decoration: BoxDecoration(
+        color: c.card,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: c.cardBorder),
+        boxShadow: mapControlShadow,
+      ),
+      child: Row(
+        children: [
+          AppIcon('navigate', width: 18, height: 18, color: nav.arrived ? c.success : c.accent),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (left != null && !nav.arrived)
+                  Text([distance(context, left), if (seconds != null) l10n.routeMinutes((seconds / 60).ceil())].join(' • '), style: strong),
+                if (status != null) Text(status, style: nav.arrived ? strong.copyWith(color: c.success) : muted),
+              ],
+            ),
+          ),
+          if (!nav.following && !nav.arrived)
+            Material(
+              color: c.accent,
+              borderRadius: BorderRadius.circular(8),
+              child: Pressable(
+                borderRadius: BorderRadius.circular(8),
+                onTap: onGo,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  child: Text(
+                    l10n.routeGo,
+                    style: const TextStyle(fontFamily: AppTextStyles.family, fontSize: 13, height: 1.4, fontWeight: FontWeight.w600, color: Colors.white),
+                  ),
+                ),
+              ),
+            ),
+          IconButton(
+            tooltip: l10n.routeStop,
+            onPressed: onClose,
+            icon: AppIcon('field-clear', width: 24, height: 24, color: c.textSecondary),
+          ),
+        ],
+      ),
+    );
   }
 }
 

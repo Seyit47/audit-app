@@ -1243,4 +1243,24 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get addressDistrict => 'Salgy we etrap';
+
+  @override
+  String get routeGo => 'Ýola düş';
+
+  @override
+  String get routeStop => 'Tamamla';
+
+  @override
+  String get routeBuilding => 'Ugur gurulýar…';
+
+  @override
+  String get routeStraight => 'Ýol boýunça ugur ýok — ugry görkezilýär';
+
+  @override
+  String get routeArrived => 'Siz geldiňiz';
+
+  @override
+  String routeMinutes(int minutes) {
+    return '$minutes min';
+  }
 }

@@ -2306,6 +2306,42 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Адрес и район'**
   String get addressDistrict;
+
+  /// No description provided for @routeGo.
+  ///
+  /// In ru, this message translates to:
+  /// **'Поехали'**
+  String get routeGo;
+
+  /// No description provided for @routeStop.
+  ///
+  /// In ru, this message translates to:
+  /// **'Завершить'**
+  String get routeStop;
+
+  /// No description provided for @routeBuilding.
+  ///
+  /// In ru, this message translates to:
+  /// **'Строим маршрут…'**
+  String get routeBuilding;
+
+  /// No description provided for @routeStraight.
+  ///
+  /// In ru, this message translates to:
+  /// **'Нет маршрута по дорогам — показано направление'**
+  String get routeStraight;
+
+  /// No description provided for @routeArrived.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вы на месте'**
+  String get routeArrived;
+
+  /// No description provided for @routeMinutes.
+  ///
+  /// In ru, this message translates to:
+  /// **'{minutes} мин'**
+  String routeMinutes(int minutes);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

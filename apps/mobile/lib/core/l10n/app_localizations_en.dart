@@ -1243,4 +1243,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addressDistrict => 'Address & district';
+
+  @override
+  String get routeGo => 'Go';
+
+  @override
+  String get routeStop => 'End';
+
+  @override
+  String get routeBuilding => 'Finding a route…';
+
+  @override
+  String get routeStraight => 'No road route — showing the direction';
+
+  @override
+  String get routeArrived => 'You have arrived';
+
+  @override
+  String routeMinutes(int minutes) {
+    return '$minutes min';
+  }
 }

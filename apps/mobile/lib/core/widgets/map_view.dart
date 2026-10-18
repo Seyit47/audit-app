@@ -55,6 +55,18 @@ class AppMapController {
   /// Pans to a point, keeping the zoom (a tapped marker).
   Future<void> panTo(double lat, double lng) async => _map?.animateCamera(CameraUpdate.newLatLng(LatLng(lat, lng)));
 
+  /// Keeps the camera on the device's position, turned to its heading, closer in (directions to a shop).
+  /// Dragging the map stops it ([AppMapView.onFollowDismissed]).
+  Future<void> follow() async {
+    final map = _map;
+    if (map == null) return;
+    final zoom = map.cameraPosition?.zoom ?? 0;
+    if (zoom < 16) await map.animateCamera(CameraUpdate.zoomTo(17));
+    await map.updateMyLocationTrackingMode(MyLocationTrackingMode.trackingGps);
+  }
+
+  Future<void> unfollow() async => _map?.updateMyLocationTrackingMode(MyLocationTrackingMode.none);
+
   Future<void> zoomIn() async => _map?.animateCamera(CameraUpdate.zoomIn());
   Future<void> zoomOut() async => _map?.animateCamera(CameraUpdate.zoomOut());
   Future<void> moveTo(double lat, double lng, {double zoom = 15}) async => _map?.animateCamera(CameraUpdate.newLatLngZoom(LatLng(lat, lng), zoom));
@@ -89,11 +101,17 @@ class AppMapView extends StatefulWidget {
     this.fitPadding = fullScreenPadding,
     this.line = const [],
     this.lineColor,
+    this.lineWidth = 3,
+    this.onFollowDismissed,
   });
 
   /// A route drawn under the pins (an agent's track today); part of the first fit.
   final List<(double, double)> line;
   final Color? lineColor;
+  final double lineWidth;
+
+  /// The user moved the map while it followed their position ([AppMapController.follow]).
+  final VoidCallback? onFollowDismissed;
 
   /// Screen renders in widget tests have no native map view: they turn this off and get a plain box.
   @visibleForTesting
@@ -163,7 +181,7 @@ class _AppMapViewState extends State<AppMapView> {
     super.didUpdateWidget(old);
     if (_ready && !identical(old.markers, widget.markers)) _syncMarkers().then((_) => _fitOnce());
     // By content: screens rebuild the list on every frame they redraw.
-    if (_ready && !listEquals(old.line, widget.line)) _syncLine();
+    if (_ready && (!listEquals(old.line, widget.line) || old.lineColor != widget.lineColor)) _syncLine();
   }
 
   Future<void> _onStyleLoaded() async {
@@ -194,18 +212,31 @@ class _AppMapViewState extends State<AppMapView> {
     await ctrl.fit([for (final m in widget.markers) (m.lat, m.lng), ...widget.line]);
   }
 
-  Future<void> _syncLine() async {
+  /// Line updates run one after another: a route redrawn on every position fix must not race itself.
+  Future<void> _lineJob = Future.value();
+
+  Future<void> _syncLine() => _lineJob = _lineJob.then((_) => _drawLine()).catchError((Object _) {});
+
+  Future<void> _drawLine() async {
     final map = widget.controller._map;
-    if (map == null) return;
+    if (map == null || !mounted) return;
     final c = widget.lineColor ?? Theme.of(context).colorScheme.primary;
-    final hex = '#${(c.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}';
-    final old = _line;
-    _line = null;
-    if (old != null) await map.removeLine(old);
-    if (widget.line.length < 2) return;
-    _line = await map.addLine(
-      LineOptions(geometry: [for (final p in widget.line) LatLng(p.$1, p.$2)], lineColor: hex, lineWidth: 3, lineOpacity: 0.8, lineJoin: 'round'),
+    final options = LineOptions(
+      geometry: [for (final p in widget.line) LatLng(p.$1, p.$2)],
+      lineColor: '#${(c.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}',
+      lineWidth: widget.lineWidth,
+      lineOpacity: 0.8,
+      lineJoin: 'round',
     );
+    final current = _line;
+    if (widget.line.length < 2) {
+      _line = null;
+      if (current != null) await map.removeLine(current);
+    } else if (current == null) {
+      _line = await map.addLine(options);
+    } else {
+      await map.updateLine(current, options);
+    }
   }
 
   Future<void> _syncMarkers() async {
@@ -275,6 +306,7 @@ class _AppMapViewState extends State<AppMapView> {
       },
       onStyleLoadedCallback: _onStyleLoaded,
       onMapClick: (_, _) => widget.onMapTap?.call(),
+      onCameraTrackingDismissed: widget.onFollowDismissed,
     );
   }
 }

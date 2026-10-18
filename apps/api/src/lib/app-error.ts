@@ -1,6 +1,7 @@
 export type ErrorCode =
   | 'VALIDATION_FAILED' | 'UNAUTHENTICATED' | 'FORBIDDEN' | 'DEVICE_NOT_BOUND' | 'NOT_FOUND'
   | 'CONFLICT' | 'SHOP_NOT_ACTIVE' | 'GEOFENCE' | 'GPS_ACCURACY' | 'RATE_LIMITED' | 'METHOD_NOT_ALLOWED' | 'INTERNAL_ERROR'
+  | 'NO_ROUTE' | 'ROUTING_UNAVAILABLE'
 
 /** An expected failure that maps to an HTTP error with a stable machine-readable code. */
 export class AppError extends Error {

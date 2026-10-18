@@ -13,6 +13,8 @@ export interface AppConfig {
   satelliteTilesUrl: string
   /** Folder with the mobile app's `latest.json` and APKs (uploaded by FTP); empty: no in-app updates. */
   updatesDir: string
+  /** GraphHopper, for directions to a shop (self-hosted next to the API). */
+  routingUrl: string
 }
 
 declare module 'fastify' {
@@ -60,7 +62,8 @@ export function loadConfig (env: NodeJS.ProcessEnv = process.env): AppConfig {
     retentionYears: Number(env.RETENTION_YEARS ?? 3),
     currency: env.CURRENCY ?? 'TMT',
     satelliteTilesUrl: env.SATELLITE_TILES_URL ?? '',
-    updatesDir: env.UPDATES_DIR ?? ''
+    updatesDir: env.UPDATES_DIR ?? '',
+    routingUrl: (env.ROUTING_URL ?? 'http://127.0.0.1:8989').replace(/\/+$/, '')
   }
 }
 

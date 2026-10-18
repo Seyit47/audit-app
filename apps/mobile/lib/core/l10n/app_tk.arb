@@ -368,5 +368,11 @@
   "allDistrictShops": "Ähli dükanlar",
   "agentsField": "Agentler",
   "selectAgents": "Agentleri saýlaň",
-  "addressDistrict": "Salgy we etrap"
+  "addressDistrict": "Salgy we etrap",
+  "routeGo": "Ýola düş",
+  "routeStop": "Tamamla",
+  "routeBuilding": "Ugur gurulýar…",
+  "routeStraight": "Ýol boýunça ugur ýok — ugry görkezilýär",
+  "routeArrived": "Siz geldiňiz",
+  "routeMinutes": "{minutes} min"
 }

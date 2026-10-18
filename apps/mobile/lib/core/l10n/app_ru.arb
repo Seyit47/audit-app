@@ -827,5 +827,18 @@
   "allDistrictShops": "Все магазины",
   "agentsField": "Агенты",
   "selectAgents": "Выберите агентов",
-  "addressDistrict": "Адрес и район"
+  "addressDistrict": "Адрес и район",
+  "routeGo": "Поехали",
+  "routeStop": "Завершить",
+  "routeBuilding": "Строим маршрут…",
+  "routeStraight": "Нет маршрута по дорогам — показано направление",
+  "routeArrived": "Вы на месте",
+  "routeMinutes": "{minutes} мин",
+  "@routeMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  }
 }
