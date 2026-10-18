@@ -37,8 +37,9 @@ class AdminApi {
     return PageOf([for (final i in res['items'] as List) (i as Map).cast<String, dynamic>()], (res['total'] as int?) ?? (res['items'] as List).length);
   }
 
-  Future<PageOf> shops({int page = 1, String? q, String? status, String? regionId, String dir = 'asc'}) =>
-      _page('/shops', {'page': page, 'size': 20, 'q': q, 'status': status, 'regionId': regionId, 'sort': 'name', 'dir': dir});
+  /// [districtId] `'none'` lists the shops without a district.
+  Future<PageOf> shops({int page = 1, String? q, String? status, String? districtId, String dir = 'asc'}) =>
+      _page('/shops', {'page': page, 'size': 20, 'q': q, 'status': status, 'districtId': districtId, 'sort': 'name', 'dir': dir});
   Future<Json> shop(String id) => _api.get<Json>('/shops/$id');
   Future<List<Json>> shopVisits(String id, {int limit = 10}) async => [
     for (final i in (await _api.get<Json>('/shops/$id/visits', query: {'limit': limit}))['items'] as List) (i as Map).cast<String, dynamic>(),
@@ -49,12 +50,11 @@ class AdminApi {
 
   /// The cards' visits and photos are totals: the server counts within a period (today by default), so
   /// the period is all time.
-  Future<PageOf> agents({int page = 1, String? q, String? status, String? regionId}) => _page('/agents', {
+  Future<PageOf> agents({int page = 1, String? q, String? status}) => _page('/agents', {
     'page': page,
     'size': 50,
     'q': q,
     'status': status,
-    'regionId': regionId,
     'sort': 'fullName',
     'dir': 'asc',
     'from': '2020-01-01',
@@ -69,9 +69,14 @@ class AdminApi {
   Future<Json> createAgent(Json body) => _api.post<Json>('/agents', body: body);
   Future<List<Json>> positions() async => [for (final i in await _api.get<List<dynamic>>('/agents/positions')) (i as Map).cast<String, dynamic>()];
 
-  Future<List<Json>> regions() async => [for (final i in await _api.get<List<dynamic>>('/regions')) (i as Map).cast<String, dynamic>()];
-  Future<List<Json>> mapShops({List<String>? agentIds, List<String>? regionIds}) async => [
-    for (final i in await _api.get<List<dynamic>>('/shops/map', query: {'agentIds': ?agentIds, 'regionIds': ?regionIds})) (i as Map).cast<String, dynamic>(),
+  /// Every district `{id, name, shops}`, and a last entry with no id for the shops without one.
+  Future<List<Json>> districts() async => [for (final i in await _api.get<List<dynamic>>('/districts')) (i as Map).cast<String, dynamic>()];
+  Future<Json> addDistrict(String name) => _api.post<Json>('/districts', body: {'name': name});
+  Future<Json> renameDistrict(String id, String name) => _api.patch<Json>('/districts/$id', body: {'name': name});
+  Future<void> deleteDistrict(String id) => _api.delete<void>('/districts/$id');
+  Future<List<Json>> mapShops({List<String>? agentIds, List<String>? districtIds}) async => [
+    for (final i in await _api.get<List<dynamic>>('/shops/map', query: {'agentIds': ?agentIds, 'districtIds': ?districtIds}))
+      (i as Map).cast<String, dynamic>(),
   ];
 
   /// Galleries and photo reports show audit photos only (no storefront or admin uploads), as on the web.

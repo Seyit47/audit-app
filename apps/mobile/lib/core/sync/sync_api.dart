@@ -50,6 +50,9 @@ abstract interface class SyncApi {
 
   /// The agent's own photos, newest first (the server scopes `/photos` to them).
   Future<List<Map<String, Object?>>> myPhotos();
+
+  /// Every district `{id, name, shops}`; a last entry with no id counts the shops without one.
+  Future<List<Map<String, Object?>>> districts();
 }
 
 class HttpSyncApi implements SyncApi {
@@ -118,4 +121,9 @@ class HttpSyncApi implements SyncApi {
     final res = await _api.get<Map<String, dynamic>>('/photos', query: {'limit': 50});
     return [for (final item in res['items'] as List) (item as Map).cast<String, Object?>()];
   }
+
+  @override
+  Future<List<Map<String, Object?>>> districts() async => [
+    for (final item in await _api.get<List<dynamic>>('/districts')) (item as Map).cast<String, Object?>(),
+  ];
 }

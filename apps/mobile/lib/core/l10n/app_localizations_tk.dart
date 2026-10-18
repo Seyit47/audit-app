@@ -177,9 +177,6 @@ class AppLocalizationsTk extends AppLocalizations {
   String get shopsEmpty => 'Dükan ýok';
 
   @override
-  String get filterRegion => 'Sebit';
-
-  @override
   String get filterStatus => 'Ýagdaý';
 
   @override
@@ -564,9 +561,6 @@ class AppLocalizationsTk extends AppLocalizations {
   String get lastVisitTitle => 'Soňky sapar';
 
   @override
-  String get addressRegion => 'Salgy we sebit';
-
-  @override
   String get responsibleAgent => 'Jogapkär agent';
 
   @override
@@ -684,9 +678,6 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get exportFailed => 'Hasabaty düzüp bolmady';
-
-  @override
-  String get sectorLabel => 'Sektor: ';
 
   @override
   String onlineGps(int meters) {
@@ -808,12 +799,6 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get auditPlan => 'Günde çek-list / audit';
-
-  @override
-  String get regionField => 'Sebit / Satuw territoriýasy';
-
-  @override
-  String get selectRegion => 'Sebiti saýlaň';
 
   @override
   String get workStatus => 'Işgäriň işjeňlik ýagdaýy';
@@ -1216,4 +1201,46 @@ class AppLocalizationsTk extends AppLocalizations {
   String auditOnlyInRadius(int radius) {
     return 'Audit diňe dükandan $radius m aralykda mümkin';
   }
+
+  @override
+  String get districtsTitle => 'Etraplar';
+
+  @override
+  String get district => 'Etrap';
+
+  @override
+  String get selectDistrict => 'Etraby saýlaň';
+
+  @override
+  String get noDistrict => 'Etrapsyz';
+
+  @override
+  String get addDistrict => 'Etrap goş';
+
+  @override
+  String get districtName => 'Etrabyň ady';
+
+  @override
+  String get renameDistrict => 'Adyny üýtget';
+
+  @override
+  String get deleteDistrict => 'Poz';
+
+  @override
+  String get districtInUse => 'Bu at eýýäm bar ýa-da etrapda heniz dükanlar bar.';
+
+  @override
+  String get districtsEmpty => 'Häzirlikçe etrap ýok';
+
+  @override
+  String get allDistrictShops => 'Ähli dükanlar';
+
+  @override
+  String get agentsField => 'Agentler';
+
+  @override
+  String get selectAgents => 'Agentleri saýlaň';
+
+  @override
+  String get addressDistrict => 'Salgy we etrap';
 }

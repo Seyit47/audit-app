@@ -87,7 +87,6 @@
   "lastVisit": "Последний визит:",
   "never": "—",
   "shopsEmpty": "Магазинов нет",
-  "filterRegion": "Регион",
   "filterStatus": "Статус",
   "fromYou": "{distance} от вас",
   "@fromYou": {
@@ -374,7 +373,6 @@
     }
   },
   "lastVisitTitle": "Крайний визит",
-  "addressRegion": "Адрес и регион",
   "responsibleAgent": "Ответственный агент",
   "contact": "Связаться",
   "onShift": "На смене",
@@ -462,7 +460,6 @@
   "exportPdf": "Отчёт PDF",
   "exportXls": "Отчёт Excel",
   "exportFailed": "Не удалось сформировать отчёт",
-  "sectorLabel": "Сектор: ",
   "onlineGps": "В сети (GPS активен, ±{meters}м)",
   "@onlineGps": {
     "placeholders": {
@@ -557,8 +554,6 @@
   "routeNotesHint": "Краткое описание сектора или дней маршрута",
   "visitPlan": "План визитов в день (магазинов)",
   "auditPlan": "Чек-листы / аудиты в день",
-  "regionField": "Регион / территория продаж",
-  "selectRegion": "Выберите регион",
   "workStatus": "Статус активности сотрудника",
   "onLeave": "В отпуске",
   "agentCreated": "Агент добавлен",
@@ -818,5 +813,19 @@
         "type": "int"
       }
     }
-  }
+  },
+  "districtsTitle": "Районы",
+  "district": "Район",
+  "selectDistrict": "Выберите район",
+  "noDistrict": "Без района",
+  "addDistrict": "Добавить район",
+  "districtName": "Название района",
+  "renameDistrict": "Переименовать",
+  "deleteDistrict": "Удалить",
+  "districtInUse": "Такое название уже есть, или в районе ещё есть магазины.",
+  "districtsEmpty": "Районов пока нет",
+  "allDistrictShops": "Все магазины",
+  "agentsField": "Агенты",
+  "selectAgents": "Выберите агентов",
+  "addressDistrict": "Адрес и район"
 }

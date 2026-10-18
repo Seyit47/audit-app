@@ -15,14 +15,18 @@ import '../../data/admin_api.dart';
 import '../../../../core/widgets/camera_capture_screen.dart';
 import '../../../../core/widgets/skeleton.dart';
 import '../../../../core/widgets/adaptive.dart';
+import '../../../../core/widgets/multi_select_field.dart';
 import '../../../../core/format/phone.dart';
 
 /// Admin mobile Add/Edit shop (`252:25423` empty, `252:25542` filled): saved online with
 /// `POST/PATCH /shops` after the storefront upload.
 class AdminShopFormScreen extends ConsumerStatefulWidget {
-  const AdminShopFormScreen({super.key, this.shopId});
+  const AdminShopFormScreen({super.key, this.shopId, this.districtId});
 
   final String? shopId;
+
+  /// A new shop opened from a district starts in it.
+  final String? districtId;
 
   @override
   ConsumerState<AdminShopFormScreen> createState() => _AdminShopFormScreenState();
@@ -30,7 +34,9 @@ class AdminShopFormScreen extends ConsumerStatefulWidget {
 
 class _AdminShopFormScreenState extends ConsumerState<AdminShopFormScreen> {
   String _name = '', _address = '', _owner = '', _phone = '';
-  String? _agentId;
+  Set<String> _agentIds = {};
+  late String? _districtId = widget.districtId;
+  List<Json> _districts = const [];
   Fix? _fix;
 
   /// Chosen on the map; wins over the GPS fix (admins pick anywhere).
@@ -56,15 +62,19 @@ class _AdminShopFormScreenState extends ConsumerState<AdminShopFormScreen> {
   Future<void> _init() async {
     final api = ref.read(adminApiProvider);
     try {
-      final agents = await api.agents();
+      final (agents, districts) = await (api.agents(), api.districts()).wait;
       _agents = agents.items.where((a) => a['active'] == true).toList();
+      _districts = districts.where((d) => d['id'] != null).toList();
       if (widget.shopId != null) {
         final s = await api.shop(widget.shopId!);
         _name = s['name'] as String;
         _address = s['address'] as String;
         _owner = (s['ownerName'] as String?) ?? '';
         _phone = (((s['contacts'] as List?) ?? const []).cast<Map>().firstOrNull?['phone'] as String?) ?? '';
-        _agentId = (s['agent'] as Map?)?['id'] as String?;
+        _agentIds = {
+          for (final a in ((s['agents'] as List?) ?? [?s['agent']]).cast<Map>()) a['id'] as String,
+        };
+        _districtId = (s['district'] as Map?)?['id'] as String?;
         _fix = Fix(lat: (s['lat'] as num).toDouble(), lng: (s['lng'] as num).toDouble(), accuracyM: 0);
         _photoUrl = ((s['facade'] as Map?)?['previewUrl400'] ?? (s['facade'] as Map?)?['url']) as String?;
         _version = s['version'] as int?;
@@ -117,7 +127,8 @@ class _AdminShopFormScreenState extends ConsumerState<AdminShopFormScreen> {
       _name.trim().isNotEmpty &&
       _address.trim().isNotEmpty &&
       _owner.trim().isNotEmpty &&
-      _agentId != null &&
+      _agentIds.isNotEmpty &&
+      _districtId != null &&
       tmPhone(_phone) != null &&
       (_picked != null || _fix != null) &&
       _hasPhoto;
@@ -135,7 +146,8 @@ class _AdminShopFormScreenState extends ConsumerState<AdminShopFormScreen> {
         'name': _name.trim(),
         'address': _address.trim(),
         'ownerName': _owner.trim(),
-        'assignedAgentId': _agentId,
+        'agentIds': _agentIds.toList(),
+        'districtId': _districtId,
         'lat': _picked?.$1 ?? _fix!.lat,
         'lng': _picked?.$2 ?? _fix!.lng,
         'facadePhotoId': ?facade,
@@ -188,13 +200,22 @@ class _AdminShopFormScreenState extends ConsumerState<AdminShopFormScreen> {
         _owner = owner ?? _owner;
         _phone = phone ?? _phone;
       }),
-      agentField: AppSelect<String>(
-        value: _agentId,
-        hint: l10n.selectAgent,
-        items: [for (final a in _agents) (a['id'] as String, a['fullName'] as String)],
-        onChanged: (v) => setState(() => _agentId = v),
+      districtField: AppSelect<String>(
+        value: _districtId,
+        hint: l10n.selectDistrict,
+        items: [for (final d in _districts) (d['id'] as String, d['name'] as String)],
+        onChanged: (v) => setState(() => _districtId = v),
       ),
-      agentValid: _agentId != null,
+      districtValid: _districtId != null,
+      agentField: AppMultiSelect(
+        title: l10n.agentsField,
+        values: _agentIds,
+        hint: l10n.selectAgents,
+        // Active agents only; one deactivated since stays assigned (kept in the set) until removed on the web.
+        items: [for (final a in _agents) (a['id'] as String, a['fullName'] as String)],
+        onChanged: (v) => setState(() => _agentIds = v),
+      ),
+      agentValid: _agentIds.isNotEmpty,
       fix: _fix,
       locating: _locating,
       onRecheck: _locate,

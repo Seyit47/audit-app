@@ -31,7 +31,6 @@ class _AgentsScreenState extends ConsumerState<AgentsScreen> {
   List<Json>? _agents;
   Json? _summary;
   List<Json> _positions = const [];
-  List<Json> _regions = const [];
   bool _error = false;
   String _q = '';
   FilterValues _filters = const {};
@@ -56,17 +55,15 @@ class _AgentsScreenState extends ConsumerState<AgentsScreen> {
     final seq = ++_seq; // a slower, older search must not overwrite a newer one
     try {
       final results = await Future.wait<Object>([
-        api.agents(q: _q, status: (_filters['status'] ?? const {}).firstOrNull, regionId: (_filters['region'] ?? const {}).firstOrNull),
+        api.agents(q: _q, status: (_filters['status'] ?? const {}).firstOrNull),
         api.agentsSummary(),
         api.positions().catchError((_) => <Json>[]),
-        api.regions().catchError((_) => <Json>[]),
       ]);
       if (!mounted || seq != _seq) return;
       setState(() {
         _agents = (results[0] as PageOf).items;
         _summary = results[1] as Json;
         _positions = results[2] as List<Json>;
-        _regions = results[3] as List<Json>;
         _error = false;
       });
     } catch (_) {
@@ -124,11 +121,6 @@ class _AgentsScreenState extends ConsumerState<AgentsScreen> {
                         key: 'status',
                         label: l10n.filterStatus,
                         options: [ChipOption('ACTIVE', l10n.statusACTIVE), ChipOption('ON_LEAVE', l10n.offShift), ChipOption('INACTIVE', l10n.statusINACTIVE)],
-                      ),
-                      FilterSection(
-                        key: 'region',
-                        label: l10n.filterRegion,
-                        options: [for (final r in _regions) ChipOption(r['id'] as String, r['name'] as String)],
                       ),
                     ],
                   );

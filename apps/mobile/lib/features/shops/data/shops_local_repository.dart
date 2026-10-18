@@ -164,3 +164,9 @@ final shopProvider = StreamProvider.family<ShopItem?, String>((ref, id) {
 });
 
 final shopVisitsProvider = StreamProvider.family<List<ShopVisit>, String>((ref, id) => ref.watch(shopsLocalRepositoryProvider).watchVisits(id));
+
+/// Every district by name: the choices of the agent's add-shop form.
+final districtsProvider = StreamProvider<List<District>>((ref) {
+  final db = ref.watch(databaseProvider);
+  return (db.select(db.districts)..orderBy([(d) => OrderingTerm(expression: d.name)])).watch();
+});

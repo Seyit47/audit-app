@@ -61,12 +61,12 @@ class _AgentMapScreenState extends ConsumerState<AgentMapScreen> {
         WidgetsBinding.instance.addPostFrameCallback((_) => _map.focus(target.shop.lat, target.shop.lng));
       }
     }
-    final regions = _filters['region'] ?? const <String>{};
+    final districts = _filters['district'] ?? const <String>{};
     final needle = _q.trim().toLowerCase();
     final base = all
         .where(
           (s) =>
-              (regions.isEmpty || regions.contains(s.shop.regionName)) &&
+              (districts.isEmpty || districts.contains(s.shop.districtName ?? '')) &&
               (needle.isEmpty || '${s.shop.name} ${s.shop.ownerName ?? ''} ${s.shop.address}'.toLowerCase().contains(needle)),
         )
         .toList();
@@ -100,7 +100,7 @@ class _AgentMapScreenState extends ConsumerState<AgentMapScreen> {
           ),
       ];
     }
-    final regionNames = {for (final s in all) ?s.shop.regionName}.toList()..sort();
+    final districtNames = {for (final s in all) ?s.shop.districtName}.toList()..sort();
 
     return Scaffold(
       body: Stack(
@@ -137,7 +137,7 @@ class _AgentMapScreenState extends ConsumerState<AgentMapScreen> {
                           hint: l10n.mapSearch,
                           onChanged: (v) => setState(() => _q = v),
                           filtersLabel: l10n.filters,
-                          activeFilters: regions.length,
+                          activeFilters: districts.length,
                           onFilters: () async {
                             final next = await showFilterSheet(
                               context,
@@ -146,7 +146,7 @@ class _AgentMapScreenState extends ConsumerState<AgentMapScreen> {
                               resetLabel: l10n.reset,
                               values: _filters,
                               sections: [
-                                FilterSection(key: 'region', label: l10n.filterRegion, multi: true, options: [for (final r in regionNames) ChipOption(r, r)]),
+                                FilterSection(key: 'district', label: l10n.district, multi: true, options: [for (final r in districtNames) ChipOption(r, r)]),
                               ],
                             );
                             if (next != null) setState(() => _filters = next);

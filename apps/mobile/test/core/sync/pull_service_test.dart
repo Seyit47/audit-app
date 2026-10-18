@@ -15,8 +15,7 @@ Map<String, Object?> shopJson(String id, {List<Map<String, Object?>> contacts = 
   'type': 'MARKET',
   'address': 'Street 1',
   'addressDetail': null,
-  'regionId': 'r1',
-  'region': {'id': 'r1', 'name': 'Region 1'},
+  'district': {'id': 'd1', 'name': 'District 1'},
   'lat': 37.95,
   'lng': 58.38,
   'auditRadiusM': 100,
@@ -45,6 +44,21 @@ void main() {
   });
   tearDown(() => db.close());
 
+  test('districts are replaced on each pull; the no-district entry is skipped', () async {
+    api.districtList = const [
+      {'id': 'd1', 'name': 'Berkararlyk', 'shops': 3},
+      {'id': null, 'name': null, 'shops': 1},
+    ];
+    await pull.pullAll();
+    expect((await db.select(db.districts).get()).map((d) => d.name), ['Berkararlyk']);
+
+    api.districtList = const [
+      {'id': 'd2', 'name': 'Köpetdag', 'shops': 0},
+    ];
+    await pull.pullAll();
+    expect((await db.select(db.districts).get()).map((d) => d.id), ['d2']);
+  });
+
   test('shops and their contacts land in drift and the cursor advances', () async {
     api.shopsPage = ShopsPage(
       items: [
@@ -65,6 +79,7 @@ void main() {
 
     expect((await db.select(db.shops).get()).map((s) => s.id), unorderedEquals(['s1', 's2']));
     expect((await db.select(db.shopContacts).get()).single.phone, '+99362112233');
+    expect((await db.select(db.shops).get()).first.districtName, 'District 1');
 
     api.shopsPage = const ShopsPage(items: [], tombstones: ['s2'], cursor: 'cursor-2');
     await pull.pullAll();

@@ -19,8 +19,8 @@ class Shops extends Table {
   TextColumn get type => text()();
   TextColumn get address => text()();
   TextColumn get addressDetail => text().nullable()();
-  TextColumn get regionId => text().nullable()();
-  TextColumn get regionName => text().nullable()();
+  TextColumn get districtId => text().nullable()();
+  TextColumn get districtName => text().nullable()();
   RealColumn get lat => real()();
   RealColumn get lng => real()();
   IntColumn get auditRadiusM => integer()();
@@ -33,6 +33,15 @@ class Shops extends Table {
   /// Latest visits as served by `/shops` (shop details history), JSON array.
   TextColumn get latestVisitsJson => text().withDefault(const Constant('[]'))();
   DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Every district (the add-shop form's choices); replaced on each pull.
+class Districts extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -174,17 +183,24 @@ class SyncCursors extends Table {
   Set<Column> get primaryKey => {name};
 }
 
-@DriftDatabase(tables: [Shops, ShopContacts, Routes, RouteStops, Audits, Photos, AuditDrafts, Outbox, PingsBuffer, SyncCursors])
+@DriftDatabase(tables: [Shops, Districts, ShopContacts, Routes, RouteStops, Audits, Photos, AuditDrafts, Outbox, PingsBuffer, SyncCursors])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _open());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onUpgrade: (m, from, to) async {
       if (from < 2) await m.createTable(auditDrafts);
+      if (from < 3) {
+        // Regions became districts: same columns renamed, and the shops pulled again to fill them.
+        await m.renameColumn(shops, 'region_id', shops.districtId);
+        await m.renameColumn(shops, 'region_name', shops.districtName);
+        await m.createTable(districts);
+        await customStatement("DELETE FROM sync_cursors WHERE name = 'shops'");
+      }
     },
     beforeOpen: (_) => customStatement('PRAGMA foreign_keys = ON'),
   );

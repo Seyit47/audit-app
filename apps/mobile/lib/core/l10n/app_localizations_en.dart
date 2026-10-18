@@ -177,9 +177,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shopsEmpty => 'No shops';
 
   @override
-  String get filterRegion => 'Region';
-
-  @override
   String get filterStatus => 'Status';
 
   @override
@@ -564,9 +561,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lastVisitTitle => 'Last visit';
 
   @override
-  String get addressRegion => 'Address & region';
-
-  @override
   String get responsibleAgent => 'Responsible salesman';
 
   @override
@@ -684,9 +678,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get exportFailed => 'Could not build the report';
-
-  @override
-  String get sectorLabel => 'Sector: ';
 
   @override
   String onlineGps(int meters) {
@@ -808,12 +799,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get auditPlan => 'Checklists / audits per day';
-
-  @override
-  String get regionField => 'Region / Sales territory';
-
-  @override
-  String get selectRegion => 'Select a region';
 
   @override
   String get workStatus => 'Employee activity status';
@@ -1216,4 +1201,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String auditOnlyInRadius(int radius) {
     return 'An audit is possible only within $radius m of the shop';
   }
+
+  @override
+  String get districtsTitle => 'Districts';
+
+  @override
+  String get district => 'District';
+
+  @override
+  String get selectDistrict => 'Select a district';
+
+  @override
+  String get noDistrict => 'No district';
+
+  @override
+  String get addDistrict => 'Add district';
+
+  @override
+  String get districtName => 'District name';
+
+  @override
+  String get renameDistrict => 'Rename';
+
+  @override
+  String get deleteDistrict => 'Delete';
+
+  @override
+  String get districtInUse => 'This name is already used, or the district still has shops.';
+
+  @override
+  String get districtsEmpty => 'No districts yet';
+
+  @override
+  String get allDistrictShops => 'All shops';
+
+  @override
+  String get agentsField => 'Salesmen';
+
+  @override
+  String get selectAgents => 'Select salesmen';
+
+  @override
+  String get addressDistrict => 'Address & district';
 }

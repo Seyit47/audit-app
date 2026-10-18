@@ -32,9 +32,7 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
   final _notes = TextEditingController();
   final _visits = TextEditingController(text: '25');
   final _audits = TextEditingController(text: '20');
-  String? _regionId;
   String _status = 'ACTIVE';
-  List<Json> _regions = const [];
   bool _saving = false;
   String? _error;
 
@@ -42,9 +40,6 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
   void initState() {
     super.initState();
     final api = ref.read(adminApiProvider);
-    api.regions().then((r) {
-      if (mounted) setState(() => _regions = r);
-    }, onError: (_) {});
     api.nextAgentCode().then((code) {
       if (mounted && _code.text.isEmpty) _code.text = code;
     }, onError: (_) {});
@@ -61,7 +56,6 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
   bool get _valid =>
       _name.text.trim().isNotEmpty &&
       tmPhone(_phone.text, mobile: true) != null &&
-      _regionId != null &&
       (_whatsapp.text.trim().isEmpty || tmPhone(_whatsapp.text, mobile: true) != null) &&
       (int.tryParse(_visits.text) ?? 0) >= 1 &&
       (int.tryParse(_audits.text) ?? -1) >= 0;
@@ -81,7 +75,6 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
         if (_code.text.trim().isNotEmpty) 'code': _code.text.trim(),
         'phone': tmPhone(_phone.text, mobile: true)!,
         if (_whatsapp.text.trim().isNotEmpty) 'whatsappPhone': tmPhone(_whatsapp.text, mobile: true)!,
-        'regionId': _regionId,
         if (_notes.text.trim().isNotEmpty) 'routeNotes': _notes.text.trim(),
         'dailyVisitPlan': visits,
         'dailyAuditPlan': audits,
@@ -218,18 +211,6 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
                           ),
                         ),
                       ],
-                    ),
-                    gap,
-                    AppFormField(
-                      label: l10n.regionField,
-                      required: true,
-                      valid: _regionId != null,
-                      child: AppSelect<String>(
-                        value: _regionId,
-                        hint: l10n.selectRegion,
-                        items: [for (final r in _regions) (r['id'] as String, r['name'] as String)],
-                        onChanged: (v) => setState(() => _regionId = v),
-                      ),
                     ),
                     gap,
                     AppFormField(

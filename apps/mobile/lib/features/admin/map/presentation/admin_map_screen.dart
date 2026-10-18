@@ -41,7 +41,7 @@ class _AdminMapScreenState extends ConsumerState<AdminMapScreen> {
   final _map = AppMapController();
   List<Json> _shops = const [];
   List<Json> _positions = const [];
-  List<Json> _regions = const [];
+  List<Json> _districts = const [];
   List<Json> _agents = const [];
   _Filter _filter = _Filter.all;
   String _q = '';
@@ -73,16 +73,16 @@ class _AdminMapScreenState extends ConsumerState<AdminMapScreen> {
     final api = ref.read(adminApiProvider);
     try {
       final r = await Future.wait<Object>([
-        api.mapShops(agentIds: (_filters['agent'] ?? const <String>{}).toList(), regionIds: (_filters['region'] ?? const <String>{}).toList()),
+        api.mapShops(agentIds: (_filters['agent'] ?? const <String>{}).toList(), districtIds: (_filters['district'] ?? const <String>{}).toList()),
         api.positions().catchError((_) => <Json>[]),
-        api.regions().catchError((_) => <Json>[]),
+        api.districts().then((d) => d.where((x) => x['id'] != null).toList()).catchError((_) => <Json>[]),
         api.agents().then((p) => p.items).catchError((_) => <Json>[]),
       ]);
       if (!mounted) return;
       setState(() {
         _shops = r[0] as List<Json>;
         _positions = r[1] as List<Json>;
-        _regions = r[2] as List<Json>;
+        _districts = r[2] as List<Json>;
         _agents = r[3] as List<Json>;
       });
     } catch (_) {}
@@ -206,10 +206,10 @@ class _AdminMapScreenState extends ConsumerState<AdminMapScreen> {
                                   options: [for (final a in _agents) ChipOption(a['id'] as String, a['fullName'] as String)],
                                 ),
                                 FilterSection(
-                                  key: 'region',
-                                  label: l10n.filterRegion,
+                                  key: 'district',
+                                  label: l10n.district,
                                   multi: true,
-                                  options: [for (final r in _regions) ChipOption(r['id'] as String, r['name'] as String)],
+                                  options: [for (final r in _districts) ChipOption(r['id'] as String, r['name'] as String)],
                                 ),
                               ],
                             );

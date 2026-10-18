@@ -30,18 +30,19 @@ class FakeAdminApi implements AdminApi {
   ];
 
   @override
-  Future<PageOf> shops({int page = 1, String? q, String? status, String? regionId, String dir = 'asc'}) async => PageOf(_shops, 135);
+  Future<PageOf> shops({int page = 1, String? q, String? status, String? districtId, String dir = 'asc'}) async => PageOf(_shops, 135);
 
   @override
   Future<Json> shop(String id) async => _shops.first;
 
   @override
-  Future<List<Json>> regions() async => [
-    {'id': 'r1', 'name': 'Region 1 (Central Hub)'},
+  Future<List<Json>> districts() async => [
+    {'id': 'd1', 'name': 'Berkararlyk', 'shops': 84},
+    {'id': 'd2', 'name': 'Köpetdag', 'shops': 51},
   ];
 
   @override
-  Future<PageOf> agents({int page = 1, String? q, String? status, String? regionId}) async => PageOf(_agents, _agents.length);
+  Future<PageOf> agents({int page = 1, String? q, String? status}) async => PageOf(_agents, _agents.length);
 
   static final _agents = [
     for (final (i, name) in ['Ахмед Каримов', 'Довлет Оразов', 'Мурад Бердыев'].indexed)

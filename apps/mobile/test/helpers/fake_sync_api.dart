@@ -70,4 +70,12 @@ class FakeApi implements SyncApi {
     calls.add('photos');
     return photos;
   }
+
+  List<Map<String, Object?>> districtList = const [];
+
+  @override
+  Future<List<Map<String, Object?>>> districts() async {
+    calls.add('districts');
+    return districtList;
+  }
 }

@@ -10,6 +10,7 @@ import '../../../core/settings/remote_config.dart';
 import '../../../core/sync/sync_providers.dart';
 import '../../../core/widgets/photo_capture.dart';
 import '../../audit/domain/geofence.dart';
+import '../../shops/data/shops_local_repository.dart';
 import '../../audit/presentation/audit_controller.dart';
 import '../../../core/format/phone.dart';
 
@@ -19,6 +20,7 @@ class AddShopState {
     this.address = '',
     this.owner = '',
     this.phone = '',
+    this.districtId,
     this.fix,
     this.locating = true,
     this.photo,
@@ -30,6 +32,9 @@ class AddShopState {
   final String address;
   final String owner;
   final String phone;
+
+  /// The shop's district; required once the districts are synced (none before the first sync).
+  final String? districtId;
   final Fix? fix;
   final bool locating;
   final CapturedPhoto? photo;
@@ -46,13 +51,14 @@ class AddShopState {
   bool get phoneOk => phone.trim().isEmpty || tmPhone(phone) != null;
 
   /// "Сохранить" (`252:26487` disabled, `252:26607` enabled): every field, a location and the photo.
-  bool get canSave => nameOk && phoneOk && accurate && photo != null && !saving;
+  bool canSave({required bool districtsKnown}) => nameOk && phoneOk && (districtId != null || !districtsKnown) && accurate && photo != null && !saving;
 
   AddShopState copyWith({
     String? name,
     String? address,
     String? owner,
     String? phone,
+    String? districtId,
     Fix? fix,
     bool? locating,
     CapturedPhoto? photo,
@@ -63,6 +69,7 @@ class AddShopState {
     address: address ?? this.address,
     owner: owner ?? this.owner,
     phone: phone ?? this.phone,
+    districtId: districtId ?? this.districtId,
     fix: fix ?? this.fix,
     locating: locating ?? this.locating,
     photo: clearPhoto ? null : (photo ?? this.photo),
@@ -81,6 +88,8 @@ class AddShopController extends Notifier<AddShopState> {
 
   void edit({String? name, String? address, String? owner, String? phone}) => state = state.copyWith(name: name, address: address, owner: owner, phone: phone);
 
+  void setDistrict(String? id) => state = state.copyWith(districtId: id);
+
   /// "Текущее местоположение" and "Проверить заново".
   Future<void> locate() async {
     state = state.copyWith(locating: true);
@@ -97,6 +106,7 @@ class AddShopController extends Notifier<AddShopState> {
       address: state.address,
       owner: state.owner,
       phone: state.phone,
+      districtId: state.districtId,
       fix: fix,
       locating: fix?.provisional ?? false,
       photo: state.photo,
@@ -121,7 +131,8 @@ class AddShopController extends Notifier<AddShopState> {
   /// Saves the shop and its photo to the outbox; returns the SHOP_CREATE item, or null when it can't be saved yet.
   Future<String?> save() async {
     final s = state;
-    if (!s.canSave) return null;
+    final districts = ref.read(districtsProvider).value ?? const <District>[];
+    if (!s.canSave(districtsKnown: districts.isNotEmpty)) return null;
     state = s.copyWith(saving: true);
     final db = ref.read(databaseProvider);
     final outbox = ref.read(outboxProvider);
@@ -166,6 +177,7 @@ class AddShopController extends Notifier<AddShopState> {
         {
           'id': id,
           'name': s.name.trim(),
+          'districtId': ?s.districtId,
           'address': s.address.trim(),
           'ownerName': s.owner.trim().isEmpty ? null : s.owner.trim(),
           'lat': fix.lat,
@@ -188,6 +200,8 @@ class AddShopController extends Notifier<AddShopState> {
               name: s.name.trim(),
               type: 'OTHER',
               address: s.address.trim(),
+              districtId: Value(s.districtId),
+              districtName: Value(districts.where((d) => d.id == s.districtId).firstOrNull?.name),
               lat: fix.lat,
               lng: fix.lng,
               auditRadiusM: config.defaultAuditRadiusM,

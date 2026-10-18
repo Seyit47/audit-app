@@ -12,8 +12,8 @@ import '../../audit/domain/geofence.dart';
 import '../../../core/widgets/tap.dart';
 import '../../../core/format/phone.dart';
 
-/// The add/edit shop form of `252:26487` (agent) and `252:25423` (admin, with Агент and the
-/// gallery button). Values live in the caller; this lays them out.
+/// The add/edit shop form of `252:26487` (agent) and `252:25423` (admin, with Агенты and the
+/// gallery button), both with Район. Values live in the caller; this lays them out.
 class ShopFormView extends StatefulWidget {
   const ShopFormView({
     super.key,
@@ -39,6 +39,8 @@ class ShopFormView extends StatefulWidget {
     required this.canSave,
     required this.saving,
     required this.onSave,
+    this.districtField,
+    this.districtValid = false,
     this.agentField,
     this.agentValid = false,
     this.error,
@@ -79,7 +81,11 @@ class ShopFormView extends StatefulWidget {
   final bool saving;
   final VoidCallback onSave;
 
-  /// The admin "Агент" select.
+  /// The "Район" select (required).
+  final Widget? districtField;
+  final bool districtValid;
+
+  /// The admin "Агенты" select (one or more).
   final Widget? agentField;
   final bool agentValid;
   final String? error;
@@ -155,6 +161,10 @@ class _ShopFormViewState extends State<ShopFormView> {
                               icon: AppIcon('field-clear', width: 28, height: 28, color: c.textSecondary),
                             ),
                     ),
+                    if (w.districtField != null) ...[
+                      const SizedBox(height: 22),
+                      AppFormField(label: l10n.district, required: true, valid: w.districtValid, child: w.districtField!),
+                    ],
                     const SizedBox(height: 22),
                     if (optional) ...[Text(l10n.shopExtraInfo, style: label), const SizedBox(height: 12)],
                     AppTextFormField(
@@ -188,10 +198,10 @@ class _ShopFormViewState extends State<ShopFormView> {
                       onChanged: (v) => w.onChanged(phone: v),
                       prefix: AppIcon('phone', width: 12, height: 12, color: c.textSecondary),
                     ),
-                    // 252:25423: the admin's "Агент" comes after the phone number.
+                    // 252:25423: the admin's "Агент" comes after the phone number; a shop can have several.
                     if (w.agentField != null) ...[
                       const SizedBox(height: 22),
-                      AppFormField(label: l10n.agent, required: true, valid: w.agentValid, child: w.agentField!),
+                      AppFormField(label: l10n.agentsField, required: true, valid: w.agentValid, child: w.agentField!),
                     ],
                     const SizedBox(height: 28),
                     Row(

@@ -177,9 +177,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get shopsEmpty => 'Магазинов нет';
 
   @override
-  String get filterRegion => 'Регион';
-
-  @override
   String get filterStatus => 'Статус';
 
   @override
@@ -564,9 +561,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get lastVisitTitle => 'Крайний визит';
 
   @override
-  String get addressRegion => 'Адрес и регион';
-
-  @override
   String get responsibleAgent => 'Ответственный агент';
 
   @override
@@ -684,9 +678,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get exportFailed => 'Не удалось сформировать отчёт';
-
-  @override
-  String get sectorLabel => 'Сектор: ';
 
   @override
   String onlineGps(int meters) {
@@ -808,12 +799,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get auditPlan => 'Чек-листы / аудиты в день';
-
-  @override
-  String get regionField => 'Регион / территория продаж';
-
-  @override
-  String get selectRegion => 'Выберите регион';
 
   @override
   String get workStatus => 'Статус активности сотрудника';
@@ -1218,4 +1203,46 @@ class AppLocalizationsRu extends AppLocalizations {
   String auditOnlyInRadius(int radius) {
     return 'Аудит возможен только в радиусе $radius м от магазина';
   }
+
+  @override
+  String get districtsTitle => 'Районы';
+
+  @override
+  String get district => 'Район';
+
+  @override
+  String get selectDistrict => 'Выберите район';
+
+  @override
+  String get noDistrict => 'Без района';
+
+  @override
+  String get addDistrict => 'Добавить район';
+
+  @override
+  String get districtName => 'Название района';
+
+  @override
+  String get renameDistrict => 'Переименовать';
+
+  @override
+  String get deleteDistrict => 'Удалить';
+
+  @override
+  String get districtInUse => 'Такое название уже есть, или в районе ещё есть магазины.';
+
+  @override
+  String get districtsEmpty => 'Районов пока нет';
+
+  @override
+  String get allDistrictShops => 'Все магазины';
+
+  @override
+  String get agentsField => 'Агенты';
+
+  @override
+  String get selectAgents => 'Выберите агентов';
+
+  @override
+  String get addressDistrict => 'Адрес и район';
 }

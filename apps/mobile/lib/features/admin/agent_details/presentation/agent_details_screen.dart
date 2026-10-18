@@ -188,8 +188,6 @@ class _AgentDetailsScreenState extends ConsumerState<AgentDetailsScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            IconLine(icon: 'sector', iconSize: const Size(14.13, 14.1), text: l10n.sectorLabel, bold: (a['region'] as Map?)?['name'] as String?),
-            const SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(color: c.secondaryBg, borderRadius: BorderRadius.circular(8)),

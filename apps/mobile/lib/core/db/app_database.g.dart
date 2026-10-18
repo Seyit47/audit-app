@@ -32,13 +32,19 @@ class $ShopsTable extends Shops with TableInfo<$ShopsTable, Shop> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _regionIdMeta = const VerificationMeta('regionId');
+  static const VerificationMeta _districtIdMeta = const VerificationMeta('districtId');
   @override
-  late final GeneratedColumn<String> regionId = GeneratedColumn<String>('region_id', aliasedName, true, type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _regionNameMeta = const VerificationMeta('regionName');
+  late final GeneratedColumn<String> districtId = GeneratedColumn<String>(
+    'district_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _districtNameMeta = const VerificationMeta('districtName');
   @override
-  late final GeneratedColumn<String> regionName = GeneratedColumn<String>(
-    'region_name',
+  late final GeneratedColumn<String> districtName = GeneratedColumn<String>(
+    'district_name',
     aliasedName,
     true,
     type: DriftSqlType.string,
@@ -119,8 +125,8 @@ class $ShopsTable extends Shops with TableInfo<$ShopsTable, Shop> {
     type,
     address,
     addressDetail,
-    regionId,
-    regionName,
+    districtId,
+    districtName,
     lat,
     lng,
     auditRadiusM,
@@ -169,11 +175,11 @@ class $ShopsTable extends Shops with TableInfo<$ShopsTable, Shop> {
     if (data.containsKey('address_detail')) {
       context.handle(_addressDetailMeta, addressDetail.isAcceptableOrUnknown(data['address_detail']!, _addressDetailMeta));
     }
-    if (data.containsKey('region_id')) {
-      context.handle(_regionIdMeta, regionId.isAcceptableOrUnknown(data['region_id']!, _regionIdMeta));
+    if (data.containsKey('district_id')) {
+      context.handle(_districtIdMeta, districtId.isAcceptableOrUnknown(data['district_id']!, _districtIdMeta));
     }
-    if (data.containsKey('region_name')) {
-      context.handle(_regionNameMeta, regionName.isAcceptableOrUnknown(data['region_name']!, _regionNameMeta));
+    if (data.containsKey('district_name')) {
+      context.handle(_districtNameMeta, districtName.isAcceptableOrUnknown(data['district_name']!, _districtNameMeta));
     }
     if (data.containsKey('lat')) {
       context.handle(_latMeta, lat.isAcceptableOrUnknown(data['lat']!, _latMeta));
@@ -230,8 +236,8 @@ class $ShopsTable extends Shops with TableInfo<$ShopsTable, Shop> {
       type: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}type'])!,
       address: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}address'])!,
       addressDetail: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}address_detail']),
-      regionId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}region_id']),
-      regionName: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}region_name']),
+      districtId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}district_id']),
+      districtName: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}district_name']),
       lat: attachedDatabase.typeMapping.read(DriftSqlType.double, data['${effectivePrefix}lat'])!,
       lng: attachedDatabase.typeMapping.read(DriftSqlType.double, data['${effectivePrefix}lng'])!,
       auditRadiusM: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}audit_radius_m'])!,
@@ -258,8 +264,8 @@ class Shop extends DataClass implements Insertable<Shop> {
   final String type;
   final String address;
   final String? addressDetail;
-  final String? regionId;
-  final String? regionName;
+  final String? districtId;
+  final String? districtName;
   final double lat;
   final double lng;
   final int auditRadiusM;
@@ -279,8 +285,8 @@ class Shop extends DataClass implements Insertable<Shop> {
     required this.type,
     required this.address,
     this.addressDetail,
-    this.regionId,
-    this.regionName,
+    this.districtId,
+    this.districtName,
     required this.lat,
     required this.lng,
     required this.auditRadiusM,
@@ -303,11 +309,11 @@ class Shop extends DataClass implements Insertable<Shop> {
     if (!nullToAbsent || addressDetail != null) {
       map['address_detail'] = Variable<String>(addressDetail);
     }
-    if (!nullToAbsent || regionId != null) {
-      map['region_id'] = Variable<String>(regionId);
+    if (!nullToAbsent || districtId != null) {
+      map['district_id'] = Variable<String>(districtId);
     }
-    if (!nullToAbsent || regionName != null) {
-      map['region_name'] = Variable<String>(regionName);
+    if (!nullToAbsent || districtName != null) {
+      map['district_name'] = Variable<String>(districtName);
     }
     map['lat'] = Variable<double>(lat);
     map['lng'] = Variable<double>(lng);
@@ -338,8 +344,8 @@ class Shop extends DataClass implements Insertable<Shop> {
       type: Value(type),
       address: Value(address),
       addressDetail: addressDetail == null && nullToAbsent ? const Value.absent() : Value(addressDetail),
-      regionId: regionId == null && nullToAbsent ? const Value.absent() : Value(regionId),
-      regionName: regionName == null && nullToAbsent ? const Value.absent() : Value(regionName),
+      districtId: districtId == null && nullToAbsent ? const Value.absent() : Value(districtId),
+      districtName: districtName == null && nullToAbsent ? const Value.absent() : Value(districtName),
       lat: Value(lat),
       lng: Value(lng),
       auditRadiusM: Value(auditRadiusM),
@@ -362,8 +368,8 @@ class Shop extends DataClass implements Insertable<Shop> {
       type: serializer.fromJson<String>(json['type']),
       address: serializer.fromJson<String>(json['address']),
       addressDetail: serializer.fromJson<String?>(json['addressDetail']),
-      regionId: serializer.fromJson<String?>(json['regionId']),
-      regionName: serializer.fromJson<String?>(json['regionName']),
+      districtId: serializer.fromJson<String?>(json['districtId']),
+      districtName: serializer.fromJson<String?>(json['districtName']),
       lat: serializer.fromJson<double>(json['lat']),
       lng: serializer.fromJson<double>(json['lng']),
       auditRadiusM: serializer.fromJson<int>(json['auditRadiusM']),
@@ -386,8 +392,8 @@ class Shop extends DataClass implements Insertable<Shop> {
       'type': serializer.toJson<String>(type),
       'address': serializer.toJson<String>(address),
       'addressDetail': serializer.toJson<String?>(addressDetail),
-      'regionId': serializer.toJson<String?>(regionId),
-      'regionName': serializer.toJson<String?>(regionName),
+      'districtId': serializer.toJson<String?>(districtId),
+      'districtName': serializer.toJson<String?>(districtName),
       'lat': serializer.toJson<double>(lat),
       'lng': serializer.toJson<double>(lng),
       'auditRadiusM': serializer.toJson<int>(auditRadiusM),
@@ -408,8 +414,8 @@ class Shop extends DataClass implements Insertable<Shop> {
     String? type,
     String? address,
     Value<String?> addressDetail = const Value.absent(),
-    Value<String?> regionId = const Value.absent(),
-    Value<String?> regionName = const Value.absent(),
+    Value<String?> districtId = const Value.absent(),
+    Value<String?> districtName = const Value.absent(),
     double? lat,
     double? lng,
     int? auditRadiusM,
@@ -427,8 +433,8 @@ class Shop extends DataClass implements Insertable<Shop> {
     type: type ?? this.type,
     address: address ?? this.address,
     addressDetail: addressDetail.present ? addressDetail.value : this.addressDetail,
-    regionId: regionId.present ? regionId.value : this.regionId,
-    regionName: regionName.present ? regionName.value : this.regionName,
+    districtId: districtId.present ? districtId.value : this.districtId,
+    districtName: districtName.present ? districtName.value : this.districtName,
     lat: lat ?? this.lat,
     lng: lng ?? this.lng,
     auditRadiusM: auditRadiusM ?? this.auditRadiusM,
@@ -448,8 +454,8 @@ class Shop extends DataClass implements Insertable<Shop> {
       type: data.type.present ? data.type.value : this.type,
       address: data.address.present ? data.address.value : this.address,
       addressDetail: data.addressDetail.present ? data.addressDetail.value : this.addressDetail,
-      regionId: data.regionId.present ? data.regionId.value : this.regionId,
-      regionName: data.regionName.present ? data.regionName.value : this.regionName,
+      districtId: data.districtId.present ? data.districtId.value : this.districtId,
+      districtName: data.districtName.present ? data.districtName.value : this.districtName,
       lat: data.lat.present ? data.lat.value : this.lat,
       lng: data.lng.present ? data.lng.value : this.lng,
       auditRadiusM: data.auditRadiusM.present ? data.auditRadiusM.value : this.auditRadiusM,
@@ -472,8 +478,8 @@ class Shop extends DataClass implements Insertable<Shop> {
           ..write('type: $type, ')
           ..write('address: $address, ')
           ..write('addressDetail: $addressDetail, ')
-          ..write('regionId: $regionId, ')
-          ..write('regionName: $regionName, ')
+          ..write('districtId: $districtId, ')
+          ..write('districtName: $districtName, ')
           ..write('lat: $lat, ')
           ..write('lng: $lng, ')
           ..write('auditRadiusM: $auditRadiusM, ')
@@ -496,8 +502,8 @@ class Shop extends DataClass implements Insertable<Shop> {
     type,
     address,
     addressDetail,
-    regionId,
-    regionName,
+    districtId,
+    districtName,
     lat,
     lng,
     auditRadiusM,
@@ -519,8 +525,8 @@ class Shop extends DataClass implements Insertable<Shop> {
           other.type == this.type &&
           other.address == this.address &&
           other.addressDetail == this.addressDetail &&
-          other.regionId == this.regionId &&
-          other.regionName == this.regionName &&
+          other.districtId == this.districtId &&
+          other.districtName == this.districtName &&
           other.lat == this.lat &&
           other.lng == this.lng &&
           other.auditRadiusM == this.auditRadiusM &&
@@ -540,8 +546,8 @@ class ShopsCompanion extends UpdateCompanion<Shop> {
   final Value<String> type;
   final Value<String> address;
   final Value<String?> addressDetail;
-  final Value<String?> regionId;
-  final Value<String?> regionName;
+  final Value<String?> districtId;
+  final Value<String?> districtName;
   final Value<double> lat;
   final Value<double> lng;
   final Value<int> auditRadiusM;
@@ -560,8 +566,8 @@ class ShopsCompanion extends UpdateCompanion<Shop> {
     this.type = const Value.absent(),
     this.address = const Value.absent(),
     this.addressDetail = const Value.absent(),
-    this.regionId = const Value.absent(),
-    this.regionName = const Value.absent(),
+    this.districtId = const Value.absent(),
+    this.districtName = const Value.absent(),
     this.lat = const Value.absent(),
     this.lng = const Value.absent(),
     this.auditRadiusM = const Value.absent(),
@@ -581,8 +587,8 @@ class ShopsCompanion extends UpdateCompanion<Shop> {
     required String type,
     required String address,
     this.addressDetail = const Value.absent(),
-    this.regionId = const Value.absent(),
-    this.regionName = const Value.absent(),
+    this.districtId = const Value.absent(),
+    this.districtName = const Value.absent(),
     required double lat,
     required double lng,
     required int auditRadiusM,
@@ -611,8 +617,8 @@ class ShopsCompanion extends UpdateCompanion<Shop> {
     Expression<String>? type,
     Expression<String>? address,
     Expression<String>? addressDetail,
-    Expression<String>? regionId,
-    Expression<String>? regionName,
+    Expression<String>? districtId,
+    Expression<String>? districtName,
     Expression<double>? lat,
     Expression<double>? lng,
     Expression<int>? auditRadiusM,
@@ -632,8 +638,8 @@ class ShopsCompanion extends UpdateCompanion<Shop> {
       if (type != null) 'type': type,
       if (address != null) 'address': address,
       if (addressDetail != null) 'address_detail': addressDetail,
-      if (regionId != null) 'region_id': regionId,
-      if (regionName != null) 'region_name': regionName,
+      if (districtId != null) 'district_id': districtId,
+      if (districtName != null) 'district_name': districtName,
       if (lat != null) 'lat': lat,
       if (lng != null) 'lng': lng,
       if (auditRadiusM != null) 'audit_radius_m': auditRadiusM,
@@ -655,8 +661,8 @@ class ShopsCompanion extends UpdateCompanion<Shop> {
     Value<String>? type,
     Value<String>? address,
     Value<String?>? addressDetail,
-    Value<String?>? regionId,
-    Value<String?>? regionName,
+    Value<String?>? districtId,
+    Value<String?>? districtName,
     Value<double>? lat,
     Value<double>? lng,
     Value<int>? auditRadiusM,
@@ -676,8 +682,8 @@ class ShopsCompanion extends UpdateCompanion<Shop> {
       type: type ?? this.type,
       address: address ?? this.address,
       addressDetail: addressDetail ?? this.addressDetail,
-      regionId: regionId ?? this.regionId,
-      regionName: regionName ?? this.regionName,
+      districtId: districtId ?? this.districtId,
+      districtName: districtName ?? this.districtName,
       lat: lat ?? this.lat,
       lng: lng ?? this.lng,
       auditRadiusM: auditRadiusM ?? this.auditRadiusM,
@@ -713,11 +719,11 @@ class ShopsCompanion extends UpdateCompanion<Shop> {
     if (addressDetail.present) {
       map['address_detail'] = Variable<String>(addressDetail.value);
     }
-    if (regionId.present) {
-      map['region_id'] = Variable<String>(regionId.value);
+    if (districtId.present) {
+      map['district_id'] = Variable<String>(districtId.value);
     }
-    if (regionName.present) {
-      map['region_name'] = Variable<String>(regionName.value);
+    if (districtName.present) {
+      map['district_name'] = Variable<String>(districtName.value);
     }
     if (lat.present) {
       map['lat'] = Variable<double>(lat.value);
@@ -764,8 +770,8 @@ class ShopsCompanion extends UpdateCompanion<Shop> {
           ..write('type: $type, ')
           ..write('address: $address, ')
           ..write('addressDetail: $addressDetail, ')
-          ..write('regionId: $regionId, ')
-          ..write('regionName: $regionName, ')
+          ..write('districtId: $districtId, ')
+          ..write('districtName: $districtName, ')
           ..write('lat: $lat, ')
           ..write('lng: $lng, ')
           ..write('auditRadiusM: $auditRadiusM, ')
@@ -776,6 +782,144 @@ class ShopsCompanion extends UpdateCompanion<Shop> {
           ..write('nextDueAt: $nextDueAt, ')
           ..write('latestVisitsJson: $latestVisitsJson, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DistrictsTable extends Districts with TableInfo<$DistrictsTable, District> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DistrictsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>('id', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>('name', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [id, name];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'districts';
+  @override
+  VerificationContext validateIntegrity(Insertable<District> instance, {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(_nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  District map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return District(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+    );
+  }
+
+  @override
+  $DistrictsTable createAlias(String alias) {
+    return $DistrictsTable(attachedDatabase, alias);
+  }
+}
+
+class District extends DataClass implements Insertable<District> {
+  final String id;
+  final String name;
+  const District({required this.id, required this.name});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    return map;
+  }
+
+  DistrictsCompanion toCompanion(bool nullToAbsent) {
+    return DistrictsCompanion(id: Value(id), name: Value(name));
+  }
+
+  factory District.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return District(id: serializer.fromJson<String>(json['id']), name: serializer.fromJson<String>(json['name']));
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{'id': serializer.toJson<String>(id), 'name': serializer.toJson<String>(name)};
+  }
+
+  District copyWith({String? id, String? name}) => District(id: id ?? this.id, name: name ?? this.name);
+  District copyWithCompanion(DistrictsCompanion data) {
+    return District(id: data.id.present ? data.id.value : this.id, name: data.name.present ? data.name.value : this.name);
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('District(')
+          ..write('id: $id, ')
+          ..write('name: $name')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name);
+  @override
+  bool operator ==(Object other) => identical(this, other) || (other is District && other.id == this.id && other.name == this.name);
+}
+
+class DistrictsCompanion extends UpdateCompanion<District> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<int> rowid;
+  const DistrictsCompanion({this.id = const Value.absent(), this.name = const Value.absent(), this.rowid = const Value.absent()});
+  DistrictsCompanion.insert({required String id, required String name, this.rowid = const Value.absent()}) : id = Value(id), name = Value(name);
+  static Insertable<District> custom({Expression<String>? id, Expression<String>? name, Expression<int>? rowid}) {
+    return RawValuesInsertable({if (id != null) 'id': id, if (name != null) 'name': name, if (rowid != null) 'rowid': rowid});
+  }
+
+  DistrictsCompanion copyWith({Value<String>? id, Value<String>? name, Value<int>? rowid}) {
+    return DistrictsCompanion(id: id ?? this.id, name: name ?? this.name, rowid: rowid ?? this.rowid);
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DistrictsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -4281,6 +4425,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $ShopsTable shops = $ShopsTable(this);
+  late final $DistrictsTable districts = $DistrictsTable(this);
   late final $ShopContactsTable shopContacts = $ShopContactsTable(this);
   late final $RoutesTable routes = $RoutesTable(this);
   late final $RouteStopsTable routeStops = $RouteStopsTable(this);
@@ -4293,7 +4438,19 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   @override
   Iterable<TableInfo<Table, Object?>> get allTables => allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [shops, shopContacts, routes, routeStops, audits, photos, auditDrafts, outbox, pingsBuffer, syncCursors];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    shops,
+    districts,
+    shopContacts,
+    routes,
+    routeStops,
+    audits,
+    photos,
+    auditDrafts,
+    outbox,
+    pingsBuffer,
+    syncCursors,
+  ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
     WritePropagation(
@@ -4314,8 +4471,8 @@ typedef $$ShopsTableCreateCompanionBuilder = ShopsCompanion Function({
   required String type,
   required String address,
   Value<String?> addressDetail,
-  Value<String?> regionId,
-  Value<String?> regionName,
+  Value<String?> districtId,
+  Value<String?> districtName,
   required double lat,
   required double lng,
   required int auditRadiusM,
@@ -4335,8 +4492,8 @@ typedef $$ShopsTableUpdateCompanionBuilder = ShopsCompanion Function({
   Value<String> type,
   Value<String> address,
   Value<String?> addressDetail,
-  Value<String?> regionId,
-  Value<String?> regionName,
+  Value<String?> districtId,
+  Value<String?> districtName,
   Value<double> lat,
   Value<double> lng,
   Value<int> auditRadiusM,
@@ -4384,9 +4541,9 @@ class $$ShopsTableFilterComposer extends Composer<_$AppDatabase, $ShopsTable> {
 
   ColumnFilters<String> get addressDetail => $composableBuilder(column: $table.addressDetail, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get regionId => $composableBuilder(column: $table.regionId, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get districtId => $composableBuilder(column: $table.districtId, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get regionName => $composableBuilder(column: $table.regionName, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get districtName => $composableBuilder(column: $table.districtName, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get lat => $composableBuilder(column: $table.lat, builder: (column) => ColumnFilters(column));
 
@@ -4446,9 +4603,9 @@ class $$ShopsTableOrderingComposer extends Composer<_$AppDatabase, $ShopsTable> 
 
   ColumnOrderings<String> get addressDetail => $composableBuilder(column: $table.addressDetail, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get regionId => $composableBuilder(column: $table.regionId, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get districtId => $composableBuilder(column: $table.districtId, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get regionName => $composableBuilder(column: $table.regionName, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get districtName => $composableBuilder(column: $table.districtName, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get lat => $composableBuilder(column: $table.lat, builder: (column) => ColumnOrderings(column));
 
@@ -4491,9 +4648,9 @@ class $$ShopsTableAnnotationComposer extends Composer<_$AppDatabase, $ShopsTable
 
   GeneratedColumn<String> get addressDetail => $composableBuilder(column: $table.addressDetail, builder: (column) => column);
 
-  GeneratedColumn<String> get regionId => $composableBuilder(column: $table.regionId, builder: (column) => column);
+  GeneratedColumn<String> get districtId => $composableBuilder(column: $table.districtId, builder: (column) => column);
 
-  GeneratedColumn<String> get regionName => $composableBuilder(column: $table.regionName, builder: (column) => column);
+  GeneratedColumn<String> get districtName => $composableBuilder(column: $table.districtName, builder: (column) => column);
 
   GeneratedColumn<double> get lat => $composableBuilder(column: $table.lat, builder: (column) => column);
 
@@ -4564,8 +4721,8 @@ class $$ShopsTableTableManager
                 Value<String> type = const Value.absent(),
                 Value<String> address = const Value.absent(),
                 Value<String?> addressDetail = const Value.absent(),
-                Value<String?> regionId = const Value.absent(),
-                Value<String?> regionName = const Value.absent(),
+                Value<String?> districtId = const Value.absent(),
+                Value<String?> districtName = const Value.absent(),
                 Value<double> lat = const Value.absent(),
                 Value<double> lng = const Value.absent(),
                 Value<int> auditRadiusM = const Value.absent(),
@@ -4584,8 +4741,8 @@ class $$ShopsTableTableManager
                 type: type,
                 address: address,
                 addressDetail: addressDetail,
-                regionId: regionId,
-                regionName: regionName,
+                districtId: districtId,
+                districtName: districtName,
                 lat: lat,
                 lng: lng,
                 auditRadiusM: auditRadiusM,
@@ -4606,8 +4763,8 @@ class $$ShopsTableTableManager
                 required String type,
                 required String address,
                 Value<String?> addressDetail = const Value.absent(),
-                Value<String?> regionId = const Value.absent(),
-                Value<String?> regionName = const Value.absent(),
+                Value<String?> districtId = const Value.absent(),
+                Value<String?> districtName = const Value.absent(),
                 required double lat,
                 required double lng,
                 required int auditRadiusM,
@@ -4626,8 +4783,8 @@ class $$ShopsTableTableManager
                 type: type,
                 address: address,
                 addressDetail: addressDetail,
-                regionId: regionId,
-                regionName: regionName,
+                districtId: districtId,
+                districtName: districtName,
                 lat: lat,
                 lng: lng,
                 auditRadiusM: auditRadiusM,
@@ -4677,6 +4834,99 @@ typedef $$ShopsTableProcessedTableManager =
       (Shop, $$ShopsTableReferences),
       Shop,
       PrefetchHooks Function({bool shopContactsRefs})
+    >;
+typedef $$DistrictsTableCreateCompanionBuilder = DistrictsCompanion Function({required String id, required String name, Value<int> rowid});
+typedef $$DistrictsTableUpdateCompanionBuilder = DistrictsCompanion Function({Value<String> id, Value<String> name, Value<int> rowid});
+
+class $$DistrictsTableFilterComposer extends Composer<_$AppDatabase, $DistrictsTable> {
+  $$DistrictsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(column: $table.name, builder: (column) => ColumnFilters(column));
+}
+
+class $$DistrictsTableOrderingComposer extends Composer<_$AppDatabase, $DistrictsTable> {
+  $$DistrictsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(column: $table.name, builder: (column) => ColumnOrderings(column));
+}
+
+class $$DistrictsTableAnnotationComposer extends Composer<_$AppDatabase, $DistrictsTable> {
+  $$DistrictsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id => $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name => $composableBuilder(column: $table.name, builder: (column) => column);
+}
+
+class $$DistrictsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DistrictsTable,
+          District,
+          $$DistrictsTableFilterComposer,
+          $$DistrictsTableOrderingComposer,
+          $$DistrictsTableAnnotationComposer,
+          $$DistrictsTableCreateCompanionBuilder,
+          $$DistrictsTableUpdateCompanionBuilder,
+          (District, BaseReferences<_$AppDatabase, $DistrictsTable, District>),
+          District,
+          PrefetchHooks Function()
+        > {
+  $$DistrictsTableTableManager(_$AppDatabase db, $DistrictsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () => $$DistrictsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$DistrictsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $$DistrictsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) => DistrictsCompanion(id: id, name: name, rowid: rowid),
+          createCompanionCallback: ({required String id, required String name, Value<int> rowid = const Value.absent()}) =>
+              DistrictsCompanion.insert(id: id, name: name, rowid: rowid),
+          withReferenceMapper: (p0) =>
+              p0.map((e) => (e.readTable<$DistrictsTable, District>(table), BaseReferences<_$AppDatabase, $DistrictsTable, District>(db, table, e))).toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$DistrictsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DistrictsTable,
+      District,
+      $$DistrictsTableFilterComposer,
+      $$DistrictsTableOrderingComposer,
+      $$DistrictsTableAnnotationComposer,
+      $$DistrictsTableCreateCompanionBuilder,
+      $$DistrictsTableUpdateCompanionBuilder,
+      (District, BaseReferences<_$AppDatabase, $DistrictsTable, District>),
+      District,
+      PrefetchHooks Function()
     >;
 typedef $$ShopContactsTableCreateCompanionBuilder = ShopContactsCompanion Function({
   required String id,
@@ -6520,6 +6770,7 @@ class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
   $$ShopsTableTableManager get shops => $$ShopsTableTableManager(_db, _db.shops);
+  $$DistrictsTableTableManager get districts => $$DistrictsTableTableManager(_db, _db.districts);
   $$ShopContactsTableTableManager get shopContacts => $$ShopContactsTableTableManager(_db, _db.shopContacts);
   $$RoutesTableTableManager get routes => $$RoutesTableTableManager(_db, _db.routes);
   $$RouteStopsTableTableManager get routeStops => $$RouteStopsTableTableManager(_db, _db.routeStops);

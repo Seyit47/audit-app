@@ -123,7 +123,10 @@ final List<RouteBase> adminRoutes = [
     path: 'shops',
     builder: (_, _) => const AdminShopsScreen(),
     routes: [
-      GoRoute(path: 'new', builder: (_, _) => const AdminShopFormScreen()),
+      GoRoute(
+        path: 'new',
+        builder: (_, state) => AdminShopFormScreen(districtId: state.uri.queryParameters['districtId']),
+      ),
       GoRoute(
         path: ':id',
         builder: (_, state) => AdminShopDetailsScreen(shopId: state.pathParameters['id']!),

@@ -21,27 +21,37 @@ import '../../../../core/widgets/skeleton.dart';
 import '../../../../core/widgets/adaptive.dart';
 
 class _Data {
-  const _Data(this.shop, this.visits, this.photos, this.agentOnline);
+  const _Data(this.shop, this.visits, this.photos, this.online);
 
   final Json shop;
   final List<Json> visits;
   final List<Json> photos;
-  final bool agentOnline;
+
+  /// The shop's agents now on shift.
+  final Set<String> online;
 }
 
 final _shopDataProvider = FutureProvider.autoDispose.family<_Data, String>((ref, id) async {
   final api = ref.watch(adminApiProvider);
   final shop = await api.shop(id);
-  final agentId = (shop['agent'] as Map?)?['id'];
+  final agentIds = {for (final a in _agentsOf(shop)) a['id']};
   final results = await Future.wait([
     api.shopVisits(id),
     api.photos(shopId: id, limit: 3).then((r) => [for (final i in r['items'] as List) (i as Map).cast<String, dynamic>()]),
-    agentId == null ? Future.value(<Json>[]) : api.positions().catchError((_) => <Json>[]),
+    agentIds.isEmpty ? Future.value(<Json>[]) : api.positions().catchError((_) => <Json>[]),
   ]);
   final positions = results[2];
-  final online = positions.any((p) => p['agentId'] == agentId && DateTime.now().difference(DateTime.parse(p['recordedAt'] as String)).inMinutes < 45);
+  final online = {
+    for (final p in positions)
+      if (agentIds.contains(p['agentId']) && DateTime.now().difference(DateTime.parse(p['recordedAt'] as String)).inMinutes < 45) p['agentId'] as String,
+  };
   return _Data(shop, results[0], results[1], online);
 });
+
+/// The shop's agents (several since districts; `agent` alone from older servers).
+List<Json> _agentsOf(Json shop) => [
+  for (final a in ((shop['agents'] as List?) ?? [?shop['agent']]).cast<Map>()) a.cast<String, dynamic>(),
+];
 
 /// Admin mobile Shop details (`248:24538`).
 class AdminShopDetailsScreen extends ConsumerWidget {
@@ -114,7 +124,7 @@ class AdminShopDetailsScreen extends ConsumerWidget {
 
     final d = data.value!;
     final kpis = (s['kpis'] as Map?) ?? const {};
-    final agent = (s['agent'] as Map?)?.cast<String, dynamic>();
+    final agents = _agentsOf(s);
     final contacts = ((s['contacts'] as List?) ?? const []).cast<Map>();
     final contact = contacts.firstOrNull;
     final lastAudit = kpis['lastAuditAt'] as String?;
@@ -300,10 +310,10 @@ class AdminShopDetailsScreen extends ConsumerWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(l10n.addressRegion.toUpperCase(), style: overline),
+                                    Text(l10n.addressDistrict.toUpperCase(), style: overline),
                                     Text(s['address'] as String, style: value.copyWith(fontSize: 16, height: 1.5)),
                                     Text(
-                                      [s['addressDetail'], (s['region'] as Map?)?['name']].whereType<String>().join(' • '),
+                                      [s['addressDetail'], (s['district'] as Map?)?['name']].whereType<String>().join(' • '),
                                       style: caption.copyWith(fontSize: 12, fontWeight: FontWeight.w400),
                                     ),
                                   ],
@@ -312,37 +322,43 @@ class AdminShopDetailsScreen extends ConsumerWidget {
                             ],
                           ),
                           const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              const AppIcon('person-tile', width: 28, height: 28),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(l10n.responsibleAgent.toUpperCase(), style: overline),
-                                    Text((agent?['fullName'] as String?) ?? l10n.unassigned, style: value.copyWith(fontSize: 16, height: 1.5)),
-                                    if (agent != null)
-                                      Row(
-                                        children: [
-                                          Container(
-                                            width: 6,
-                                            height: 6,
-                                            decoration: BoxDecoration(color: d.agentOnline ? c.success : c.textSecondary, shape: BoxShape.circle),
-                                          ),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            d.agentOnline ? l10n.onShift : l10n.offShift,
-                                            style: caption.copyWith(fontSize: 12, color: d.agentOnline ? c.accent : c.textSecondary),
-                                          ),
-                                        ],
-                                      ),
-                                  ],
+                          for (final (i, agent) in (agents.isEmpty ? const <Json?>[null] : agents).indexed) ...[
+                            if (i > 0) const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                const AppIcon('person-tile', width: 28, height: 28),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      if (i == 0) Text(l10n.responsibleAgent.toUpperCase(), style: overline),
+                                      Text((agent?['fullName'] as String?) ?? l10n.unassigned, style: value.copyWith(fontSize: 16, height: 1.5)),
+                                      if (agent != null)
+                                        Row(
+                                          children: [
+                                            Container(
+                                              width: 6,
+                                              height: 6,
+                                              decoration: BoxDecoration(
+                                                color: d.online.contains(agent['id']) ? c.success : c.textSecondary,
+                                                shape: BoxShape.circle,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              d.online.contains(agent['id']) ? l10n.onShift : l10n.offShift,
+                                              style: caption.copyWith(fontSize: 12, color: d.online.contains(agent['id']) ? c.accent : c.textSecondary),
+                                            ),
+                                          ],
+                                        ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              if (agent?['phone'] != null) _pill(context, 'phone-small', l10n.contact, () => call(agent!['phone'] as String), filled: true),
-                            ],
-                          ),
+                                if (agent?['phone'] != null) _pill(context, 'phone-small', l10n.contact, () => call(agent!['phone'] as String), filled: true),
+                              ],
+                            ),
+                          ],
                         ],
                       ),
                     ),

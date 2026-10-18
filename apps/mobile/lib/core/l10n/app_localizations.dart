@@ -405,12 +405,6 @@ abstract class AppLocalizations {
   /// **'Магазинов нет'**
   String get shopsEmpty;
 
-  /// No description provided for @filterRegion.
-  ///
-  /// In ru, this message translates to:
-  /// **'Регион'**
-  String get filterRegion;
-
   /// No description provided for @filterStatus.
   ///
   /// In ru, this message translates to:
@@ -1083,12 +1077,6 @@ abstract class AppLocalizations {
   /// **'Крайний визит'**
   String get lastVisitTitle;
 
-  /// No description provided for @addressRegion.
-  ///
-  /// In ru, this message translates to:
-  /// **'Адрес и регион'**
-  String get addressRegion;
-
   /// No description provided for @responsibleAgent.
   ///
   /// In ru, this message translates to:
@@ -1299,12 +1287,6 @@ abstract class AppLocalizations {
   /// **'Не удалось сформировать отчёт'**
   String get exportFailed;
 
-  /// No description provided for @sectorLabel.
-  ///
-  /// In ru, this message translates to:
-  /// **'Сектор: '**
-  String get sectorLabel;
-
   /// No description provided for @onlineGps.
   ///
   /// In ru, this message translates to:
@@ -1514,18 +1496,6 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Чек-листы / аудиты в день'**
   String get auditPlan;
-
-  /// No description provided for @regionField.
-  ///
-  /// In ru, this message translates to:
-  /// **'Регион / территория продаж'**
-  String get regionField;
-
-  /// No description provided for @selectRegion.
-  ///
-  /// In ru, this message translates to:
-  /// **'Выберите регион'**
-  String get selectRegion;
 
   /// No description provided for @workStatus.
   ///
@@ -2252,6 +2222,90 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Аудит возможен только в радиусе {radius} м от магазина'**
   String auditOnlyInRadius(int radius);
+
+  /// No description provided for @districtsTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Районы'**
+  String get districtsTitle;
+
+  /// No description provided for @district.
+  ///
+  /// In ru, this message translates to:
+  /// **'Район'**
+  String get district;
+
+  /// No description provided for @selectDistrict.
+  ///
+  /// In ru, this message translates to:
+  /// **'Выберите район'**
+  String get selectDistrict;
+
+  /// No description provided for @noDistrict.
+  ///
+  /// In ru, this message translates to:
+  /// **'Без района'**
+  String get noDistrict;
+
+  /// No description provided for @addDistrict.
+  ///
+  /// In ru, this message translates to:
+  /// **'Добавить район'**
+  String get addDistrict;
+
+  /// No description provided for @districtName.
+  ///
+  /// In ru, this message translates to:
+  /// **'Название района'**
+  String get districtName;
+
+  /// No description provided for @renameDistrict.
+  ///
+  /// In ru, this message translates to:
+  /// **'Переименовать'**
+  String get renameDistrict;
+
+  /// No description provided for @deleteDistrict.
+  ///
+  /// In ru, this message translates to:
+  /// **'Удалить'**
+  String get deleteDistrict;
+
+  /// No description provided for @districtInUse.
+  ///
+  /// In ru, this message translates to:
+  /// **'Такое название уже есть, или в районе ещё есть магазины.'**
+  String get districtInUse;
+
+  /// No description provided for @districtsEmpty.
+  ///
+  /// In ru, this message translates to:
+  /// **'Районов пока нет'**
+  String get districtsEmpty;
+
+  /// No description provided for @allDistrictShops.
+  ///
+  /// In ru, this message translates to:
+  /// **'Все магазины'**
+  String get allDistrictShops;
+
+  /// No description provided for @agentsField.
+  ///
+  /// In ru, this message translates to:
+  /// **'Агенты'**
+  String get agentsField;
+
+  /// No description provided for @selectAgents.
+  ///
+  /// In ru, this message translates to:
+  /// **'Выберите агентов'**
+  String get selectAgents;
+
+  /// No description provided for @addressDistrict.
+  ///
+  /// In ru, this message translates to:
+  /// **'Адрес и район'**
+  String get addressDistrict;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -20,6 +20,7 @@ class PullService {
   /// The pull order of contracts/sync.md: today's route, shops, then own photos.
   Future<void> pullAll() async {
     await pullMe();
+    await pullDistricts();
     await pullRoute();
     await pullShops();
     await pullPhotos();
@@ -29,6 +30,19 @@ class PullService {
 
   /// Keeps `/me` (agent profile and company settings) for offline use.
   Future<void> pullMe() async => _setCursor(meCursor, jsonEncode(await _api.me()));
+
+  /// Replaces the local districts with the server's (named ones; shops without one have none).
+  Future<void> pullDistricts() async {
+    final items = await _api.districts();
+    await _db.transaction(() async {
+      await _db.delete(_db.districts).go();
+      for (final d in items) {
+        if (d['id'] case final String id) {
+          await _db.into(_db.districts).insert(DistrictsCompanion.insert(id: id, name: d['name']! as String));
+        }
+      }
+    });
+  }
 
   /// Replaces the local route with today's; stops finished offline stay DONE until synced.
   Future<void> pullRoute() async {
@@ -137,8 +151,8 @@ class PullService {
             type: json['type']! as String,
             address: json['address']! as String,
             addressDetail: Value(json['addressDetail'] as String?),
-            regionId: Value(json['regionId'] as String?),
-            regionName: Value((json['region'] as Map?)?['name'] as String?),
+            districtId: Value((json['district'] as Map?)?['id'] as String?),
+            districtName: Value((json['district'] as Map?)?['name'] as String?),
             lat: (json['lat']! as num).toDouble(),
             lng: (json['lng']! as num).toDouble(),
             auditRadiusM: json['auditRadiusM']! as int,
