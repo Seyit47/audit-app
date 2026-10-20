@@ -1,6 +1,7 @@
 import type { AuthUser } from '../../plugins/auth.js'
 import type { Storage } from '../../plugins/storage.js'
 import { AppError, conflict, notFound } from '../../lib/app-error.js'
+import type { AssignMode } from './shops.schema.js'
 import { decodeCursor, encodeCursor, pageArgs } from '../../lib/pagination.js'
 import type { PhotosRepository } from '../photos/photos.repository.js'
 import { photoView } from '../photos/photo.view.js'
@@ -151,8 +152,10 @@ export class ShopsService {
     return this.get({ id: 'admin', role: 'ADMIN' }, id)
   }
 
-  async bulkAssign (shopIds: string[], agentId: string | null) {
-    await this.repo.bulkAssign(shopIds, agentId)
+  async bulkAssign (shopIds: string[], body: { agentIds?: string[], mode?: AssignMode, agentId?: string | null }) {
+    // The old shape (one agent, or none) means replace.
+    const agentIds = body.agentIds ?? (body.agentId == null ? [] : [body.agentId])
+    await this.repo.bulkAssign(shopIds, agentIds, body.mode ?? 'replace')
     return { updated: shopIds.length }
   }
 

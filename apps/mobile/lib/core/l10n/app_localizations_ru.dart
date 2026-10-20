@@ -1281,4 +1281,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get districtActions => 'Действия с районом';
+
+  @override
+  String get remove => 'Убрать';
 }

@@ -2,6 +2,7 @@
 
 import { guard, say } from '@/lib/feedback'
 import Link from 'next/link'
+import { Avatar } from '@/components/ui/Avatar'
 import { useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 import { FigmaIcon } from '@/components/ui/FigmaIcon'
@@ -41,7 +42,16 @@ export function ShopHeader ({ shop, copy }: { shop: ShopDetails, copy: ShopsCopy
               <span className='flex items-center gap-1.5'><FigmaIcon name='pin-accent-small' width={10.67} height={13.33} />{shop.address}</span>
             </div>
             {shop.agents.length > 0 && (
-              <span className='flex items-center gap-1.5'><FigmaIcon name='assigned-agent' width={13.33} height={13.33} />{d.assigned} <span className='text-ink'>{shop.agents.map((a) => `${a.fullName} (${a.code})`).join(', ')}</span></span>
+              <span className='flex items-center gap-2'>
+                <FigmaIcon name='assigned-agent' width={13.33} height={13.33} />{d.assigned}
+                <span className='flex flex-wrap gap-1.5'>
+                  {shop.agents.map((a) => (
+                    <Link key={a.id} href={`/salesmen/${a.id}`} className='flex items-center gap-1.5 rounded-full bg-dark-accent py-0.5 pl-0.5 pr-2.5 text-accent hover:bg-accent hover:text-white'>
+                      <Avatar name={a.fullName} /><span>{a.fullName}</span><span className='font-display opacity-70'>{a.code}</span>
+                    </Link>
+                  ))}
+                </span>
+              </span>
             )}
           </div>
         </div>

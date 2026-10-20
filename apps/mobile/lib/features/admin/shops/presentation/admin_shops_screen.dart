@@ -374,7 +374,7 @@ class _AdminShopsScreenState extends ConsumerState<AdminShopsScreen> {
     final status = s['status'] as String?;
     final last = (s['lastVisit'] as Map?)?['at'] as String?;
     final agents = [for (final a in ((s['agents'] as List?) ?? const []).cast<Map>()) a['fullName'] as String];
-    final agent = agents.isEmpty ? ((s['agent'] as Map?)?['fullName'] as String?) : agents.join(', ');
+    final agent = agents.isEmpty ? ((s['agent'] as Map?)?['fullName'] as String?) : agentNames(agents);
     final phone = ((s['contacts'] as List?) ?? const []).cast<Map>().firstOrNull?['phone'] as String?;
     final right = status != 'ACTIVE' || last == null
         ? Row(

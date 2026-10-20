@@ -54,10 +54,18 @@ const app: FastifyPluginAsyncTypebox = async (fastify) => {
     if (raw == null) throw noUpdate()
     const latest = parse(raw)
     if (!Latest.Check(latest)) throw new AppError(500, 'INTERNAL_ERROR', 'latest.json in the updates folder is not valid')
-    // The phone's own CPU type when published, else the APK for every phone.
-    const file = (req.query.abi != null ? latest.files?.[req.query.abi] : undefined) ?? latest.file
+    // The phone's own CPU type when published and uploaded, else the APK for every phone (a per-CPU file
+    // still being uploaded must not stop the update).
+    const sizeOf = (file: string) => stat(join(dir(), file)).then((s) => s.size, () => null)
+    const own = req.query.abi != null ? latest.files?.[req.query.abi] : undefined
+    let file = own ?? latest.file
+    let size = file == null ? null : await sizeOf(file)
+    if (size == null && own != null && latest.file != null && latest.file !== own) {
+      req.log.warn({ file: own }, 'per-CPU APK named in latest.json is missing; serving the universal one')
+      file = latest.file
+      size = await sizeOf(file)
+    }
     if (file == null) throw noUpdate()
-    const size = await stat(join(dir(), file)).then((s) => s.size, () => null)
     if (size == null) throw new AppError(500, 'INTERNAL_ERROR', `${file} named in latest.json is not in the updates folder`)
     return {
       version: latest.version,

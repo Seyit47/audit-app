@@ -6,6 +6,9 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { Avatar } from '@/components/ui/Avatar'
+import { AvatarStack } from '@/components/ui/AvatarStack'
+import { MultiSelect } from '@/components/ui/MultiSelect'
+import { SegmentedControl } from '@/components/ui/SegmentedControl'
 import { Button } from '@/components/ui/Button'
 import { Checkbox } from '@/components/ui/Checkbox'
 import { DataTable, type Column } from '@/components/ui/DataTable'
@@ -54,7 +57,7 @@ export function ShopsView ({ page, copy, locale, agents, districts, exportHref, 
     return `/shops?${next.toString()}`
   }
   const [selected, setSelected] = useState<Set<string>>(new Set())
-  const [assigning, setAssigning] = useState<string[] | null>(null)
+  const [assigning, setAssigning] = useState<ShopRow[] | null>(null)
   const [moving, setMoving] = useState<string[] | null>(null)
   const [deleting, setDeleting] = useState<string[] | null>(null)
   const [statusFor, setStatusFor] = useState<ShopRow | null>(null)
@@ -108,15 +111,10 @@ export function ShopsView ({ page, copy, locale, agents, districts, exportHref, 
     },
     {
       key: 'agent', header: copy.columns.agent, width: 150, className: 'pl-3 pr-0',
-      // Several agents: the first with an avatar, the rest by name.
+      // Several agents: overlapping avatars, the names (or how many) beside.
       render: (s) => s.agents.length === 0
         ? <span className='text-subtle'>{copy.unassigned}</span>
-        : (
-          <span className='flex items-center gap-2' title={s.agents.map((a) => a.fullName).join(', ')}>
-            <Avatar name={s.agents[0]!.fullName} />
-            <span className='truncate font-medium'>{s.agents.map((a) => a.fullName).join(', ')}</span>
-          </span>
-          )
+        : <AvatarStack people={s.agents} summary={(n) => copy.agentsCount.replace('{n}', String(n))} />
     },
     {
       key: 'status', header: copy.columns.status, width: 120, className: 'pl-3 pr-3',
@@ -134,7 +132,7 @@ export function ShopsView ({ page, copy, locale, agents, districts, exportHref, 
           { label: copy.editShop, icon: { name: 'menu-edit', width: 12, height: 12 }, href: editHref(s.id), dialog: { kind: 'shop', id: s.id } },
           { label: copy.changeStatus, icon: { name: 'menu-edit', width: 12, height: 12 }, onSelect: () => setStatusFor(s) },
           { label: copy.viewOnMap, icon: { name: 'menu-map', width: 13.3, height: 13.267 }, href: `/map?ids=${s.id}` },
-          { label: copy.assign, icon: { name: 'menu-assign', width: 13.333, height: 13.333 }, onSelect: () => setAssigning([s.id]) },
+          { label: copy.assign, icon: { name: 'menu-assign', width: 13.333, height: 13.333 }, onSelect: () => setAssigning([s]) },
           { label: copy.moveToDistrict, icon: { name: 'pin-small', width: 9.333, height: 11.667 }, onSelect: () => setMoving([s.id]) },
           { label: copy.deleteShop, icon: { name: 'menu-delete', width: 10.667, height: 12 }, danger: true, separated: true, onSelect: () => setDeleting([s.id]) }
         ]} />
@@ -166,7 +164,7 @@ export function ShopsView ({ page, copy, locale, agents, districts, exportHref, 
               ? <Button dialog={{ kind: 'shop' }} href='/shops?add=1' icon={<FigmaIcon name='plus' width={10.5} height={10.5} />}>{copy.addShop}</Button>
               : (
                 <>
-                  <Button variant='secondary' onClick={() => setAssigning(chosen)} icon={<FigmaIcon name='link' width={12} height={12} />}>{copy.assign}</Button>
+                  <Button variant='secondary' onClick={() => setAssigning(page.items.filter((s) => selected.has(s.id)))} icon={<FigmaIcon name='link' width={12} height={12} />}>{copy.assign}</Button>
                   <Button variant='secondary' onClick={() => setMoving(chosen)} icon={<FigmaIcon name='pin-small' width={9.333} height={11.667} />}>{copy.moveToDistrict}</Button>
                   <Button variant='secondary' href={`/map?ids=${chosen.join(',')}`} icon={<FigmaIcon name='menu-map' width={12} height={12} />}>{copy.viewOnMap}</Button>
                   <Button variant='danger' onClick={() => setDeleting(chosen)} icon={<FigmaIcon name='menu-delete' width={10.667} height={12} />}>{copy.deleteShop}</Button>
@@ -185,8 +183,8 @@ export function ShopsView ({ page, copy, locale, agents, districts, exportHref, 
         footer={<UrlPagination page={page.page} size={page.size} total={page.total} noun={copy.pagination.noun} copy={copy.pagination} />}
       />
       {assigning != null && (
-        <AssignDialog copy={copy} count={assigning.length} agents={agents} pending={pending} error={error}
-          onClose={() => setAssigning(null)} onSave={(agentId) => act(() => assignShops(assigning, agentId))} />
+        <AssignDialog copy={copy} shops={assigning} agents={agents} pending={pending} error={error}
+          onClose={() => setAssigning(null)} onSave={(agentIds, mode) => act(() => assignShops(assigning.map((s) => s.id), agentIds, mode))} />
       )}
       {moving != null && (
         <MoveDialog copy={copy} count={moving.length} districts={districts} pending={pending} error={error}
@@ -216,26 +214,58 @@ export function ShopsView ({ page, copy, locale, agents, districts, exportHref, 
   )
 }
 
-function AssignDialog ({ copy, count, agents, pending, error, onClose, onSave }: {
-  copy: ShopsCopy, count: number, agents: AgentOption[], pending: boolean, error: string | null, onClose: () => void, onSave: (agentId: string | null) => void
+type AssignMode = 'add' | 'replace' | 'remove'
+
+/**
+ * Bulk "Назначить агентов": pick salesmen and whether they join the shops' current ones (the default), replace
+ * them, or are taken off. One shop: its current salesmen are preselected in Replace, so editing is one step.
+ */
+function AssignDialog ({ copy, shops, agents, pending, error, onClose, onSave }: {
+  copy: ShopsCopy, shops: ShopRow[], agents: AgentOption[], pending: boolean, error: string | null, onClose: () => void, onSave: (agentIds: string[], mode: AssignMode) => void
 }) {
-  const [agentId, setAgentId] = useState('')
   const d = copy.assignDialog
+  const single = shops.length === 1 ? shops[0]! : null
+  const [mode, setMode] = useState<AssignMode>(single != null ? 'replace' : 'add')
+  const [agentIds, setAgentIds] = useState<string[]>(single?.agents.map((a) => a.id) ?? [])
+  // Every current salesman of the chosen shops, for a glance and for Remove.
+  const current = [...new Map(shops.flatMap((s) => s.agents).map((a) => [a.id, a])).values()]
+  const chosenMode = (m: AssignMode) => {
+    setMode(m)
+    if (m === 'remove') setAgentIds([])
+  }
+  const options = mode === 'remove' ? current.map((a) => ({ value: a.id, label: a.fullName, hint: a.code })) : agents.map((a) => ({ value: a.id, label: a.fullName, hint: a.code }))
   return (
-    <Dialog open variant='form' width={480} onClose={onClose} closeLabel={d.cancel} title={d.title} subtitle={d.subtitle.replace('{n}', String(count))}
+    <Dialog open variant='form' width={520} onClose={onClose} closeLabel={d.cancel} title={d.title} subtitle={d.subtitle.replace('{n}', String(shops.length))}
       footer={
         <>
           {error != null && <p role='alert' className='mr-auto text-xs text-error'>{error}</p>}
           <Button variant='outline' size='md' data-dialog-close>{d.cancel}</Button>
-          <Button size='md' disabled={pending} onClick={() => onSave(agentId === '' ? null : agentId)}>{d.save}</Button>
+          <Button size='md' disabled={pending || (mode !== 'replace' && agentIds.length === 0)} onClick={() => onSave(agentIds, mode)}>{d.save}</Button>
         </>
       }>
-      <FormField variant='form' label={d.label} htmlFor='assign-agent'>
-        <SelectInput variant='form' id='assign-agent' value={agentId} onChange={(e) => setAgentId(e.target.value)}>
-          <option value=''>{d.none}</option>
-          {agents.map((a) => <option key={a.id} value={a.id}>{a.fullName} {a.code}</option>)}
-        </SelectInput>
-      </FormField>
+      <div className='flex flex-col gap-5'>
+        {current.length > 0 && (
+          <div className='flex flex-col gap-1.5 text-xs leading-4 text-muted'>
+            <span className='font-medium'>{d.current}</span>
+            <AvatarStack people={current} max={6} summary={(n) => copy.agentsCount.replace('{n}', String(n))} />
+          </div>
+        )}
+        <div className='flex flex-col gap-2'>
+          <SegmentedControl
+            value={mode} onChange={chosenMode}
+            options={(['add', 'replace', 'remove'] as const).filter((m) => m !== 'remove' || current.length > 0).map((m) => ({ value: m, label: d.modes[m] }))}
+          />
+          <p className='text-xs leading-4 text-muted'>{d.modeHints[mode]}</p>
+        </div>
+        <FormField variant='form' label={d.label} htmlFor='assign-agents'>
+          <MultiSelect
+            id='assign-agents' value={agentIds} onChange={setAgentIds} options={options}
+            placeholder={d.placeholder} searchPlaceholder={copy.search}
+            summary={(n) => copy.agentsCount.replace('{n}', String(n))}
+            chips removeLabel={copy.remove}
+          />
+        </FormField>
+      </div>
     </Dialog>
   )
 }

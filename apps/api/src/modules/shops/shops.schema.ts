@@ -49,7 +49,17 @@ export type PatchShopBody = Static<typeof PatchShopBody>
 export const ContactsBody = Type.Object({ contacts: Type.Array(Contact, { maxItems: 5 }) }, { additionalProperties: false })
 export type ContactsBody = Static<typeof ContactsBody>
 
-export const BulkAssignBody = Type.Object({ shopIds: Type.Array(Uuid, { minItems: 1, maxItems: 500 }), agentId: Nullable(Uuid) }, { additionalProperties: false })
+/**
+ * Bulk "Назначить": `agentIds` with a mode (add them to the shops' agents, replace them, or remove them). The old
+ * `agentId` (one agent, or null for none) still means replace.
+ */
+export const BulkAssignBody = Type.Object({
+  shopIds: Type.Array(Uuid, { minItems: 1, maxItems: 500 }),
+  agentIds: Type.Optional(Type.Array(Uuid, { maxItems: 50 })),
+  mode: Type.Optional(Type.Union([Type.Literal('add'), Type.Literal('replace'), Type.Literal('remove')])),
+  agentId: Type.Optional(Nullable(Uuid))
+}, { additionalProperties: false })
+export type AssignMode = 'add' | 'replace' | 'remove'
 export const BulkDistrictBody = Type.Object({ shopIds: Type.Array(Uuid, { minItems: 1, maxItems: 500 }), districtId: Nullable(Uuid) }, { additionalProperties: false })
 export const BulkDeleteBody = Type.Object({ shopIds: Type.Array(Uuid, { minItems: 1, maxItems: 500 }) }, { additionalProperties: false })
 

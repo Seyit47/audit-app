@@ -19,7 +19,7 @@ const shops: FastifyPluginAsyncTypebox = async (fastify) => {
   fastify.get('/map', { schema: { querystring: MapQuery, tags }, config: { auth: 'ANY' } }, async (req) => service.map(req.user, req.query))
 
   fastify.post('/bulk/assign', { schema: { body: BulkAssignBody, tags }, config: { auth: 'ADMIN' } },
-    async (req) => service.bulkAssign(req.body.shopIds, req.body.agentId))
+    async (req) => service.bulkAssign(req.body.shopIds, req.body))
 
   fastify.post('/bulk/district', { schema: { body: BulkDistrictBody, tags }, config: { auth: 'ADMIN' } },
     async (req) => service.bulkDistrict(req.body.shopIds, req.body.districtId))

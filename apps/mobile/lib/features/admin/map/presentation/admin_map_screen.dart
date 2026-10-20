@@ -319,7 +319,7 @@ class _AdminMapScreenState extends ConsumerState<AdminMapScreen> {
     final names = [
       for (final a in ((d['agents'] as List?) ?? [?d['agent']]).cast<Map>()) a['fullName'] as String,
     ];
-    final agent = names.isEmpty ? null : names.join(', ');
+    final agent = names.isEmpty ? null : agentNames(names);
     final audits = ((d['kpis'] as Map?)?['totalAudits'] as int?) ?? 0;
     return ShopSheet(
       item: ShopItem(shop: shop, contacts: const [], visit: const VisitInfo(VisitState.notVisited)),

@@ -378,5 +378,6 @@
   "geoLocatingLong": "GPS hemralary gözlenýär. Daşarda bir minuda çenli wagt alýar, jaýyň içinde başartmazlygy mümkin.",
   "districtVisitedToday": "Şu gün {visited} / {total}",
   "districtOverdue": "gijikdirilen {count}",
-  "districtActions": "Etrap bilen hereketler"
+  "districtActions": "Etrap bilen hereketler",
+  "remove": "Aýyr"
 }

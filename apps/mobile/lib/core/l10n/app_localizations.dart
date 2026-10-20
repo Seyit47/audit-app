@@ -2366,6 +2366,12 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Действия с районом'**
   String get districtActions;
+
+  /// No description provided for @remove.
+  ///
+  /// In ru, this message translates to:
+  /// **'Убрать'**
+  String get remove;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

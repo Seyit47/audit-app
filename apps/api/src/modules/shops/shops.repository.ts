@@ -1,4 +1,5 @@
 import { Prisma, type PrismaClient } from '../../generated/prisma/client.js'
+import type { AssignMode } from './shops.schema.js'
 import { newId } from '../../lib/ids.js'
 
 /** The shop's agents: its open assignment rows (a shop can have several). */
@@ -119,9 +120,21 @@ export class ShopsRepository {
     await tx.shop.updateMany({ where: { id: { in: shopIds } }, data: { updatedAt: now } })
   }
 
-  /** Bulk "Назначить": the agent becomes the selected shops' only agent (null: none). */
-  bulkAssign (shopIds: string[], agentId: string | null) {
-    return this.prisma.$transaction((tx) => this.setAgents(tx, shopIds, agentId == null ? [] : [agentId]))
+  /** Bulk "Назначить": [agentIds] become the shops' agents, join them, or leave them. */
+  bulkAssign (shopIds: string[], agentIds: string[], mode: AssignMode) {
+    return this.prisma.$transaction(async (tx) => {
+      if (mode === 'replace') return this.setAgents(tx, shopIds, agentIds)
+      const now = new Date()
+      if (mode === 'remove') {
+        await tx.shopAssignment.updateMany({ where: { shopId: { in: shopIds }, to: null, agentId: { in: agentIds } }, data: { to: now } })
+      } else {
+        const open = await tx.shopAssignment.findMany({ where: { shopId: { in: shopIds }, to: null }, select: { shopId: true, agentId: true } })
+        const have = new Set(open.map((a) => `${a.shopId}/${a.agentId}`))
+        const add = shopIds.flatMap((shopId) => agentIds.filter((agentId) => !have.has(`${shopId}/${agentId}`)).map((agentId) => ({ id: newId(), shopId, agentId, from: now })))
+        if (add.length > 0) await tx.shopAssignment.createMany({ data: add })
+      }
+      await tx.shop.updateMany({ where: { id: { in: shopIds } }, data: { updatedAt: now } })
+    })
   }
 
   async districtExists (id: string) {

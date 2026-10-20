@@ -1279,4 +1279,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get districtActions => 'District actions';
+
+  @override
+  String get remove => 'Remove';
 }

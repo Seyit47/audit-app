@@ -156,6 +156,7 @@ export function ShopEditDialog ({ shop, agents, products, districts, productIds,
               options={agents.map((a) => ({ value: a.id, label: a.fullName, hint: a.code }))}
               placeholder={copy.noAgent} searchPlaceholder={copy.agentsSearch}
               summary={(n) => copy.agentsSelected.replace('{n}', String(n))}
+              chips removeLabel={copy.remove}
             />
           )}
         />

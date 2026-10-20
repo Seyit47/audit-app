@@ -1279,4 +1279,7 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get districtActions => 'Etrap bilen hereketler';
+
+  @override
+  String get remove => 'Aýyr';
 }

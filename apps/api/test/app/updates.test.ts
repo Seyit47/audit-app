@@ -1,6 +1,6 @@
 import { test, before, beforeEach } from 'node:test'
 import * as assert from 'node:assert'
-import { mkdtemp, writeFile } from 'node:fs/promises'
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import type { FastifyInstance } from 'fastify'
@@ -66,6 +66,10 @@ test('per CPU type: the phone gets its own APK; an app that does not say gets th
   assert.strictEqual((await latest('?abi=armeabi-v7a')).url, '/v1/app/apk/arm32.apk')
   assert.strictEqual((await latest('?abi=x86_64')).url, '/v1/app/apk/all.apk')
   assert.strictEqual((await latest()).url, '/v1/app/apk/all.apk')
+
+  // A per-CPU APK still being uploaded (named but missing): the one for every phone meanwhile.
+  await rm(join(dir, 'arm64.apk'))
+  assert.deepStrictEqual([(await latest('?abi=arm64-v8a')).url, (await latest('?abi=arm64-v8a')).sizeBytes], ['/v1/app/apk/all.apk', 300])
 
   // Only split APKs published: an app that does not say its CPU type gets no update.
   await writeFile(join(dir, 'latest.json'), JSON.stringify({ version: '1.0.43', build: 44, files: { 'arm64-v8a': 'arm64.apk' } }))

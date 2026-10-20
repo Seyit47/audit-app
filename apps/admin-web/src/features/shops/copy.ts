@@ -10,12 +10,17 @@ export const shopsCopy = defineCopy({
     search: 'Search shops...', status: 'Status', allStatus: 'All status',
     statuses: { ACTIVE: 'Active', INACTIVE: 'Inactive', PENDING_REVIEW: 'Pending Review' },
     columns: { shop: 'Shop', code: 'Code', owner: 'Owner', phone: 'Phone', lastVisit: 'Last visit', agent: 'Salesmen', district: 'District', status: 'Status' },
-    selectAll: 'Select all', selectRow: 'Select shop', by: 'by', today: 'Today', never: '—', unassigned: 'Unassigned',
+    selectAll: 'Select all', selectRow: 'Select shop', by: 'by', today: 'Today', never: '—', unassigned: 'Unassigned', agentsCount: '{n} salesmen', remove: 'Remove',
     actions: 'Actions', changeStatus: 'Change status', saveStatus: 'Save', viewDetails: 'View Details', editShop: 'Edit Shop', empty: 'No shops match these filters',
     exportFailed: 'The export failed. Try again.',
     pagination: { showing: 'Showing', of: 'of', show: 'Rows per page:', perPage: '', previous: 'Previous page', next: 'Next page', noun: 'clients' },
     moveToDistrict: 'Move to district', moveDialog: { title: 'Move to district', subtitle: 'Selected shops: {n}', label: 'District', none: 'No district', cancel: 'Cancel', save: 'Move' },
-    assignDialog: { title: 'Assign salesman', subtitle: 'Selected shops: {n}', label: 'Salesman', none: 'Unassigned', cancel: 'Cancel', save: 'Assign' },
+    assignDialog: {
+      title: 'Assign salesmen', subtitle: 'Selected shops: {n}', label: 'Salesmen', placeholder: 'Choose salesmen', cancel: 'Cancel', save: 'Apply',
+      modes: { add: 'Add', replace: 'Replace', remove: 'Remove' },
+      modeHints: { add: 'The chosen salesmen join the shops\' current ones.', replace: 'The chosen salesmen become the shops\' only ones; none chosen leaves the shops unassigned.', remove: 'The chosen salesmen are taken off these shops.' },
+      current: 'Current salesmen'
+    },
     deleteDialog: { title: 'Delete shops?', body: '{n} shop(s) will be removed from lists, the map and future routes. Their audit history and photos are kept.', cancel: 'Cancel', confirm: 'Delete' },
     errors: { generic: 'Something went wrong. Try again.' },
     details: {
@@ -37,12 +42,17 @@ export const shopsCopy = defineCopy({
     search: 'Поиск клиентов...', status: 'Статус', allStatus: 'Все статусы',
     statuses: { ACTIVE: 'Активен', INACTIVE: 'Неактивен', PENDING_REVIEW: 'На проверке' },
     columns: { shop: 'Магазин', code: 'Код', owner: 'Владелец', phone: 'Телефон', lastVisit: 'Последний визит', agent: 'Агенты', district: 'Район', status: 'Статус' },
-    selectAll: 'Выбрать все', selectRow: 'Выбрать магазин', by: '', today: 'Сегодня', never: '—', unassigned: 'Не назначен',
+    selectAll: 'Выбрать все', selectRow: 'Выбрать магазин', by: '', today: 'Сегодня', never: '—', unassigned: 'Не назначен', agentsCount: 'Агентов: {n}', remove: 'Убрать',
     actions: 'Действия', changeStatus: 'Изменить статус', saveStatus: 'Сохранить', viewDetails: 'Подробнее', editShop: 'Редактировать', empty: 'Нет клиентов по этим фильтрам',
     exportFailed: 'Не удалось выгрузить файл. Попробуйте ещё раз.',
     pagination: { showing: 'Показано', of: 'из', show: 'Строк на странице:', perPage: '', previous: 'Предыдущая страница', next: 'Следующая страница', noun: 'клиентов' },
     moveToDistrict: 'Перенести в район', moveDialog: { title: 'Перенести в район', subtitle: 'Выбрано магазинов: {n}', label: 'Район', none: 'Без района', cancel: 'Отменить', save: 'Перенести' },
-    assignDialog: { title: 'Назначить агента', subtitle: 'Выбрано магазинов: {n}', label: 'Агент', none: 'Не назначен', cancel: 'Отменить', save: 'Назначить' },
+    assignDialog: {
+      title: 'Назначить агентов', subtitle: 'Выбрано магазинов: {n}', label: 'Агенты', placeholder: 'Выберите агентов', cancel: 'Отменить', save: 'Применить',
+      modes: { add: 'Добавить', replace: 'Заменить', remove: 'Убрать' },
+      modeHints: { add: 'Выбранные агенты добавятся к текущим агентам магазинов.', replace: 'Выбранные агенты станут единственными агентами магазинов; без выбора магазины останутся без агента.', remove: 'Выбранные агенты будут сняты с этих магазинов.' },
+      current: 'Текущие агенты'
+    },
     deleteDialog: { title: 'Удалить магазины?', body: 'Магазины ({n}) исчезнут из списков, карты и будущих маршрутов. История аудитов и фото сохранятся.', cancel: 'Отменить', confirm: 'Удалить' },
     errors: { generic: 'Что-то пошло не так. Попробуйте ещё раз.' },
     details: {
@@ -64,12 +74,17 @@ export const shopsCopy = defineCopy({
     search: 'Müşderi gözle...', status: 'Ýagdaý', allStatus: 'Ähli ýagdaýlar',
     statuses: { ACTIVE: 'Işjeň', INACTIVE: 'Işjeň däl', PENDING_REVIEW: 'Barlagda' },
     columns: { shop: 'Dükan', code: 'Kod', owner: 'Eýesi', phone: 'Telefon', lastVisit: 'Soňky sapar', agent: 'Agentler', district: 'Etrap', status: 'Ýagdaý' },
-    selectAll: 'Ählisini saýla', selectRow: 'Dükany saýla', by: '', today: 'Şu gün', never: '—', unassigned: 'Bellenmedik',
+    selectAll: 'Ählisini saýla', selectRow: 'Dükany saýla', by: '', today: 'Şu gün', never: '—', unassigned: 'Bellenmedik', agentsCount: 'Agentler: {n}', remove: 'Aýyr',
     actions: 'Hereketler', changeStatus: 'Ýagdaýy üýtget', saveStatus: 'Ýatda sakla', viewDetails: 'Jikme-jik', editShop: 'Üýtget', empty: 'Bu süzgüçler boýunça müşderi ýok',
     exportFailed: 'Faýly düşürip bolmady. Gaýtadan synanyşyň.',
     pagination: { showing: 'Görkezilýär', of: '/', show: 'Sahypada setir:', perPage: '', previous: 'Öňki sahypa', next: 'Indiki sahypa', noun: 'müşderi' },
     moveToDistrict: 'Etraba geçir', moveDialog: { title: 'Etraba geçir', subtitle: 'Saýlanan dükanlar: {n}', label: 'Etrap', none: 'Etrapsyz', cancel: 'Ýatyr', save: 'Geçir' },
-    assignDialog: { title: 'Agent bellemek', subtitle: 'Saýlanan dükanlar: {n}', label: 'Agent', none: 'Bellenmedik', cancel: 'Ýatyr', save: 'Belle' },
+    assignDialog: {
+      title: 'Agentleri bellemek', subtitle: 'Saýlanan dükanlar: {n}', label: 'Agentler', placeholder: 'Agentleri saýlaň', cancel: 'Ýatyr', save: 'Ulan',
+      modes: { add: 'Goş', replace: 'Çalyş', remove: 'Aýyr' },
+      modeHints: { add: 'Saýlanan agentler dükanlaryň häzirki agentlerine goşular.', replace: 'Saýlanan agentler dükanlaryň ýeke-täk agentleri bolar; saýlanmasa dükanlar agentsiz galar.', remove: 'Saýlanan agentler bu dükanlardan aýrylar.' },
+      current: 'Häzirki agentler'
+    },
     deleteDialog: { title: 'Dükanlary pozmalymy?', body: 'Dükanlar ({n}) sanawlardan, kartadan we geljekki ugurlardan aýrylar. Auditleriň taryhy we suratlar saklanar.', cancel: 'Ýatyr', confirm: 'Poz' },
     errors: { generic: 'Bir zat nädogry boldy. Gaýtadan synanyşyň.' },
     details: {

@@ -50,9 +50,10 @@ export async function setShopStatus (id: string, version: number, status: 'ACTIV
   })
 }
 
-export async function assignShops (shopIds: string[], agentId: string | null) {
+/** Bulk "Назначить": the agents join the shops' agents, replace them, or leave them. */
+export async function assignShops (shopIds: string[], agentIds: string[], mode: 'add' | 'replace' | 'remove') {
   return run(async () => {
-    await api('/v1/shops/bulk/assign', { method: 'POST', body: { shopIds, agentId } })
+    await api('/v1/shops/bulk/assign', { method: 'POST', body: { shopIds, agentIds, mode } })
     revalidate()
   })
 }
