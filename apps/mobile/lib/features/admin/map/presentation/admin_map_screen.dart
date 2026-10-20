@@ -315,7 +315,11 @@ class _AdminMapScreenState extends ConsumerState<AdminMapScreen> {
       facadeUrl: ((d['facade'] as Map?)?['previewUrl400'] ?? (d['facade'] as Map?)?['url']) as String?,
       lastVisitAt: lastVisit == null ? null : DateTime.parse(lastVisit),
     );
-    final agent = (d['agent'] as Map?)?['fullName'] as String?;
+    // A shop can have several agents (`agent` alone from older servers).
+    final names = [
+      for (final a in ((d['agents'] as List?) ?? [?d['agent']]).cast<Map>()) a['fullName'] as String,
+    ];
+    final agent = names.isEmpty ? null : names.join(', ');
     final audits = ((d['kpis'] as Map?)?['totalAudits'] as int?) ?? 0;
     return ShopSheet(
       item: ShopItem(shop: shop, contacts: const [], visit: const VisitInfo(VisitState.notVisited)),
