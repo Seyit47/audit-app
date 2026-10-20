@@ -43,8 +43,9 @@ android {
     packaging {
         jniLibs {
             useLegacyPackaging = true
-            // Emulator CPUs: plugins (MapLibre) ship x86 / x86_64 libraries no phone uses (11 MB).
-            excludes += listOf("lib/x86/**", "lib/x86_64/**")
+            // Emulator CPUs: plugins (MapLibre) ship x86 / x86_64 libraries no phone uses (11 MB). Kept for a
+            // build that runs on the emulator (AUDIT_KEEP_X86=1 flutter build apk --target-platform android-x64).
+            if (System.getenv("AUDIT_KEEP_X86") != "1") excludes += listOf("lib/x86/**", "lib/x86_64/**")
         }
     }
 
