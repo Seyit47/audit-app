@@ -17,6 +17,8 @@ import '../../../core/widgets/search_field.dart';
 import '../../shops/data/shops_local_repository.dart';
 import '../../shops/domain/visit_state.dart';
 import 'navigation_controller.dart';
+import '../../audit/domain/geofence.dart';
+import '../../audit/presentation/audit_gate.dart';
 import '../../../core/widgets/tap.dart';
 
 bool _due(ShopItem s) => s.visit.state == VisitState.overdue || s.visit.state == VisitState.scheduled;
@@ -364,7 +366,7 @@ const mapControlShadow = [
 ];
 
 /// The shop sheet of `83:17775` (83:17917).
-class ShopSheet extends StatelessWidget {
+class ShopSheet extends ConsumerWidget {
   const ShopSheet({super.key, required this.item, required this.meters, this.action, this.extra});
 
   final ShopItem item;
@@ -377,14 +379,15 @@ class ShopSheet extends StatelessWidget {
   final Widget? extra;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final c = context.colors;
     final s = item.shop;
-    final inside = meters != null && meters! <= s.auditRadiusM;
-    // Only active shops are audited (one the agent added waits for an admin's approval).
-    final active = s.status == 'ACTIVE';
-    final canAudit = inside && active;
+    // The audit screen's own check: an active shop, inside its radius, on a precise enough position (the
+    // admin map, with its own [action], has none).
+    final gate = action == null ? auditGate(ref, item) : GeoStatus.inside;
+    final active = gate != GeoStatus.notActive;
+    final canAudit = gate == GeoStatus.inside;
     final text = TextStyle(fontFamily: AppTextStyles.family, fontSize: 14, height: 1.5, color: c.textPrimary);
     final small = TextStyle(fontFamily: AppTextStyles.family, fontSize: 11, height: 16 / 11, fontWeight: FontWeight.w500, color: c.accent);
     return BottomSheetCard(
@@ -464,29 +467,7 @@ class ShopSheet extends StatelessWidget {
           if (action != null)
             action!
           else ...[
-            if (!inside) ...[
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: c.alertBg,
-                  border: Border.all(color: c.alertBorder),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Row(
-                  children: [
-                    AppIcon('alert-triangle', width: 12.75, height: 11.98, color: c.error),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        meters == null ? l10n.locating : l10n.auditOnlyOnSite,
-                        style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 11, height: 1.5, fontWeight: FontWeight.w500, color: c.error),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10),
-            ],
+            if (active && !canAudit) ...[AuditGateNotice(status: gate, radiusM: s.auditRadiusM), const SizedBox(height: 10)],
             Opacity(
               opacity: canAudit ? 1 : 0.5,
               child: Material(

@@ -1265,4 +1265,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String routeMinutes(int minutes) {
     return '$minutes мин';
   }
+
+  @override
+  String get geoLocatingLong => 'Ищем спутники GPS. На улице это занимает до минуты, в помещении может не получиться.';
 }

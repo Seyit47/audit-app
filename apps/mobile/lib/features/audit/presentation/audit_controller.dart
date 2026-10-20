@@ -25,8 +25,12 @@ const instantMaxAge = Duration(seconds: 15);
 /// Precise enough to stop refining: GPS outdoors reaches 3–10 m within seconds.
 const goodAccuracyM = 15.0;
 
-/// How long a check keeps refining before it settles on the best reading it got.
+/// How long a check keeps refining, from its first reading, before it settles on the best one it got.
 const refineFor = Duration(seconds: 12);
+
+/// How long a check waits for a first reading. A cold GPS (first use of the day, a phone that lay idle)
+/// needs 20–60 s to see the satellites, longer indoors; network location barely helps in Turkmenistan.
+const firstFixWait = Duration(seconds: 75);
 
 bool freshEnough(DateTime at, DateTime now, {Duration maxAge = lastKnownMaxAge}) => now.difference(at) <= maxAge;
 
@@ -36,13 +40,15 @@ bool usableAtOnce({required DateTime at, required double accuracyM, required Dat
 
 /// Location for the audit and new-shop checks, from the app's shared stream ([LocationHub]): the best
 /// position so far at once, then each more precise reading as GPS sharpens, until one is within
-/// [goodAccuracyM] or [refineFor] has passed. A reading counts once it is within the company limit (the
-/// screens check that); a position older than [instantMaxAge] is shown as provisional only.
+/// [goodAccuracyM] or [refine] has passed since the first reading (waiting up to [firstFix] for that one).
+/// A reading counts once it is within the company limit (the screens check that); a position older than
+/// [instantMaxAge] is shown as provisional only.
 class GeolocatorLocator extends Locator {
-  GeolocatorLocator(this._hub, {this.refine = refineFor});
+  GeolocatorLocator(this._hub, {this.refine = refineFor, this.firstFix = firstFixWait});
 
   final LocationHub _hub;
   final Duration refine;
+  final Duration firstFix;
 
   @override
   Future<Fix?> current() => watch().last;
@@ -69,7 +75,8 @@ class GeolocatorLocator extends Locator {
       }
       // Each sharper reading as it arrives: from the shared stream, and from a one-off request to Android
       // alongside it, so a stream that is slow to start (or stuck on a device) doesn't leave the check empty.
-      final end = DateTime.now().add(refine);
+      // Until a first real reading: up to [firstFix]; from it on, [refine] more to sharpen it.
+      var end = DateTime.now().add(best == null || best.provisional ? firstFix : refine);
       final merged = StreamController<Position>();
       final shared = _hub.positions.listen(merged.add);
       unawaited(
@@ -83,6 +90,10 @@ class GeolocatorLocator extends Locator {
           final left = end.difference(DateTime.now());
           if (left <= Duration.zero || !await readings.moveNext().timeout(left, onTimeout: () => false)) break;
           final p = readings.current;
+          if (best == null || best.provisional) {
+            final refined = DateTime.now().add(refine);
+            if (refined.isBefore(end)) end = refined;
+          }
           if (best == null || best.provisional || p.accuracy < best.accuracyM) yield best = _fix(p);
           if (p.accuracy <= goodAccuracyM) return;
         }
@@ -108,7 +119,7 @@ class GeolocatorLocator extends Locator {
   Future<Position?> oneShot() async {
     try {
       return await Geolocator.getCurrentPosition(
-        locationSettings: LocationSettings(accuracy: LocationAccuracy.best, timeLimit: refine),
+        locationSettings: LocationSettings(accuracy: LocationAccuracy.best, timeLimit: firstFix),
       );
     } catch (_) {
       return null;

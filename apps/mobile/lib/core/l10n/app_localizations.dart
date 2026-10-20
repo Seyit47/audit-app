@@ -2342,6 +2342,12 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'{minutes} мин'**
   String routeMinutes(int minutes);
+
+  /// No description provided for @geoLocatingLong.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ищем спутники GPS. На улице это занимает до минуты, в помещении может не получиться.'**
+  String get geoLocatingLong;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

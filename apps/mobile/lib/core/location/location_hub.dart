@@ -20,6 +20,10 @@ class LocationHub {
   int _background = 0;
   bool _runningBackground = false;
 
+  /// Android refused the stream with the foreground service (tracking mode): the screens still get positions
+  /// from a plain stream until tracking stops and starts again.
+  bool _backgroundFailed = false;
+
   /// The newest reading, if the stream has delivered one.
   Position? latest;
 
@@ -37,8 +41,19 @@ class LocationHub {
   void release({bool background = false}) {
     if (_users > 0) _users--;
     if (background && _background > 0) _background--;
+    if (_background == 0) _backgroundFailed = false;
     _sync();
   }
+
+  /// Starts the stream again ("Проверить заново"): after location was switched on, or a stream that stopped
+  /// delivering.
+  void restart() {
+    if (_users == 0) return;
+    _stop();
+    _start();
+  }
+
+  bool get _wantBackground => _background > 0 && !_backgroundFailed;
 
   void _sync() {
     if (_users == 0) {
@@ -46,21 +61,28 @@ class LocationHub {
       return;
     }
     // Settings change (foreground service on / off): geolocator only applies them to a new stream.
-    if (_sub != null && _runningBackground == _background > 0) return;
+    if (_sub != null && _runningBackground == _wantBackground) return;
     _stop();
     _start();
   }
 
   void _start() {
-    _runningBackground = _background > 0;
+    _runningBackground = _wantBackground;
     _sub = Geolocator.getPositionStream(locationSettings: _settings(_runningBackground)).listen(
       (p) {
         latest = p;
         _out.add(p);
       },
       onError: (Object _) {
-        // Location switched off or permission withdrawn: try again shortly while someone needs it.
         _stop();
+        if (_runningBackground) {
+          // The foreground service could not start: carry on without it at once, so no screen is left
+          // without a position.
+          _backgroundFailed = true;
+          _start();
+          return;
+        }
+        // Location switched off or permission withdrawn: try again shortly while someone needs it.
         _retry = Timer(const Duration(seconds: 10), _sync);
       },
     );

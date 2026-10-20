@@ -11,7 +11,8 @@ import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/app_image.dart';
 import '../../../core/widgets/app_top_bar.dart';
-import '../../../core/settings/remote_config.dart';
+import '../../audit/domain/geofence.dart';
+import '../../audit/presentation/audit_gate.dart';
 import '../../../core/widgets/audit_history_item.dart';
 import '../../shops/data/shops_local_repository.dart';
 import '../../shops/domain/visit_state.dart';
@@ -66,18 +67,10 @@ class _ShopDetailsScreenState extends ConsumerState<ShopDetailsScreen> {
     final info = item.value!.visit;
     final contact = item.value!.contacts.firstOrNull;
     final meters = distanceTo(position, shop.lat, shop.lng);
-    // The audit opens only inside the shop's radius, on a precise enough position (as the audit screen
-    // checks again before finishing).
-    final minAccuracyM = (ref.watch(remoteConfigProvider).value ?? const RemoteConfig()).minGpsAccuracyM;
-    final active = shop.status == 'ACTIVE';
-    final inside = position != null && position.accuracy <= minAccuracyM && meters! <= shop.auditRadiusM;
-    final auditHint = !active || inside
-        ? null
-        : position == null
-        ? l10n.geoLocating
-        : position.accuracy > minAccuracyM
-        ? l10n.geoInaccurate(position.accuracy.round())
-        : l10n.auditOnlyInRadius(shop.auditRadiusM);
+    // Audit opens only inside the shop's radius, on a precise enough position (the audit screen checks again
+    // before finishing); otherwise a notice says why.
+    final gate = auditGate(ref, item.value!);
+    final active = gate != GeoStatus.notActive;
     final ordered = _oldestFirst ? visits.reversed.toList() : visits;
     final small = TextStyle(fontFamily: AppTextStyles.family, fontSize: 12, height: 16 / 12, color: c.textSecondary, fontWeight: FontWeight.w500);
 
@@ -286,20 +279,13 @@ class _ShopDetailsScreenState extends ConsumerState<ShopDetailsScreen> {
                                 icon: const AppIcon('play', width: 9.17, height: 11.67),
                                 filled: true,
                                 // Only active shops are audited (one the agent added waits for an admin's approval),
-                                // and only from inside the shop's radius.
-                                onTap: active && inside ? () => context.push('/agent/audit/${shop.id}') : null,
+                                // and only from inside the shop's radius; dimmed otherwise.
+                                onTap: gate == GeoStatus.inside ? () => context.push('/agent/audit/${shop.id}') : null,
                               ),
                             ),
                           ],
                         ),
-                        if (auditHint != null) ...[
-                          const SizedBox(height: 8),
-                          Text(
-                            auditHint,
-                            textAlign: TextAlign.center,
-                            style: small.copyWith(color: c.error),
-                          ),
-                        ],
+                        if (active && gate != GeoStatus.inside) ...[const SizedBox(height: 10), AuditGateNotice(status: gate, radiusM: shop.auditRadiusM)],
                       ],
                     ),
                   ),

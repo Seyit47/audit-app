@@ -374,5 +374,6 @@
   "routeBuilding": "Ugur gurulýar…",
   "routeStraight": "Ýol boýunça ugur ýok — ugry görkezilýär",
   "routeArrived": "Siz geldiňiz",
-  "routeMinutes": "{minutes} min"
+  "routeMinutes": "{minutes} min",
+  "geoLocatingLong": "GPS hemralary gözlenýär. Daşarda bir minuda çenli wagt alýar, jaýyň içinde başartmazlygy mümkin."
 }

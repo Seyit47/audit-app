@@ -1263,4 +1263,7 @@ class AppLocalizationsTk extends AppLocalizations {
   String routeMinutes(int minutes) {
     return '$minutes min';
   }
+
+  @override
+  String get geoLocatingLong => 'GPS hemralary gözlenýär. Daşarda bir minuda çenli wagt alýar, jaýyň içinde başartmazlygy mümkin.';
 }

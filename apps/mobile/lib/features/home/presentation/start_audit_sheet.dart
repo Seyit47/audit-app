@@ -15,6 +15,7 @@ import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/adaptive.dart';
 import '../../../core/widgets/bottom_sheet_card.dart';
 import '../../../core/widgets/buttons.dart';
+import '../../../core/location/location_hub.dart';
 import '../../audit/domain/geofence.dart';
 import '../../audit/presentation/audit_controller.dart';
 
@@ -55,14 +56,23 @@ class _StartAuditSheetState extends ConsumerState<_StartAuditSheet> with TickerP
   /// Every shop whose radius the agent is in, nearest first; two or more let the agent pick.
   List<NearestShop<Shop>> _inRange = const [];
 
+  /// Keeps GPS on while the sheet is open, so "Проверить заново" continues from a warm GPS instead of a cold
+  /// start.
+  late final LocationHub _hub = ref.read(locationHubProvider);
+  Timer? _slow;
+  bool _searchingLong = false;
+
   @override
   void initState() {
     super.initState();
+    _hub.acquire();
     _locate();
   }
 
   @override
   void dispose() {
+    _hub.release();
+    _slow?.cancel();
     _fixes?.cancel();
     _pulse.dispose();
     _reveal.dispose();
@@ -73,7 +83,15 @@ class _StartAuditSheetState extends ConsumerState<_StartAuditSheet> with TickerP
 
   Future<void> _locate() async {
     await _fixes?.cancel();
-    setState(() => _phase = _Phase.locating);
+    _slow?.cancel();
+    setState(() {
+      _phase = _Phase.locating;
+      _searchingLong = false;
+    });
+    // A cold GPS takes a while: after 10 s, say so instead of only spinning.
+    _slow = Timer(const Duration(seconds: 10), () {
+      if (mounted && _phase == _Phase.locating) setState(() => _searchingLong = true);
+    });
     _reveal.reset();
     final db = ref.read(databaseProvider);
     final config = ref.read(remoteConfigProvider).value ?? const RemoteConfig();
@@ -115,7 +133,7 @@ class _StartAuditSheetState extends ConsumerState<_StartAuditSheet> with TickerP
     final c = context.colors;
     final hit = _hit;
     final (message, tone) = switch (_phase) {
-      _Phase.locating => (l10n.geoLocating, c.textSecondary),
+      _Phase.locating => (_searchingLong ? l10n.geoLocatingLong : l10n.geoLocating, c.textSecondary),
       _Phase.inside when _inRange.length > 1 => (l10n.chooseShop, c.textPrimary),
       _Phase.inside => (l10n.insideShopRadius(hit!.shop.name), c.success),
       _Phase.outside => (l10n.notInShopRadius(hit!.shop.name, distance(context, hit.meters)), c.error),

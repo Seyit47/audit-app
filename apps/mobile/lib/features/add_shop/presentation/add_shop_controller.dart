@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../core/db/app_database.dart';
 import '../../../core/db/database_provider.dart';
+import '../../../core/location/location_hub.dart';
 import '../../../core/settings/remote_config.dart';
 import '../../../core/sync/sync_providers.dart';
 import '../../../core/widgets/photo_capture.dart';
@@ -82,6 +83,9 @@ class AddShopState {
 class AddShopController extends Notifier<AddShopState> {
   @override
   AddShopState build() {
+    // GPS stays on while the form is open: "Проверить заново" continues from a warm GPS.
+    final hub = ref.read(locationHubProvider)..acquire();
+    ref.onDispose(hub.release);
     Future.microtask(locate);
     return const AddShopState();
   }

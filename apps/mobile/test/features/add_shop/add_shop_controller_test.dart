@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:audit_mobile/core/db/app_database.dart';
 import 'package:audit_mobile/core/db/database_provider.dart';
+import 'package:audit_mobile/core/location/location_hub.dart';
 import 'package:audit_mobile/core/widgets/photo_capture.dart';
 import 'package:audit_mobile/features/add_shop/presentation/add_shop_controller.dart';
 import 'package:audit_mobile/features/audit/domain/geofence.dart';
@@ -10,6 +11,8 @@ import 'package:audit_mobile/features/shops/data/shops_local_repository.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../helpers/fake_location_hub.dart';
 
 class _Locator extends Locator {
   _Locator([this.accuracyM = 7]);
@@ -33,6 +36,7 @@ void main() {
     final c = ProviderContainer(
       overrides: [
         databaseProvider.overrideWithValue(db),
+        locationHubProvider.overrideWithValue(FakeLocationHub()),
         locatorProvider.overrideWithValue(_Locator()),
         photoCaptureProvider.overrideWithValue(_Capture()),
         syncTriggerProvider.overrideWithValue(() => syncs++),
@@ -81,6 +85,7 @@ void main() {
     final c = ProviderContainer(
       overrides: [
         databaseProvider.overrideWithValue(db),
+        locationHubProvider.overrideWithValue(FakeLocationHub()),
         locatorProvider.overrideWithValue(_Locator(80)),
         photoCaptureProvider.overrideWithValue(_Capture()),
         syncTriggerProvider.overrideWithValue(() {}),
@@ -108,6 +113,7 @@ void main() {
     final c = ProviderContainer(
       overrides: [
         databaseProvider.overrideWithValue(db),
+        locationHubProvider.overrideWithValue(FakeLocationHub()),
         locatorProvider.overrideWithValue(_Locator()),
         photoCaptureProvider.overrideWithValue(_Capture()),
         syncTriggerProvider.overrideWithValue(() {}),

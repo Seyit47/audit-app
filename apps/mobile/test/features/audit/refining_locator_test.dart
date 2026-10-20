@@ -77,4 +77,17 @@ void main() {
     await done;
     expect(fixes.single!.accuracyM, 35);
   });
+
+  test('a cold GPS: waits past the refine time for the first reading, then refines from it', () async {
+    final hub = _Hub();
+    final fixes = <Fix?>[];
+    final locator = GeolocatorLocator(hub, refine: const Duration(milliseconds: 100), firstFix: const Duration(seconds: 2));
+    final done = locator.watch().forEach(fixes.add);
+    await Future<void>.delayed(const Duration(milliseconds: 400)); // well past [refine], no reading yet
+    expect(fixes, isEmpty);
+    hub.readings.add(_at(30));
+    await done;
+    expect(fixes.map((f) => f!.accuracyM), [30]);
+    expect(hub.users, 0);
+  });
 }

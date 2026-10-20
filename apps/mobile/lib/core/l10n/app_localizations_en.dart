@@ -1263,4 +1263,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String routeMinutes(int minutes) {
     return '$minutes min';
   }
+
+  @override
+  String get geoLocatingLong => 'Looking for GPS satellites. Outdoors this takes up to a minute; indoors it may not work.';
 }

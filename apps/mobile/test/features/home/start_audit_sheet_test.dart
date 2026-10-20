@@ -1,5 +1,6 @@
 import 'package:audit_mobile/core/db/app_database.dart';
 import 'package:audit_mobile/core/db/database_provider.dart';
+import 'package:audit_mobile/core/location/location_hub.dart';
 import 'package:audit_mobile/core/l10n/app_localizations.dart';
 import 'package:audit_mobile/core/settings/remote_config.dart';
 import 'package:audit_mobile/core/theme/app_theme.dart';
@@ -13,6 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../helpers/fake_location_hub.dart';
 
 class _Locator extends Locator {
   _Locator(this.fix);
@@ -61,6 +64,7 @@ void main() {
       ProviderScope(
         overrides: [
           databaseProvider.overrideWithValue(db),
+          locationHubProvider.overrideWithValue(FakeLocationHub()),
           locatorProvider.overrideWithValue(_Locator(fix)),
           remoteConfigProvider.overrideWith((ref) => Stream.value(const RemoteConfig())),
         ],

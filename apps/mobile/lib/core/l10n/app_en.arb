@@ -374,5 +374,6 @@
   "routeBuilding": "Finding a route…",
   "routeStraight": "No road route — showing the direction",
   "routeArrived": "You have arrived",
-  "routeMinutes": "{minutes} min"
+  "routeMinutes": "{minutes} min",
+  "geoLocatingLong": "Looking for GPS satellites. Outdoors this takes up to a minute; indoors it may not work."
 }
