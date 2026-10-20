@@ -1,0 +1,38 @@
+# GraphHopper for directions to shops (GET /v1/directions in the API): car routes on Turkmenistan's roads.
+#
+#   java -Xmx1g -jar graphhopper-web.jar server config.yml
+#
+# The first start imports turkmenistan.osm.pbf into graph-cache/ (about a minute); later starts load the cache.
+# To refresh the roads, replace the .pbf, delete graph-cache/ and restart. See README.md.
+graphhopper:
+  datareader.file: turkmenistan.osm.pbf
+  graph.location: graph-cache
+  profiles:
+    - name: car
+      custom_model_files: [car.json]
+  # Contraction hierarchies: fast queries for the fixed car profile.
+  profiles_ch:
+    - profile: car
+  graph.encoded_values: car_access, car_average_speed, road_access
+  # Small road islands (a parking lot cut off by a missing gate) would trap a shop's nearest point.
+  prepare.min_network_size: 200
+  import.osm.ignored_highways: footway,cycleway,path,pedestrian,steps,bridleway
+  graph.dataaccess.default_type: RAM_STORE
+
+server:
+  application_connectors:
+    - type: http
+      port: 8989
+      # Only the API on the same machine asks for routes.
+      bind_host: 127.0.0.1
+  admin_connectors:
+    - type: http
+      port: 8990
+      bind_host: 127.0.0.1
+  request_log:
+    appenders: []
+
+logging:
+  level: WARN
+  loggers:
+    com.graphhopper: INFO
