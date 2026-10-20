@@ -1268,4 +1268,17 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get geoLocatingLong => 'Ищем спутники GPS. На улице это занимает до минуты, в помещении может не получиться.';
+
+  @override
+  String districtVisitedToday(int visited, int total) {
+    return 'Сегодня $visited из $total';
+  }
+
+  @override
+  String districtOverdue(int count) {
+    return 'просрочено $count';
+  }
+
+  @override
+  String get districtActions => 'Действия с районом';
 }

@@ -50,6 +50,7 @@ export const ContactsBody = Type.Object({ contacts: Type.Array(Contact, { maxIte
 export type ContactsBody = Static<typeof ContactsBody>
 
 export const BulkAssignBody = Type.Object({ shopIds: Type.Array(Uuid, { minItems: 1, maxItems: 500 }), agentId: Nullable(Uuid) }, { additionalProperties: false })
+export const BulkDistrictBody = Type.Object({ shopIds: Type.Array(Uuid, { minItems: 1, maxItems: 500 }), districtId: Nullable(Uuid) }, { additionalProperties: false })
 export const BulkDeleteBody = Type.Object({ shopIds: Type.Array(Uuid, { minItems: 1, maxItems: 500 }) }, { additionalProperties: false })
 
 export const ListShopsQuery = Type.Object({

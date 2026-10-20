@@ -57,6 +57,15 @@ export async function assignShops (shopIds: string[], agentId: string | null) {
   })
 }
 
+/** "Перенести в район" (null: no district). */
+export async function moveShops (shopIds: string[], districtId: string | null) {
+  return run(async () => {
+    await api('/v1/shops/bulk/district', { method: 'POST', body: { shopIds, districtId } })
+    revalidate()
+    revalidatePath('/districts')
+  })
+}
+
 export async function deleteShops (shopIds: string[]) {
   return run(async () => {
     await api('/v1/shops/bulk/delete', { method: 'POST', body: { shopIds } })

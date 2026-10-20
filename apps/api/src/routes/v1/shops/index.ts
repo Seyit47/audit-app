@@ -1,6 +1,6 @@
 import type { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox'
 import { ShopProductsBody } from '../../../modules/products/products.schema.js'
-import { BulkAssignBody, BulkDeleteBody, ContactsBody, CreateShopBody, IdParams, ListShopsQuery, MapQuery, PatchShopBody, VisitsQuery } from '../../../modules/shops/shops.schema.js'
+import { BulkAssignBody, BulkDeleteBody, BulkDistrictBody, ContactsBody, CreateShopBody, IdParams, ListShopsQuery, MapQuery, PatchShopBody, VisitsQuery } from '../../../modules/shops/shops.schema.js'
 
 const shops: FastifyPluginAsyncTypebox = async (fastify) => {
   const service = fastify.services.shops
@@ -20,6 +20,9 @@ const shops: FastifyPluginAsyncTypebox = async (fastify) => {
 
   fastify.post('/bulk/assign', { schema: { body: BulkAssignBody, tags }, config: { auth: 'ADMIN' } },
     async (req) => service.bulkAssign(req.body.shopIds, req.body.agentId))
+
+  fastify.post('/bulk/district', { schema: { body: BulkDistrictBody, tags }, config: { auth: 'ADMIN' } },
+    async (req) => service.bulkDistrict(req.body.shopIds, req.body.districtId))
 
   fastify.post('/bulk/delete', { schema: { body: BulkDeleteBody, tags }, config: { auth: 'ADMIN' } },
     async (req) => service.bulkDelete(req.body.shopIds))

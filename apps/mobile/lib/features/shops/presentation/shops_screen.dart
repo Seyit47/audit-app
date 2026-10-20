@@ -51,10 +51,16 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
         .toList();
     int count(VisitState s) => base.where((i) => i.visit.state == s).length;
     final shown = _state == null ? base : base.where((i) => i.visit.state == _state).toList();
-    final districts = <String?, ({String name, int shops})>{};
+    // Each district's shops, and today's visited and overdue ones (as the status chips count them).
+    final districts = <String?, ({String name, int shops, int visited, int overdue})>{};
     for (final s in all) {
       final d = districts[s.shop.districtId];
-      districts[s.shop.districtId] = (name: s.shop.districtName ?? l10n.noDistrict, shops: (d?.shops ?? 0) + 1);
+      districts[s.shop.districtId] = (
+        name: s.shop.districtName ?? l10n.noDistrict,
+        shops: (d?.shops ?? 0) + 1,
+        visited: (d?.visited ?? 0) + (s.visit.state == VisitState.visited ? 1 : 0),
+        overdue: (d?.overdue ?? 0) + (s.visit.state == VisitState.overdue ? 1 : 0),
+      );
     }
     // Named districts by name, then the shops without one.
     final districtList = districts.entries.toList()
@@ -111,12 +117,14 @@ class _ShopsScreenState extends ConsumerState<ShopsScreen> {
                       ? ListView.separated(
                           padding: const EdgeInsets.fromLTRB(16, 0, 16, 48),
                           itemCount: districtList.length,
-                          separatorBuilder: (_, _) => const SizedBox(height: 8),
+                          separatorBuilder: (_, _) => const SizedBox(height: 10),
                           itemBuilder: (context, i) {
                             final d = districtList[i];
                             return DistrictTile(
                               name: d.value.name,
                               shops: d.value.shops,
+                              visitedToday: d.value.visited,
+                              overdue: d.value.overdue,
                               muted: d.key == null,
                               onTap: () => setState(() {
                                 _district = (id: d.key, name: d.value.name);

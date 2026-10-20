@@ -20,11 +20,12 @@ import type { Page } from '@/lib/api'
 import { formatPhone } from '@/lib/format'
 import type { Locale } from '@/lib/i18n'
 import { StatusDialog } from '@/components/ui/StatusDialog'
-import { assignShops, deleteShops, setShopStatus } from '../actions'
+import { assignShops, deleteShops, moveShops, setShopStatus } from '../actions'
 import type { ShopRow } from '../api'
 import type { ShopsCopy } from '../copy'
 
 type AgentOption = { id: string, fullName: string, code: string }
+type DistrictOption = { id: string, name: string }
 
 
 function visitTime (iso: string, l: Locale, today: string) {
@@ -34,12 +35,13 @@ function visitTime (iso: string, l: Locale, today: string) {
   return `${formatDate(l, { month: 'short', day: 'numeric' }, d)}, ${time}`
 }
 
-/** Shops list of 3:407 (row menu) and 53:151 (selection with bulk header actions). */
-export function ShopsView ({ page, copy, locale, agents, exportHref, children }: {
+/** Shops list of 3:407 (row menu) and 53:151 (selection with bulk header actions), with each shop's district. */
+export function ShopsView ({ page, copy, locale, agents, districts, exportHref, children }: {
   page: Page<ShopRow>
   copy: ShopsCopy
   locale: Locale
   agents: AgentOption[]
+  districts: DistrictOption[]
   exportHref: string
   children?: React.ReactNode
 }) {
@@ -53,6 +55,7 @@ export function ShopsView ({ page, copy, locale, agents, exportHref, children }:
   }
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [assigning, setAssigning] = useState<string[] | null>(null)
+  const [moving, setMoving] = useState<string[] | null>(null)
   const [deleting, setDeleting] = useState<string[] | null>(null)
   const [statusFor, setStatusFor] = useState<ShopRow | null>(null)
   const [pending, startTransition] = useTransition()
@@ -69,7 +72,7 @@ export function ShopsView ({ page, copy, locale, agents, exportHref, children }:
       render: (s) => <Checkbox aria-label={copy.selectRow} checked={selected.has(s.id)} onChange={() => toggle(s.id)} />
     },
     {
-      key: 'shop', header: copy.columns.shop, width: 280, className: 'pl-2 pr-0',
+      key: 'shop', header: copy.columns.shop, width: 240, className: 'pl-2 pr-0',
       render: (s) => (
         <Link href={`/shops/${s.id}`} className='flex items-center gap-3'>
           <Avatar name={s.name} size='lg' tone={selected.has(s.id) ? 'accent' : 'muted'} src={s.facade?.previewUrl400} />
@@ -83,9 +86,15 @@ export function ShopsView ({ page, copy, locale, agents, exportHref, children }:
         </Link>
       )
     },
+    {
+      key: 'district', header: copy.columns.district, width: 120, className: 'px-2',
+      render: (s) => s.district == null
+        ? <span className='text-subtle'>—</span>
+        : <span className='inline-block max-w-full truncate rounded-full bg-dark-accent px-2.5 py-0.5 text-xs font-medium leading-4 text-accent'>{s.district.name}</span>
+    },
     { key: 'code', header: copy.columns.code, width: 78, className: 'px-0', render: (s) => <span className='rounded bg-dark-accent px-2 py-px font-display text-ink'>{s.code}</span> },
-    { key: 'owner', header: copy.columns.owner, width: 135, className: 'px-2', render: (s) => <span className='block truncate'>{s.ownerName ?? '—'}</span> },
-    { key: 'phone', header: copy.columns.phone, width: 135, className: 'px-2', render: (s) => <span className='font-display'>{s.contacts[0] != null ? formatPhone(s.contacts[0].phone) : '—'}</span> },
+    { key: 'owner', header: copy.columns.owner, width: 110, className: 'px-2', render: (s) => <span className='block truncate'>{s.ownerName ?? '—'}</span> },
+    { key: 'phone', header: copy.columns.phone, width: 128, className: 'px-2', render: (s) => <span className='font-display'>{s.contacts[0] != null ? formatPhone(s.contacts[0].phone) : '—'}</span> },
     {
       key: 'visit', header: copy.columns.lastVisit, width: 130, className: 'px-3',
       render: (s) => s.lastVisit == null
@@ -98,7 +107,7 @@ export function ShopsView ({ page, copy, locale, agents, exportHref, children }:
           )
     },
     {
-      key: 'agent', header: copy.columns.agent, width: 168, className: 'pl-3 pr-0',
+      key: 'agent', header: copy.columns.agent, width: 150, className: 'pl-3 pr-0',
       // Several agents: the first with an avatar, the rest by name.
       render: (s) => s.agents.length === 0
         ? <span className='text-subtle'>{copy.unassigned}</span>
@@ -110,7 +119,7 @@ export function ShopsView ({ page, copy, locale, agents, exportHref, children }:
           )
     },
     {
-      key: 'status', header: copy.columns.status, width: 148, className: 'pl-6 pr-3',
+      key: 'status', header: copy.columns.status, width: 120, className: 'pl-3 pr-3',
       render: (s) => s.status === 'ACTIVE'
         ? <StatusBadge tone='success'>{copy.statuses.ACTIVE}</StatusBadge>
         : s.status === 'PENDING_REVIEW'
@@ -126,6 +135,7 @@ export function ShopsView ({ page, copy, locale, agents, exportHref, children }:
           { label: copy.changeStatus, icon: { name: 'menu-edit', width: 12, height: 12 }, onSelect: () => setStatusFor(s) },
           { label: copy.viewOnMap, icon: { name: 'menu-map', width: 13.3, height: 13.267 }, href: `/map?ids=${s.id}` },
           { label: copy.assign, icon: { name: 'menu-assign', width: 13.333, height: 13.333 }, onSelect: () => setAssigning([s.id]) },
+          { label: copy.moveToDistrict, icon: { name: 'pin-small', width: 9.333, height: 11.667 }, onSelect: () => setMoving([s.id]) },
           { label: copy.deleteShop, icon: { name: 'menu-delete', width: 10.667, height: 12 }, danger: true, separated: true, onSelect: () => setDeleting([s.id]) }
         ]} />
       )
@@ -137,8 +147,8 @@ export function ShopsView ({ page, copy, locale, agents, exportHref, children }:
     startTransition(() => guard(async () => {
       const res = await fn()
       if (!res.ok) return setError(copy.errors.generic)
-      say(deleting != null ? 'deleted' : 'assigned')
-      setAssigning(null); setDeleting(null); setSelected(new Set())
+      say(deleting != null ? 'deleted' : moving != null ? 'saved' : 'assigned')
+      setAssigning(null); setMoving(null); setDeleting(null); setSelected(new Set())
       router.refresh()
     }))
   }
@@ -157,6 +167,7 @@ export function ShopsView ({ page, copy, locale, agents, exportHref, children }:
               : (
                 <>
                   <Button variant='secondary' onClick={() => setAssigning(chosen)} icon={<FigmaIcon name='link' width={12} height={12} />}>{copy.assign}</Button>
+                  <Button variant='secondary' onClick={() => setMoving(chosen)} icon={<FigmaIcon name='pin-small' width={9.333} height={11.667} />}>{copy.moveToDistrict}</Button>
                   <Button variant='secondary' href={`/map?ids=${chosen.join(',')}`} icon={<FigmaIcon name='menu-map' width={12} height={12} />}>{copy.viewOnMap}</Button>
                   <Button variant='danger' onClick={() => setDeleting(chosen)} icon={<FigmaIcon name='menu-delete' width={10.667} height={12} />}>{copy.deleteShop}</Button>
                 </>
@@ -176,6 +187,10 @@ export function ShopsView ({ page, copy, locale, agents, exportHref, children }:
       {assigning != null && (
         <AssignDialog copy={copy} count={assigning.length} agents={agents} pending={pending} error={error}
           onClose={() => setAssigning(null)} onSave={(agentId) => act(() => assignShops(assigning, agentId))} />
+      )}
+      {moving != null && (
+        <MoveDialog copy={copy} count={moving.length} districts={districts} pending={pending} error={error}
+          onClose={() => setMoving(null)} onSave={(districtId) => act(() => moveShops(moving, districtId))} />
       )}
       {statusFor != null && (
         <StatusDialog
@@ -219,6 +234,30 @@ function AssignDialog ({ copy, count, agents, pending, error, onClose, onSave }:
         <SelectInput variant='form' id='assign-agent' value={agentId} onChange={(e) => setAgentId(e.target.value)}>
           <option value=''>{d.none}</option>
           {agents.map((a) => <option key={a.id} value={a.id}>{a.fullName} {a.code}</option>)}
+        </SelectInput>
+      </FormField>
+    </Dialog>
+  )
+}
+
+function MoveDialog ({ copy, count, districts, pending, error, onClose, onSave }: {
+  copy: ShopsCopy, count: number, districts: DistrictOption[], pending: boolean, error: string | null, onClose: () => void, onSave: (districtId: string | null) => void
+}) {
+  const [districtId, setDistrictId] = useState(districts[0]?.id ?? '')
+  const d = copy.moveDialog
+  return (
+    <Dialog open variant='form' width={480} onClose={onClose} closeLabel={d.cancel} title={d.title} subtitle={d.subtitle.replace('{n}', String(count))}
+      footer={
+        <>
+          {error != null && <p role='alert' className='mr-auto text-xs text-error'>{error}</p>}
+          <Button variant='outline' size='md' data-dialog-close>{d.cancel}</Button>
+          <Button size='md' disabled={pending} onClick={() => onSave(districtId === '' ? null : districtId)}>{d.save}</Button>
+        </>
+      }>
+      <FormField variant='form' label={d.label} htmlFor='move-district'>
+        <SelectInput variant='form' id='move-district' value={districtId} onChange={(e) => setDistrictId(e.target.value)}>
+          {districts.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}
+          <option value=''>{d.none}</option>
         </SelectInput>
       </FormField>
     </Dialog>

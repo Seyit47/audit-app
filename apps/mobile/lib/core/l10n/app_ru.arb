@@ -841,5 +841,25 @@
       }
     }
   },
-  "geoLocatingLong": "Ищем спутники GPS. На улице это занимает до минуты, в помещении может не получиться."
+  "geoLocatingLong": "Ищем спутники GPS. На улице это занимает до минуты, в помещении может не получиться.",
+  "districtVisitedToday": "Сегодня {visited} из {total}",
+  "districtOverdue": "просрочено {count}",
+  "districtActions": "Действия с районом",
+  "@districtVisitedToday": {
+    "placeholders": {
+      "visited": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "@districtOverdue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

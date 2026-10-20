@@ -103,6 +103,34 @@ class _AdminShopsScreenState extends ConsumerState<AdminShopsScreen> {
     await _districtAction(() => current == null ? api.addDistrict(entered.trim()) : api.renameDistrict(current['id'] as String, entered.trim()));
   }
 
+  /// Long press on a district card: rename, or delete an empty one.
+  Future<void> _districtMenu(Json d) async {
+    final l10n = AppLocalizations.of(context);
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (sheet) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: Text(d['name'] as String, style: const TextStyle(fontWeight: FontWeight.w700)),
+            ),
+            ListTile(leading: const Icon(Icons.edit_outlined), title: Text(l10n.renameDistrict), onTap: () => Navigator.pop(sheet, 'rename')),
+            if (d['shops'] == 0)
+              ListTile(
+                leading: Icon(Icons.delete_outline, color: Theme.of(sheet).colorScheme.error),
+                title: Text(l10n.deleteDistrict, style: TextStyle(color: Theme.of(sheet).colorScheme.error)),
+                onTap: () => Navigator.pop(sheet, 'delete'),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (choice == 'rename') return _editDistrict(current: d);
+    if (choice == 'delete') return _districtAction(() => ref.read(adminApiProvider).deleteDistrict(d['id'] as String));
+  }
+
   Future<void> _districtAction(Future<Object?> Function() action) async {
     final l10n = AppLocalizations.of(context);
     try {
@@ -187,7 +215,8 @@ class _AdminShopsScreenState extends ConsumerState<AdminShopsScreen> {
                 onBack: district == null ? null : () => _open(null),
                 // On the districts: a new district; in a district: a new shop there.
                 action: HeaderButton(
-                  label: l10n.add,
+                  // On the districts: a new district; in a district: a new shop there.
+                  label: _showDistricts ? l10n.district : l10n.add,
                   onPressed: () async {
                     if (_showDistricts) return _editDistrict();
                     final path = district?.id == null ? '/admin/shops/new' : '/admin/shops/new?districtId=${district!.id}';
@@ -250,8 +279,12 @@ class _AdminShopsScreenState extends ConsumerState<AdminShopsScreen> {
                               DistrictTile(
                                 name: (d['name'] as String?) ?? l10n.noDistrict,
                                 shops: (d['shops'] as int?) ?? 0,
+                                visitedToday: (d['visitedToday'] as int?) ?? 0,
+                                overdue: (d['overdue'] as int?) ?? 0,
                                 muted: d['id'] == null,
                                 onTap: () => _open((id: d['id'] as String?, name: (d['name'] as String?) ?? l10n.noDistrict)),
+                                // Long press: the same rename / delete as the menu.
+                                onLongPress: d['id'] == null ? null : () => _districtMenu(d),
                                 trailing: d['id'] == null
                                     ? null
                                     : AppMenuButton<String>(
@@ -272,7 +305,7 @@ class _AdminShopsScreenState extends ConsumerState<AdminShopsScreen> {
                                         ),
                                       ),
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 10),
                             ],
                           ],
                         ),

@@ -375,5 +375,8 @@
   "routeStraight": "No road route — showing the direction",
   "routeArrived": "You have arrived",
   "routeMinutes": "{minutes} min",
-  "geoLocatingLong": "Looking for GPS satellites. Outdoors this takes up to a minute; indoors it may not work."
+  "geoLocatingLong": "Looking for GPS satellites. Outdoors this takes up to a minute; indoors it may not work.",
+  "districtVisitedToday": "Today {visited} of {total}",
+  "districtOverdue": "{count} overdue",
+  "districtActions": "District actions"
 }

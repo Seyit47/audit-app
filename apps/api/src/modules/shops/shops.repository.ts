@@ -124,6 +124,18 @@ export class ShopsRepository {
     return this.prisma.$transaction((tx) => this.setAgents(tx, shopIds, agentId == null ? [] : [agentId]))
   }
 
+  async districtExists (id: string) {
+    return await this.prisma.district.count({ where: { id } }) > 0
+  }
+
+  /** Bulk "Перенести в район" (null: no district); the agents' phones pick the change up on their next sync. */
+  bulkDistrict (shopIds: string[], districtId: string | null) {
+    return this.prisma.shop.updateMany({
+      where: { id: { in: shopIds }, deletedAt: null },
+      data: { districtId, version: { increment: 1 }, updatedAt: new Date() }
+    })
+  }
+
   /** Soft delete; audits and photos stay. Removes the shops from today's and future planned stops. */
   bulkDelete (shopIds: string[]) {
     const today = new Date(new Date().toISOString().slice(0, 10))

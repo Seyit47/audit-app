@@ -1,5 +1,5 @@
 import { listDistricts } from '@/features/districts/api'
-import { DistrictsPanel } from '@/features/districts/components/DistrictsPanel'
+import { DistrictChips } from '@/features/districts/components/DistrictChips'
 import { districtsCopy } from '@/features/districts/copy'
 import { listAgentOptions, listShops, type ShopListQuery } from '@/features/shops/api'
 import { ShopFormHost } from '@/features/shops/components/ShopFormHost'
@@ -24,16 +24,13 @@ export default async function ShopsPage ({ searchParams }: PageProps<'/shops'>) 
 
   return (
     <div className='flex flex-col gap-2.5 p-4'>
-      {/* Districts first: choosing one lists its shops. */}
-      <div className='flex items-start gap-2.5'>
-        <DistrictsPanel districts={districts} copy={districtsCopy[locale]} />
-        <div className='flex min-w-0 flex-1 flex-col gap-2.5'>
-          <ShopsView page={page} copy={copy} locale={locale} agents={activeAgents} exportHref={exportHref}>
-            {sp.exportFailed != null && <p role='alert' className='text-sm text-error'>{copy.exportFailed}</p>}
-            <ShopsToolbar copy={copy} />
-          </ShopsView>
-        </div>
-      </div>
+      <ShopsView page={page} copy={copy} locale={locale} agents={activeAgents}
+        districts={districts.flatMap((d) => d.id == null || d.name == null ? [] : [{ id: d.id, name: d.name }])} exportHref={exportHref}>
+        {sp.exportFailed != null && <p role='alert' className='text-sm text-error'>{copy.exportFailed}</p>}
+        {/* Districts first: a chip lists its shops. */}
+        <DistrictChips districts={districts} copy={districtsCopy[locale]} />
+        <ShopsToolbar copy={copy} />
+      </ShopsView>
       {/* Opens from ?add=1 in the browser, its data fetched on demand (no server render). */}
       <ShopFormHost copy={shopFormCopy[locale]} />
     </div>

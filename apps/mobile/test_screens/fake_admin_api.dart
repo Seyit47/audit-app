@@ -37,8 +37,10 @@ class FakeAdminApi implements AdminApi {
 
   @override
   Future<List<Json>> districts() async => [
-    {'id': 'd1', 'name': 'Berkararlyk', 'shops': 84},
-    {'id': 'd2', 'name': 'Köpetdag', 'shops': 51},
+    {'id': 'd1', 'name': 'Berkararlyk', 'shops': 84, 'agents': 3, 'visitedToday': 41, 'overdue': 6},
+    {'id': 'd2', 'name': 'Köpetdag', 'shops': 51, 'agents': 2, 'visitedToday': 51, 'overdue': 0},
+    {'id': 'd3', 'name': 'Büzmeýin', 'shops': 0, 'agents': 0, 'visitedToday': 0, 'overdue': 0},
+    {'id': null, 'name': null, 'shops': 4, 'agents': 1, 'visitedToday': 0, 'overdue': 2},
   ];
 
   @override

@@ -2348,6 +2348,24 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Ищем спутники GPS. На улице это занимает до минуты, в помещении может не получиться.'**
   String get geoLocatingLong;
+
+  /// No description provided for @districtVisitedToday.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сегодня {visited} из {total}'**
+  String districtVisitedToday(int visited, int total);
+
+  /// No description provided for @districtOverdue.
+  ///
+  /// In ru, this message translates to:
+  /// **'просрочено {count}'**
+  String districtOverdue(int count);
+
+  /// No description provided for @districtActions.
+  ///
+  /// In ru, this message translates to:
+  /// **'Действия с районом'**
+  String get districtActions;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

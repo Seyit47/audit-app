@@ -375,5 +375,8 @@
   "routeStraight": "Ýol boýunça ugur ýok — ugry görkezilýär",
   "routeArrived": "Siz geldiňiz",
   "routeMinutes": "{minutes} min",
-  "geoLocatingLong": "GPS hemralary gözlenýär. Daşarda bir minuda çenli wagt alýar, jaýyň içinde başartmazlygy mümkin."
+  "geoLocatingLong": "GPS hemralary gözlenýär. Daşarda bir minuda çenli wagt alýar, jaýyň içinde başartmazlygy mümkin.",
+  "districtVisitedToday": "Şu gün {visited} / {total}",
+  "districtOverdue": "gijikdirilen {count}",
+  "districtActions": "Etrap bilen hereketler"
 }

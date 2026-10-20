@@ -1266,4 +1266,17 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get geoLocatingLong => 'GPS hemralary gözlenýär. Daşarda bir minuda çenli wagt alýar, jaýyň içinde başartmazlygy mümkin.';
+
+  @override
+  String districtVisitedToday(int visited, int total) {
+    return 'Şu gün $visited / $total';
+  }
+
+  @override
+  String districtOverdue(int count) {
+    return 'gijikdirilen $count';
+  }
+
+  @override
+  String get districtActions => 'Etrap bilen hereketler';
 }

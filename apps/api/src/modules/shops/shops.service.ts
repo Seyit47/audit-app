@@ -156,6 +156,12 @@ export class ShopsService {
     return { updated: shopIds.length }
   }
 
+  async bulkDistrict (shopIds: string[], districtId: string | null) {
+    if (districtId != null && await this.repo.districtExists(districtId) === false) throw notFound('District')
+    const { count } = await this.repo.bulkDistrict(shopIds, districtId)
+    return { updated: count }
+  }
+
   async bulkDelete (shopIds: string[]) {
     await this.repo.bulkDelete(shopIds)
     return { deleted: shopIds.length }

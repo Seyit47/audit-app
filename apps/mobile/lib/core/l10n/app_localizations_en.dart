@@ -1266,4 +1266,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get geoLocatingLong => 'Looking for GPS satellites. Outdoors this takes up to a minute; indoors it may not work.';
+
+  @override
+  String districtVisitedToday(int visited, int total) {
+    return 'Today $visited of $total';
+  }
+
+  @override
+  String districtOverdue(int count) {
+    return '$count overdue';
+  }
+
+  @override
+  String get districtActions => 'District actions';
 }
