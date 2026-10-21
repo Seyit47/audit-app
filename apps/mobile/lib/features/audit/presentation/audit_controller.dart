@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
@@ -115,11 +116,15 @@ class GeolocatorLocator extends Locator {
     }
   }
 
-  /// A single fresh reading straight from Android (fused provider), independent of the shared stream.
+  /// A single fresh reading independent of the shared stream. On Android it comes from the GPS chip itself
+  /// (LocationManager, not the fused provider): the fused provider answers with Wi-Fi / cell positions of
+  /// 30–90 m while GPS is still locking, and those would win over the real fix.
   Future<Position?> oneShot() async {
     try {
       return await Geolocator.getCurrentPosition(
-        locationSettings: LocationSettings(accuracy: LocationAccuracy.best, timeLimit: firstFix),
+        locationSettings: Platform.isAndroid
+            ? AndroidSettings(accuracy: LocationAccuracy.best, forceLocationManager: true, timeLimit: firstFix)
+            : LocationSettings(accuracy: LocationAccuracy.best, timeLimit: firstFix),
       );
     } catch (_) {
       return null;
