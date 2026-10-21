@@ -2372,6 +2372,12 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Убрать'**
   String get remove;
+
+  /// No description provided for @districtsNoneYet.
+  ///
+  /// In ru, this message translates to:
+  /// **'Районов пока нет — их создаёт администратор'**
+  String get districtsNoneYet;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

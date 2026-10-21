@@ -1282,4 +1282,7 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get remove => 'Aýyr';
+
+  @override
+  String get districtsNoneYet => 'Entek etrap ýok — olary administrator döredýär';
 }

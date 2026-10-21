@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/db/app_database.dart';
 import '../../../core/l10n/app_localizations.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_text_styles.dart';
 import '../../../core/widgets/adaptive.dart';
 import '../../shops/data/shops_local_repository.dart';
 import '../../sync/presentation/sync_screen.dart';
@@ -28,11 +30,18 @@ class AddShopScreen extends ConsumerWidget {
       owner: s.owner,
       phone: s.phone,
       onChanged: ctrl.edit,
-      // Synced districts; before the first sync there are none to choose from, and the shop has none.
+      // The synced districts. None yet (an admin hasn't created any, or the first sync is still to come): the
+      // field says so, and the shop is saved without one.
       districtField: districts.isEmpty
-          ? null
+          ? Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Text(
+                l10n.districtsNoneYet,
+                style: TextStyle(fontFamily: AppTextStyles.family, fontSize: 13, height: 18 / 13, color: context.colors.textSecondary),
+              ),
+            )
           : AppSelect<String>(value: s.districtId, hint: l10n.selectDistrict, items: [for (final d in districts) (d.id, d.name)], onChanged: ctrl.setDistrict),
-      districtValid: s.districtId != null,
+      districtValid: s.districtId != null || districts.isEmpty,
       fix: s.fix,
       locating: s.locating,
       onRecheck: ctrl.locate,

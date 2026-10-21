@@ -379,5 +379,6 @@
   "districtVisitedToday": "Today {visited} of {total}",
   "districtOverdue": "{count} overdue",
   "districtActions": "District actions",
-  "remove": "Remove"
+  "remove": "Remove",
+  "districtsNoneYet": "No districts yet — an administrator creates them"
 }

@@ -18,7 +18,7 @@ const TAB = 64
 const navItems = (copy: LayoutCopy) => [
   { href: '/map', label: copy.nav.map, icon: 'nav-grid', w: 15, h: 15, match: '/map' },
   { href: '/shops', label: copy.nav.shops, icon: 'nav-shops', w: 15, h: 13.333, match: '/shops' },
-  { href: '/districts', label: copy.nav.districts, icon: 'agent-sector', w: 11.667, h: 16.667, match: '/districts' },
+  { href: '/districts', label: copy.nav.districts, icon: 'nav-districts', w: 13.333, h: 16.667, match: '/districts' },
   { href: '/products', label: copy.nav.products, icon: 'nav-products', w: 16.667, h: 16.667, match: '/products' },
   { href: '/salesmen', label: copy.nav.salesmen, icon: 'nav-salesmen', w: 16.667, h: 16.667, match: '/salesmen' },
   { href: '/pictures', label: copy.nav.pictures, icon: 'nav-pictures', w: 16.667, h: 15, match: '/pictures' },

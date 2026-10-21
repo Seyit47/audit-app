@@ -1282,4 +1282,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get remove => 'Remove';
+
+  @override
+  String get districtsNoneYet => 'No districts yet — an administrator creates them';
 }

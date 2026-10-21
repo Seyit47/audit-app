@@ -20,7 +20,10 @@ class PullService {
   /// The pull order of contracts/sync.md: today's route, shops, then own photos.
   Future<void> pullAll() async {
     await pullMe();
-    await pullDistricts();
+    // A server from before districts has no /districts; the shops must still sync.
+    try {
+      await pullDistricts();
+    } catch (_) {}
     await pullRoute();
     await pullShops();
     await pullPhotos();
