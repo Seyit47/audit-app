@@ -82,6 +82,7 @@ model Agent {
   audits         Audit[]
   pings          LocationPing[]
   position       AgentPosition?
+  districts      AgentDistrict[]
 }
 
 model Device {
@@ -111,10 +112,23 @@ model CompanySettings {
 
 /// Where a shop is: the shop lists start with districts. Admins manage them.
 model District {
-  id        String   @id @db.Uuid
-  name      String   @unique
-  createdAt DateTime @default(now()) @db.Timestamptz
+  id        String          @id @db.Uuid
+  name      String          @unique
+  createdAt DateTime        @default(now()) @db.Timestamptz
   shops     Shop[]
+  agents    AgentDistrict[]
+}
+
+/// An agent works a district: they are assigned every shop in it, now and as shops are added or moved in.
+model AgentDistrict {
+  agentId    String   @db.Uuid
+  agent      Agent    @relation(fields: [agentId], references: [userId], onDelete: Cascade)
+  districtId String   @db.Uuid
+  district   District @relation(fields: [districtId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now()) @db.Timestamptz
+
+  @@id([agentId, districtId])
+  @@index([districtId])
 }
 
 // ---------- Shops & products ----------
@@ -187,6 +201,8 @@ model ShopAssignment {
   agent   Agent?    @relation(fields: [agentId], references: [userId])
   from    DateTime  @db.Timestamptz
   to      DateTime? @db.Timestamptz
+  /// The district whose agent this is (the row follows the district link); null: assigned to the shop directly.
+  viaDistrictId String? @db.Uuid
 
   @@index([shopId, from])
   @@index([agentId, to])

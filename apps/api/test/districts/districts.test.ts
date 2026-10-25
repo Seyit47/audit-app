@@ -86,3 +86,64 @@ test('bulk move to a district (and out of one); admins only', async () => {
   const unknown = await app.inject({ method: 'POST', url: '/v1/shops/bulk/district', headers: h, payload: { shopIds: [s1.id], districtId: '01a15b52-391c-7455-9dca-147338959144' } })
   assert.strictEqual(unknown.statusCode, 404)
 })
+
+test('an agent works districts: their shops follow the link; direct assignments stay', async () => {
+  const a = await f.admin(app)
+  const h = bearer(app, { id: a.id, role: 'ADMIN' })
+  const g = await f.agent(app)
+  const gh = bearer(app, { id: g.userId, role: 'AGENT' })
+  const d1 = await f.district(app, 'A')
+  const d2 = await f.district(app, 'B')
+  const inA = await f.shop(app, { createdById: a.id, districtId: d1.id })
+  const inB = await f.shop(app, { createdById: a.id, districtId: d2.id })
+  const direct = await f.shop(app, { createdById: a.id, agentId: g.userId })
+  const mine = async () => ((await app.inject({ url: '/v1/shops', headers: gh })).json().items as Array<{ id: string }>).map((s) => s.id).sort()
+
+  // Link to A: its shop joins the direct one.
+  const linked = await app.inject({ method: 'PATCH', url: `/v1/agents/${g.userId}`, headers: h, payload: { version: 1, districtIds: [d1.id] } })
+  assert.strictEqual(linked.statusCode, 200, linked.body)
+  assert.deepStrictEqual(linked.json().districts, [{ id: d1.id, name: 'A' }])
+  assert.deepStrictEqual(await mine(), [inA.id, direct.id].sort())
+
+  // A new shop in A, and a shop moved into A, are theirs; one moved out of A is not.
+  const created = await app.inject({ method: 'POST', url: '/v1/shops', headers: h, payload: { name: 'New in A', address: 'x', lat: 37.95, lng: 58.38, districtId: d1.id } })
+  assert.strictEqual(created.statusCode, 201, created.body)
+  assert.deepStrictEqual(created.json().agents.map((x: { id: string }) => x.id), [g.userId])
+  await app.inject({ method: 'POST', url: '/v1/shops/bulk/district', headers: h, payload: { shopIds: [inB.id], districtId: d1.id } })
+  assert.deepStrictEqual(await mine(), [inA.id, inB.id, direct.id, created.json().id].sort())
+  await app.inject({ method: 'POST', url: '/v1/shops/bulk/district', headers: h, payload: { shopIds: [inA.id], districtId: d2.id } })
+  assert.deepStrictEqual(await mine(), [inB.id, direct.id, created.json().id].sort())
+
+  // The district card counts the linked agent; the agents list filters by district.
+  const cards = (await app.inject({ url: '/v1/districts', headers: h })).json()
+  assert.strictEqual(cards.find((c: { id: string }) => c.id === d1.id).agents, 1)
+  const list = (await app.inject({ url: `/v1/agents?districtId=${d1.id}&from=2020-01-01&to=2030-01-01`, headers: h })).json()
+  assert.deepStrictEqual(list.items.map((x: { id: string }) => x.id), [g.userId])
+  assert.strictEqual((await app.inject({ url: `/v1/agents?districtId=${d2.id}&from=2020-01-01&to=2030-01-01`, headers: h })).json().items.length, 0)
+
+  // Unlinked: the district's shops go, the direct one stays; the phone learns of it on sync.
+  const before = new Date(Date.now() - 1000).toISOString()
+  const unlinked = await app.inject({ method: 'PATCH', url: `/v1/agents/${g.userId}`, headers: h, payload: { version: 2, districtIds: [] } })
+  assert.strictEqual(unlinked.statusCode, 200, unlinked.body)
+  assert.deepStrictEqual(await mine(), [direct.id])
+  const sync = (await app.inject({ url: `/v1/shops?updatedAfter=${encodeURIComponent(before)}`, headers: gh })).json()
+  assert.ok(sync.tombstones.includes(inB.id) && sync.tombstones.includes(created.json().id))
+
+  // An unknown district is refused.
+  assert.strictEqual((await app.inject({ method: 'PATCH', url: `/v1/agents/${g.userId}`, headers: h, payload: { version: 3, districtIds: ['01a15b52-391c-7455-9dca-147338959144'] } })).statusCode, 404)
+})
+
+test('a deactivated agent loses their shops; reactivated, the district shops come back', async () => {
+  const a = await f.admin(app)
+  const h = bearer(app, { id: a.id, role: 'ADMIN' })
+  const g = await f.agent(app)
+  const d = await f.district(app, 'A')
+  const shop = await f.shop(app, { createdById: a.id, districtId: d.id })
+  await app.inject({ method: 'PATCH', url: `/v1/agents/${g.userId}`, headers: h, payload: { version: 1, districtIds: [d.id] } })
+  const open = async () => (await app.prisma.shopAssignment.findMany({ where: { agentId: g.userId, to: null } })).map((r) => r.shopId)
+  assert.deepStrictEqual(await open(), [shop.id])
+  await app.inject({ method: 'PATCH', url: `/v1/agents/${g.userId}`, headers: h, payload: { version: 2, active: false } })
+  assert.deepStrictEqual(await open(), [])
+  await app.inject({ method: 'PATCH', url: `/v1/agents/${g.userId}`, headers: h, payload: { version: 3, active: true } })
+  assert.deepStrictEqual(await open(), [shop.id])
+})

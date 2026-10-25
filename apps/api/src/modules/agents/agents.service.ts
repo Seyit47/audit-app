@@ -82,7 +82,8 @@ export class AgentsService {
         dailyVisitPlan,
         dailyAuditPlan,
         workStatus: body.workStatus ?? 'ACTIVE',
-        imeiLabel: body.imeiLabel ?? null
+        imeiLabel: body.imeiLabel ?? null,
+        districtIds: await this.districtIds(body.districtIds) ?? []
       })
       // A generated password is shown to the admin once; a chosen one they already know.
       return { ...await this.view(agent), ...(body.password == null ? { temporaryPassword: password } : {}) }
@@ -103,7 +104,7 @@ export class AgentsService {
     const audit = body.dailyAuditPlan ?? current.dailyAuditPlan
     if (audit > visit) throw invalid('dailyAuditPlan must not exceed dailyVisitPlan')
 
-    const { version, active, imeiLabel, phone, whatsappPhone, code, ...rest } = body
+    const { version, active, imeiLabel, phone, whatsappPhone, code, districtIds, ...rest } = body
     // regionId: sent by apps from before districts; agents no longer have one.
     const fields = Object.fromEntries(Object.entries(rest).filter(([k]) => k !== 'regionId')) as Omit<typeof rest, 'regionId'>
     const data = {
@@ -113,7 +114,7 @@ export class AgentsService {
       ...(whatsappPhone !== undefined ? { whatsappPhone: whatsappPhone != null ? normalizePhone(whatsappPhone, 'whatsappPhone') : null } : {})
     }
     try {
-      if (!await this.repo.update(id, version, data, data.phone)) throw conflict('The salesman was changed by someone else; reload and try again')
+      if (!await this.repo.update(id, version, data, data.phone, await this.districtIds(districtIds))) throw conflict('The salesman was changed by someone else; reload and try again')
     } catch (e) {
       if (isUniqueViolation(e)) throw conflict('An account with this phone or code already exists')
       throw e
@@ -152,10 +153,19 @@ export class AgentsService {
     return p?.status === 'READY' ? photoView(this.storage, p) : null
   }
 
+  /** Checks the districts exist (undefined stays undefined: not sent). */
+  private async districtIds (ids: string[] | undefined) {
+    if (ids === undefined) return undefined
+    const unique = [...new Set(ids)]
+    if (await this.repo.districtsExist(unique) === false) throw notFound('District')
+    return unique
+  }
+
   private async view (a: AgentDetail) {
     return {
       id: a.userId,
       code: a.code,
+      districts: a.districts.map((d) => ({ id: d.district.id, name: d.district.name })),
       fullName: a.fullName,
       phone: a.phone,
       whatsappPhone: a.whatsappPhone,

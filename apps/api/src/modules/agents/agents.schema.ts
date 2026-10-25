@@ -12,7 +12,9 @@ const Fields = {
   dailyVisitPlan: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
   dailyAuditPlan: Type.Optional(Type.Integer({ minimum: 0, maximum: 100 })),
   workStatus: Type.Optional(Type.Union([Type.Literal('ACTIVE'), Type.Literal('ON_LEAVE')])),
-  imeiLabel: Type.Optional(Type.Union([Type.String({ maxLength: 64 }), Type.Null()]))
+  imeiLabel: Type.Optional(Type.Union([Type.String({ maxLength: 64 }), Type.Null()])),
+  /** The districts the salesman works: every shop in them is theirs. */
+  districtIds: Type.Optional(Type.Array(Type.String({ format: 'uuid' }), { maxItems: 50 }))
 }
 
 /** A password the admin types for the salesman: 8+ characters with a letter and a digit (the forms show these rules). */
@@ -49,6 +51,7 @@ export const ListAgentsQuery = Type.Object({
   status: Type.Optional(Type.Union([Type.Literal('ACTIVE'), Type.Literal('ON_LEAVE'), Type.Literal('INACTIVE')])),
   /** Sent by apps from before districts; ignored. */
   regionId: Type.Optional(Type.String({ format: 'uuid' })),
+  districtId: Type.Optional(Type.String({ format: 'uuid' })),
   from: Type.Optional(Day),
   to: Type.Optional(Day),
   sort: Type.Optional(Type.Union([Type.Literal('fullName'), Type.Literal('code'), Type.Literal('locations'), Type.Literal('visits'), Type.Literal('photos'), Type.Literal('lastActivityAt')])),

@@ -1,6 +1,7 @@
 import { Prisma, type PrismaClient } from '../../generated/prisma/client.js'
 import type { AssignMode } from './shops.schema.js'
 import { newId } from '../../lib/ids.js'
+import { shopsMovedToDistrict } from '../districts/membership.js'
 
 /** The shop's agents: its open assignment rows (a shop can have several). */
 export const currentAgents = { where: { to: null, agentId: { not: null } }, orderBy: { from: 'asc' } } as const
@@ -88,6 +89,8 @@ export class ShopsRepository {
         }
       })
       if (agentIds.length > 0) await tx.shopAssignment.createMany({ data: agentIds.map((agentId) => ({ id: newId(), shopId: id, agentId, from: new Date() })) })
+      // The district's agents get the new shop.
+      if (data.districtId) await shopsMovedToDistrict(tx, [id], data.districtId)
       if (data.facadePhotoId) await linkPhoto(tx, data.facadePhotoId, id)
       return tx.shop.findUniqueOrThrow({ where: { id }, include: shopInclude })
     })
@@ -98,6 +101,7 @@ export class ShopsRepository {
     return this.prisma.$transaction(async (tx) => {
       const { count } = await tx.shop.updateMany({ where: { id, version, deletedAt: null }, data: { ...data, version: { increment: 1 } } })
       if (count === 1 && agentIds !== undefined) await this.setAgents(tx, [id], agentIds)
+      if (count === 1 && data.districtId !== undefined) await shopsMovedToDistrict(tx, [id], (data.districtId as string | null) ?? null)
       if (count === 1 && typeof data.facadePhotoId === 'string') await linkPhoto(tx, data.facadePhotoId, id)
       return count === 1
     })
@@ -143,9 +147,10 @@ export class ShopsRepository {
 
   /** Bulk "Перенести в район" (null: no district); the agents' phones pick the change up on their next sync. */
   bulkDistrict (shopIds: string[], districtId: string | null) {
-    return this.prisma.shop.updateMany({
-      where: { id: { in: shopIds }, deletedAt: null },
-      data: { districtId, version: { increment: 1 }, updatedAt: new Date() }
+    return this.prisma.$transaction(async (tx) => {
+      const moved = await tx.shop.updateMany({ where: { id: { in: shopIds }, deletedAt: null }, data: { districtId, version: { increment: 1 }, updatedAt: new Date() } })
+      await shopsMovedToDistrict(tx, shopIds, districtId)
+      return moved
     })
   }
 

@@ -24,7 +24,7 @@ export class DistrictsRepository {
     const tz = (await this.settings.get()).timezone
     const dayStart = startOfLocalDay(localDate(new Date(), tz), tz)
     const [districts, shops] = await Promise.all([
-      this.prisma.district.findMany({ orderBy: { name: 'asc' } }),
+      this.prisma.district.findMany({ orderBy: { name: 'asc' }, include: { agents: { where: { agent: { user: { status: 'ACTIVE' } } }, select: { agentId: true } } } }),
       this.prisma.shop.findMany({
         where: {
           deletedAt: null,
@@ -45,11 +45,12 @@ export class DistrictsRepository {
       }
       by.set(s.districtId, d)
     }
-    const stats = (id: string | null, name: string | null): DistrictStats => {
+    // Agents: the ones linked to the district and the ones assigned to its shops by hand.
+    const stats = (id: string | null, name: string | null, linked: string[] = []): DistrictStats => {
       const d = by.get(id)
-      return { id, name, shops: d?.shops ?? 0, agents: d?.agents.size ?? 0, visitedToday: d?.visitedToday ?? 0, overdue: d?.overdue ?? 0 }
+      return { id, name, shops: d?.shops ?? 0, agents: new Set([...linked, ...(d?.agents ?? [])]).size, visitedToday: d?.visitedToday ?? 0, overdue: d?.overdue ?? 0 }
     }
-    return [...districts.map((d) => stats(d.id, d.name)), ...(by.has(null) ? [stats(null, null)] : [])]
+    return [...districts.map((d) => stats(d.id, d.name, d.agents.map((a) => a.agentId))), ...(by.has(null) ? [stats(null, null)] : [])]
   }
 
   async create (name: string) {

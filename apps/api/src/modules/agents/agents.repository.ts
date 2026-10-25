@@ -1,7 +1,13 @@
 import { Prisma, type PrismaClient } from '../../generated/prisma/client.js'
 import { newId } from '../../lib/ids.js'
+import { giveDistrictShops, setAgentDistricts } from '../districts/membership.js'
 
-const detail = { user: { select: { status: true, deactivatedAt: true, lastActiveAt: true } }, device: true, position: true } as const
+const detail = {
+  user: { select: { status: true, deactivatedAt: true, lastActiveAt: true } },
+  device: true,
+  position: true,
+  districts: { include: { district: { select: { id: true, name: true } } }, orderBy: { district: { name: 'asc' as const } } }
+} as const
 export type AgentDetail = Prisma.AgentGetPayload<{ include: typeof detail }>
 
 /**
@@ -20,13 +26,17 @@ export async function lastSignalAt (prisma: PrismaClient, agentIds: string[]): P
   return new Map(rows.map((r) => [r.agentId, r.receivedAt]))
 }
 
-export interface AgentFilter { q?: string, status?: 'ACTIVE' | 'ON_LEAVE' | 'INACTIVE' }
+export interface AgentFilter { q?: string, status?: 'ACTIVE' | 'ON_LEAVE' | 'INACTIVE', districtId?: string }
 
 export class AgentsRepository {
   private readonly prisma: PrismaClient
   constructor (prisma: PrismaClient) { this.prisma = prisma }
 
   lastSignal (agentIds: string[]) { return lastSignalAt(this.prisma, agentIds) }
+
+  async districtsExist (ids: string[]) {
+    return ids.length === 0 || await this.prisma.district.count({ where: { id: { in: ids } } }) === ids.length
+  }
 
   private where (f: AgentFilter): Prisma.AgentWhereInput {
     const where: Prisma.AgentWhereInput = {}
@@ -37,6 +47,7 @@ export class AgentsRepository {
         { phone: { contains: f.q.replace(/\s/g, '') } }
       ]
     }
+    if (f.districtId) where.districts = { some: { districtId: f.districtId } }
     if (f.status === 'INACTIVE') where.user = { status: 'DEACTIVATED' }
     else if (f.status) { where.workStatus = f.status; where.user = { status: 'ACTIVE' } }
     return where
@@ -96,23 +107,26 @@ export class AgentsRepository {
     return `SL-${row!.n}`
   }
 
-  create (data: { code: string, passwordHash: string, fullName: string, phone: string, whatsappPhone: string | null, photoId: string | null, routeNotes: string | null, dailyVisitPlan: number, dailyAuditPlan: number, workStatus: 'ACTIVE' | 'ON_LEAVE', imeiLabel: string | null }) {
+  create (data: { code: string, passwordHash: string, fullName: string, phone: string, whatsappPhone: string | null, photoId: string | null, routeNotes: string | null, dailyVisitPlan: number, dailyAuditPlan: number, workStatus: 'ACTIVE' | 'ON_LEAVE', imeiLabel: string | null, districtIds: string[] }) {
     const id = newId()
-    const { passwordHash, imeiLabel, ...agent } = data
+    const { passwordHash, imeiLabel, districtIds, ...agent } = data
     return this.prisma.$transaction(async (tx) => {
       await tx.user.create({ data: { id, role: 'AGENT', phone: data.phone, passwordHash } })
-      return tx.agent.create({
+      const created = await tx.agent.create({
         data: { userId: id, ...agent, device: { create: { id: newId(), imeiLabel } } },
         include: detail
       })
+      if (districtIds.length > 0) await setAgentDistricts(tx, id, districtIds)
+      return districtIds.length > 0 ? tx.agent.findUniqueOrThrow({ where: { userId: id }, include: detail }) : created
     })
   }
 
-  /** Optimistic update: false when the version is stale. */
-  async update (id: string, version: number, data: Prisma.AgentUncheckedUpdateManyInput, phone?: string): Promise<boolean> {
+  /** Optimistic update: false when the version is stale. [districtIds] (when given) become the agent's districts. */
+  async update (id: string, version: number, data: Prisma.AgentUncheckedUpdateManyInput, phone?: string, districtIds?: string[]): Promise<boolean> {
     return this.prisma.$transaction(async (tx) => {
       const { count } = await tx.agent.updateMany({ where: { userId: id, version }, data: { ...data, version: { increment: 1 } } })
       if (count === 1 && phone != null) await tx.user.update({ where: { id }, data: { phone } })
+      if (count === 1 && districtIds !== undefined) await setAgentDistricts(tx, id, districtIds)
       return count === 1
     })
   }
@@ -136,7 +150,13 @@ export class AgentsRepository {
   }
 
   reactivate (id: string) {
-    return this.prisma.user.update({ where: { id }, data: { status: 'ACTIVE', deactivatedAt: null } })
+    return this.prisma.$transaction(async (tx) => {
+      const user = await tx.user.update({ where: { id }, data: { status: 'ACTIVE', deactivatedAt: null } })
+      // Back at work: the shops of their districts again (direct assignments were closed on deactivation).
+      const districts = await tx.agentDistrict.findMany({ where: { agentId: id }, select: { districtId: true } })
+      if (districts.length > 0) await giveDistrictShops(tx, id, districts.map((d) => d.districtId))
+      return user
+    })
   }
 
   setPassword (id: string, passwordHash: string) {
