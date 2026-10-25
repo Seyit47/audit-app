@@ -46,9 +46,11 @@ export function PeriodFilter ({ copy }: { copy: AgentsCopy }) {
 }
 
 /** "Search & Filters Toolbar" of 31:2307 (31:2430): dates, presets, status, applied chips. */
-export function AgentsToolbar ({ copy }: { copy: AgentsCopy }) {
+export function AgentsToolbar ({ copy, districts }: { copy: AgentsCopy, districts: Array<{ id: string, name: string }> }) {
   const { values, set } = useListParams(agentsParams)
   const status = values.status ?? ''
+  const districtId = values.districtId ?? ''
+  const districtName = districts.find((d) => d.id === districtId)?.name
 
   return (
     <Card className='flex flex-col gap-3 p-4'>
@@ -60,10 +62,17 @@ export function AgentsToolbar ({ copy }: { copy: AgentsCopy }) {
           options={[{ value: '', label: copy.allStatus }, ...(['ACTIVE', 'ON_LEAVE', 'INACTIVE'] as const).map((s) => ({ value: s, label: copy.statuses[s] }))]}
           onChange={(v) => set({ status: (v || null) as typeof values.status })}
         />
+        <FilterSelect
+          label={copy.district}
+          value={districtId}
+          options={[{ value: '', label: copy.allDistricts }, ...districts.map((d) => ({ value: d.id, label: d.name }))]}
+          onChange={(v) => set({ districtId: v || null })}
+        />
       </div>
-      {status !== '' && (
+      {(status !== '' || districtName != null) && (
         <AppliedFilters label={copy.applied}>
-          <FilterChip label={`${copy.status}: ${copy.statuses[status]}`} removeLabel={copy.remove} onRemove={() => set({ status: null })} />
+          {districtName != null && <FilterChip label={`${copy.district}: ${districtName}`} removeLabel={copy.remove} onRemove={() => set({ districtId: null })} />}
+          {status !== '' && <FilterChip label={`${copy.status}: ${copy.statuses[status]}`} removeLabel={copy.remove} onRemove={() => set({ status: null })} />}
         </AppliedFilters>
       )}
     </Card>

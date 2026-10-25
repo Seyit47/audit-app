@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/l10n/app_localizations.dart';
 import 'core/l10n/turkmen.dart';
 import 'core/location/tracker.dart';
+import 'core/location/foreground_location.dart';
 import 'core/router/app_router.dart';
 import 'core/settings/app_settings.dart';
 import 'core/sync/sync_providers.dart';
@@ -21,6 +22,7 @@ class AuditApp extends ConsumerWidget {
     // (T102) alive. Listened, not watched: their state changes must not rebuild the whole app.
     ref.listen(syncControllerProvider, (_, _) {});
     ref.listen(trackerProvider, (_, _) {});
+    ref.listen(foregroundLocationProvider, (_, _) {});
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       debugShowCheckedModeBanner: false,

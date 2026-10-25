@@ -32,6 +32,7 @@ export function agentSchema (f: FormCopy, adding: boolean) {
     phone: phone('mobile', { required: f.errors.field, invalid: f.errors.phone }),
     whatsappPhone: phone('mobile', { required: f.errors.field, invalid: f.errors.phone }, true),
     routeNotes: z.string().trim().transform((v) => v || null),
+    districtIds: z.array(z.string()),
     dailyVisitPlan: int(1, 100, f.errors.visitPlan),
     dailyAuditPlan: int(0, 100, f.errors.visitPlan),
     device: z.enum(['keep', 'reset']),

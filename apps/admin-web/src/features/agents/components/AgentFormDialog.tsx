@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button'
 import { Dialog } from '@/components/ui/Dialog'
 import { FigmaIcon } from '@/components/ui/FigmaIcon'
 import { FormField, SelectInput, StatusSwitch, TextArea, TextInput } from '@/components/ui/FormField'
+import { MultiSelect } from '@/components/ui/MultiSelect'
 import { phoneField } from '@/lib/form'
 import { displayPhone } from '@/lib/phone'
 import { createAgent, rebindAgentDevice, updateAgent } from '../actions'
@@ -19,8 +20,9 @@ import { agentSchema, type AgentValues } from '../schema'
 import { PasswordFields } from './PasswordInput'
 
 /** Add / edit salesman dialog of Figma 495:3932, with exactly the frame's fields. */
-export function AgentFormDialog ({ agent, nextCode, copy, closeHref, enterStartedAt }: {
+export function AgentFormDialog ({ agent, districts, nextCode, copy, closeHref, enterStartedAt }: {
   agent: Agent | null
+  districts: Array<{ id: string, name: string }>
   nextCode: string
   copy: AgentsCopy
   closeHref: string
@@ -41,6 +43,7 @@ export function AgentFormDialog ({ agent, nextCode, copy, closeHref, enterStarte
       phone: displayPhone(agent?.phone),
       whatsappPhone: displayPhone(agent?.whatsappPhone),
       routeNotes: agent?.routeNotes ?? '',
+      districtIds: agent?.districts.map((d) => d.id) ?? [],
       dailyVisitPlan: String(agent?.dailyVisitPlan ?? 25),
       dailyAuditPlan: String(agent?.dailyAuditPlan ?? 20),
       device: 'keep',
@@ -115,6 +118,21 @@ export function AgentFormDialog ({ agent, nextCode, copy, closeHref, enterStarte
         </div>
         {/* Sign-in password, set when adding; later changes go through "Изменить пароль" in the row actions. */}
         {agent == null && <PasswordFields copy={f} register={register} control={control} errors={errors} />}
+        {/* The salesman's districts: every shop in them is theirs (asked for; not in the frame). */}
+        <FormField variant='form' label={f.districts} hint={f.districtsHint} htmlFor='agent-districts'>
+          <Controller
+            control={control} name='districtIds'
+            render={({ field }) => (
+              <MultiSelect
+                id='agent-districts' value={field.value} onChange={field.onChange}
+                options={districts.map((d) => ({ value: d.id, label: d.name }))}
+                placeholder={districts.length === 0 ? f.districtsNone : f.districtsPlaceholder} searchPlaceholder={f.districtsSearch}
+                summary={(n) => f.districtsSelected.replace('{n}', String(n))}
+                chips removeLabel={f.remove}
+              />
+            )}
+          />
+        </FormField>
         <FormField variant='form' label={f.notes} htmlFor='routeNotes'>
           <TextArea id='routeNotes' placeholder={f.notesPlaceholder} rows={1} {...register('routeNotes')} />
         </FormField>

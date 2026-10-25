@@ -26,8 +26,9 @@ export async function GET (request: Request, ctx: RouteContext<'/data/forms/[kin
         : kind === 'agent'
           ? await Promise.all([
             id == null ? null : getAgent(id),
-            id == null ? api<{ code: string }>('/v1/agents/next-code').then((n) => n.code) : ''
-          ]).then(([agent, nextCode]) => ({ agent, nextCode }))
+            id == null ? api<{ code: string }>('/v1/agents/next-code').then((n) => n.code) : '',
+            districtOptions()
+          ]).then(([agent, nextCode, districts]) => ({ agent, nextCode, districts }))
           : null
     if (body == null) return NextResponse.json(null, { status: 404 })
     return NextResponse.json(body, { headers: { 'cache-control': 'private, no-store' } })

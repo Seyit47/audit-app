@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/Button'
 import { FigmaIcon } from '@/components/ui/FigmaIcon'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { getAgentsSummary, listAgents, type AgentListQuery } from '@/features/agents/api'
+import { districtOptions } from '@/features/districts/api'
 import { AgentsSummary } from '@/features/agents/components/AgentsSummary'
 import { AgentFormHost } from '@/features/agents/components/AgentFormHost'
 import { AgentPasswordHost } from '@/features/agents/components/AgentPasswordHost'
@@ -26,12 +27,14 @@ export default async function SalesmenPage ({ searchParams }: PageProps<'/salesm
     size: p.size,
     q: p.q ?? undefined,
     status: p.status ?? undefined,
+    districtId: p.districtId ?? undefined,
     ...period,
     sort: p.sort,
     dir: p.dir
   }
-  const [page, summary] = await Promise.all([
+  const [page, districts, summary] = await Promise.all([
     listAgents(query),
+    districtOptions(),
     getAgentsSummary(period.from, period.to),
   ])
   const href = (key: string, dir: 'asc' | 'desc') => {
@@ -48,13 +51,13 @@ export default async function SalesmenPage ({ searchParams }: PageProps<'/salesm
         description={copy.description}
         actions={
           <>
-            <Button variant='secondary' href={`/export?${new URLSearchParams({ type: 'AGENTS_XLSX', back: '/salesmen', ...Object.fromEntries(Object.entries(sp).filter((e): e is [string, string] => e[1] != null && ['status', 'from', 'to', 'q'].includes(e[0]))) }).toString()}`} icon={<FigmaIcon name='export' width={13} height={13} />}>{copy.exportRoster}</Button>
+            <Button variant='secondary' href={`/export?${new URLSearchParams({ type: 'AGENTS_XLSX', back: '/salesmen', ...Object.fromEntries(Object.entries(sp).filter((e): e is [string, string] => e[1] != null && ['status', 'districtId', 'from', 'to', 'q'].includes(e[0]))) }).toString()}`} icon={<FigmaIcon name='export' width={13} height={13} />}>{copy.exportRoster}</Button>
             <Button dialog={{ kind: 'agent' }} href='/salesmen?add=1' icon={<FigmaIcon name='plus' width={10.5} height={10.5} />}>{copy.addSalesman}</Button>
           </>
         }
       />
       <AgentsSummary summary={summary} copy={copy} locale={locale} />
-      <AgentsToolbar copy={copy} />
+      <AgentsToolbar copy={copy} districts={districts} />
       <AgentsTable page={page} copy={copy} locale={locale} sort={{ key: query.sort!, dir: query.dir!, href }} />
       {/* Opens from ?add=1 / ?edit=<id> in the browser, its data fetched on demand (no server render). */}
       <AgentFormHost copy={copy} />

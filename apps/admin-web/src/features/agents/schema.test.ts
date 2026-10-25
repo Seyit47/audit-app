@@ -7,7 +7,7 @@ import { shopFormCopy } from '../shops/copy'
 const f = agentsCopy.ru.form
 const valid = {
   fullName: 'Ахмед', code: 'SL-101', phone: '+993 65 123456', whatsappPhone: '', routeNotes: '',
-  dailyVisitPlan: '25', dailyAuditPlan: '20', device: 'keep' as const, status: 'ACTIVE' as const,
+  dailyVisitPlan: '25', dailyAuditPlan: '20', districtIds: [], device: 'keep' as const, status: 'ACTIVE' as const,
   password: 'Kamil2026', confirmPassword: 'Kamil2026'
 }
 const messages = (r: { success: boolean, error?: { issues: Array<{ path: PropertyKey[], message: string }> } }) =>

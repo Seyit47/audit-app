@@ -12,6 +12,7 @@ import '../../../../core/widgets/filter_chips.dart';
 import '../../../../core/widgets/form_field.dart';
 import '../../data/admin_api.dart';
 import '../../../../core/widgets/adaptive.dart';
+import '../../../../core/widgets/multi_select_field.dart';
 import '../../../../core/format/phone.dart';
 
 /// Mobile Add Salesman (approved exception A7): the fields of Figma `495:3932`, laid out with the
@@ -33,6 +34,10 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
   final _visits = TextEditingController(text: '25');
   final _audits = TextEditingController(text: '20');
   String _status = 'ACTIVE';
+
+  /// The districts the agent works (every shop in them is theirs).
+  Set<String> _districtIds = {};
+  List<Json> _districts = const [];
   bool _saving = false;
   String? _error;
 
@@ -40,6 +45,9 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
   void initState() {
     super.initState();
     final api = ref.read(adminApiProvider);
+    api.districts().then((d) {
+      if (mounted) setState(() => _districts = d.where((x) => x['id'] != null).toList());
+    }, onError: (_) {});
     api.nextAgentCode().then((code) {
       if (mounted && _code.text.isEmpty) _code.text = code;
     }, onError: (_) {});
@@ -79,6 +87,7 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
         'dailyVisitPlan': visits,
         'dailyAuditPlan': audits,
         'workStatus': _status,
+        'districtIds': _districtIds.toList(),
       });
       if (!mounted) return;
       await _showPassword(res['temporaryPassword'] as String);
@@ -178,6 +187,17 @@ class _AgentFormScreenState extends ConsumerState<AgentFormScreen> {
                       keyboardType: TextInputType.phone,
                       inputFormatters: const [TmPhoneFormatter()],
                       onChanged: touch,
+                    ),
+                    gap,
+                    AppFormField(
+                      label: l10n.districtsTitle,
+                      child: AppMultiSelect(
+                        title: l10n.districtsTitle,
+                        values: _districtIds,
+                        hint: _districts.isEmpty ? l10n.districtsEmpty : l10n.selectDistrict,
+                        items: [for (final d in _districts) (d['id'] as String, d['name'] as String)],
+                        onChanged: (v) => setState(() => _districtIds = v),
+                      ),
                     ),
                     gap,
                     AppTextFormField(label: l10n.routeNotes, controller: _notes, hint: l10n.routeNotesHint, minLines: 3, maxLines: 5, maxLength: 2000),

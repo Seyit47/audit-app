@@ -6,7 +6,7 @@ import type { Agent } from '../api'
 import type { AgentsCopy } from '../copy'
 import { AgentFormDialog } from './AgentFormDialog'
 
-interface AgentFormData { agent: Agent | null, nextCode: string }
+interface AgentFormData { agent: Agent | null, districts: Array<{ id: string, name: string }>, nextCode: string }
 
 /**
  * Add / edit salesman dialog of 495:3932, opened from `?add=1` or `?edit=<id>` (or `?edit=1` on a salesman's page,
@@ -27,5 +27,5 @@ export function AgentFormHost ({ copy, agentId }: { copy: AgentsCopy, agentId?: 
     )
   }
   const d = form.data
-  return <AgentFormDialog key={form.key} agent={d.agent} nextCode={d.nextCode} copy={copy} closeHref={form.closeHref} enterStartedAt={form.enterStartedAt} />
+  return <AgentFormDialog key={form.key} agent={d.agent} districts={d.districts} nextCode={d.nextCode} copy={copy} closeHref={form.closeHref} enterStartedAt={form.enterStartedAt} />
 }

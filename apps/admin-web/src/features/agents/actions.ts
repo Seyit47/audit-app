@@ -12,6 +12,7 @@ export interface AgentInput {
   routeNotes: string | null
   dailyVisitPlan: number
   dailyAuditPlan: number
+  districtIds: string[]
   /** ACTIVE / ON_LEAVE, or ARCHIVED = deactivated ("Архив"). */
   status: 'ACTIVE' | 'ON_LEAVE' | 'ARCHIVED'
 }
@@ -24,6 +25,7 @@ const fields = (i: AgentInput) => ({
   routeNotes: i.routeNotes,
   dailyVisitPlan: i.dailyVisitPlan,
   dailyAuditPlan: i.dailyAuditPlan,
+  districtIds: i.districtIds,
   workStatus: i.status === 'ON_LEAVE' ? 'ON_LEAVE' : 'ACTIVE'
 })
 

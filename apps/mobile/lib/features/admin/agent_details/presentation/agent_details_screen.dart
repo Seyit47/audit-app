@@ -131,6 +131,7 @@ class _AgentDetailsScreenState extends ConsumerState<AgentDetailsScreen> {
   List<Widget> _content(BuildContext context, AppLocalizations l10n, _Data d) {
     final c = context.colors;
     final a = d.agent;
+    final districts = [for (final x in ((a['districts'] as List?) ?? const []).cast<Map>()) x['name'] as String];
     final lang = Localizations.localeOf(context).languageCode;
     final kpis = (a['kpis'] as Map?) ?? const {};
     final position = (a['position'] as Map?)?.cast<String, dynamic>();
@@ -187,6 +188,10 @@ class _AgentDetailsScreenState extends ConsumerState<AgentDetailsScreen> {
                 ),
               ],
             ),
+            if (districts.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              IconLine(icon: 'sector', iconSize: const Size(14.13, 14.1), text: '${l10n.districtsTitle}: ', bold: districts.join(', ')),
+            ],
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

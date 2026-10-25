@@ -50,11 +50,12 @@ class AdminApi {
 
   /// The cards' visits and photos are totals: the server counts within a period (today by default), so
   /// the period is all time.
-  Future<PageOf> agents({int page = 1, String? q, String? status}) => _page('/agents', {
+  Future<PageOf> agents({int page = 1, String? q, String? status, String? districtId}) => _page('/agents', {
     'page': page,
     'size': 50,
     'q': q,
     'status': status,
+    'districtId': districtId,
     'sort': 'fullName',
     'dir': 'asc',
     'from': '2020-01-01',

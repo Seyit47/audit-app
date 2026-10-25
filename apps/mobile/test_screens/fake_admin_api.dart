@@ -44,7 +44,7 @@ class FakeAdminApi implements AdminApi {
   ];
 
   @override
-  Future<PageOf> agents({int page = 1, String? q, String? status}) async => PageOf(_agents, _agents.length);
+  Future<PageOf> agents({int page = 1, String? q, String? status, String? districtId}) async => PageOf(_agents, _agents.length);
 
   static final _agents = [
     for (final (i, name) in ['Ахмед Каримов', 'Довлет Оразов', 'Мурад Бердыев'].indexed)
