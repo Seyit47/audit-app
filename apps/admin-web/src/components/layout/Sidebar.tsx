@@ -40,8 +40,8 @@ export function Sidebar ({ companyName, logoUrl, copy }: { companyName: string |
           {logoUrl != null
             // eslint-disable-next-line @next/next/no-img-element -- presigned URL from the API
             ? <img src={logoUrl} alt='' className='size-full object-cover' />
-            // eslint-disable-next-line @next/next/no-img-element -- static Figma SVG at its own size
-            : <img src={iconSrc('logo')} alt='' width={18.2875} height={18.2417} />}
+            // eslint-disable-next-line @next/next/no-img-element -- the Best Food mark, white on the sidebar
+            : <img src={iconSrc('logo')} alt='' width={24} height={24} />}
         </div>
         <p className='truncate text-[18px] font-bold leading-4 tracking-[-0.4px] text-white'>
           {companyName ?? copy.companyFallback}

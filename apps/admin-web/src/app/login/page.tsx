@@ -14,8 +14,8 @@ export default async function LoginPage () {
       <div className='flex w-[400px] flex-col gap-6 rounded-2xl bg-pure-white p-8 shadow-[0px_25px_50px_-12px_rgba(15,23,42,0.15)]'>
         <div className='flex items-center gap-3'>
           <span className='flex size-9 items-center justify-center rounded-lg bg-accent'>
-            {/* eslint-disable-next-line @next/next/no-img-element -- static Figma SVG */}
-            <img src={iconSrc('logo')} alt='' width={18.2875} height={18.2417} />
+            {/* eslint-disable-next-line @next/next/no-img-element -- the Best Food mark, white on the accent */}
+            <img src={iconSrc('logo')} alt='' width={24} height={24} />
           </span>
           <div className='flex flex-col'>
             <h1 className='text-lg font-bold leading-6 text-black'>{copy.title}</h1>

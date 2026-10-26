@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6A5CFF"/>
+      <stop offset="1" stop-color="#3B30CF"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="224" fill="url(#bg)"/>
+  <g fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round">
+    <!-- plate -->
+    <circle cx="512" cy="512" r="236" stroke-width="54"/>
+    <circle cx="512" cy="512" r="156" stroke-width="14" stroke-opacity="0.45"/>
+    <!-- check: the audit passed -->
+    <path d="M418 518 L488 588 L616 440" stroke-width="58"/>
+    <!-- fork -->
+    <path d="M150 306 V392 C150 436 176 458 206 458 C236 458 262 436 262 392 V306 M206 306 V456 M206 458 V718" stroke-width="40"/>
+    <!-- knife -->
+    <path d="M818 718 V306" stroke-width="40"/>
+    <path d="M818 306 C870 332 892 404 882 462 C876 500 850 520 818 520 Z" fill="#FFFFFF" stroke="none"/>
+  </g>
+</svg>

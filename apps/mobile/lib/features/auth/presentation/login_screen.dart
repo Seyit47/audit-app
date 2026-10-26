@@ -9,6 +9,7 @@ import '../../../core/network/api_exception.dart';
 import '../../../core/settings/app_settings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
+import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/form_field.dart';
 import '../../../core/widgets/home_header.dart';
@@ -103,6 +104,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      // The Best Food mark above the title.
+                      const Align(alignment: Alignment.centerLeft, child: AppIcon('logo', width: 64, height: 64)),
+                      const SizedBox(height: 20),
                       Text(
                         l10n.loginTitle,
                         style: TextStyle(
