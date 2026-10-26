@@ -10,7 +10,7 @@ class AppLocalizationsTk extends AppLocalizations {
   AppLocalizationsTk([String locale = 'tk']) : super(locale);
 
   @override
-  String get appTitle => 'Audit';
+  String get appTitle => 'Best Food';
 
   @override
   String get homePrimaryBadge => 'Esasy hereket';

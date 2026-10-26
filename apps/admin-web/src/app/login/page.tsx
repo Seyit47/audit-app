@@ -4,7 +4,7 @@ import { authCopy } from '@/features/auth/copy'
 import { getCopy } from '@/lib/locale'
 import { iconSrc } from '@/components/ui/FigmaIcon'
 
-export const metadata: Metadata = { title: 'Audit' }
+export const metadata: Metadata = { title: 'Best Food' }
 
 /** Sign-in (approved exception G1): the dialog surface, FormField and Button of 162:20071. */
 export default async function LoginPage () {

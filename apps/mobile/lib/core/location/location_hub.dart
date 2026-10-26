@@ -102,7 +102,7 @@ class LocationHub {
         distanceFilter: 0,
         intervalDuration: interval,
         foregroundNotificationConfig: background
-            ? const ForegroundNotificationConfig(notificationTitle: 'Аудит', notificationText: 'Рабочее время: отслеживание маршрута', enableWakeLock: true)
+            ? const ForegroundNotificationConfig(notificationTitle: 'Best Food', notificationText: 'Рабочее время: отслеживание маршрута', enableWakeLock: true)
             : null,
       );
     }

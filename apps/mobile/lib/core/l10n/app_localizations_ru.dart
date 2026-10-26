@@ -10,7 +10,7 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
-  String get appTitle => 'Аудит';
+  String get appTitle => 'Best Food';
 
   @override
   String get homePrimaryBadge => 'Основное действие';

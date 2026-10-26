@@ -12,7 +12,7 @@ const inter = Inter({ variable: "--font-inter", subsets: ["latin", "cyrillic"] }
 const spaceGrotesk = Space_Grotesk({ variable: "--font-space-grotesk", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Audit",
+  title: "Best Food",
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {

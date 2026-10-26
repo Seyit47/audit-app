@@ -96,7 +96,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In ru, this message translates to:
-  /// **'Аудит'**
+  /// **'Best Food'**
   String get appTitle;
 
   /// No description provided for @homePrimaryBadge.
