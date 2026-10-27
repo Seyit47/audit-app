@@ -23,7 +23,7 @@ export class AuthRepository {
     })
   }
 
-  createRefreshToken (data: { userId: string, tokenHash: string, mobile: boolean, deviceId: string | null, expiresAt: Date }) {
+  createRefreshToken (data: { userId: string, tokenHash: string, mobile: boolean, remember: boolean, deviceId: string | null, expiresAt: Date }) {
     return this.prisma.refreshToken.create({ data: { id: newId(), ...data } })
   }
 

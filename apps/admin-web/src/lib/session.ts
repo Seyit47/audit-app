@@ -17,8 +17,8 @@ async function session () {
   return createSession({ cookies: store, fetch, apiUrl: API_URL })
 }
 
-export async function login (login: string, password: string) {
-  return (await session()).login(login, password)
+export async function login (login: string, password: string, remember = false) {
+  return (await session()).login(login, password, remember)
 }
 
 export async function logout () {

@@ -1,9 +1,11 @@
 // Session logic shared by server code (session.ts) and proxy.ts. Framework-free so it can be tested.
 
-export const COOKIES = { access: 'at', refresh: 'rt' } as const
+export const COOKIES = { access: 'at', refresh: 'rt', remember: 'rm' } as const
 
-// The API ends refresh tokens after 12 h idle; the cookie lives as long so it never outlives the token.
+// The API ends refresh tokens after 12 h idle (30 days with "remember me"); the cookie lives as long so it
+// never outlives the token. The `rm` cookie carries the choice across refreshes.
 const REFRESH_MAX_AGE_S = 12 * 60 * 60
+const REMEMBERED_MAX_AGE_S = 30 * 24 * 60 * 60
 const ACCESS_MAX_AGE_S = 15 * 60
 
 export interface CookieStore {
@@ -30,26 +32,30 @@ interface Tokens { accessToken: string, refreshToken: string }
 const cookieOptions = (maxAge: number) => ({ httpOnly: true, secure: process.env.SECURE_COOKIES !== 'false', sameSite: 'lax', path: '/', maxAge })
 
 export function createSession ({ cookies, fetch, apiUrl }: { cookies: CookieStore, fetch: Fetch, apiUrl: string }) {
-  function store (tokens: Tokens) {
+  function store (tokens: Tokens, remember: boolean) {
+    const refreshMaxAge = remember ? REMEMBERED_MAX_AGE_S : REFRESH_MAX_AGE_S
     cookies.set(COOKIES.access, tokens.accessToken, cookieOptions(ACCESS_MAX_AGE_S))
-    cookies.set(COOKIES.refresh, tokens.refreshToken, cookieOptions(REFRESH_MAX_AGE_S))
+    cookies.set(COOKIES.refresh, tokens.refreshToken, cookieOptions(refreshMaxAge))
+    if (remember) cookies.set(COOKIES.remember, '1', cookieOptions(refreshMaxAge))
   }
 
   function clear () {
     cookies.delete(COOKIES.access)
     cookies.delete(COOKIES.refresh)
+    cookies.delete(COOKIES.remember)
   }
 
-  async function login (login: string, password: string) {
+  /** `remember` keeps the session 30 days idle instead of 12 h. */
+  async function login (login: string, password: string, remember = false) {
     const res = await fetch(`${apiUrl}/v1/auth/login`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ login, password })
+      body: JSON.stringify({ login, password, remember })
     })
     const body = await res.json().catch(() => ({}))
     if (!res.ok) throw new LoginError(body?.error?.code ?? 'LOGIN_FAILED', body?.error?.message ?? 'Login failed')
     if (body.user?.role !== 'ADMIN') throw new LoginError('FORBIDDEN', 'Only admins can sign in here')
-    store(body)
+    store(body, remember)
   }
 
   /** Rotates the refresh token. Returns false (and clears cookies) when the session is over. */
@@ -62,7 +68,7 @@ export function createSession ({ cookies, fetch, apiUrl }: { cookies: CookieStor
       body: JSON.stringify({ refreshToken })
     })
     if (!res.ok) { clear(); return false }
-    store(await res.json())
+    store(await res.json(), cookies.get(COOKIES.remember) != null)
     return true
   }
 

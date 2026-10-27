@@ -9,9 +9,10 @@ export type SignInState = { error: 'credentials' | 'agent' | 'rateLimited' | 'ge
 export async function signIn (_prev: SignInState, form: FormData): Promise<SignInState> {
   const email = String(form.get('email') ?? '').trim()
   const password = String(form.get('password') ?? '')
+  const remember = form.get('remember') === 'on'
   if (email === '' || password === '') return { error: 'credentials' }
   try {
-    await login(email, password)
+    await login(email, password, remember)
   } catch (err) {
     if (err instanceof LoginError) {
       if (err.code === 'FORBIDDEN') return { error: 'agent' }

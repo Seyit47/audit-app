@@ -23,6 +23,7 @@
   "loginLogin": "Telefon ýa-da e-poçta",
   "loginPassword": "Açar söz",
   "loginSubmit": "Gir",
+  "rememberPassword": "Açar sözi ýatda sakla",
   "errorCredentials": "Login ýa-da açar söz nädogry",
   "errorDeviceNotBound": "Bu hasap başga enjama baglanan. Administratora ýüz tutuň.",
   "errorRateLimited": "Synanyşyk köp boldy. Bir minutdan gaýtadan synanyşyň.",

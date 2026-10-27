@@ -79,6 +79,9 @@ class AppLocalizationsTk extends AppLocalizations {
   String get loginSubmit => 'Gir';
 
   @override
+  String get rememberPassword => 'Açar sözi ýatda sakla';
+
+  @override
   String get errorCredentials => 'Login ýa-da açar söz nädogry';
 
   @override

@@ -60,6 +60,27 @@ describe('session', () => {
     expect(jar.get(COOKIES.refresh)?.value).toBe('r2')
   })
 
+  it('"remember me" sends the flag, keeps the refresh cookie 30 days and carries that across refreshes', async () => {
+    const { jar, store } = memoryCookies()
+    const bodies: unknown[] = []
+    const fetch = async (_url: string, init?: RequestInit) => {
+      bodies.push(JSON.parse(String(init?.body)))
+      return json(200, { accessToken: 'a', refreshToken: `r${bodies.length}`, user: { role: 'ADMIN' } })
+    }
+    const session = createSession({ cookies: store, fetch, apiUrl: 'http://api' })
+    await session.login('a@b.c', 'pw', true)
+    expect(bodies[0]).toMatchObject({ remember: true })
+    expect(jar.get(COOKIES.refresh)?.opts).toMatchObject({ maxAge: 30 * 24 * 3600 })
+    expect(jar.get(COOKIES.remember)?.value).toBe('1')
+    await session.refresh()
+    expect(jar.get(COOKIES.refresh)).toMatchObject({ value: 'r2', opts: expect.objectContaining({ maxAge: 30 * 24 * 3600 }) })
+
+    const plain = memoryCookies()
+    await createSession({ cookies: plain.store, fetch, apiUrl: 'http://api' }).login('a@b.c', 'pw')
+    expect(plain.jar.get(COOKIES.refresh)?.opts).toMatchObject({ maxAge: 12 * 3600 })
+    expect(plain.jar.has(COOKIES.remember)).toBe(false)
+  })
+
   it('after the idle limit the refresh fails, cookies are cleared and the session expires', async () => {
     const { jar, store } = memoryCookies()
     store.set(COOKIES.access, 'old', {})

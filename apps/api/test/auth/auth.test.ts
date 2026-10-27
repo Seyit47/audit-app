@@ -83,6 +83,24 @@ test('refresh fails after the idle limit: web 12 h, mobile 30 days', async () =>
   assert.strictEqual((await refresh(next)).statusCode, 401)
 })
 
+test('"remember me" on the web: 30 days idle, kept across rotation', async () => {
+  await f.admin(app, 'boss@test.local')
+  const token = (await login({ login: 'boss@test.local', password: f.PASSWORD, remember: true })).json().refreshToken
+  const idle = (token: string, hours: number) => app.prisma.refreshToken.update({
+    where: { tokenHash: hash(token) }, data: { lastUsedAt: new Date(Date.now() - hours * 3_600_000) }
+  })
+  await idle(token, 13)
+  const rotated = await refresh(token)
+  assert.strictEqual(rotated.statusCode, 200, rotated.body)
+  const next = rotated.json().refreshToken
+  await idle(next, 24 * 29)
+  const stillOk = await refresh(next)
+  assert.strictEqual(stillOk.statusCode, 200, stillOk.body)
+  const last = stillOk.json().refreshToken
+  await idle(last, 24 * 31)
+  assert.strictEqual((await refresh(last)).statusCode, 401)
+})
+
 test('deactivated: no login; for 72 h the session may refresh and submit data recorded before deactivation', async () => {
   const g = await f.agent(app)
   const tokens = (await login({ login: g.phone, password: f.PASSWORD, device: device() })).json()

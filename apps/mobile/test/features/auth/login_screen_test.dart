@@ -1,3 +1,5 @@
+import 'package:audit_mobile/core/auth/session_provider.dart';
+import 'package:audit_mobile/core/auth/session_store.dart';
 import 'package:audit_mobile/core/l10n/app_localizations.dart';
 import 'package:audit_mobile/core/settings/app_settings.dart';
 import 'package:audit_mobile/core/theme/app_theme.dart';
@@ -6,17 +8,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+class _Store extends Mock implements SessionStore {}
 
 void main() {
   late SharedPreferences prefs;
+  late _Store store;
 
-  Future<void> open(WidgetTester tester) async {
+  Future<void> open(WidgetTester tester, {SavedLogin? saved}) async {
     SharedPreferences.setMockInitialValues({});
     prefs = await SharedPreferences.getInstance();
+    store = _Store();
+    when(() => store.readSavedLogin()).thenAnswer((_) async => saved);
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+        overrides: [sharedPreferencesProvider.overrideWithValue(prefs), sessionStoreProvider.overrideWithValue(store)],
         child: MaterialApp(
           theme: AppTheme.light(),
           locale: const Locale('en'),
@@ -54,6 +62,22 @@ void main() {
     await tester.enterText(find.byType(TextField).first, 'admin@audit.com');
     await tester.pump();
     expect(find.text('Enter an email like name@company.com'), findsNothing);
+  });
+
+  testWidgets('a remembered sign-in fills the form, with its method and the box ticked', (tester) async {
+    await open(
+      tester,
+      saved: const SavedLogin(method: 'email', login: 'admin@audit.com', password: 'secret1'),
+    );
+    await tester.pump();
+    expect(field(tester, 0).controller!.text, 'admin@audit.com');
+    expect(field(tester, 1).controller!.text, 'secret1');
+    expect(tester.widget<Checkbox>(find.byType(Checkbox)).value, isTrue);
+    expect(find.text('Remember password'), findsOneWidget);
+
+    await tester.tap(find.text('Remember password'));
+    await tester.pump();
+    expect(tester.widget<Checkbox>(find.byType(Checkbox)).value, isFalse);
   });
 
   testWidgets('the eye shows and hides the password', (tester) async {

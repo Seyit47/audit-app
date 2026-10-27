@@ -23,6 +23,7 @@
   "loginLogin": "Телефон или email",
   "loginPassword": "Пароль",
   "loginSubmit": "Войти",
+  "rememberPassword": "Запомнить пароль",
   "errorCredentials": "Неверный логин или пароль",
   "errorDeviceNotBound": "Аккаунт привязан к другому устройству. Обратитесь к администратору.",
   "errorRateLimited": "Слишком много попыток. Попробуйте через минуту.",

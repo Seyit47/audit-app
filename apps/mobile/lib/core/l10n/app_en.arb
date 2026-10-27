@@ -23,6 +23,7 @@
   "loginLogin": "Phone or email",
   "loginPassword": "Password",
   "loginSubmit": "Sign in",
+  "rememberPassword": "Remember password",
   "errorCredentials": "Wrong login or password",
   "errorDeviceNotBound": "This account is bound to another device. Contact your administrator.",
   "errorRateLimited": "Too many attempts. Try again in a minute.",

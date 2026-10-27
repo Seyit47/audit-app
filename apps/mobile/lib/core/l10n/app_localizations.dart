@@ -231,6 +231,12 @@ abstract class AppLocalizations {
   /// **'Войти'**
   String get loginSubmit;
 
+  /// No description provided for @rememberPassword.
+  ///
+  /// In ru, this message translates to:
+  /// **'Запомнить пароль'**
+  String get rememberPassword;
+
   /// No description provided for @errorCredentials.
   ///
   /// In ru, this message translates to:

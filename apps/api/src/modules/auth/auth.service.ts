@@ -12,6 +12,8 @@ import { LoginThrottle } from './login-throttle.js'
 
 const HOUR = 3_600_000
 export const IDLE_LIMIT_MS = { web: 12 * HOUR, mobile: 30 * 24 * HOUR }
+/** Mobile sessions and remembered web sessions idle out after 30 days, other web sessions after 12 h. */
+const idleLimitOf = (token: { mobile: boolean, remember: boolean }) => token.mobile || token.remember ? IDLE_LIMIT_MS.mobile : IDLE_LIMIT_MS.web
 /** Deactivated agents may still submit data recorded before deactivation for this long (api.md). */
 export const DEACTIVATION_GRACE_MS = 72 * HOUR
 
@@ -58,19 +60,18 @@ export class AuthService {
       deviceId = (await this.repo.bindDevice(user.id, bound ?? body.device.installId, body.device.model)).id
     }
     await this.repo.touch(user.id)
-    return this.issue(user.id, user.role, body.device != null, deviceId)
+    return this.issue(user.id, user.role, body.device != null, deviceId, body.remember === true)
   }
 
   async refresh (refreshToken: string) {
     const token = await this.repo.findRefreshToken(sha256(refreshToken))
-    const idleLimit = token?.mobile === true ? IDLE_LIMIT_MS.mobile : IDLE_LIMIT_MS.web
     if (token == null || token.revokedAt != null || !this.mayRefresh(token.user) ||
-        Date.now() - token.lastUsedAt.getTime() > idleLimit) {
+        Date.now() - token.lastUsedAt.getTime() > idleLimitOf(token)) {
       throw unauthenticated('Session expired')
     }
     if (!await this.repo.revokeIfLive(token.id)) throw unauthenticated('Session expired')
     await this.repo.touch(token.userId)
-    return this.issue(token.user.id, token.user.role, token.mobile, token.deviceId)
+    return this.issue(token.user.id, token.user.role, token.mobile, token.deviceId, token.remember)
   }
 
   /** Active users, and deactivated ones within the grace period (their requests stay limited to `grace` routes). */
@@ -123,10 +124,10 @@ export class AuthService {
     }
   }
 
-  private async issue (userId: string, role: 'ADMIN' | 'AGENT', mobile: boolean, deviceId: string | null) {
+  private async issue (userId: string, role: 'ADMIN' | 'AGENT', mobile: boolean, deviceId: string | null, remember: boolean) {
     const refreshToken = randomBytes(32).toString('base64url')
-    const idle = mobile ? IDLE_LIMIT_MS.mobile : IDLE_LIMIT_MS.web
-    await this.repo.createRefreshToken({ userId, tokenHash: sha256(refreshToken), mobile, deviceId, expiresAt: new Date(Date.now() + idle) })
+    const idle = idleLimitOf({ mobile, remember })
+    await this.repo.createRefreshToken({ userId, tokenHash: sha256(refreshToken), mobile, remember, deviceId, expiresAt: new Date(Date.now() + idle) })
     const agentId = role === 'AGENT' ? userId : null
     return {
       accessToken: this.sign(agentId != null ? { sub: userId, role, agentId } : { sub: userId, role }),

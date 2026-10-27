@@ -6,7 +6,8 @@ export const LoginBody = Type.Object({
   device: Type.Optional(Type.Object({
     installId: Type.String({ minLength: 1, maxLength: 200 }),
     model: Type.String({ maxLength: 200 })
-  }))
+  })),
+  remember: Type.Optional(Type.Boolean({ description: 'Web "remember me": the session idles out after 30 days instead of 12 h' }))
 }, { additionalProperties: false })
 export type LoginBody = Static<typeof LoginBody>
 

@@ -8,6 +8,7 @@ export const authCopy = defineCopy({
     email: 'Email',
     password: 'Password',
     submit: 'Sign in',
+    remember: 'Remember me',
     errors: {
       credentials: 'Wrong email or password',
       agent: 'Agents sign in from the mobile app',
@@ -21,6 +22,7 @@ export const authCopy = defineCopy({
     email: 'Email',
     password: 'Пароль',
     submit: 'Войти',
+    remember: 'Запомнить меня',
     errors: {
       credentials: 'Неверный email или пароль',
       agent: 'Агенты входят через мобильное приложение',
@@ -34,6 +36,7 @@ export const authCopy = defineCopy({
     email: 'Email',
     password: 'Açar söz',
     submit: 'Girmek',
+    remember: 'Meni ýatda sakla',
     errors: {
       credentials: 'Email ýa-da açar söz nädogry',
       agent: 'Agentler mobil programma arkaly girýärler',

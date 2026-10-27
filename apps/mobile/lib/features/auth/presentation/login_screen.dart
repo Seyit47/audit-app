@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/auth/session_provider.dart';
+import '../../../core/auth/session_store.dart';
 import '../../../core/config/app_config.dart';
 import '../../../core/format/phone.dart';
 import '../../../core/l10n/app_localizations.dart';
@@ -34,11 +36,31 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   String? _error;
   bool _showPassword = false;
 
+  /// "Remember password": the sign-in is kept in the keystore and filled in next time. On by default.
+  bool _remember = true;
+
   /// The login field shows its error only once the user has left it (or tried to sign in), not after the first letter.
   bool _touched = false;
 
   static const _methodKey = 'login_method';
   late LoginMethod _method = LoginMethod.values.asNameMap()[ref.read(sharedPreferencesProvider).getString(_methodKey)] ?? LoginMethod.phone;
+
+  @override
+  void initState() {
+    super.initState();
+    _restoreSaved();
+  }
+
+  Future<void> _restoreSaved() async {
+    final saved = await ref.read(sessionStoreProvider).readSavedLogin();
+    if (saved == null || !mounted) return;
+    setState(() {
+      _method = LoginMethod.values.asNameMap()[saved.method] ?? _method;
+      _login.text = saved.login;
+      _password.text = saved.password;
+      _remember = true;
+    });
+  }
 
   @override
   void dispose() {
@@ -69,8 +91,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _busy = true;
       _error = null;
     });
+    // Read before signing in: a successful sign-in replaces this screen, after which ref is gone.
+    final store = ref.read(sessionStoreProvider);
+    final remember = _remember ? SavedLogin(method: _method.name, login: _login.text, password: _password.text) : null;
     try {
       await ref.read(sessionProvider.notifier).signIn(_loginValue!, _password.text, device: await DeviceIdentity().read());
+      if (remember != null) {
+        await store.writeSavedLogin(remember);
+      } else {
+        await store.clearSavedLogin();
+      }
+      // Lets the platform password manager offer to save the sign-in too.
+      TextInput.finishAutofillContext();
     } on ApiException catch (e) {
       setState(
         () => _error = switch (e.code) {
@@ -169,7 +201,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           hasError: _error != null,
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 12),
+                      _RememberRow(value: _remember, label: l10n.rememberPassword, onChanged: (v) => setState(() => _remember = v)),
+                      const SizedBox(height: 20),
                       PrimaryButton(label: l10n.loginSubmit, loading: _busy, onPressed: _valid ? _submit : null),
                       const SizedBox(height: 24),
                       const Center(child: AppVersionText()),
@@ -191,6 +225,52 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+/// "Remember password": a platform checkbox with its label, the whole row tappable.
+class _RememberRow extends StatelessWidget {
+  const _RememberRow({required this.value, required this.label, required this.onChanged});
+
+  final bool value;
+  final String label;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () => onChanged(!value),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 24,
+                height: 24,
+                child: Checkbox.adaptive(
+                  value: value,
+                  activeColor: c.accent,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
+                  onChanged: (v) => onChanged(v ?? false),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  label,
+                  style: AppTextStyles.caption.copyWith(color: c.textPrimary, fontWeight: FontWeight.w500),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
