@@ -35,9 +35,9 @@ export function AgentHeader ({ agent, copy, locale, exportHref }: {
           <span className='flex items-center gap-1 font-medium text-ink'><FigmaIcon name='agent-person' width={10} height={10} />{agent.fullName}</span>
           <span className='rounded bg-dark-accent px-2 py-0.5 font-display text-muted'>{agent.code}</span>
           <a href={`tel:${agent.phone}`} className='flex items-center gap-1 text-muted'><FigmaIcon name='agent-phone' width={11.25} height={11.25} />{formatPhone(agent.phone)}</a>
-          {agent.districts.length > 0 && (
+          {(agent.districts?.length ?? 0) > 0 && (
             <span className='flex flex-wrap items-center gap-1.5'>
-              {agent.districts.map((x) => (
+              {agent.districts!.map((x) => (
                 <Link key={x.id} href={`/shops?districtId=${x.id}`} className='flex items-center gap-1 rounded-full bg-dark-accent px-2 py-0.5 text-accent hover:bg-accent hover:text-white'>
                   <FigmaIcon name='agent-sector' width={7} height={10} />{x.name}
                 </Link>

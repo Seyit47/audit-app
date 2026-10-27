@@ -10,7 +10,8 @@ export interface AgentRow {
   fullName: string
   phone: string
   photo: Image | null
-  districts: Array<{ id: string, name: string }>
+  /** Missing from an API from before agent districts (an update in progress). */
+  districts?: Array<{ id: string, name: string }>
   locations: number
   visits: number
   photos: number
@@ -29,8 +30,8 @@ export interface Agent {
   phone: string
   whatsappPhone: string | null
   photo: Image | null
-  /** The districts the salesman works: every shop in them is theirs. */
-  districts: Array<{ id: string, name: string }>
+  /** The districts the salesman works: every shop in them is theirs (missing from an older API). */
+  districts?: Array<{ id: string, name: string }>
   routeNotes: string | null
   dailyVisitPlan: number
   dailyAuditPlan: number
