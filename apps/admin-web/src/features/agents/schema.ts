@@ -14,13 +14,14 @@ export const passwordRules = (password: string, confirm: string) => ({
 
 const passwordPair = (f: FormCopy) => z.object({
   password: z.string().refine((v) => { const r = passwordRules(v, v); return r.length && r.letter && r.digit }, f.errors.password),
-  confirmPassword: z.string()
+  confirmPassword: z.string().min(1, f.errors.field)
 })
 
 /** "Изменить пароль" (and the password part of Add salesman). */
 export function passwordSchema (f: FormCopy) {
   const base = passwordPair(f)
-  return base.refine((v) => v.confirmPassword === v.password, { path: ['confirmPassword'], message: f.errors.confirm, ...whenValid(base, ['confirmPassword']) })
+  // Compared once the confirmation is typed (not while the first password is still being entered).
+  return base.refine((v) => v.confirmPassword === '' || v.confirmPassword === v.password, { path: ['confirmPassword'], message: f.errors.confirm, ...whenValid(base, ['confirmPassword']) })
 }
 export type PasswordValues = z.input<ReturnType<typeof passwordSchema>>
 
@@ -39,10 +40,10 @@ export function agentSchema (f: FormCopy, adding: boolean) {
     status: z.enum(['ACTIVE', 'ON_LEAVE', 'ARCHIVED']),
     // Set only when adding; an edit leaves them empty and unchecked.
     password: adding ? passwordPair(f).shape.password : z.string(),
-    confirmPassword: z.string()
+    confirmPassword: adding ? passwordPair(f).shape.confirmPassword : z.string()
   })
   return base
     .refine((v) => v.dailyAuditPlan <= v.dailyVisitPlan, { path: ['dailyAuditPlan'], message: f.errors.plan, ...whenValid(base, ['dailyVisitPlan', 'dailyAuditPlan']) })
-    .refine((v) => !adding || v.confirmPassword === v.password, { path: ['confirmPassword'], message: f.errors.confirm, ...whenValid(base, ['confirmPassword']) })
+    .refine((v) => !adding || v.confirmPassword === '' || v.confirmPassword === v.password, { path: ['confirmPassword'], message: f.errors.confirm, ...whenValid(base, ['confirmPassword']) })
 }
 export type AgentValues = z.input<ReturnType<typeof agentSchema>>

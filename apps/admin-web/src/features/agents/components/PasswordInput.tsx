@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useWatch, type Control, type FieldErrors, type UseFormRegister } from 'react-hook-form'
+import { useWatch, type Control, type FieldErrors, type UseFormRegister, type UseFormTrigger } from 'react-hook-form'
 import { FormField, TextInput } from '@/components/ui/FormField'
 import { passwordRules } from '../schema'
 
@@ -21,19 +21,21 @@ interface PasswordFormValues { password?: string, confirmPassword?: string }
  * Password and its confirmation in a react-hook-form form, with the rules ticking off as the admin types and each
  * field's error under it. "Показать" reveals both.
  */
-export function PasswordFields<T extends PasswordFormValues, O = T> ({ copy, label, autoFocus, register, control, errors, className = '' }: {
+export function PasswordFields<T extends PasswordFormValues, O = T> ({ copy, label, autoFocus, register, control, errors, trigger, className = '' }: {
   copy: PasswordCopy
   label?: string
   autoFocus?: boolean
   register: UseFormRegister<T>
   control: Control<T, unknown, O>
   errors: FieldErrors<T>
+  trigger: UseFormTrigger<T>
   className?: string
 }) {
   // The block only knows its own two fields; the casts narrow the form's types to them.
   const reg = register as unknown as UseFormRegister<PasswordFormValues>
   const ctl = control as unknown as Control<PasswordFormValues>
   const errs = errors as FieldErrors<PasswordFormValues>
+  const recheck = trigger as unknown as UseFormTrigger<PasswordFormValues>
   const [password = '', confirm = ''] = useWatch({ control: ctl, name: ['password', 'confirmPassword'] })
   const [shown, setShown] = useState(false)
   const rules = passwordRules(password, confirm)
@@ -45,16 +47,22 @@ export function PasswordFields<T extends PasswordFormValues, O = T> ({ copy, lab
       </button>
     </span>
   )
-  const input = (name: 'password' | 'confirmPassword', focus?: boolean) => (
-    <div className='relative'>
-      <TextInput
-        variant='form' id={name} type={shown ? 'text' : 'password'} placeholder={copy.passwordPlaceholder}
-        maxLength={128} autoComplete='new-password' autoFocus={focus} className='pr-24'
-        {...reg(name, name === 'password' ? { deps: ['confirmPassword'] } : undefined)}
-      />
-      {toggle}
-    </div>
-  )
+  const input = (name: 'password' | 'confirmPassword', focus?: boolean) => {
+    const field = reg(name)
+    return (
+      <div className='relative'>
+        <TextInput
+          variant='form' id={name} type={shown ? 'text' : 'password'} placeholder={copy.passwordPlaceholder}
+          maxLength={128} autoComplete='new-password' autoFocus={focus} className='pr-24'
+          {...field}
+          // Editing the password after the confirmation was typed re-checks the match; while the confirmation is
+          // still empty nothing shows under it (the rules list below tracks the match live).
+          onChange={async (e) => { await field.onChange(e); if (name === 'password' && confirm !== '') void recheck('confirmPassword') }}
+        />
+        {toggle}
+      </div>
+    )
+  }
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
       <div className='grid grid-cols-2 gap-x-6 gap-y-4'>

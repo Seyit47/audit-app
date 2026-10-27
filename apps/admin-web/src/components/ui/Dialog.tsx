@@ -80,6 +80,8 @@ export function Dialog ({ open, onClose, title, badge, subtitle, footer, childre
           style={leaving ? undefined : resume}
         >
           <RadixDialog.Content
+            // Escape with a dropdown open inside the dialog closes the dropdown only (the dialog's form stays).
+            onEscapeKeyDown={(e) => { if (document.querySelector('[data-popup]') != null) e.preventDefault() }}
             forceMount
             aria-describedby={subtitle == null ? undefined : descriptionId}
             className={`flex max-h-full flex-col overflow-hidden focus:outline-none ${v.card} ${leaving ? 'anim-dialog-out' : 'anim-dialog-in'}`}

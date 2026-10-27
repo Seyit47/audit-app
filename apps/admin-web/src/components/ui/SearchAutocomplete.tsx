@@ -110,7 +110,7 @@ export function SearchAutocomplete ({ placeholder, defaultValue = '', load, onSu
         className={inputClassName ?? 'h-10 w-full rounded-lg bg-secondary-bg pl-10 pr-4 text-sm text-ink placeholder:text-muted hover:bg-line focus:bg-pure-white focus:outline-none focus:ring-2 focus:ring-accent/30'}
       />
       {show && (
-        <div ref={list} id={id} role='listbox' className='scrollbar-none anim-menu-in origin-top absolute inset-x-0 top-[calc(100%+6px)] z-40 flex max-h-[420px] min-w-80 flex-col overflow-y-auto rounded-xl border border-border bg-pure-white py-1.5 shadow-[0px_20px_25px_-5px_rgba(0,0,0,0.1),0px_8px_10px_-6px_rgba(0,0,0,0.1)]'>
+        <div ref={list} id={id} role='listbox' data-popup className='scrollbar-none anim-menu-in origin-top absolute inset-x-0 top-[calc(100%+6px)] z-40 flex max-h-[420px] min-w-80 flex-col overflow-y-auto rounded-xl border border-border bg-pure-white py-1.5 shadow-[0px_20px_25px_-5px_rgba(0,0,0,0.1),0px_8px_10px_-6px_rgba(0,0,0,0.1)]'>
           <FloatingScrollbar target={list} />
           {loading && groups.length === 0 && (
             <div className='flex flex-col gap-2 px-3 py-2' aria-label={t.searching}>

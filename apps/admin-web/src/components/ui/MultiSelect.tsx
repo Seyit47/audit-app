@@ -53,7 +53,7 @@ export function MultiSelect ({ id, options, value, onChange, placeholder, search
         </ul>
       )}
       {open && (
-        <div className='anim-menu-in origin-top absolute inset-x-0 top-full mt-1 z-40 flex max-h-64 flex-col rounded-lg border border-border bg-pure-white shadow-[0px_20px_25px_-5px_rgba(0,0,0,0.1),0px_8px_10px_-6px_rgba(0,0,0,0.1)]'>
+        <div data-popup className='anim-menu-in origin-top absolute inset-x-0 top-full mt-1 z-40 flex max-h-64 flex-col rounded-lg border border-border bg-pure-white shadow-[0px_20px_25px_-5px_rgba(0,0,0,0.1),0px_8px_10px_-6px_rgba(0,0,0,0.1)]'>
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={searchPlaceholder} aria-label={searchPlaceholder} className='m-2 h-9 rounded-md border border-border px-3 text-xs hover:border-slate-400 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20' />
           <ul ref={list} role='listbox' aria-multiselectable className='scrollbar-none overflow-y-auto pb-1'>
             <FloatingScrollbar target={list} />

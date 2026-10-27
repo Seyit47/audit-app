@@ -90,6 +90,9 @@ export function ShopEditDialog ({ shop, agents, products, districts, productIds,
       say(shop == null ? 'created' : 'saved')
       close(true)
     }))
+  }, () => {
+    // The field with the problem may sit below the fold of the scrolling body: bring it (and its message) into view.
+    requestAnimationFrame(() => (document.activeElement as HTMLElement | null)?.scrollIntoView({ block: 'center', behavior: 'smooth' }))
   })
 
   function toggleArchive () {

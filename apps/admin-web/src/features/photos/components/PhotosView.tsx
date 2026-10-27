@@ -157,7 +157,13 @@ export function PhotosView ({ first, query, summary, districts, copy, locale, in
 
       <div className='flex items-start gap-2.5'>
         <div ref={gridBox} className='min-w-0 flex-1'>
-          {items.length === 0 && <p className='rounded-xl bg-pure-white p-10 text-center text-sm text-muted'>{copy.empty}</p>}
+          {items.length === 0 && (
+            <p className='rounded-xl bg-pure-white p-10 text-center text-sm text-muted'>
+              {copy.empty}
+              {/* The default period hides older photos: one click widens it. */}
+              {values.date !== 'all' && <> <button type='button' onClick={() => set({ date: 'all' })} className='font-medium text-accent hover:underline'>{copy.showAllTime}</button></>}
+            </p>
+          )}
           {mode === 'grid'
             ? grid(items)
             : [...byDay.entries()].map(([day, list]) => (

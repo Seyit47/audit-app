@@ -10,7 +10,7 @@ export const photosCopy = defineCopy({
     location: 'District', allLocations: 'All districts',
     status: 'Status', allStatus: 'All status', statuses: { true: 'Verified', false: 'Not verified' },
     date: 'Date', dates: { today: 'Today', '7': 'Last 7 Days', '30': 'Last 30 Days', all: 'All time' },
-    verified: 'Verified', empty: 'No photos match these filters', loading: 'Loading…',
+    verified: 'Verified', empty: 'No photos match these filters', showAllTime: 'Show all time', loading: 'Loading…',
     close: 'Close', assigned: 'Assigned:', duration: 'Duration: {n} min', today2: 'Today',
     agentComment: 'Salesman comment:', violation: 'Violation recorded:', related: 'Related audit photos ({n})', statusActive: 'Active',
     uploadDialog: {
@@ -26,7 +26,7 @@ export const photosCopy = defineCopy({
     location: 'Район', allLocations: 'Все районы',
     status: 'Статус', allStatus: 'Все статусы', statuses: { true: 'Проверено', false: 'Не проверено' },
     date: 'Дата', dates: { today: 'Сегодня', '7': 'Последние 7 дней', '30': 'Последние 30 дней', all: 'За всё время' },
-    verified: 'Проверено', empty: 'Нет фото по этим фильтрам', loading: 'Загрузка…',
+    verified: 'Проверено', empty: 'Нет фото по этим фильтрам', showAllTime: 'Показать за всё время', loading: 'Загрузка…',
     close: 'Закрыть', assigned: 'Ответственный:', duration: 'Длительность: {n} мин', today2: 'Сегодня',
     agentComment: 'Комментарий продавца:', violation: 'Зафиксировано нарушение:', related: 'Связанные фото аудита ({n})', statusActive: 'Активен',
     uploadDialog: {
@@ -42,7 +42,7 @@ export const photosCopy = defineCopy({
     location: 'Etrap', allLocations: 'Ähli etraplar',
     status: 'Ýagdaý', allStatus: 'Ähli ýagdaýlar', statuses: { true: 'Barlandy', false: 'Barlanmadyk' },
     date: 'Sene', dates: { today: 'Şu gün', '7': 'Soňky 7 gün', '30': 'Soňky 30 gün', all: 'Ähli wagt' },
-    verified: 'Barlandy', empty: 'Bu süzgüçler boýunça surat ýok', loading: 'Ýüklenýär…',
+    verified: 'Barlandy', empty: 'Bu süzgüçler boýunça surat ýok', showAllTime: 'Ähli wagty görkez', loading: 'Ýüklenýär…',
     close: 'Ýap', assigned: 'Jogapkär:', duration: 'Dowamlylygy: {n} min', today2: 'Şu gün',
     agentComment: 'Satyjynyň teswiri:', violation: 'Bozulma bellenildi:', related: 'Auditiň baglanyşykly suratlary ({n})', statusActive: 'Işjeň',
     uploadDialog: {

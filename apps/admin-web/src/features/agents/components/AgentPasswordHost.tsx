@@ -36,7 +36,7 @@ function AgentPasswordDialog ({ id, name, copy }: { id: string, name?: string, c
 
   // Each field reports what is wrong once it has been changed, and both on Save.
   const [schema] = useState(() => passwordSchema(f))
-  const { register, control, handleSubmit, formState: { errors } } = useForm<PasswordValues>({
+  const { register, control, handleSubmit, trigger, formState: { errors } } = useForm<PasswordValues>({
     resolver: zodResolver(schema),
     mode: 'onChange',
     defaultValues: { password: '', confirmPassword: '' }
@@ -64,7 +64,7 @@ function AgentPasswordDialog ({ id, name, copy }: { id: string, name?: string, c
       }
     >
       <form id='agent-password-form' noValidate onSubmit={(e) => { void save(e) }} className='flex flex-col gap-2'>
-        <PasswordFields copy={f} label={f.newPassword} autoFocus register={register} control={control} errors={errors} />
+        <PasswordFields copy={f} label={f.newPassword} autoFocus register={register} control={control} errors={errors} trigger={trigger} />
         <p className='text-xs leading-4 text-muted'>{f.passwordHint}</p>
       </form>
     </Dialog>

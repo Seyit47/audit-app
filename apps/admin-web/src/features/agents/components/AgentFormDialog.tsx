@@ -34,7 +34,7 @@ export function AgentFormDialog ({ agent, districts, nextCode, copy, closeHref, 
   const [error, setError] = useState<string | null>(null)
   const [schema] = useState(() => agentSchema(f, agent == null))
   // A field reports what is wrong once it has been changed, and every field on Save.
-  const { register, control, handleSubmit, setValue, formState: { errors } } = useForm<AgentValues, unknown, ReturnType<typeof schema.parse>>({
+  const { register, control, handleSubmit, setValue, trigger, formState: { errors } } = useForm<AgentValues, unknown, ReturnType<typeof schema.parse>>({
     resolver: zodResolver(schema),
     mode: 'onChange',
     defaultValues: {
@@ -80,6 +80,9 @@ export function AgentFormDialog ({ agent, districts, nextCode, copy, closeHref, 
         close(true)
       }
     }))
+  }, () => {
+    // The field with the problem may sit below the fold of the scrolling body: bring it (and its message) into view.
+    requestAnimationFrame(() => (document.activeElement as HTMLElement | null)?.scrollIntoView({ block: 'center', behavior: 'smooth' }))
   })
 
   const device = agent?.device
@@ -117,7 +120,7 @@ export function AgentFormDialog ({ agent, districts, nextCode, copy, closeHref, 
           </FormField>
         </div>
         {/* Sign-in password, set when adding; later changes go through "Изменить пароль" in the row actions. */}
-        {agent == null && <PasswordFields copy={f} register={register} control={control} errors={errors} />}
+        {agent == null && <PasswordFields copy={f} register={register} control={control} errors={errors} trigger={trigger} />}
         {/* The salesman's districts: every shop in them is theirs (asked for; not in the frame). */}
         <FormField variant='form' label={f.districts} hint={f.districtsHint} htmlFor='agent-districts'>
           <Controller
