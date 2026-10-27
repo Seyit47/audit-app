@@ -1285,4 +1285,9 @@ class AppLocalizationsTk extends AppLocalizations {
 
   @override
   String get districtsNoneYet => 'Entek etrap ýok — olary administrator döredýär';
+
+  @override
+  String chosenCount(int count) {
+    return 'Saýlanan: $count';
+  }
 }

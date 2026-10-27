@@ -380,5 +380,6 @@
   "districtOverdue": "{count} overdue",
   "districtActions": "District actions",
   "remove": "Remove",
-  "districtsNoneYet": "No districts yet — an administrator creates them"
+  "districtsNoneYet": "No districts yet — an administrator creates them",
+  "chosenCount": "{count} selected"
 }

@@ -2378,6 +2378,12 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Районов пока нет — их создаёт администратор'**
   String get districtsNoneYet;
+
+  /// No description provided for @chosenCount.
+  ///
+  /// In ru, this message translates to:
+  /// **'Выбрано: {count}'**
+  String chosenCount(int count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

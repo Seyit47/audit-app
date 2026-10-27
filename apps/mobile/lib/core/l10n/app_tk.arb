@@ -380,5 +380,6 @@
   "districtOverdue": "gijikdirilen {count}",
   "districtActions": "Etrap bilen hereketler",
   "remove": "Aýyr",
-  "districtsNoneYet": "Entek etrap ýok — olary administrator döredýär"
+  "districtsNoneYet": "Entek etrap ýok — olary administrator döredýär",
+  "chosenCount": "Saýlanan: {count}"
 }

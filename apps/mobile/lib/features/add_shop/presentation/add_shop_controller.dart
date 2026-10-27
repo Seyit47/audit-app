@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:drift/drift.dart';
@@ -94,14 +95,32 @@ class AddShopController extends Notifier<AddShopState> {
 
   void setDistrict(String? id) => state = state.copyWith(districtId: id);
 
-  /// "Текущее местоположение" and "Проверить заново".
+  StreamSubscription<Fix?>? _fixes;
+  Completer<void>? _searched;
+
+  /// "Текущее местоположение" and "Проверить заново": one search at a time (a new one replaces a running one).
+  /// Completes when the search is over.
   Future<void> locate() async {
+    await _fixes?.cancel();
+    if (_searched?.isCompleted == false) _searched!.complete();
+    final searched = _searched = Completer<void>();
     state = state.copyWith(locating: true);
     // The last known position at once (shown as being refined), then the GPS fix when it answers.
-    await for (final fix in ref.read(locatorProvider).watch()) {
-      if (!ref.mounted) return;
-      _apply(fix);
-    }
+    _fixes = ref
+        .read(locatorProvider)
+        .watch()
+        .listen(
+          (fix) {
+            if (ref.mounted) _apply(fix);
+          },
+          onDone: () {
+            // The search is over: whatever is shown now is the answer (a provisional position never counts).
+            if (ref.mounted && state.locating) _apply(state.fix?.provisional == true ? null : state.fix);
+            if (!searched.isCompleted) searched.complete();
+          },
+        );
+    ref.onDispose(() => _fixes?.cancel());
+    await searched.future;
   }
 
   void _apply(Fix? fix) {

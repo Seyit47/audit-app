@@ -1285,4 +1285,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get districtsNoneYet => 'No districts yet — an administrator creates them';
+
+  @override
+  String chosenCount(int count) {
+    return '$count selected';
+  }
 }

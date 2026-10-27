@@ -104,11 +104,12 @@ class GeolocatorLocator extends Locator {
         await merged.close();
       }
       if (best != null && !best.provisional) return;
-      // No reading at all (indoors, no signal): a recent position from the system counts.
+      // No reading at all (indoors, no signal): a recent position from the system counts; otherwise there
+      // is no usable position (a provisional one shown meanwhile is withdrawn).
       final last = await _lastKnown();
       if (last != null && freshEnough(last.timestamp, DateTime.now())) {
         yield _fix(last);
-      } else if (best == null) {
+      } else {
         yield null;
       }
     } finally {
@@ -235,14 +236,32 @@ class AuditController extends Notifier<AuditState> {
     await locate();
   }
 
-  /// The "Проверить заново" button and the first check on open.
+  StreamSubscription<Fix?>? _fixes;
+  Completer<void>? _searched;
+
+  /// The "Проверить заново" button and the first check on open: one search at a time (a new one replaces a
+  /// running one, so two never overwrite each other's readings). Completes when the search is over.
   Future<void> locate() async {
+    await _fixes?.cancel();
+    if (_searched?.isCompleted == false) _searched!.complete();
+    final searched = _searched = Completer<void>();
     state = state.copyWith(geo: GeoStatus.locating);
     // The last known position at once, then the GPS fix when it answers.
-    await for (final fix in ref.read(locatorProvider).watch()) {
-      if (!ref.mounted) return;
-      _apply(fix);
-    }
+    _fixes = ref
+        .read(locatorProvider)
+        .watch()
+        .listen(
+          (fix) {
+            if (ref.mounted) _apply(fix);
+          },
+          onDone: () {
+            // The search is over: a provisional position never counts.
+            if (ref.mounted && state.geo == GeoStatus.locating) _apply(state.fix?.provisional == true ? null : state.fix);
+            if (!searched.isCompleted) searched.complete();
+          },
+        );
+    ref.onDispose(() => _fixes?.cancel());
+    await searched.future;
   }
 
   void _apply(Fix? fix) {

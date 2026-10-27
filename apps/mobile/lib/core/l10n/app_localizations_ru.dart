@@ -1287,4 +1287,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get districtsNoneYet => 'Районов пока нет — их создаёт администратор';
+
+  @override
+  String chosenCount(int count) {
+    return 'Выбрано: $count';
+  }
 }

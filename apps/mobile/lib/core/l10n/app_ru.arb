@@ -863,5 +863,13 @@
     }
   },
   "remove": "Убрать",
-  "districtsNoneYet": "Районов пока нет — их создаёт администратор"
+  "districtsNoneYet": "Районов пока нет — их создаёт администратор",
+  "chosenCount": "Выбрано: {count}",
+  "@chosenCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

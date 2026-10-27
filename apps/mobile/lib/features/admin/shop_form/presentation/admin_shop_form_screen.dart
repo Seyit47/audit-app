@@ -88,10 +88,14 @@ class _AdminShopFormScreenState extends ConsumerState<AdminShopFormScreen> {
     if (widget.shopId == null) await _locate();
   }
 
+  var _locateSeq = 0;
+
+  /// One search at a time: a "Проверить заново" during a search makes the earlier search's answer void.
   Future<void> _locate() async {
+    final seq = ++_locateSeq;
     setState(() => _locating = true);
     final fix = await ref.read(locatorProvider).current();
-    if (mounted) {
+    if (mounted && seq == _locateSeq) {
       setState(() {
         _fix = fix ?? _fix;
         if (fix != null) _picked = null;
