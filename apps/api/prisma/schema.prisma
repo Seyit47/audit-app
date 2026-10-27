@@ -50,6 +50,7 @@ model RefreshToken {
   mobile     Boolean   @default(false)
   /// "Remember me" on the web: the session idles out after 30 days like a mobile one.
   remember   Boolean   @default(false)
+  /// The session's absolute end (90 days web, a year mobile), carried across rotation.
   expiresAt  DateTime  @db.Timestamptz
   revokedAt  DateTime? @db.Timestamptz
   lastUsedAt DateTime  @default(now()) @db.Timestamptz

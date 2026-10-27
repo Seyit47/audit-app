@@ -101,6 +101,21 @@ test('"remember me" on the web: 30 days idle, kept across rotation', async () =>
   assert.strictEqual((await refresh(last)).statusCode, 401)
 })
 
+test('a web session ends 90 days after sign-in however often it is used; the end survives rotation', async () => {
+  await f.admin(app, 'boss@test.local')
+  const first = (await login({ login: 'boss@test.local', password: f.PASSWORD, remember: true })).json().refreshToken
+  const age = (token: string, days: number) => app.prisma.refreshToken.update({
+    where: { tokenHash: hash(token) }, data: { expiresAt: new Date(Date.now() + days * 86_400_000) }
+  })
+  await age(first, 1) // 89 days in: still fine, and the rotated token keeps the same end
+  const rotated = await refresh(first)
+  assert.strictEqual(rotated.statusCode, 200, rotated.body)
+  const row = await app.prisma.refreshToken.findUnique({ where: { tokenHash: hash(rotated.json().refreshToken) } })
+  assert.ok(row != null && row.expiresAt.getTime() - Date.now() < 2 * 86_400_000, 'the absolute end was carried over, not reset')
+  await age(rotated.json().refreshToken, -0.01)
+  assert.strictEqual((await refresh(rotated.json().refreshToken)).statusCode, 401)
+})
+
 test('deactivated: no login; for 72 h the session may refresh and submit data recorded before deactivation', async () => {
   const g = await f.agent(app)
   const tokens = (await login({ login: g.phone, password: f.PASSWORD, device: device() })).json()
