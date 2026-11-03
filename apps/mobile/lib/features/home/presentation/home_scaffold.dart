@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/config/app_config.dart';
 import '../../../core/l10n/app_localizations.dart';
 import '../../../core/settings/app_settings.dart';
 import '../../../core/settings/remote_config.dart';
@@ -17,7 +18,15 @@ import '../../../core/widgets/adaptive.dart';
 /// Layout shared by the agent and admin Home frames (`83:16786`, `101:1880`, `246:23129`):
 /// glow background, avatar + theme + RU/EN header, tiles, sync pill at the bottom.
 class HomeScaffold extends ConsumerWidget {
-  const HomeScaffold({super.key, required this.tiles, required this.syncing, this.pending = 0, this.onSync, this.serverSettings = false});
+  const HomeScaffold({
+    super.key,
+    required this.tiles,
+    required this.syncing,
+    this.pending = 0,
+    this.onSync,
+    this.serverSettings = false,
+    this.serverSettingsPin = false,
+  });
 
   final List<Widget> tiles;
   final bool syncing;
@@ -28,6 +37,9 @@ class HomeScaffold extends ConsumerWidget {
 
   /// Admins can change the API address from the account menu (agents only behind the login screen's PIN).
   final bool serverSettings;
+
+  /// Asks the build's settings PIN before the server address (agents; admins go straight in).
+  final bool serverSettingsPin;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -60,7 +72,7 @@ class HomeScaffold extends ConsumerWidget {
                           onSelected: (choice) => switch (choice) {
                             // /agent/updates or /admin/updates
                             'updates' => context.push('${GoRouterState.of(context).uri.path}/updates'),
-                            'server' => openServerSettings(context, askPin: false),
+                            'server' => openServerSettings(context, askPin: serverSettingsPin && AppConfig.settingsPin.isNotEmpty),
                             _ => ref.read(signOutServiceProvider).signOut(),
                           },
                           child: const AppIcon('avatar', width: 36, height: 36),

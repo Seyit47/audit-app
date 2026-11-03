@@ -20,6 +20,9 @@ class AgentHomeScreen extends ConsumerWidget {
       syncing: ref.watch(syncStatusProvider) == SyncStatus.syncing,
       pending: ref.watch(syncPendingProvider).value ?? 0,
       onSync: () => context.push('/agent/sync'),
+      // The server address from the account menu, behind the build's settings PIN when one is set.
+      serverSettings: true,
+      serverSettingsPin: true,
       tiles: [
         HomeActionTile(
           icon: 'home-shops',
