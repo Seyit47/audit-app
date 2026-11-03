@@ -14,6 +14,8 @@ class _Store extends Mock implements SessionStore {}
 void main() {
   setUpAll(loadFonts);
   testWidgets('login with a remembered sign-in', (tester) async {
+    // A test in all but folder name: test_screens is the screenshot harness, which the analyzer does not treat as a test.
+    // ignore: invalid_use_of_visible_for_testing_member
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
     final store = _Store();
