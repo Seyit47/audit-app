@@ -2,11 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app.dart';
-import 'features/permission/presentation/permission_screen.dart' show isApproximate;
+import 'core/location/location_grant.dart';
 import 'core/router/app_router.dart';
 import 'core/settings/app_settings.dart';
 import 'core/sync/background_sync.dart';
@@ -24,14 +23,14 @@ Future<void> main() async {
     return true;
   };
   final prefs = await SharedPreferences.getInstance();
-  final permission = await Geolocator.checkPermission();
-  final granted = (permission == LocationPermission.always || permission == LocationPermission.whileInUse) && !await isApproximate();
+  final granted = await readLocationGrant() == LocationGrant.granted;
   await registerBackgroundSync();
   runApp(
     ProviderScope(
       overrides: [
         sharedPreferencesProvider.overrideWithValue(prefs),
-        // Approximate location (Android 12+) counts as not granted: the permission screen asks for precise.
+        // "While using the app" or approximate location counts as not granted: the permission screen asks
+        // for "all the time" and precise, which background tracking needs.
         initialLocationGrantedProvider.overrideWithValue(granted),
       ],
       child: const AuditApp(),

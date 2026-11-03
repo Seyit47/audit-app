@@ -113,6 +113,10 @@ class AppLocalizationsTk extends AppLocalizations {
   String get permissionDenied => 'Auditler üçin ýerleşişe rugsat gerek. Ony sazlamalarda beriň.';
 
   @override
+  String get permissionAlways =>
+      'Ýerleşiş diňe programma açykka rugsat berlen, şonuň üçin ekran öçülende marşrut kesilýär. «Hemişe rugsat ber» saýlaň: programmanyň sazlamalarynda Rugsatlar → Ýerleşiş açyň.';
+
+  @override
   String get cancel => 'Ýatyr';
 
   @override

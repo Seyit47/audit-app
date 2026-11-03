@@ -113,6 +113,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get permissionDenied => 'Без доступа к геолокации аудит недоступен. Разрешите доступ в настройках.';
 
   @override
+  String get permissionAlways =>
+      'Геолокация разрешена только при использовании приложения, поэтому маршрут обрывается, когда экран выключен. Выберите «Разрешать всегда»: в настройках приложения откройте Разрешения → Местоположение.';
+
+  @override
   String get cancel => 'Отмена';
 
   @override

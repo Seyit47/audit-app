@@ -113,6 +113,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get permissionDenied => 'Audits need location access. Allow it in the settings.';
 
   @override
+  String get permissionAlways =>
+      'Location is allowed only while the app is open, so the route stops when the screen is off. Choose “Allow all the time”: in the app\'s settings open Permissions → Location.';
+
+  @override
   String get cancel => 'Cancel';
 
   @override

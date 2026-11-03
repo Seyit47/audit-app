@@ -30,6 +30,7 @@ import '../../features/shop_details/presentation/shop_details_screen.dart';
 import '../../features/shops/presentation/shops_screen.dart';
 import '../auth/session_provider.dart';
 import 'redirect.dart';
+import '../location/location_grant.dart';
 
 /// Whether location is granted (checked at start in `main`, updated by the permission screen, A9).
 /// The app's top navigator: code outside widgets (photo capture) opens full-screen pages with it.
@@ -43,6 +44,10 @@ class LocationGranted extends Notifier<bool> {
   bool build() => ref.watch(initialLocationGrantedProvider);
 
   void set(bool granted) => state = granted;
+
+  /// Re-reads the OS grant: on return from the settings, and whenever the app comes to the foreground (an
+  /// agent who later turns "all the time" off is sent back to the permission screen).
+  Future<void> refresh() async => state = await readLocationGrant() == LocationGrant.granted;
 }
 
 /// Routes per contracts/screens.md. Each story adds its screens here.

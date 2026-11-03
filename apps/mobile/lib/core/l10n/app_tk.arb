@@ -34,6 +34,7 @@
   "permissionAllow": "Rugsat ber",
   "permissionSettings": "Sazlamalary aç",
   "permissionDenied": "Auditler üçin ýerleşişe rugsat gerek. Ony sazlamalarda beriň.",
+  "permissionAlways": "Ýerleşiş diňe programma açykka rugsat berlen, şonuň üçin ekran öçülende marşrut kesilýär. «Hemişe rugsat ber» saýlaň: programmanyň sazlamalarynda Rugsatlar → Ýerleşiş açyň.",
   "cancel": "Ýatyr",
   "save": "Ýatda sakla",
   "retry": "Gaýtadan synanyş",

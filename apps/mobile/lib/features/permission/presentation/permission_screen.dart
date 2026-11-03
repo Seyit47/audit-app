@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../../../core/l10n/app_localizations.dart';
+import '../../../core/location/location_grant.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
@@ -10,8 +11,9 @@ import '../../../core/widgets/app_icon.dart';
 import '../../../core/widgets/buttons.dart';
 import '../../../core/widgets/home_header.dart';
 
-/// Why location is needed, shown before the OS dialogs (approved exception A9). Built from the
-/// Home background, the add-shop icon tile style and the primary button.
+/// Why location is needed, shown before the OS dialogs (approved exception A9), and until it is allowed
+/// "all the time" and precise. Built from the Home background, the add-shop icon tile style and the
+/// primary button.
 class PermissionScreen extends ConsumerStatefulWidget {
   const PermissionScreen({super.key});
 
@@ -20,10 +22,29 @@ class PermissionScreen extends ConsumerStatefulWidget {
 }
 
 class _PermissionScreenState extends ConsumerState<PermissionScreen> {
-  bool _denied = false;
+  /// What the last attempt ended with (null before the first tap).
+  LocationGrant? _grant;
+  late final AppLifecycleListener _lifecycle;
 
-  /// Granted, but only "approximate" (Android 12+): ~1–3 km, useless for audits.
-  bool _approximate = false;
+  @override
+  void initState() {
+    super.initState();
+    // Back from the OS settings: read the result without asking again.
+    _lifecycle = AppLifecycleListener(onResume: _recheck);
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
+  }
+
+  Future<void> _recheck() async {
+    final grant = await readLocationGrant();
+    if (!mounted) return;
+    if (_grant != null) setState(() => _grant = grant);
+    ref.read(locationGrantedProvider.notifier).set(grant == LocationGrant.granted);
+  }
 
   Future<void> _request() async {
     if (!await Geolocator.isLocationServiceEnabled()) {
@@ -32,31 +53,29 @@ class _PermissionScreenState extends ConsumerState<PermissionScreen> {
     }
     var permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) permission = await Geolocator.requestPermission();
-    // Background tracking needs "always": Android asks for it as a second step.
+    // Background tracking needs "all the time": Android 10 asks in a second dialog, Android 11+ opens the
+    // app's location settings for it.
     if (permission == LocationPermission.whileInUse) permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.deniedForever) {
-      setState(() => _denied = true);
-      await Geolocator.openAppSettings();
-      return;
-    }
-    var granted = permission == LocationPermission.always || permission == LocationPermission.whileInUse;
-    final approximate = granted && await isApproximate();
-    if (approximate) {
-      // Precise location is a switch in the app's permission settings.
-      if (_approximate) await Geolocator.openAppSettings();
-      granted = false;
-    }
-    setState(() {
-      _denied = !granted && !approximate;
-      _approximate = approximate;
-    });
-    ref.read(locationGrantedProvider.notifier).set(granted);
+    final allowed = permission == LocationPermission.always || permission == LocationPermission.whileInUse;
+    final grant = grantOf(permission, approximate: allowed && await isApproximate());
+    // Refused for good, or the same shortfall as last time: only the app's settings can change it ("all the
+    // time" and "precise" are switches there).
+    if (grant == LocationGrant.deniedForever || (grant != LocationGrant.granted && grant == _grant)) await Geolocator.openAppSettings();
+    if (!mounted) return;
+    setState(() => _grant = grant);
+    ref.read(locationGrantedProvider.notifier).set(grant == LocationGrant.granted);
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final c = context.colors;
+    final problem = switch (_grant) {
+      LocationGrant.whileInUse => l10n.permissionAlways,
+      LocationGrant.approximate => l10n.permissionPrecise,
+      LocationGrant.denied || LocationGrant.deniedForever => l10n.permissionDenied,
+      LocationGrant.granted || null => null,
+    };
     return Scaffold(
       body: Stack(
         children: [
@@ -93,24 +112,16 @@ class _PermissionScreenState extends ConsumerState<PermissionScreen> {
                     textAlign: TextAlign.center,
                     style: AppTextStyles.caption.copyWith(color: c.textSecondary, fontWeight: FontWeight.w500, height: 1.5),
                   ),
-                  if (_approximate) ...[
+                  if (problem != null) ...[
                     const SizedBox(height: 12),
                     Text(
-                      l10n.permissionPrecise,
-                      textAlign: TextAlign.center,
-                      style: AppTextStyles.caption.copyWith(color: c.error),
-                    ),
-                  ],
-                  if (_denied) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      l10n.permissionDenied,
+                      problem,
                       textAlign: TextAlign.center,
                       style: AppTextStyles.caption.copyWith(color: c.error),
                     ),
                   ],
                   const Spacer(),
-                  PrimaryButton(label: _denied || _approximate ? l10n.permissionSettings : l10n.permissionAllow, onPressed: _request),
+                  PrimaryButton(label: _grant == null || _grant == LocationGrant.denied ? l10n.permissionAllow : l10n.permissionSettings, onPressed: _request),
                 ],
               ),
             ),
@@ -118,14 +129,5 @@ class _PermissionScreenState extends ConsumerState<PermissionScreen> {
         ],
       ),
     );
-  }
-}
-
-/// Whether location is granted only approximately (Android 12+ "Approximate"): audits need precise.
-Future<bool> isApproximate() async {
-  try {
-    return await Geolocator.getLocationAccuracy() == LocationAccuracyStatus.reduced;
-  } catch (_) {
-    return false;
   }
 }

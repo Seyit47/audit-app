@@ -297,6 +297,12 @@ abstract class AppLocalizations {
   /// **'Без доступа к геолокации аудит недоступен. Разрешите доступ в настройках.'**
   String get permissionDenied;
 
+  /// No description provided for @permissionAlways.
+  ///
+  /// In ru, this message translates to:
+  /// **'Геолокация разрешена только при использовании приложения, поэтому маршрут обрывается, когда экран выключен. Выберите «Разрешать всегда»: в настройках приложения откройте Разрешения → Местоположение.'**
+  String get permissionAlways;
+
   /// No description provided for @cancel.
   ///
   /// In ru, this message translates to:

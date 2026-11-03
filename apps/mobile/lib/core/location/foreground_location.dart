@@ -30,6 +30,7 @@ final foregroundLocationProvider = Provider<void>((ref) {
     onResume: () {
       foreground = true;
       sync();
+      ref.read(locationGrantedProvider.notifier).refresh();
     },
     onPause: () {
       foreground = false;

@@ -34,6 +34,7 @@
   "permissionAllow": "Allow",
   "permissionSettings": "Open settings",
   "permissionDenied": "Audits need location access. Allow it in the settings.",
+  "permissionAlways": "Location is allowed only while the app is open, so the route stops when the screen is off. Choose “Allow all the time”: in the app's settings open Permissions → Location.",
   "cancel": "Cancel",
   "save": "Save",
   "retry": "Retry",
