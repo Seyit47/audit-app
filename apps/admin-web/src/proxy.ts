@@ -4,16 +4,15 @@ import { COOKIES, createSession, isExpiring, type CookieStore } from './lib/sess
 const API_URL = process.env.API_URL ?? 'http://localhost:3000'
 
 // Signed-in admins skip /login; everyone else needs a session. Access tokens are refreshed here,
-// ahead of expiry, because Server Components cannot write cookies.
+// ahead of expiry, because Server Components cannot write cookies. On /login a session is proven by a
+// refresh first: cookies left by another API (a second instance on this host, a reset secret) would
+// otherwise bounce between /login and the pages forever, since a render cannot clear them.
 export async function proxy (request: NextRequest) {
   const isLogin = request.nextUrl.pathname === '/login'
   const hasSession = request.cookies.has(COOKIES.refresh)
 
-  if (isLogin) {
-    return hasSession ? NextResponse.redirect(new URL('/map', request.url)) : NextResponse.next()
-  }
-  if (!hasSession) return NextResponse.redirect(new URL('/login', request.url))
-  if (!isExpiring(request.cookies.get(COOKIES.access)?.value)) return NextResponse.next()
+  if (!hasSession) return isLogin ? NextResponse.next() : NextResponse.redirect(new URL('/login', request.url))
+  if (!isLogin && !isExpiring(request.cookies.get(COOKIES.access)?.value)) return NextResponse.next()
 
   const writes: Array<(res: NextResponse) => void> = []
   const store: CookieStore = {
@@ -28,9 +27,9 @@ export async function proxy (request: NextRequest) {
     }
   }
   const ok = await createSession({ cookies: store, fetch, apiUrl: API_URL }).refresh()
-  const res = ok
-    ? NextResponse.next({ request: { headers: request.headers } })
-    : NextResponse.redirect(new URL('/login', request.url))
+  const res = isLogin
+    ? (ok ? NextResponse.redirect(new URL('/map', request.url)) : NextResponse.next())
+    : (ok ? NextResponse.next({ request: { headers: request.headers } }) : NextResponse.redirect(new URL('/login', request.url)))
   for (const write of writes) write(res)
   return res
 }

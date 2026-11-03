@@ -1,6 +1,9 @@
 // Session logic shared by server code (session.ts) and proxy.ts. Framework-free so it can be tested.
 
-export const COOKIES = { access: 'at', refresh: 'rt', remember: 'rm' } as const
+// Browsers share cookies between ports of one host: two admin webs on the same server (a second instance,
+// see the installer) would overwrite each other's session. COOKIE_PREFIX keeps them apart ("demo_").
+const prefix = process.env.COOKIE_PREFIX ?? ''
+export const COOKIES = { access: `${prefix}at`, refresh: `${prefix}rt`, remember: `${prefix}rm` } as const
 
 // The API ends refresh tokens after 12 h idle (30 days with "remember me"); the cookie lives as long so it
 // never outlives the token. The `rm` cookie carries the choice across refreshes.
