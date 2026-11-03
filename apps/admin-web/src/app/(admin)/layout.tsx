@@ -8,6 +8,8 @@ import type { FeedPage } from '@/features/feed/types'
 import { api } from '@/lib/api'
 import { getLocale } from '@/lib/locale'
 import { getMe } from '@/lib/me'
+import { setDisplayTimeZone } from '@/lib/time-zone'
+import { TimeZone } from '@/components/TimeZone'
 import { QueryProvider } from '@/components/QueryProvider'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 
@@ -18,10 +20,13 @@ export default async function AdminLayout ({ children }: LayoutProps<'/'>) {
     api<FeedPage>('/v1/feed', { query: { limit: 1 } }).catch(() => null)
   ])
   const copy = layoutCopy[locale]
+  // Every date below is shown in the company's zone: set for this server render, and for the browser.
+  setDisplayTimeZone(config.timezone)
 
   return (
     <NuqsAdapter>
     <QueryProvider>
+    <TimeZone tz={config.timezone} />
     <div className='flex min-h-screen'>
       <Sidebar companyName={config.companyName} logoUrl={config.logo?.previewUrl400 ?? config.logo?.url ?? null} copy={copy} />
       <div className='flex min-w-0 flex-1 flex-col'>

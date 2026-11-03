@@ -10,6 +10,7 @@ import { formatPhone } from '@/lib/format'
 import { sub, type Locale, pick, formatDate } from '@/lib/i18n'
 import type { MapCopy } from '../copy'
 import { FloatingScrollbar } from '@/components/ui/FloatingScrollbar'
+import { isToday } from '@/lib/time-zone'
 
 function Info ({ label, children }: { label: string, children: ReactNode }) {
   return (
@@ -22,7 +23,7 @@ function Info ({ label, children }: { label: string, children: ReactNode }) {
 
 function dayTime (iso: string, locale: Locale) {
   const d = new Date(iso)
-  const day = d.toDateString() === new Date().toDateString()
+  const day = isToday(d)
     ? pick(locale, { ru: 'Сегодня', en: 'Today', tk: 'Şu gün' })
     : formatDate(locale, { day: 'numeric', month: 'short' }, d)
   return `${day}, ${hhmm(iso, locale)}`

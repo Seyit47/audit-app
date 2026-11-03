@@ -5,7 +5,7 @@ import { DateField } from '@/components/ui/DateField'
 import { AppliedFilters, FilterChip } from '@/components/ui/FilterChip'
 import { FilterSelect } from '@/components/ui/FilterSelect'
 import { SegmentedControl } from '@/components/ui/SegmentedControl'
-import { isoDay } from '@/lib/format'
+import { isoDay, shiftDay, weekdayOf } from '@/lib/time-zone'
 import { useListParams } from '@/lib/use-list-params'
 import { agentsParams, periodParams } from '../search-params'
 import type { AgentsCopy } from '../copy'
@@ -13,16 +13,10 @@ import type { AgentsCopy } from '../copy'
 type Preset = 'today' | 'yesterday' | 'week'
 
 function presetRange (p: Preset): { from: string, to: string } {
-  const now = new Date()
-  if (p === 'yesterday') {
-    const y = new Date(now); y.setDate(now.getDate() - 1)
-    return { from: isoDay(y), to: isoDay(y) }
-  }
-  if (p === 'week') {
-    const monday = new Date(now); monday.setDate(now.getDate() - ((now.getDay() + 6) % 7))
-    return { from: isoDay(monday), to: isoDay(now) }
-  }
-  return { from: isoDay(now), to: isoDay(now) }
+  const today = isoDay()
+  if (p === 'yesterday') return { from: shiftDay(today, -1), to: shiftDay(today, -1) }
+  if (p === 'week') return { from: shiftDay(today, -weekdayOf(today)), to: today }
+  return { from: today, to: today }
 }
 
 /** Дата от / Дата до and the Сегодня / Вчера / Текущая неделя presets (31:2430, 122:8163), in the URL. */

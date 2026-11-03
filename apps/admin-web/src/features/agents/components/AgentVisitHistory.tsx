@@ -1,13 +1,14 @@
 import Link from 'next/link'
 import { VisitHistoryItem } from '@/components/ui/VisitHistoryItem'
 import { sub, type Locale, formatDate } from '@/lib/i18n'
+import { isToday } from '@/lib/time-zone'
 import type { AgentVisits } from '../api'
 import type { AgentsCopy } from '../copy'
 import { hhmm } from './RouteTimeline'
 
 function dayTime (iso: string, locale: Locale, today: string) {
   const d = new Date(iso)
-  if (d.toDateString() === new Date().toDateString()) return `${today}, ${hhmm(iso, locale)}`
+  if (isToday(d)) return `${today}, ${hhmm(iso, locale)}`
   return `${formatDate(locale, { day: 'numeric', month: 'short' }, d)}, ${hhmm(iso, locale)}`
 }
 

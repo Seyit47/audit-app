@@ -1,4 +1,5 @@
 // Admin web languages (constitution: Localization; spec gap A12). Russian is the default; Turkmen (Latin script).
+import { displayTimeZone } from './time-zone'
 export const LOCALES = ['ru', 'en', 'tk'] as const
 export type Locale = typeof LOCALES[number]
 export const DEFAULT_LOCALE: Locale = 'ru'
@@ -23,14 +24,19 @@ const TK_MONTHS = {
   long: ['ýanwar', 'fewral', 'mart', 'aprel', 'maý', 'iýun', 'iýul', 'awgust', 'sentýabr', 'oktýabr', 'noýabr', 'dekabr']
 }
 
-/** `Intl.DateTimeFormat(locale, options).format(date)` that also works for Turkmen ("7 okt 2026, 18:44"). */
+/**
+ * `Intl.DateTimeFormat(locale, options).format(date)` in the company time zone (see time-zone.ts), that also
+ * works for Turkmen ("7 okt 2026, 18:44").
+ */
 export function formatDate (locale: Locale, options: Intl.DateTimeFormatOptions, date: Date | string): string {
   const d = new Date(date)
-  const format = new Intl.DateTimeFormat(intlTag(locale), options)
+  const timeZone = displayTimeZone()
+  const format = new Intl.DateTimeFormat(intlTag(locale), { timeZone, ...options })
   if (locale !== 'tk') return format.format(d)
   const month = options.month === 'short' || options.month === 'long' ? TK_MONTHS[options.month] : null
+  const monthIndex = Number(new Intl.DateTimeFormat('en-US', { timeZone, month: 'numeric' }).format(d)) - 1
   return format.formatToParts(d).map((part) => {
-    if (part.type === 'month' && month != null) return month[d.getMonth()]
+    if (part.type === 'month' && month != null) return month[monthIndex]
     if (part.type === 'literal') return part.value.replace(/\s?г\./, '')
     return part.value
   }).join('')

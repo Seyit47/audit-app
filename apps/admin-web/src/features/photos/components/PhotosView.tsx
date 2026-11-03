@@ -18,6 +18,7 @@ import { loadPhotos } from '../actions'
 import { getJson, getQueryClient } from '@/lib/query'
 import type { PhotosCopy } from '../copy'
 import type { GalleryPage, GalleryPhoto, GalleryQuery, PhotoDetail } from '../types'
+import { isToday } from '@/lib/time-zone'
 
 const tag = intlTag
 const sub = (s: string, n: number | string) => s.replace('{n}', String(n))
@@ -226,7 +227,7 @@ function PendingDetail ({ photo, copy, onClose }: { photo: GalleryPhoto, copy: P
 
 function Detail ({ detail: d, copy, locale, onClose, onOpen }: { detail: PhotoDetail, copy: PhotosCopy, locale: Locale, onClose: () => void, onOpen: (p: GalleryPhoto) => void }) {
   const time = (iso: string) => formatDate(locale, { hour: '2-digit', minute: '2-digit', hour12: false }, new Date(iso))
-  const day = (iso: string) => new Date(iso).toDateString() === new Date().toDateString()
+  const day = (iso: string) => isToday(iso)
     ? copy.today2
     : formatDate(locale, { day: 'numeric', month: 'short' }, new Date(iso))
   return (

@@ -5,14 +5,14 @@ import type { GalleryPage, GalleryQuery, PhotoDetail } from '@/features/photos/t
 import { api } from '@/lib/api'
 import { getLocale } from '@/lib/locale'
 import { loadPicturesParams } from '@/features/photos/search-params'
+import { isoDay, startOfDay } from '@/lib/time-zone'
 
 type Search = Record<string, string | undefined>
 
 function since (date: string | undefined): string | undefined {
   if (date === 'all') return undefined
-  const d = new Date()
-  if (date === 'today') d.setHours(0, 0, 0, 0)
-  else d.setDate(d.getDate() - Number(date === '30' ? 30 : 7))
+  // "Today" starts at the company's midnight; the other periods are whole days back from now.
+  const d = date === 'today' ? startOfDay(isoDay()) : new Date(Date.now() - Number(date === '30' ? 30 : 7) * 86_400_000)
   return d.toISOString()
 }
 

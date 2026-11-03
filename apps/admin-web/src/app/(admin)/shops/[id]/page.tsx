@@ -11,12 +11,13 @@ import { ApiError } from '@/lib/api'
 import { sub, type Locale, formatDate } from '@/lib/i18n'
 import { getLocale } from '@/lib/locale'
 import { parseAsUuid } from '@/lib/search-params'
+import { isToday } from '@/lib/time-zone'
 
 function dayTime (iso: string, l: Locale, today: string, withDate = true) {
   const d = new Date(iso)
   const time = formatDate(l, { hour: '2-digit', minute: '2-digit', hour12: false }, d)
   if (!withDate) return time
-  if (d.toDateString() === new Date().toDateString()) return `${today}, ${time}`
+  if (isToday(d)) return `${today}, ${time}`
   return `${formatDate(l, { day: 'numeric', month: 'short' }, d)}, ${time}`
 }
 

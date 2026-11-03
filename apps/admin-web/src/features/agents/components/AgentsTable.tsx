@@ -9,6 +9,7 @@ import type { Locale } from '@/lib/i18n'
 import type { Page } from '@/lib/api'
 import type { AgentRow } from '../api'
 import type { AgentsCopy } from '../copy'
+import { isToday } from '@/lib/time-zone'
 
 const num = 'px-3 text-right font-display font-bold text-ink'
 
@@ -39,7 +40,7 @@ export function AgentsTable ({ page, copy, locale, sort }: { page: Page<AgentRow
     {
       key: 'last', header: copy.columns.lastActivity, width: 112, sortKey: 'lastActivityAt',
       render: (a) => {
-        const fresh = a.lastActivityAt != null && new Date(a.lastActivityAt).toDateString() === new Date().toDateString()
+        const fresh = a.lastActivityAt != null && isToday(a.lastActivityAt)
         return <span className={fresh ? 'font-semibold text-success' : 'font-medium text-muted'}>{lastActivity(a.lastActivityAt, locale)}</span>
       }
     },

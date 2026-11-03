@@ -26,6 +26,7 @@ import { StatusDialog } from '@/components/ui/StatusDialog'
 import { assignShops, deleteShops, moveShops, setShopStatus } from '../actions'
 import type { ShopRow } from '../api'
 import type { ShopsCopy } from '../copy'
+import { isToday } from '@/lib/time-zone'
 
 type AgentOption = { id: string, fullName: string, code: string }
 type DistrictOption = { id: string, name: string }
@@ -34,7 +35,7 @@ type DistrictOption = { id: string, name: string }
 function visitTime (iso: string, l: Locale, today: string) {
   const d = new Date(iso)
   const time = formatDate(l, { hour: '2-digit', minute: '2-digit', hour12: l === 'en' }, d)
-  if (d.toDateString() === new Date().toDateString()) return `${today}, ${time}`
+  if (isToday(d)) return `${today}, ${time}`
   return `${formatDate(l, { month: 'short', day: 'numeric' }, d)}, ${time}`
 }
 

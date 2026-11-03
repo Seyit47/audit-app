@@ -4,7 +4,7 @@ import { api } from './api'
 
 export interface Me {
   user: { id: string, role: 'ADMIN' | 'AGENT', email: string | null }
-  config: { companyName: string, logo: { url: string, previewUrl400: string | null } | null }
+  config: { companyName: string, logo: { url: string, previewUrl400: string | null } | null, timezone: string }
 }
 
 /** The signed-in user and company config, fetched once per request. */

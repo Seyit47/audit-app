@@ -15,6 +15,7 @@ import { loadFeed, markFeedSeen } from '@/features/feed/actions'
 import type { FeedCopy } from '@/features/feed/copy'
 import type { FeedItem } from '@/features/feed/types'
 import type { Locale } from '@/lib/i18n'
+import { isToday } from '@/lib/time-zone'
 
 const POLL_MS = 30_000
 const noop = () => () => {}
@@ -22,7 +23,7 @@ const noop = () => () => {}
 function when (iso: string, locale: Locale, today: string) {
   const d = new Date(iso)
   const time = formatDate(locale, { hour: '2-digit', minute: '2-digit', hour12: false }, d)
-  if (d.toDateString() === new Date().toDateString()) return `${today}, ${time}`
+  if (isToday(d)) return `${today}, ${time}`
   return `${formatDate(locale, { day: 'numeric', month: 'short' }, d)}, ${time}`
 }
 

@@ -1,5 +1,8 @@
 import { intlTag, pick, formatDate } from '@/lib/i18n'
 import type { Locale } from './i18n'
+import { daysBetween, isToday } from './time-zone'
+
+export { isoDay } from './time-zone'
 
 const tag = intlTag
 
@@ -15,13 +18,11 @@ export function lastActivity (iso: string | null, locale: Locale, now = new Date
   if (mins < 1) return pick(locale, { ru: 'Только что', en: 'Just now', tk: 'Ýaňy' })
   if (mins < 60) return ago(mins, 'minute')
   const time = formatDate(locale, { hour: '2-digit', minute: '2-digit', hour12: false }, at)
-  if (at.toDateString() === now.toDateString()) return `${pick(locale, { ru: 'Сегодня', en: 'Today', tk: 'Şu gün' })}, ${time}`
-  const days = Math.round((startOfDay(now) - startOfDay(at)) / 86_400_000)
+  if (isToday(at, now)) return `${pick(locale, { ru: 'Сегодня', en: 'Today', tk: 'Şu gün' })}, ${time}`
+  const days = daysBetween(at, now)
   if (days === 1) return `${pick(locale, { ru: 'Вчера', en: 'Yesterday', tk: 'Düýn' })}, ${time}`
   return ago(days, 'day')
 }
-
-const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
 
 /** "+993 65 124582" → "65 124582" as in 31:2307. */
 export const shortPhone = (phone: string) => phone.replace(/^\+993\s?/, '').replace(/^(\d{2})(\d+)$/, '$1 $2')
@@ -30,9 +31,6 @@ export const number = (n: number, locale: Locale) => new Intl.NumberFormat(tag(l
 
 /** 92.3 → "92.3%" ("92,3%" in Russian); null → "—". */
 export const percent = (n: number | null, locale: Locale) => (n == null ? '—' : `${new Intl.NumberFormat(tag(locale), { maximumFractionDigits: 1 }).format(n)}%`)
-
-/** YYYY-MM-DD in the browser's local time. */
-export const isoDay = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 
 /** Turkmen numbers as in the frames: "+993 12 94-20-11". Other numbers are returned unchanged. */
 export function formatPhone (phone: string): string {

@@ -4,6 +4,7 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import { setWorkerUrl } from 'maplibre-gl'
 import { forwardRef, type ReactNode } from 'react'
 import MapGL, { Layer, Marker, Source, type MapRef, type StyleSpecification, type ViewState } from 'react-map-gl/maplibre'
+import { isoDay, startOfDay } from '@/lib/time-zone'
 
 // Served from /map by scripts/copy-maplibre-worker.mjs (Turbopack can't resolve the bundled worker).
 setWorkerUrl('/map/maplibre-gl-worker.mjs')
@@ -85,7 +86,7 @@ export function ClusterMarker ({ longitude, latitude, count, unitLabel, onClick 
 
 /** Today's visit state from a shop's dates (as the API's map does), for pages that get the shop itself. */
 export function visitStateOf (lastVisitAt: string | null, nextDueAt: string | null, now = new Date()): string {
-  const dayStart = new Date(now); dayStart.setHours(0, 0, 0, 0)
+  const dayStart = startOfDay(isoDay(now))
   const dayEnd = new Date(dayStart.getTime() + 86_400_000)
   if (lastVisitAt != null && new Date(lastVisitAt) >= dayStart) return 'VISITED'
   if (nextDueAt != null && new Date(nextDueAt) < dayStart) return 'OVERDUE'
